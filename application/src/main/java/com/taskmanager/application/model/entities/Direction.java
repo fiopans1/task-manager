@@ -1,4 +1,4 @@
-package com.taskmanager.application.model;
+package com.taskmanager.application.model.entities;
 
 import jakarta.persistence.Embeddable;
 import lombok.Data;
