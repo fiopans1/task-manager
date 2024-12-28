@@ -30,12 +30,12 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    @Column(unique = true)
+    private String email;
+
     private String password;
 
     private int age;
-
-    @Column(unique = true)
-    private String email;
 
     private Date creationDate;
 
@@ -43,7 +43,7 @@ public class User {
     private List<Task> tasksForUser;
 
     @Embedded
-    private Direction direction;
+    private FullName name;
 
     public User(){}
 
@@ -52,9 +52,6 @@ public class User {
     }
     public Date getCreationDate() {
         return creationDate;
-    }
-    public Direction getDirection() {
-        return direction;
     }
     public String getEmail() {
         return email;
@@ -71,14 +68,17 @@ public class User {
     public String getUsername() {
         return username;
     }
+    public FullName getName() {
+        return name;
+    }
+    public void setName(FullName name) {
+        this.name = name;
+    }
     public void setAge(int age) {
         this.age = age;
     }
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-    public void setDirection(Direction direction) {
-        this.direction = direction;
     }
     public void setEmail(String email) {
         this.email = email;

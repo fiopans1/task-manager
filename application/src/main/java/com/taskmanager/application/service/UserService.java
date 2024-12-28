@@ -9,14 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-
-
-
-
-
-
-
-
 @Service
 public class UserService {
 
@@ -50,11 +42,21 @@ public class UserService {
     }
 
     public User findUsersByUserName(String name) {
-        return userRepository.findByUsername(name);
+        Optional<User> user = userRepository.findByUsername(name);
+        if(user.isPresent()){
+            return user.get();
+        }else{
+            throw new ResourceNotFoundException("User not found with name: "+name);
+        }
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent()){
+            return user.get();
+        }else{
+            throw new ResourceNotFoundException("User not found with email: "+email);
+        }
     }
 
     
