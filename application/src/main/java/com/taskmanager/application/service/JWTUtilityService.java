@@ -4,7 +4,10 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
@@ -15,8 +18,11 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,13 +49,13 @@ public class JWTUtilityService {
         String privateKeyPEM = new String(keyBytes,StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----","")
                 .replace("-----END PRIVATE KEY-----","")
-                .replaceAll("\s","");
+                .replaceAll("\\s","");
 
         byte[] decodeKey = Base64.getDecoder().decode(privateKeyPEM);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         
 
-        return keyFactory.generatePrivate(new X509EncodedKeySpec(decodeKey));
+        return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decodeKey));
     }
 
     private PublicKey loadPublicKey(Resource resource) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -57,7 +63,7 @@ public class JWTUtilityService {
         String publicKeyPEM = new String(keyBytes,StandardCharsets.UTF_8)
                 .replace("-----BEGIN PUBLIC KEY-----","")
                 .replace("-----END PUBLIC KEY-----","")
-                .replaceAll("\s","");
+                .replaceAll("\\s","");
 
         byte[] decodeKey = Base64.getDecoder().decode(publicKeyPEM);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -82,5 +88,23 @@ public class JWTUtilityService {
         return signedJWT.serialize();
     }
 
+    public JWTClaimsSet parseJWT(String jwt) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException, ParseException {
+        PublicKey publicKey = loadPublicKey(publicKeyResource);
+        SignedJWT signedJWT = SignedJWT.parse(jwt);
+
+        JWSVerifier verifier = new RSASSAVerifier( (RSAPublicKey) publicKey);
+
+        if(!signedJWT.verify(verifier)){
+            throw new JOSEException("Signature verification failed");
+        }
+
+        JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+        if(claimsSet.getExpirationTime().before(new Date())){
+            throw new JOSEException("Token expired");
+        }
+
+        return claimsSet;
+    }
 
 }
