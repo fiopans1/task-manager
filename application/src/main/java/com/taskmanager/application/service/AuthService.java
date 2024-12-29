@@ -8,6 +8,9 @@ import com.taskmanager.application.respository.UserRepository;
 import java.util.HashMap;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,14 +32,14 @@ public class AuthService {
 
         try{
             HashMap<String,String> response = new HashMap<>();
-            Optional<User> user = userRepository.findByEmail(login.getEmail());
+            Optional<User> user = userRepository.findByUsername(login.getUsername());
             if(user.isEmpty()){
                 response.put("error", "User not registered!");
                 return response;
             }
 
             if(verifyPassword(login.getPassword(), user.get().getPassword())){
-                String token = jwtUtilityService.generateJWT(user.get().getId());
+                String token = jwtUtilityService.generateJWT(user.get());
                 response.put("token", token);
                 return response;
             }else{
@@ -60,7 +63,7 @@ public class AuthService {
             if(response.getErrorCount() > 0){
                 return response;
             }
-            Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+            Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
             if(existingUser.isPresent()){
                 response.addErrorMessage("User already registered!");
                 return response;
@@ -77,5 +80,17 @@ public class AuthService {
         }
         
     }
+
+    // public Optional<User> getAuthenticatedUser() {
+    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    //     if (authentication != null && authentication.isAuthenticated()) {
+    //         Object principal = authentication.getPrincipal();
+    //         if (principal instanceof UserDetails) {
+    //             String username = ((UserDetails) principal).getUsername();
+    //             return userRepository.findByUsername(username);
+    //         }
+    //     }
+    //     return null;
+    // }
 
 }

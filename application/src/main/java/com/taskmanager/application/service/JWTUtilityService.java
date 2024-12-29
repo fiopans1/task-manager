@@ -7,9 +7,10 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.taskmanager.application.model.entities.User;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -70,14 +71,14 @@ public class JWTUtilityService {
         return keyFactory.generatePublic(new X509EncodedKeySpec(decodeKey));
     }
 
-    public String generateJWT(Long userId)throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException{
+    public String generateJWT(User user)throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException{
         PrivateKey privateKey = loadPrivateKey(privateKeyResource);
 
         JWSSigner signer = new RSASSASigner(privateKey);
 
         Date now = new Date();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(userId.toString())
+                .subject(user.getUsername())
                 .issueTime(now)
                 .expirationTime(new Date(now.getTime() + 4*60*60*1000))
                 .build();
