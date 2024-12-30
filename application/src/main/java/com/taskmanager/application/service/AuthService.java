@@ -5,10 +5,14 @@ import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -92,5 +96,30 @@ public class AuthService {
     //     }
     //     return null;
     // }
+    // Obtener el usuario autenticado
+    public static String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null; // No hay usuario autenticado
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString(); // Esto ocurre si no estás usando UserDetails
+        }
+    }
+
+    // Obtener los roles del usuario autenticado
+    public static Collection<? extends GrantedAuthority> getCurrentUserRoles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Collections.emptyList(); // No hay roles disponibles
+        }
+
+        return authentication.getAuthorities();
+    }
 }

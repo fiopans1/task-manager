@@ -16,18 +16,20 @@ public class Task {
     private Long id;
 
 
-    @Column(name="name")
+    @Column(name="name", nullable = false)
     private String nameOfTask;
 
-    @Column(name="description")
+    @Column(name="description", nullable = false)
     private String descriptionOfTask;
 
+    @Column(nullable = false)
     private StateTask state;
     
     private Date creationDate;
 
     private Date limitDate;
 
+    @Column(nullable = false)
     private PriorityTask priority;
 
     @ManyToOne

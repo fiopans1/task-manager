@@ -26,6 +26,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -75,10 +77,13 @@ public class JWTUtilityService {
         PrivateKey privateKey = loadPrivateKey(privateKeyResource);
 
         JWSSigner signer = new RSASSASigner(privateKey);
-
+        String roles = user.getAuthorities().stream()
+            .map(authority -> authority.getAuthority())
+            .collect(Collectors.joining(","));
         Date now = new Date();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
+                .claim("roles", roles)
                 .issueTime(now)
                 .expirationTime(new Date(now.getTime() + 4*60*60*1000))
                 .build();
