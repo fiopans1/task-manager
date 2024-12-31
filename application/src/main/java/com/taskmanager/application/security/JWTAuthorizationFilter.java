@@ -16,13 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
 
 
 
-
+@Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -30,11 +31,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
-
-    public JWTAuthorizationFilter(JWTUtilityService jwtUtilityService, CustomUserDetailsService customUserDetailsService) {
-        this.jwtUtilityService = jwtUtilityService;
-        this.customUserDetailsService = customUserDetailsService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

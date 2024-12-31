@@ -2,13 +2,13 @@ package com.taskmanager.application.config;
 
 import com.taskmanager.application.security.JWTAuthorizationFilter;
 import com.taskmanager.application.service.CustomUserDetailsService;
-import com.taskmanager.application.service.JWTUtilityService;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,10 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig{
 
     @Autowired
-    private JWTUtilityService jwtUtilityService;
-
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private JWTAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,8 +40,9 @@ public class WebSecurityConfig{
         );
         //sino desabilitamos el csrf no podremos usar la aplicacion como api
         http.csrf(csrf -> csrf.disable());
+        http.httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
 
-        http.addFilterBefore(new JWTAuthorizationFilter(jwtUtilityService, customUserDetailsService), UsernamePasswordAuthenticationFilter.class); //check sino necesitamos el constructor
+        http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check sino necesitamos el constructor
         
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
@@ -58,11 +56,5 @@ public class WebSecurityConfig{
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
 
 }

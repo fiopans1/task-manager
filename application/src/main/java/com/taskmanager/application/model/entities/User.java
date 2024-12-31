@@ -60,7 +60,7 @@ public class User implements UserDetails {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<RoleOfUser> roles;
     
     @Embedded
     private FullName name;
@@ -120,14 +120,21 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName()))
-        .collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities = roles.stream()
+            .flatMap(role -> {
+                Set<GrantedAuthority> roleAuthorities = role.getAuthorities().stream()
+                    .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                    .collect(Collectors.toSet());
+                roleAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+                return roleAuthorities.stream();
+            })
+            .collect(Collectors.toSet());
+        return authorities;
     }
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<RoleOfUser> roles) {
         this.roles = roles;
     }
-    public Set<Role> getRoles() {
+    public Set<RoleOfUser> getRoles() {
         return roles;
     }
 
