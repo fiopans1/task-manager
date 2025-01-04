@@ -137,6 +137,7 @@ public class User implements UserDetails {
     public Set<RoleOfUser> getRoles() {
         return roles;
     }
+    
 
 
 

@@ -27,7 +27,7 @@ public class Task {
     
     private Date creationDate;
 
-    private Date limitDate;
+    private Date eventDate;
 
     @Column(nullable = false)
     private PriorityTask priority;
@@ -47,8 +47,8 @@ public class Task {
     public Long getId() {
         return id;
     }
-    public Date getLimitDate() {
-        return limitDate;
+    public Date getEventDate() {
+        return eventDate;
     }
     public String getNameOfTask() {
         return nameOfTask;
@@ -78,8 +78,8 @@ public class Task {
     public void setId(Long id) {
         this.id = id;
     }
-    public void setLimitDate(Date limitDate) {
-        this.limitDate = limitDate;
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
     }
     public void setNameOfTask(String nameOfTask) {
         this.nameOfTask = nameOfTask;

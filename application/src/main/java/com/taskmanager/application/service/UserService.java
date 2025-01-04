@@ -15,11 +15,11 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    public User newUser(User user){
+    public User newUser(User user){ /*Esto solo un administrador */
         return userRepository.save(user);  
     }
 
-    public void deleteUser(User user){
+    public void deleteUser(User user){ /*Esto solo un administrador */
         userRepository.delete(user);
     }
 

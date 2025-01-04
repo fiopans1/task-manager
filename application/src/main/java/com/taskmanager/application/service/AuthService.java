@@ -84,19 +84,7 @@ public class AuthService {
         }
         
     }
-
-    // public Optional<User> getAuthenticatedUser() {
-    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    //     if (authentication != null && authentication.isAuthenticated()) {
-    //         Object principal = authentication.getPrincipal();
-    //         if (principal instanceof UserDetails) {
-    //             String username = ((UserDetails) principal).getUsername();
-    //             return userRepository.findByUsername(username);
-    //         }
-    //     }
-    //     return null;
-    // }
-    // Obtener el usuario autenticado
+    
     public static String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

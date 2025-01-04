@@ -38,23 +38,5 @@ public class AuthRestController {
     public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception {
         return ResponseEntity.created(null).body(authService.register(user));
     }
-
-
-    //TO DELETE THIS METHOD
-    @PostMapping("/testCreateUser")
-    public ResponseEntity<User> testCreateUser() throws Exception {
-        User user = new User();
-        user.setUsername("test");
-        user.setEmail((user.getUsername() + "@test.com"));
-        user.setPassword("Test1234!");
-        user.setAge(20);
-        FullName fullName = new FullName();
-        fullName.setName("Test");
-        fullName.setSurname1("Test");
-        fullName.setSurname2("Test");
-        user.setName(fullName);
-        authService.register(user);
-        return ResponseEntity.ok(user);
-    }
     
 }
