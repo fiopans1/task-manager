@@ -3,12 +3,14 @@ import SidebarMenu from "./components/Sidebar/SidebarMenu";
 
 function App() {
   return (
-    <div style={{ display: "flex" }}>
-      <SidebarMenu />
-      <div style={{ flex: 1 }}>
-        <h1>hola</h1>
-      </div>
-    </div>
+    <Container fluid style={{ margin: 0, padding: 0 }}>
+      <Row style={{ margin: 0, padding: 0 }}>
+        <SidebarMenu /> {/*This component have a column*/}
+        <Col>
+          <div>Content</div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
