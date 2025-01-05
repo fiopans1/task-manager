@@ -1,3 +1,4 @@
-.nav-pills li a:hover {
+.nav-pills .nav-link:hover {
   background-color: rgb(61, 61, 242);
 }
+
