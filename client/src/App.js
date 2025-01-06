@@ -1,17 +1,7 @@
-import { Col, Container, Row } from "react-bootstrap";
-import SidebarMenu from "./components/Sidebar/SidebarMenu";
+import MainApp from "./components/mainapp/MainApp";
 
 function App() {
-  return (
-    <Container fluid style={{ margin: 0, padding: 0 }}>
-      <Row style={{ margin: 0, padding: 0 }}>
-        <SidebarMenu /> {/*This component have a column*/}
-        <Col>
-          <div>Content</div>
-        </Col>
-      </Row>
-    </Container>
-  );
+  return <MainApp />;
 }
 
 export default App;
