@@ -1,14 +1,22 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api"; // URL de tu backend
+const API_URL = "http://localhost:8080"; // URL de tu backend
 
 // Método para iniciar sesión y almacenar el token en localStorage
 const login = async (username, password) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, {
-      username,
-      password,
-    });
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      {
+        username: username,
+        password: password,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
     const token = response.data.token; // Suponiendo que el backend retorna { token: "JWT_TOKEN" }
 
     // Guardar el token en localStorage
