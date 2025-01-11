@@ -1,8 +1,8 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
-import SidebarMenu from "../Sidebar/SidebarMenu";
-import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
-import Prueba1 from "../prueba1";
-import Prueba2 from "../prueba2";
+import SidebarMenu from "../components/Sidebar/SidebarMenu";
+import { useNavigate, Outlet } from "react-router-dom";
+import Prueba1 from "../components/prueba1";
+import Prueba2 from "../components/prueba2";
 const MainApp = ({ onLogOut }) => {
   const navigateTo = useNavigate();
   return (
@@ -14,7 +14,7 @@ const MainApp = ({ onLogOut }) => {
           <Button onClick={() => navigateTo("prueba1")}>Ir a Prueba 1</Button>
           <Button onClick={() => navigateTo("prueba2")}>Ir a Prueba 2</Button>
           <Button onClick={onLogOut}>Cerrar Sesion</Button>
-          <Outlet/>
+          <Outlet />
         </Col>
       </Row>
     </Container>

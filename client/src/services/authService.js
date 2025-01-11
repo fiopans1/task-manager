@@ -1,19 +1,19 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:8080"; // URL de tu backend
+import store from "../redux/store";
 
 // Método para iniciar sesión y almacenar el token en localStorage
 const login = async (username, password) => {
   try {
+    const serverUrl = store.getState().server.serverUrl;
     const response = await axios.post(
-      `${API_URL}/auth/login`,
+      serverUrl + `/auth/login`,
       {
         username: username,
         password: password,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -39,7 +39,6 @@ const getToken = () => {
 const logout = () => {
   localStorage.removeItem("jwt");
 };
-
 const authService = {
   login,
   getToken,

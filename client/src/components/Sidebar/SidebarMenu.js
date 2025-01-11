@@ -1,5 +1,5 @@
 import React from "react";
-import {Col, Nav, Dropdown } from "react-bootstrap";
+import { Col, Nav, Dropdown, NavLink } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const SidebarMenu = () => {
@@ -11,46 +11,46 @@ const SidebarMenu = () => {
     >
       <div>
         {/* Brand */}
-        <Nav.Link
+        <NavLink
           href="#"
           className="text-decoration-none text-white d-none d-sm-inline d-flex align-items-center ms-3 mt-3"
         >
           <i className="fs-4 bi bi-speedometer"></i>
           <span className="ms-1 fs-4 d-none d-sm-inline">Brand</span>
-        </Nav.Link>
+        </NavLink>
         <hr className="text-secondary d-none d-sm-block" />
 
         {/* Sidebar Menu */}
         <Nav className="nav-pills flex-column mt-3 mt-sm-0">
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
-            <Nav.Link href="#" className="text-white fs-5">
+            <NavLink
+              to="/tasks" // Cambia a la ruta correspondiente
+              className="hover-custom text-white fs-5"
+              activeClassName="active" // Se aplica la clase active automáticamente
+            >
               <i className="bi bi-speedometer2"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Dashboard</span>
-            </Nav.Link>
+              <span className="fs-4 ms-3 d-none d-sm-inline">Tasks</span>
+            </NavLink>
           </Nav.Item>
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
-            <Nav.Link href="#" className="text-white fs-5">
+            <NavLink
+              to="/calendar" // Cambia a la ruta correspondiente
+              className="hover-custom text-white fs-5"
+              activeClassName="active" // Se aplica la clase active automáticamente
+            >
               <i className="bi bi-house"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Home</span>
-            </Nav.Link>
+              <span className="fs-4 ms-3 d-none d-sm-inline">Calendar</span>
+            </NavLink>
           </Nav.Item>
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
-            <Nav.Link href="#" className="text-white fs-5">
+            <NavLink
+              to="/lists" // Cambia a la ruta correspondiente
+              className="hover-custom text-white fs-5"
+              activeClassName="active" // Se aplica la clase active automáticamente
+            >
               <i className="bi bi-table"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Orders</span>
-            </Nav.Link>
-          </Nav.Item>
-          <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
-            <Nav.Link href="#" className="text-white fs-5">
-              <i className="bi bi-grid"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Products</span>
-            </Nav.Link>
-          </Nav.Item>
-          <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
-            <Nav.Link href="#" className="text-white fs-5">
-              <i className="bi bi-table"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Customers</span>
-            </Nav.Link>
+              <span className="fs-4 ms-3 d-none d-sm-inline">Lists</span>
+            </NavLink>
           </Nav.Item>
         </Nav>
       </div>
