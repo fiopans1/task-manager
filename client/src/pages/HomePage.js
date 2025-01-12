@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Row,
   Col,
@@ -9,19 +9,31 @@ import {
   Form,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { setServerUrl } from "../redux/slices/serverSlice";
+
 const HomePage = () => {
   const navigateTo = useNavigate();
-  const [url, setUrl] = useState("");
   const dispatch = useDispatch();
 
+  // Obtener el estado persistido de Redux
+  const serverUrlFromRedux = useSelector((state) => state.server.serverUrl);
+
+  // Controlar el estado local del componente
+  const [url, setUrl] = useState(serverUrlFromRedux);
+
+  // Sincronizar el estado local con el estado global persistido
+  useEffect(() => {
+    setUrl(serverUrlFromRedux);
+  }, [serverUrlFromRedux]); // Solo actualizar si el serverUrl en Redux cambia
+
+  // Manejar los cambios del input
   const handleChange = (e) => {
     const newUrl = e.target.value;
-    setUrl(newUrl);
-    dispatch(setServerUrl(newUrl)); // Actualiza el estado global con el enlace
+    setUrl(newUrl); // Actualizar el estado local
+    dispatch(setServerUrl(newUrl)); // Actualizar el estado global en Redux
   };
+
   return (
     <Container
       fluid

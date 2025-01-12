@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "../redux/store";
-
+import { setToken, clearToken } from "../redux/slices/authSlice";
 // Método para iniciar sesión y almacenar el token en localStorage
 const login = async (username, password) => {
   try {
@@ -20,7 +20,7 @@ const login = async (username, password) => {
     const token = response.data.token; // Suponiendo que el backend retorna { token: "JWT_TOKEN" }
 
     // Guardar el token en localStorage
-    localStorage.setItem("jwt", token);
+    store.dispatch(setToken(token));
     return token;
   } catch (error) {
     if (error.response && error.response.data) {
@@ -30,17 +30,40 @@ const login = async (username, password) => {
   }
 };
 
+const register = async (formData) => {
+  try {
+    const userData = {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      age: formData.age,
+      name: {
+        name: formData.name,
+        surname1: formData.surname1,
+        surname2: formData.surname2,
+      },
+    };
+    const serverUrl = store.getState().server.serverUrl;
+    const response = await axios.post(serverUrl + "/auth/register", userData);
+    return response.data; // Puedes devolver los datos de respuesta, como el token, si es necesario
+  } catch (error) {
+    // Puedes manejar los errores aquí (por ejemplo, mostrar un mensaje de error)
+    throw new Error("Error al conectar con el servidor");
+  }
+};
+
 // Método para obtener el token desde localStorage
 const getToken = () => {
-  return localStorage.getItem("jwt");
+  return store.getState().auth.token;
 };
 
 // Método para cerrar sesión y eliminar el token de localStorage
 const logout = () => {
-  localStorage.removeItem("jwt");
+  store.dispatch(clearToken());
 };
 const authService = {
   login,
+  register,
   getToken,
   logout,
 };

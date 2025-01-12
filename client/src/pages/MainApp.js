@@ -1,8 +1,6 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
 import SidebarMenu from "../components/Sidebar/SidebarMenu";
 import { useNavigate, Outlet } from "react-router-dom";
-import Prueba1 from "../components/prueba1";
-import Prueba2 from "../components/prueba2";
 const MainApp = ({ onLogOut }) => {
   const navigateTo = useNavigate();
   return (

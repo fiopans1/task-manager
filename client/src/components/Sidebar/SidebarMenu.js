@@ -26,7 +26,6 @@ const SidebarMenu = () => {
             <NavLink
               to="/tasks" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
-              activeClassName="active" // Se aplica la clase active automáticamente
             >
               <i className="bi bi-speedometer2"></i>
               <span className="fs-4 ms-3 d-none d-sm-inline">Tasks</span>
@@ -36,7 +35,6 @@ const SidebarMenu = () => {
             <NavLink
               to="/calendar" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
-              activeClassName="active" // Se aplica la clase active automáticamente
             >
               <i className="bi bi-house"></i>
               <span className="fs-4 ms-3 d-none d-sm-inline">Calendar</span>
@@ -46,7 +44,6 @@ const SidebarMenu = () => {
             <NavLink
               to="/lists" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
-              activeClassName="active" // Se aplica la clase active automáticamente
             >
               <i className="bi bi-table"></i>
               <span className="fs-4 ms-3 d-none d-sm-inline">Lists</span>

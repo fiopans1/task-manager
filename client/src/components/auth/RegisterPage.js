@@ -1,12 +1,19 @@
 import React from "react";
 import { Container, Row, Col, Form, Card, Button } from "react-bootstrap";
 import { useState } from "react";
+import authService from "../../services/authService";
+
+
 function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
     password: "",
     confirmPassword: "",
+    name: "",
+    surname1: "",
+    surname2: "",
+    age: 0,
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -15,8 +22,16 @@ function RegisterPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Lógica para manejar el registro, como validación y envío a la API
-    console.log("register");
+    try {
+
+      // Validar que las contraseñas coincidan
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error("Las contraseñas no coinciden");
+      }
+      authService.register(formData);
+    } catch (error) {
+      alert("Error al iniciar sesión: " + error.message);
+    }
   };
   return (
     <Container
@@ -34,6 +49,56 @@ function RegisterPage() {
                 Registro
               </h2>
               <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formName">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter first name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Row>
+                  <Col>
+                    <Form.Group controlId="formSurname1">
+                      <Form.Label>Surname 1</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter surname"
+                        name="surname1"
+                        value={formData.surname1}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col>
+                    <Form.Group controlId="formSurname2">
+                      <Form.Label>Surname 2</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter surname"
+                        name="surname2"
+                        value={formData.surname2}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Form.Group controlId="formUsername" className="mb-3">
+                  <Form.Label>Nombre de Usuario</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Ingresa tu nombre de usuario"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    required
+                    style={{ borderRadius: "10px" }}
+                  />
+                </Form.Group>
                 <Form.Group controlId="formEmail" className="mb-3">
                   <Form.Label>Correo Electrónico</Form.Label>
                   <Form.Control
@@ -47,16 +112,14 @@ function RegisterPage() {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="formUsername" className="mb-3">
-                  <Form.Label>Nombre de Usuario</Form.Label>
+                <Form.Group controlId="formAge">
+                  <Form.Label>Age</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="Ingresa tu nombre de usuario"
-                    name="username"
-                    value={formData.username}
+                    type="number"
+                    placeholder="Enter age"
+                    name="age"
+                    value={formData.age}
                     onChange={handleChange}
-                    required
-                    style={{ borderRadius: "10px" }}
                   />
                 </Form.Group>
 
@@ -89,7 +152,6 @@ function RegisterPage() {
                 <Button
                   variant="primary"
                   type="submit"
-                  block
                   style={{
                     borderRadius: "10px",
                     padding: "10px 20px",
