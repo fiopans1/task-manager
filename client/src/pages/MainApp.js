@@ -4,14 +4,12 @@ import { useNavigate, Outlet } from "react-router-dom";
 const MainApp = ({ onLogOut }) => {
   const navigateTo = useNavigate();
   return (
-    <Container fluid style={{ margin: 0, padding: 0 }}>
+    <Container fluid style={{ margin: 0, padding: 0, overflow: "hidden", height: "100vh" }}>
       <Row style={{ margin: 0, padding: 0 }}>
         <SidebarMenu /> {/*This component have a column*/}
         <Col>
-          {/* <div><Button onClick={onLogOut}>Cerrar Sesion</Button></div> */}
-          <Button onClick={() => navigateTo("prueba1")}>Ir a Prueba 1</Button>
-          <Button onClick={() => navigateTo("prueba2")}>Ir a Prueba 2</Button>
-          <Button onClick={onLogOut}>Cerrar Sesion</Button>
+
+          {/* <Button onClick={onLogOut}>Cerrar Sesion</Button> */}
           <Outlet />
         </Col>
       </Row>

@@ -2,7 +2,7 @@ package com.taskmanager.application.model.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResponseDTO {
+public class ResponseDTO { //TO-DO: Change this class
     private int errorCount;
     private List<String> errorMessages;
 

@@ -8,6 +8,7 @@ import com.taskmanager.application.respository.UserRepository;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class AuthService {
     public ResponseDTO register(User user) throws Exception{
 
         try{
+            user.setCreationDate(new Date());
             ResponseDTO response = userValidation.validateUser(user);
             if(response.getErrorCount() > 0){
                 return response;
@@ -76,7 +78,7 @@ public class AuthService {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
             user.setPassword(encoder.encode(user.getPassword()));
             userRepository.save(user);
-            response.addErrorMessage("User registered successfully!");
+            response.addErrorMessage("User registered successfully!"); //TO-DO: Change this message
             return response;
             
         }catch(Exception e){
@@ -100,8 +102,17 @@ public class AuthService {
         }
     }
 
+    public User getCurrentUser() {
+        String username = getCurrentUsername();
+        if (username == null) {
+            return null;
+        }
+
+        return userRepository.findByUsername(username).orElseThrow(() -> null);
+    }
+
     // Obtener los roles del usuario autenticado
-    public static Collection<? extends GrantedAuthority> getCurrentUserRoles() {
+    public Collection<? extends GrantedAuthority> getCurrentUserRoles() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -109,5 +120,18 @@ public class AuthService {
         }
 
         return authentication.getAuthorities();
+    }
+
+    public boolean hasRole(String role) {
+        Collection<? extends GrantedAuthority> authorities = getCurrentUserRoles();
+        if (authorities == null) {
+            return false;
+        }
+        for (GrantedAuthority authority : authorities) {
+            if (authority.getAuthority().equals(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

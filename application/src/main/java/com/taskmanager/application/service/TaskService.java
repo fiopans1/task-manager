@@ -4,11 +4,13 @@ import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
 import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.entities.User;
+import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.respository.TaskRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class TaskService {
 
     @Autowired
     private TaskRepository tasksRepository;
+    
+    @Autowired
+    private AuthService authService;
 
     /*Este metodo cuando esté el front bien implementado lo que tiene que hacer es comprobar quien esta
      * logueada, y ver si es admin o no, si no es admin solo ponemos la tarea con el usuario que la creó,
@@ -25,41 +30,50 @@ public class TaskService {
     */
     @Transactional
     public Task createTask(Task task) {
-        return tasksRepository.save(task);
+        User user = authService.getCurrentUser();
+
+        task.setCreationDate(new Date());
+        if(task.getUser()!=null && authService.hasRole("ADMIN")){
+            return tasksRepository.save(task);
+        }else{
+            task.setUser(user);
+            return tasksRepository.save(task);
+        }
     }
 
-    /*En esta y en la siguiente comprobar si el usuario logueado tiene permisos de administrador, sino que solo
-    deje borrar tareas que sean de él */    
-    @Transactional
-    public void deleteTask(Task task) {
-        tasksRepository.delete(task);
-    }
-    @Transactional
-    public void deleteTaskById(Long id) {
-        tasksRepository.deleteById(id);
-    }
-
-    public Task getTaskById(Long id) {
-        return tasksRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+    @Transactional(readOnly = true)
+    public List<Task> findAllTasksForLoggedUser(){
+        User user = authService.getCurrentUser();
+        return tasksRepository.findAllByUser(user);
     }
 
     @Transactional(readOnly = true)
     public List<Task> findAllTasksByUser(User user) {
         return tasksRepository.findAllByUser(user);
     }
-
+   
     @Transactional
-    public Task changeStateTasks(Long id, StateTask state) {
-        Task task = getTaskById(id);
-        task.setState(state);
-        return tasksRepository.save(task);
+    public void deleteTask(Task task) {
+        if(authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())){
+            tasksRepository.delete(task);
+        }
+    }
+    @Transactional
+    public void deleteTaskById(Long id) throws NotPermissionException, ResourceNotFoundException {
+        Task task = tasksRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        if(authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())){
+            tasksRepository.deleteById(id);
+        }else{
+            throw new NotPermissionException("You don't have permission to delete this task");
+        }
     }
 
-    @Transactional
-    public void changePriorityTask(Long id, PriorityTask priority) {
-        Task task = getTaskById(id);
-        task.setPriority(priority);
-        tasksRepository.save(task);
+    public Task getTaskById(Long id) throws ResourceNotFoundException {
+        return tasksRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
     }
+
+
+
 }

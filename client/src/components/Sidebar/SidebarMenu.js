@@ -1,6 +1,7 @@
 import React from "react";
 import { Col, Nav, Dropdown, NavLink } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { Link } from "react-router-dom";
 
 const SidebarMenu = () => {
   return (
@@ -24,7 +25,8 @@ const SidebarMenu = () => {
         <Nav className="nav-pills flex-column mt-3 mt-sm-0">
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
             <NavLink
-              to="/tasks" // Cambia a la ruta correspondiente
+              as={Link}
+              to="/home/tasks" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
             >
               <i className="bi bi-speedometer2"></i>

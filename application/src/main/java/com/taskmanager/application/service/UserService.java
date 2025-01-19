@@ -27,7 +27,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User findByUserId(Long id){
+    public User findByUserId(Long id)throws ResourceNotFoundException {
 
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
@@ -41,7 +41,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User findUsersByUserName(String name) {
+    public User findUsersByUserName(String name) throws ResourceNotFoundException {
         Optional<User> user = userRepository.findByUsername(name);
         if(user.isPresent()){
             return user.get();
@@ -50,7 +50,7 @@ public class UserService {
         }
     }
 
-    public User findByEmail(String email) {
+    public User findByEmail(String email) throws ResourceNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
         if(user.isPresent()){
             return user.get();

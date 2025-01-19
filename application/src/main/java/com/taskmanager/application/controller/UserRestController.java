@@ -21,10 +21,6 @@ public class UserRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/getUser")
-    public ResponseEntity<List<User>> getMethodName() {
-        return new ResponseEntity<>(userService.getAllUser(), null, 200);
-    }
     
 
 }
