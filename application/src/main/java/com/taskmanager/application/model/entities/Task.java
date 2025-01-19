@@ -5,8 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.util.Date;
+
 
 @Entity
 public class Task {
@@ -27,7 +30,9 @@ public class Task {
     
     private Date creationDate;
 
-    private Date eventDate;
+    @OneToOne
+    @JoinColumn(name = "event_id", nullable = true)
+    private EventTask eventTask;
 
     @Column(nullable = false)
     private PriorityTask priority;
@@ -47,8 +52,8 @@ public class Task {
     public Long getId() {
         return id;
     }
-    public Date getEventDate() {
-        return eventDate;
+    public EventTask getEventTask() {
+        return eventTask;
     }
     public String getNameOfTask() {
         return nameOfTask;
@@ -78,8 +83,8 @@ public class Task {
     public void setId(Long id) {
         this.id = id;
     }
-    public void setEventDate(Date eventDate) {
-        this.eventDate = eventDate;
+    public void setEventTask(EventTask eventTask) {
+        this.eventTask = eventTask;
     }
     public void setNameOfTask(String nameOfTask) {
         this.nameOfTask = nameOfTask;
