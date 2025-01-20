@@ -6,7 +6,7 @@ const MainApp = ({ onLogOut }) => {
   return (
     <Container fluid style={{ margin: 0, padding: 0, overflow: "hidden", height: "100vh" }}>
       <Row style={{ margin: 0, padding: 0 }}>
-        <SidebarMenu /> {/*This component have a column*/}
+        <SidebarMenu onLogOut={onLogOut}/> {/*This component have a column*/}
         <Col>
 
           {/* <Button onClick={onLogOut}>Cerrar Sesion</Button> */}

@@ -1,7 +1,10 @@
 package com.taskmanager.application.controller;
 
+import com.taskmanager.application.model.entities.Task;
+import com.taskmanager.application.model.exceptions.NotPermissionException;
+import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.service.TaskService;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,10 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.taskmanager.application.model.entities.Task;
-import com.taskmanager.application.model.exceptions.NotPermissionException;
-import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
-import com.taskmanager.application.service.TaskService;
+
 
 @RestController
 @RequestMapping("/api/tasks")

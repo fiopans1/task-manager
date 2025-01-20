@@ -11,10 +11,7 @@
   background-size: 400% 400%;
   animation: gradientAnimation 10s ease infinite;
 }
-.no-focus-background:focus {
-  background-color: transparent !important;
-  box-shadow: none !important; /* Elimina la sombra de enfoque */
-}
+
 
 @keyframes gradientAnimation {
   0% {
