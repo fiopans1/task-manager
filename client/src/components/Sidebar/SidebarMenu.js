@@ -30,7 +30,7 @@ function SidebarMenu({ onLogOut }) {
               className="hover-custom text-white fs-5"
             >
               <i className="bi bi-list-task"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Tasks</span>
+              <span className="fs-4 ms-3 d-none d-sm-inline">My-Tasks</span>
             </NavLink>
           </Nav.Item>
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
@@ -45,7 +45,7 @@ function SidebarMenu({ onLogOut }) {
           </Nav.Item>
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
             <NavLink
-            as={Link}
+              as={Link}
               to="/home/lists" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
             >
@@ -59,7 +59,7 @@ function SidebarMenu({ onLogOut }) {
               className="hover-custom text-white fs-5"
             >
               <i className="bi bi-gear-wide-connected"></i>
-              <span className="fs-4 ms-3 d-none d-sm-inline">Admin Panel</span>
+              <span className="fs-4 ms-3 d-none d-sm-inline">Admin-Panel</span>
             </NavLink>
           </Nav.Item>
         </Nav>

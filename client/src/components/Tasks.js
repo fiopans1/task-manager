@@ -22,7 +22,7 @@ const Tasks = () => {
 
   return (
     <Container fluid>
-      <h1>Tasks</h1>
+      <h1>My-Tasks</h1>
       <Col className="align-items-center mb-3">
         <Row>
           <Col md={10}>
