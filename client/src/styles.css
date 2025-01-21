@@ -12,7 +12,6 @@
   animation: gradientAnimation 10s ease infinite;
 }
 
-
 @keyframes gradientAnimation {
   0% {
     background-position: 0% 50%;
@@ -23,4 +22,10 @@
   100% {
     background-position: 0% 50%;
   }
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

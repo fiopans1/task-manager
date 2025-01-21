@@ -45,7 +45,8 @@ function SidebarMenu({ onLogOut }) {
           </Nav.Item>
           <Nav.Item className="fs-4 my-1 py-2 py-sm-0">
             <NavLink
-              to="/lists" // Cambia a la ruta correspondiente
+            as={Link}
+              to="/home/lists" // Cambia a la ruta correspondiente
               className="hover-custom text-white fs-5"
             >
               <i className="bi bi-card-checklist"></i>

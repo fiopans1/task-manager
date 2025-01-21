@@ -9,6 +9,7 @@ import Tasks from "./components/Tasks";
 import HomePage from "./pages/HomePage";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "./components/CalendarComponent";
+import Lists from "./components/Lists";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ function App() {
       >
         <Route path="/home/tasks" element={<Tasks />} />
         <Route path="/home/calendar" element={<CalendarComponent />} />
+        <Route path="/home/lists" element={<Lists />} />
       </Route>
     </Routes>
   );
