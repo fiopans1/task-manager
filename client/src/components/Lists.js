@@ -18,8 +18,7 @@ const Lists = () => {
           <Col xs={12}>
             <Card className="p-3 border-primary text-center">
               <Card.Body>
-                <Card.Title>{cards[0].title}</Card.Title>
-                <Card.Text>{cards[0].text}</Card.Text>
+                <Card.Title>Add New List+</Card.Title>
               </Card.Body>
             </Card>
           </Col>
@@ -30,7 +29,6 @@ const Lists = () => {
               <Card className="h-100">
                 <Card.Body>
                   <Card.Title>{card.title}</Card.Title>
-                  <Card.Text>{card.text}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>

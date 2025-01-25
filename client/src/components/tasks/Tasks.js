@@ -8,8 +8,11 @@ import {
   Button,
   Form,
 } from "react-bootstrap";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Tasks = () => {
+  const navigateTo = useNavigate();
+  const location = useLocation();
   const cards = Array.from({ length: 30 }, (_, index) => ({
     key: `card${index + 1}`,
     title: `Card ${index + 1}`,
@@ -19,6 +22,10 @@ const Tasks = () => {
     status: "done",
     priority: "high",
   }));
+
+  const handleOpenTask = (id) => {
+    navigateTo(`${location.pathname}/${id}`);
+  };
 
   return (
     <Container fluid>
@@ -68,7 +75,11 @@ const Tasks = () => {
                     </Col>
                     <Col md={2}>
                       <Row>
-                        <Button variant="success" className="me-2">
+                        <Button
+                          variant="success"
+                          className="me-2"
+                          onClick={() => handleOpenTask(card.key)}
+                        >
                           Open
                         </Button>
                         <Button variant="primary" className="me-2">
