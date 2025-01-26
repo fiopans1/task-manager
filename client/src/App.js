@@ -8,10 +8,12 @@ import LoginPage from "./components/auth/LoginPage";
 import HomePage from "./pages/HomePage";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "./components/CalendarComponent";
-import Lists from "./components/Lists";
-import TaskMain from "./components/tasks/TaskMain";
+import Lists from "./components/lists/Lists";
 import TaskDetails from "./components/tasks/TaskDetails";
 import Tasks from "./components/tasks/Tasks";
+import OutletUtil from "./components/common/OutletUtil";
+import ListDetails from "./components/lists/ListDetails";
+import Home from "./components/Home";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
@@ -55,12 +57,16 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/home/tasks" element={<TaskMain />}>
+        <Route index element={<Home />} />
+        <Route path="/home/tasks" element={<OutletUtil />}>
           <Route index element={<Tasks />} />
           <Route path=":id" element={<TaskDetails />} />
         </Route>
         <Route path="/home/calendar" element={<CalendarComponent />} />
-        <Route path="/home/lists" element={<Lists />} />
+        <Route path="/home/lists" element={<OutletUtil />}>
+          <Route index element={<Lists />} />
+          <Route path=":id" element={<ListDetails />} />
+        </Route>
       </Route>
     </Routes>
   );

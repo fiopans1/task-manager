@@ -13,7 +13,8 @@ function SidebarMenu({ onLogOut }) {
       <div>
         {/* Brand */}
         <NavLink
-          href="#"
+          as={Link}
+          to="/home"
           className="text-decoration-none text-white d-none d-sm-inline d-flex align-items-center ms-3 mt-3"
         >
           <i className="fs-4 bi bi-speedometer"></i>
