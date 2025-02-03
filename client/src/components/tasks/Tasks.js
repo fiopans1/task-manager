@@ -6,12 +6,22 @@ import {
   InputGroup,
   Button,
   Form,
+  Modal,
 } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { useState } from "react";
+import NewTask from "./NewTask";
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
+
+  const handleOpenTask = (id) => {
+    navigateTo(`${location.pathname}/${id}`);
+  };
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const cards = Array.from({ length: 30 }, (_, index) => ({
     key: `card${index + 1}`,
@@ -23,10 +33,6 @@ const Tasks = () => {
     priority: "high",
   }));
 
-  const handleOpenTask = (id) => {
-    navigateTo(`${location.pathname}/${id}`);
-  };
-
   return (
     <Container fluid>
       <h1>My-Tasks</h1>
@@ -36,13 +42,15 @@ const Tasks = () => {
             <Card>
               <InputGroup>
                 <Form.Control className="no-focus-background" />
-                <Button variant="primary">Add</Button>
+                <Button variant="primary">Search</Button>
               </InputGroup>
             </Card>
           </Col>
           <Col md={2}>
             <Card>
-              <Button variant="primary">New Task</Button>
+              <Button variant="primary" onClick={() => handleShow()}>
+                New Task
+              </Button>
             </Card>
           </Col>
         </Row>
@@ -97,6 +105,7 @@ const Tasks = () => {
           </Card>
         </Row>
       </Col>
+      <NewTask show={show} handleClose={handleClose} handleShow={handleShow} />
     </Container>
   );
 };
