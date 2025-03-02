@@ -60,4 +60,7 @@ public class RoleOfUser {
     public void setAuthorities(Set<AuthorityOfRole> authorities) {
         this.authorities = authorities;
     }
+    public void addAuthority(AuthorityOfRole authority) {
+        this.authorities.add(authority);
+    }
 }

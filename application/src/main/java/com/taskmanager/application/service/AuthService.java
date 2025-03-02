@@ -5,7 +5,6 @@ import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+
 @Service
 public class AuthService {
 
@@ -29,8 +29,8 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
     
-    // @Autowired
-    // private 
+    @Autowired
+    private RoleService roleService;
 
     @Autowired
     private UserValidation userValidation;
@@ -80,6 +80,9 @@ public class AuthService {
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
             user.setPassword(encoder.encode(user.getPassword()));
+            if(roleService.existsBasicRole()){
+                user.addRole(roleService.getBasicRole());
+            }
             userRepository.save(user);
             response.addErrorMessage("User registered successfully!"); //TO-DO: Change this message
             return response;

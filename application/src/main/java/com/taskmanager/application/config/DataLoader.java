@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DataLoader {
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepository, RoleRepository roleRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
-        return args -> {
+        return args -> { //TO-DO: Check if the role exists in DB y borrar todo esto, y que se controle la creacion de usuario con una propiedad
             // Crea el rol ADMIN si no existe
             RoleOfUser adminRole = roleRepository.findByName("ADMIN")
             .orElseGet(() -> {

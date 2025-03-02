@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +39,6 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -48,7 +48,6 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
 
     private int age;
@@ -57,7 +56,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
-    private Set<Task> tasksForUser;
+    private Set<Task> tasksForUser = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -65,7 +64,7 @@ public class User implements UserDetails {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<RoleOfUser> roles;
+    private Set<RoleOfUser> roles = new HashSet<>();
     
     @Embedded
     private FullName name;
@@ -141,6 +140,9 @@ public class User implements UserDetails {
     }
     public Set<RoleOfUser> getRoles() {
         return roles;
+    }
+    public void addRole(RoleOfUser role) {
+        roles.add(role);
     }
     
 
