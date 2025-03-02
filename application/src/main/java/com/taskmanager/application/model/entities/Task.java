@@ -67,7 +67,6 @@ public class Task {
     public User getUser() {
         return user;
     }
-    // vscode mark as error when I call this method, I implement, but when compile not be problem
     public void setState(StateTask state) {
         this.state = state;
     }
