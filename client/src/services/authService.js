@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "../redux/store";
 import { setToken, clearToken } from "../redux/slices/authSlice";
+import { decodeJwt } from "jose";
 // Método para iniciar sesión y almacenar el token en localStorage
 const login = async (username, password) => {
   try {
@@ -56,6 +57,13 @@ const register = async (formData) => {
 const getToken = () => {
   return store.getState().auth.token;
 };
+const getUsername = () => {
+  const token = store.getState().auth.token;
+  if (token){
+    const payload = decodeJwt(token);
+    return payload.sub;
+  }
+};
 
 // Método para cerrar sesión y eliminar el token de localStorage
 const logout = () => {
@@ -66,6 +74,7 @@ const authService = {
   register,
   getToken,
   logout,
+  getUsername,
 };
 
 export default authService;

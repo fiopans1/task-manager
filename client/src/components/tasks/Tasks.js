@@ -58,7 +58,7 @@ const Tasks = () => {
           <Card
             fluid
             className="overflow-auto m-2 p-0"
-            style={{ height: "80vh" }}
+            style={{ height: "88vh" }}
           >
             {cards.map((card) => (
               <Card>

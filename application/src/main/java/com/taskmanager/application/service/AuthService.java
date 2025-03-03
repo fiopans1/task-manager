@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
 
 
 
@@ -35,7 +38,7 @@ public class AuthService {
     @Autowired
     private UserValidation userValidation;
 
-
+    @Transactional(readOnly = true)
     public HashMap<String,String> login(LoginDTO login) throws Exception {
 
         try{
@@ -63,7 +66,7 @@ public class AuthService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.matches(enteredPassword, storedPassword);
     }
-
+    @Transactional
     public ResponseDTO register(User user) throws Exception{
 
         try{

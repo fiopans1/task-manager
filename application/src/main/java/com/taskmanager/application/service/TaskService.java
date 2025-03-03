@@ -68,7 +68,7 @@ public class TaskService {
             throw new NotPermissionException("You don't have permission to delete this task");
         }
     }
-
+    @Transactional(readOnly = true)
     public Task getTaskById(Long id) throws ResourceNotFoundException {
         return tasksRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));

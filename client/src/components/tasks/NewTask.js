@@ -19,8 +19,8 @@ const NewTask = ({ show, handleClose, handleShow }) => {
   const [formData, setFormData] = useState({
     nameOfTask: "",
     descriptionOfTask: "",
-    state: "",
-    priority: "",
+    state: "NEW",
+    priority: "MIN",
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +75,7 @@ const NewTask = ({ show, handleClose, handleShow }) => {
                         name="priority"
                         onChange={handleChange}
                         value={formData.priority}
+                        defaultValue={formData.priority}
                       >
                         <option value="MIN">MIN</option>
                         <option value="HIGH">HIGH</option>
@@ -90,6 +91,7 @@ const NewTask = ({ show, handleClose, handleShow }) => {
                         name="state"
                         onChange={handleChange}
                         value={formData.state}
+                        defaultValue={formData.state}
                       >
                         <option value="COMPLETED">COMPLETED</option>
                         <option value="NEW">NEW</option>

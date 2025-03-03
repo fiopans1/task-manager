@@ -2,6 +2,7 @@ import React from "react";
 import { Col, Nav, Dropdown, NavLink, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link } from "react-router-dom";
+import authService from "../../services/authService";
 
 function SidebarMenu({ onLogOut }) {
   return (
@@ -74,7 +75,7 @@ function SidebarMenu({ onLogOut }) {
           className="text-white text-decoration-none"
         >
           <i className="bi bi-person-circle"></i>
-          <span className="ms-2 d-none d-sm-inline">dsuarezr</span>
+          <span className="ms-2 d-none d-sm-inline">{authService.getUsername()}</span>
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
