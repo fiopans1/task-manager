@@ -81,6 +81,12 @@ public class AuthService {
                 response.addErrorMessage("User already registered!");
                 return response;
             }
+            
+            Optional<User> existingEmail = userRepository.findByEmail(user.getEmail());
+            if(existingEmail.isPresent()){
+                response.addErrorMessage("Email already registered!");
+                return response;
+            }
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
             user.setPassword(encoder.encode(user.getPassword()));

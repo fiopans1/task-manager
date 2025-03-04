@@ -24,8 +24,12 @@ const login = async (username, password) => {
     store.dispatch(setToken(token));
     return token;
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw new Error(error.response.data.message || "Error al iniciar sesión");
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.errorCount > 0
+    ) {
+      throw new Error(error.response.data.errorMessages.join(", "));
     }
     throw new Error("Error al conectar con el servidor");
   }
@@ -48,6 +52,13 @@ const register = async (formData) => {
     const response = await axios.post(serverUrl + "/auth/register", userData);
     return response.data; // Puedes devolver los datos de respuesta, como el token, si es necesario
   } catch (error) {
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.errorCount > 0
+    ) {
+      throw new Error(error.response.data.errorMessages.join(", "));
+    }
     // Puedes manejar los errores aquí (por ejemplo, mostrar un mensaje de error)
     throw new Error("Error al conectar con el servidor");
   }
