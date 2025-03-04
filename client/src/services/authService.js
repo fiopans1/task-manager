@@ -59,9 +59,17 @@ const getToken = () => {
 };
 const getUsername = () => {
   const token = store.getState().auth.token;
-  if (token){
+  if (token) {
     const payload = decodeJwt(token);
     return payload.sub;
+  }
+};
+
+const getRoles = () => {
+  const token = store.getState().auth.token;
+  if (token) {
+    const payload = decodeJwt(token);
+    return payload.roles.split(",");
   }
 };
 
@@ -75,6 +83,7 @@ const authService = {
   getToken,
   logout,
   getUsername,
+  getRoles,
 };
 
 export default authService;

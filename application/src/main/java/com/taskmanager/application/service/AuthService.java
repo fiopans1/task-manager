@@ -67,7 +67,7 @@ public class AuthService {
         return encoder.matches(enteredPassword, storedPassword);
     }
     @Transactional
-    public ResponseDTO register(User user) throws Exception{
+    public ResponseDTO register(User user) throws Exception{ //TO-DO: Change ResponseDTO to difference between error and success
 
         try{
             user.setCreationDate(new Date());

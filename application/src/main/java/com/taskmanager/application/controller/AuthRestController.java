@@ -35,7 +35,7 @@ public class AuthRestController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception {
+    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
         return ResponseEntity.created(null).body(authService.register(user));
     }
     
