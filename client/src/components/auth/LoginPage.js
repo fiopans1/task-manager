@@ -1,21 +1,24 @@
 import React, { useState } from "react";
 import authService from "../../services/authService";
 import { Container, Form, Button, Card, Spinner } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useNotification } from "../common/Noty";
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { addNotification } = useNotification();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       const token = await authService.login(username, password);
       setLoading(false);
+      addNotification("Login successfull!", "success");
       onLogin(token); // Notificar al padre
     } catch (error) {
       setLoading(false);
-      alert("Error al iniciar sesión: " + error.message);
+      addNotification("Error al iniciar sesión: " + error.message, "danger");
     }
   };
   return (

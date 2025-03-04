@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import authService from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../common/Noty";
 function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -29,6 +30,7 @@ function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,12 +43,12 @@ function RegisterPage() {
       const data = await authService.register(formData);
       setLoading(false);
       if (data.successCount > 0) {
-        alert(data.successMessages.join(", "));
+        addNotification(data.successMessages.join(", "), "success");
         navigate("../login");
       }
     } catch (error) {
       setLoading(false);
-      alert("Error al registrarse: " + error.message);
+      addNotification("Error al registrarse: " + error.message, "danger", 5000);
     }
   };
   return (

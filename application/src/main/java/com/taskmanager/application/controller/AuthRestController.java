@@ -2,11 +2,8 @@ package com.taskmanager.application.controller;
 
 import com.taskmanager.application.model.dto.LoginDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
-import com.taskmanager.application.model.entities.FullName;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.service.AuthService;
-
-import io.micrometer.core.ipc.http.HttpSender.Response;
 
 import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;

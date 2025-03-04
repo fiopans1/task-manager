@@ -24,12 +24,8 @@ const login = async (username, password) => {
     store.dispatch(setToken(token));
     return token;
   } catch (error) {
-    if (
-      error.response &&
-      error.response.data &&
-      error.response.data.errorCount > 0
-    ) {
-      throw new Error(error.response.data.errorMessages.join(", "));
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error);
     }
     throw new Error("Error al conectar con el servidor");
   }
