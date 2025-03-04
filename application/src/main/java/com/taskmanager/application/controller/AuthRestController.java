@@ -5,6 +5,9 @@ import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.entities.FullName;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.service.AuthService;
+
+import io.micrometer.core.ipc.http.HttpSender.Response;
+
 import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +39,12 @@ public class AuthRestController {
     
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
-        return ResponseEntity.created(null).body(authService.register(user));
+        ResponseDTO response = authService.register(user);
+        if(response.getErrorCount()<=0){
+            return ResponseEntity.ok(response);
+        }{
+            return ResponseEntity.badRequest().body(response);
+        }
     }
     
 }

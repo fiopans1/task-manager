@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import authService from "../../services/authService";
-import { Container, Form, Button, Card } from "react-bootstrap";
+import { Container, Form, Button, Card, Spinner } from "react-bootstrap";
 import { useSelector } from "react-redux";
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const token = await authService.login(username, password);
+      setLoading(false);
       onLogin(token); // Notificar al padre
     } catch (error) {
       alert("Error al iniciar sesión: " + error.message);
@@ -45,7 +48,13 @@ function LoginPage({ onLogin }) {
             />
           </Form.Group>
           <Button size="lg" variant="primary" type="submit">
-            Login
+            {loading ? (
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            ) : (
+              "Login"
+            )}
           </Button>
         </Form>
       </Card>

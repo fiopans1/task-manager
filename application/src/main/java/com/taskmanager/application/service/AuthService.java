@@ -71,7 +71,8 @@ public class AuthService {
 
         try{
             user.setCreationDate(new Date());
-            ResponseDTO response = userValidation.validateUser(user);
+            ResponseDTO response;
+            response = userValidation.validateUser(user); 
             if(response.getErrorCount() > 0){
                 return response;
             }
@@ -87,7 +88,7 @@ public class AuthService {
                 user.addRole(roleService.getBasicRole());
             }
             userRepository.save(user);
-            response.addErrorMessage("User registered successfully!"); //TO-DO: Change this message
+            response.addSuccessMessage("User registered successfully!"); //TO-DO: Change this message
             return response;
             
         }catch(Exception e){

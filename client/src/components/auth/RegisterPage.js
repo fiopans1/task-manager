@@ -1,10 +1,11 @@
 import React from "react";
-import { Container, Row, Col, Form, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Card, Button, Spinner } from "react-bootstrap";
 import { useState } from "react";
 import authService from "../../services/authService";
 
 
 function RegisterPage() {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -23,12 +24,13 @@ function RegisterPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-
+      setLoading(true);
       // Validar que las contraseñas coincidan
       if (formData.password !== formData.confirmPassword) {
         throw new Error("Las contraseñas no coinciden");
       }
       authService.register(formData);
+      setLoading(false);
     } catch (error) {
       alert("Error al iniciar sesión: " + error.message);
     }
@@ -158,7 +160,10 @@ function RegisterPage() {
                     fontSize: "16px",
                   }}
                 >
-                  Registrarse
+                  {loading? (              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>): ("Registrarse")}
+                  
                 </Button>
               </Form>
             </Card.Body>
