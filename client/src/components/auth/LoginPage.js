@@ -18,7 +18,7 @@ function LoginPage({ onLogin }) {
       onLogin(token); // Notificar al padre
     } catch (error) {
       setLoading(false);
-      addNotification("Error al iniciar sesión: " + error.message, "danger");
+      addNotification("Error al iniciar sesión: " + error.message, "danger", 5000);
     }
   };
   return (

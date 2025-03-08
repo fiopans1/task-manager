@@ -48,7 +48,7 @@ const TaskDetails = () => {
           </Row>
         </Card.Body>
       </Card>
-      <Container>
+      <Container fluid>
         <Col>
           <h2>Description:</h2>
           <p>
