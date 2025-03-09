@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useState } from "react";
 import authService from "../../services/authService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from "../common/Noty";
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -176,6 +176,9 @@ function RegisterPage() {
                 )}
               </Button>
             </Form>
+            <small className="mt-3 text-muted">
+              if you have account. Go to <Link to="/login">Login</Link>
+            </small>
           </Card>
         </Col>
       </Row>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import authService from "../../services/authService";
 import { Container, Form, Button, Card, Spinner } from "react-bootstrap";
 import { useNotification } from "../common/Noty";
+import { Link } from "react-router-dom";
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +62,7 @@ function LoginPage({ onLogin }) {
             )}
           </Button>
         </Form>
+        <small className="mt-3 text-muted">if you don't have account. Go to <Link to="/register">Register</Link></small>
       </Card>
     </Container>
   );
