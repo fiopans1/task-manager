@@ -11,6 +11,10 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import NewTask from "./NewTask";
+import taskService from "../../services/taskService";
+import { Suspense } from "react";
+
+const tasksResource = taskService.getTasks();
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
@@ -32,6 +36,8 @@ const Tasks = () => {
     status: "done",
     priority: "high",
   }));
+
+  const data = tasksResource.read();
 
   return (
     <Container fluid>
@@ -60,48 +66,50 @@ const Tasks = () => {
             className="overflow-auto m-2 p-0"
             style={{ height: "88vh" }}
           >
-            {cards.map((card) => (
-              <Card>
-                <Card.Body>
-                  <Row>
-                    <Col md={8}>
-                      <Card.Title>{card.title}</Card.Title>
-                      <Card.Text>{card.content}</Card.Text>
-                    </Col>
-                    <Col md={2}>
-                      <Row className="mb-2">
-                        <Card.Subtitle>Priority:</Card.Subtitle>
-                        <Card.Text className="text-truncate">
-                          {card.priority}
-                        </Card.Text>
-                      </Row>
-                      <Row className="mb-2">
-                        {" "}
-                        <Card.Subtitle>Status:</Card.Subtitle>
-                        <Card.Text>{card.status}</Card.Text>
-                      </Row>
-                    </Col>
-                    <Col md={2}>
-                      <Row>
-                        <Button
-                          variant="success"
-                          className="me-2"
-                          onClick={() => handleOpenTask(card.key)}
-                        >
-                          Open
-                        </Button>
-                        <Button variant="primary" className="me-2">
-                          Edit
-                        </Button>
-                        <Button variant="danger" className="me-2">
-                          Delete
-                        </Button>
-                      </Row>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            ))}
+            <Suspense fallback={<div>Loading...</div>}>
+              {data?.map((card) => (
+                <Card>
+                  <Card.Body>
+                    <Row>
+                      <Col md={8}>
+                        <Card.Title>{card.nameOfTask}</Card.Title>
+                        <Card.Text>{card.descriptionOfTask}</Card.Text>
+                      </Col>
+                      <Col md={2}>
+                        <Row className="mb-2">
+                          <Card.Subtitle>Priority:</Card.Subtitle>
+                          <Card.Text className="text-truncate">
+                            {card.priority}
+                          </Card.Text>
+                        </Row>
+                        <Row className="mb-2">
+                          {" "}
+                          <Card.Subtitle>Status:</Card.Subtitle>
+                          <Card.Text>{card.status}</Card.Text>
+                        </Row>
+                      </Col>
+                      <Col md={2}>
+                        <Row>
+                          <Button
+                            variant="success"
+                            className="me-2"
+                            onClick={() => handleOpenTask(card.id)}
+                          >
+                            Open
+                          </Button>
+                          <Button variant="primary" className="me-2">
+                            Edit
+                          </Button>
+                          <Button variant="danger" className="me-2">
+                            Delete
+                          </Button>
+                        </Row>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              ))}
+            </Suspense>
           </Card>
         </Row>
       </Col>

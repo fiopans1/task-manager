@@ -6,8 +6,8 @@ const createTask = async (task) => {
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/create", task, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token,
+        "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     console.log(response.data); //TO-DO: Cambiar esto y mostrar si se creo bien o no
@@ -37,14 +37,22 @@ function getSuspender(promise) {
         throw result;
       default:
         return result;
-
     }
   };
   return { read };
 }
 
 const getTasks = () => {
-  const promise = null //TO-DO: Implementar esto but necesita ser un promise
+  const serverUrl = store.getState().server.serverUrl;
+  const token = "Bearer " + store.getState().auth.token;
+  const promise = axios
+    .get(serverUrl + "/api/tasks/tasks", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    })
+    .then((response) => response.data);
   return getSuspender(promise);
 };
 
