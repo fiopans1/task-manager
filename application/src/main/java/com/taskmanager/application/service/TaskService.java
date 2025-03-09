@@ -1,5 +1,6 @@
 package com.taskmanager.application.service;
 
+import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
 import com.taskmanager.application.model.entities.Task;
@@ -42,9 +43,10 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<Task> findAllTasksForLoggedUser(){
+    public List<TaskDTO> findAllTasksForLoggedUser(){
         User user = authService.getCurrentUser();
-        return tasksRepository.findAllByUser(user);
+        List<Task> list= tasksRepository.findAllByUser(user);
+        return list.stream().map(task -> TaskDTO.fromEntity(task)).toList(); //converts to DTO
     }
 
     @Transactional(readOnly = true)

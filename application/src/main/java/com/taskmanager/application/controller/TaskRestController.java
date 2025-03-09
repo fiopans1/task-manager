@@ -1,5 +1,6 @@
 package com.taskmanager.application.controller;
 
+import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
@@ -29,9 +30,9 @@ public class TaskRestController {
         return ResponseEntity.ok().body(taskService.createTask(task));
     }
 
-    @GetMapping("/my-tasks")
-    public ResponseEntity<List<Task>> getAllTasksForUser() {
-        return ResponseEntity.ok().body(taskService.findAllTasksForLoggedUser());
+    @GetMapping("/tasks")
+    public ResponseEntity<List<TaskDTO>> getAllTasksForUser() {
+        return ResponseEntity.ok().body(taskService.findAllTasksForLoggedUser()); //TO-DO: All ResponseEntity change and put correctly messages
     }
 
     @PostMapping("/{id}/delete")

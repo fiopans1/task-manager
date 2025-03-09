@@ -16,8 +16,41 @@ const createTask = async (task) => {
   }
 };
 
+function getSuspender(promise) {
+  let status = "pending";
+  let result;
+  const suspender = promise.then(
+    (response) => {
+      status = "success";
+      result = response;
+    },
+    (error) => {
+      status = "error";
+      result = error;
+    }
+  );
+  const read = () => {
+    switch (status) {
+      case "pending":
+        throw suspender;
+      case "error":
+        throw result;
+      default:
+        return result;
+
+    }
+  };
+  return { read };
+}
+
+const getTasks = () => {
+  const promise = null //TO-DO: Implementar esto but necesita ser un promise
+  return getSuspender(promise);
+};
+
 const taskService = {
   createTask,
+  getTasks,
 };
 
 export default taskService;
