@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useState } from "react";
 import taskervice from "../../services/taskService";
-const NewTask = ({ show, handleClose, handleShow }) => {
+const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
 
   const handleEvent = () => {
@@ -31,6 +31,7 @@ const NewTask = ({ show, handleClose, handleShow }) => {
     try{
       //TO-DO: Validar que los campos no estén vacíos y mas cosas
       taskervice.createTask(formData);
+      refreshTasks();
     }catch(error){
       alert("Error al crear la tarea: " + error.message); //TO-DO: Cambiar esto y mostrar un mensaje más bonitow
     }

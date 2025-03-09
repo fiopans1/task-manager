@@ -13,8 +13,8 @@ import { useState } from "react";
 import NewTask from "./NewTask";
 import taskService from "../../services/taskService";
 import { Suspense } from "react";
+import TasksList from "./TasksList";
 
-const tasksResource = taskService.getTasks();
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
@@ -23,33 +23,38 @@ const Tasks = () => {
     navigateTo(`${location.pathname}/${id}`);
   };
   const [show, setShow] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const cards = Array.from({ length: 30 }, (_, index) => ({
-    key: `card${index + 1}`,
-    title: `Card ${index + 1}`,
-    content: `Este es el contenido de la tarjeta número ${
-      index + 1
-    }. Puedes personalizarlo según tus necesidades.`,
-    status: "done",
-    priority: "high",
-  }));
-
-  const data = tasksResource.read();
+  const refreshTasksNewTask = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+  const refreshTasks = () => {
+    taskService.invalidateTasksCache();
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+  const tasksResource = taskService.getTasks();
 
   return (
     <Container fluid>
       <h1>My-Tasks</h1>
       <Col className="align-items-center mb-3">
         <Row>
-          <Col md={10}>
+          <Col md={8}>
             <Card>
               <InputGroup>
                 <Form.Control className="no-focus-background" />
                 <Button variant="primary">Search</Button>
               </InputGroup>
+            </Card>
+          </Col>
+          <Col md={2}>
+            <Card>
+              <Button variant="warning" onClick={() => refreshTasks()}>
+                Refresh
+              </Button>
             </Card>
           </Col>
           <Col md={2}>
@@ -61,59 +66,20 @@ const Tasks = () => {
           </Col>
         </Row>
         <Row>
-          <Card
-            fluid
-            className="overflow-auto m-2 p-0"
-            style={{ height: "88vh" }}
-          >
-            <Suspense fallback={<div>Loading...</div>}>
-              {data?.map((card) => (
-                <Card>
-                  <Card.Body>
-                    <Row>
-                      <Col md={8}>
-                        <Card.Title>{card.nameOfTask}</Card.Title>
-                        <Card.Text>{card.descriptionOfTask}</Card.Text>
-                      </Col>
-                      <Col md={2}>
-                        <Row className="mb-2">
-                          <Card.Subtitle>Priority:</Card.Subtitle>
-                          <Card.Text className="text-truncate">
-                            {card.priority}
-                          </Card.Text>
-                        </Row>
-                        <Row className="mb-2">
-                          {" "}
-                          <Card.Subtitle>Status:</Card.Subtitle>
-                          <Card.Text>{card.status}</Card.Text>
-                        </Row>
-                      </Col>
-                      <Col md={2}>
-                        <Row>
-                          <Button
-                            variant="success"
-                            className="me-2"
-                            onClick={() => handleOpenTask(card.id)}
-                          >
-                            Open
-                          </Button>
-                          <Button variant="primary" className="me-2">
-                            Edit
-                          </Button>
-                          <Button variant="danger" className="me-2">
-                            Delete
-                          </Button>
-                        </Row>
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Card>
-              ))}
-            </Suspense>
-          </Card>
+          <Suspense fallback={<div>Loading...</div>}>
+            <TasksList
+              tasksResource={tasksResource}
+              handleOpenTask={handleOpenTask}
+            />
+          </Suspense>
         </Row>
       </Col>
-      <NewTask show={show} handleClose={handleClose} handleShow={handleShow} />
+      <NewTask
+        show={show}
+        handleClose={handleClose}
+        handleShow={handleShow}
+        refreshTasks={refreshTasksNewTask}
+      />
     </Container>
   );
 };

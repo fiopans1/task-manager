@@ -1,5 +1,8 @@
 import axios from "axios";
 import store from "../redux/store";
+
+let tasksCache = null;
+
 const createTask = async (task) => {
   try {
     const serverUrl = store.getState().server.serverUrl;
@@ -10,7 +13,8 @@ const createTask = async (task) => {
         Authorization: token,
       },
     });
-    console.log(response.data); //TO-DO: Cambiar esto y mostrar si se creo bien o no
+    invalidateTasksCache();
+    return response.data;
   } catch (error) {
     throw new Error("Error al conectar con el servidor");
   }
@@ -42,9 +46,22 @@ function getSuspender(promise) {
   return { read };
 }
 
+const invalidateTasksCache = () => {
+  console.log("Invalidando caché de tareas");
+  tasksCache = null;
+};
+
 const getTasks = () => {
   const serverUrl = store.getState().server.serverUrl;
   const token = "Bearer " + store.getState().auth.token;
+  if (!serverUrl || !token) {
+    console.error("No se encontró serverUrl o token", { serverUrl, token });
+    return getSuspender(
+      Promise.reject(
+        new Error("Falta configuración de servidor o autenticación")
+      )
+    );
+  }
   const promise = axios
     .get(serverUrl + "/api/tasks/tasks", {
       headers: {
@@ -52,13 +69,21 @@ const getTasks = () => {
         Authorization: token,
       },
     })
-    .then((response) => response.data);
-  return getSuspender(promise);
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Error en la llamada a la API:", error);
+      // 6. En caso de error, invalidar la caché para permitir reintentos
+      invalidateTasksCache();
+      throw error;
+    });
+  tasksCache = getSuspender(promise);
+  return tasksCache;
 };
 
 const taskService = {
   createTask,
   getTasks,
+  invalidateTasksCache,
 };
 
 export default taskService;
