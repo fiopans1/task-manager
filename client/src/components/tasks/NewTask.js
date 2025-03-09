@@ -26,11 +26,11 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     //e.preventDefault();
     try{
       //TO-DO: Validar que los campos no estén vacíos y mas cosas
-      taskervice.createTask(formData);
+      await taskervice.createTask(formData);
       refreshTasks();
     }catch(error){
       alert("Error al crear la tarea: " + error.message); //TO-DO: Cambiar esto y mostrar un mensaje más bonitow

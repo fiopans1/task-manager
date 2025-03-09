@@ -1,7 +1,7 @@
 import axios from "axios";
 import store from "../redux/store";
 
-let tasksCache = null;
+const resourceCache = new Map();
 
 const createTask = async (task) => {
   try {
@@ -46,12 +46,18 @@ function getSuspender(promise) {
   return { read };
 }
 
-const invalidateTasksCache = () => {
-  console.log("Invalidando caché de tareas");
-  tasksCache = null;
+const invalidateTasksCache = (key = "tasks") => {
+  console.log("Invalidando cache de tareas");
+  resourceCache.delete(key);
 };
 
 const getTasks = () => {
+  const cacheKey = "tasks"; // Puedes usar una clave más específica si es necesario
+
+  // Si ya existe en caché, devuelve el recurso en caché
+  if (resourceCache.has(cacheKey)) {
+    return resourceCache.get(cacheKey);
+  }
   const serverUrl = store.getState().server.serverUrl;
   const token = "Bearer " + store.getState().auth.token;
   if (!serverUrl || !token) {
@@ -76,8 +82,9 @@ const getTasks = () => {
       invalidateTasksCache();
       throw error;
     });
-  tasksCache = getSuspender(promise);
-  return tasksCache;
+  const resource = getSuspender(promise);
+  resourceCache.set(cacheKey, resource);
+  return resource;
 };
 
 const taskService = {

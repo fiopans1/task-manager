@@ -28,14 +28,13 @@ const Tasks = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const refreshTasksNewTask = () => {
-    setRefreshKey((prevKey) => prevKey + 1);
-  };
+  const [tasksResource, setTasksResource] = useState(taskService.getTasks());
+
   const refreshTasks = () => {
     taskService.invalidateTasksCache();
+    setTasksResource(taskService.getTasks());
     setRefreshKey((prevKey) => prevKey + 1);
   };
-  const tasksResource = taskService.getTasks();
 
   return (
     <Container fluid>
@@ -68,6 +67,7 @@ const Tasks = () => {
         <Row>
           <Suspense fallback={<div>Loading...</div>}>
             <TasksList
+              key={`tasks-list-${refreshKey}`}
               tasksResource={tasksResource}
               handleOpenTask={handleOpenTask}
             />
@@ -78,7 +78,7 @@ const Tasks = () => {
         show={show}
         handleClose={handleClose}
         handleShow={handleShow}
-        refreshTasks={refreshTasksNewTask}
+        refreshTasks={refreshTasks}
       />
     </Container>
   );
