@@ -10,8 +10,10 @@ import {
 } from "react-bootstrap";
 import { useState } from "react";
 import taskervice from "../../services/taskService";
+import { useNotification } from "../common/Noty";
 const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
+  const { addNotification } = useNotification();
 
   const handleEvent = () => {
     setIsEvent(!isEvent);
@@ -28,12 +30,13 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   };
   const handleSubmit = async (e) => {
     //e.preventDefault();
-    try{
-      //TO-DO: Validar que los campos no estén vacíos y mas cosas
+    try {
+      //TO-DO: Validar que los campos no estén vacíos y mas cosas, y una vez creada vaciar campos
       await taskervice.createTask(formData);
       refreshTasks();
-    }catch(error){
-      alert("Error al crear la tarea: " + error.message); //TO-DO: Cambiar esto y mostrar un mensaje más bonitow
+      addNotification("Task created succesfully", "success");
+    } catch (error) {
+      alert("Error al crear la tarea: " + error.message); //TO-DO: Cambiar esto y mostrar un mensaje más bonitow (con el get igual)
     }
   };
 
