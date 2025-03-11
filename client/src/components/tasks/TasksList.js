@@ -64,15 +64,15 @@ const TasksList = ({ tasksResource, handleOpenTask,refreshTasks }) => {
                 <Row>
                   <Button
                     variant="success"
-                    className="me-2"
+                    className="me-2 mt-1"
                     onClick={() => handleOpenTask(card.id)}
                   >
                     Open
                   </Button>
-                  <Button variant="primary" className="me-2">
+                  <Button variant="primary" className="me-2 mt-1">
                     Edit
                   </Button>
-                  <Button onClick={() => {confirmDeleteTask(card.id);}}variant="danger" className="me-2">
+                  <Button onClick={() => {confirmDeleteTask(card.id);}}variant="danger" className="me-2 mt-1">
                     Delete
                   </Button>
                 </Row>
