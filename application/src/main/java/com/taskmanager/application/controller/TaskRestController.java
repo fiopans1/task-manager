@@ -8,6 +8,7 @@ import com.taskmanager.application.service.TaskService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,7 @@ public class TaskRestController {
         return ResponseEntity.ok().body(taskService.findAllTasksForLoggedUser()); //TO-DO: All ResponseEntity change and put correctly messages
     }
 
-    @PostMapping("/{id}/delete")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException { //TO-DO: Change the expcetion to a custom exception
         taskService.deleteTaskById(id);
         return ResponseEntity.ok().body("Task deleted successfully");

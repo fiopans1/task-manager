@@ -1,12 +1,36 @@
-import { Col, Row, Card, Button } from "react-bootstrap";
+import { Col, Row, Card, Button, Modal } from "react-bootstrap";
 import { useState, useEffect } from "react";
-const TasksList = ({ tasksResource, handleOpenTask }) => {
+import taskService from "../../services/taskService";
+import { useNotification } from "../common/Noty";
+const TasksList = ({ tasksResource, handleOpenTask,refreshTasks }) => {
     
   const [data, setData] = useState(tasksResource.read());
-
+  const [showDelete, setShowDelete] = useState(false);
+  const [idToDelete, setIdToDelete] = useState(null);
+  const { addNotification } = useNotification();
   useEffect(() => {
     setData(tasksResource.read());
   }, [tasksResource]);
+
+  const deleteTask = async () => {
+    try {
+      if(idToDelete){
+      await taskService.deleteTask(idToDelete);
+      taskService.invalidateTasksCache();
+      setIdToDelete(null);
+      refreshTasks();
+      addNotification("Task deleted succesfully", "success");
+      }else{
+        addNotification("Error: No task selected", "danger", 5000);
+      }
+    } catch (error) {
+      addNotification("Error: " + error.message, "danger", 5000);
+    }
+  };
+  const confirmDeleteTask = (id) => {
+    setIdToDelete(id);
+    setShowDelete(true);
+  }
 
   return !data || data.length === 0 ? (
       <Card.Body className="text-center py-5">
@@ -48,7 +72,7 @@ const TasksList = ({ tasksResource, handleOpenTask }) => {
                   <Button variant="primary" className="me-2">
                     Edit
                   </Button>
-                  <Button variant="danger" className="me-2">
+                  <Button onClick={() => {confirmDeleteTask(card.id);}}variant="danger" className="me-2">
                     Delete
                   </Button>
                 </Row>
@@ -57,6 +81,19 @@ const TasksList = ({ tasksResource, handleOpenTask }) => {
           </Card.Body>
         </Card>
       ))}
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered>
+        <Modal.Body closeButton>
+          Are you sure you want to delete this task?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => {setShowDelete(false); setIdToDelete(null);}}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={() => {setShowDelete(false); deleteTask(); }}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Card.Body>
   );
 };

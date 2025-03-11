@@ -87,9 +87,21 @@ const getTasks = () => {
   return resource;
 };
 
+const deleteTask = (id) => {
+  const serverUrl = store.getState().server.serverUrl;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.delete(serverUrl + "/api/tasks/delete/" + id, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
 const taskService = {
   createTask,
   getTasks,
+  deleteTask,
   invalidateTasksCache,
 };
 

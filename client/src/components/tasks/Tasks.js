@@ -78,6 +78,7 @@ const Tasks = () => {
               key={`tasks-list-${refreshKey}`}
               tasksResource={tasksResource}
               handleOpenTask={handleOpenTask}
+              refreshTasks={refreshTasks}
             />
           </Suspense>
           </ErrorBoundary>
