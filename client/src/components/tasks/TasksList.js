@@ -9,14 +9,12 @@ const TasksList = ({ tasksResource, handleOpenTask }) => {
   }, [tasksResource]);
 
   return !data || data.length === 0 ? (
-    <Card fluid className="overflow-auto m-2 p-0" style={{ height: "88vh" }}>
       <Card.Body className="text-center py-5">
         <Card.Title>No tasks avaliable</Card.Title>
         <Card.Text>Please create a new task</Card.Text>
       </Card.Body>
-    </Card>
   ) : (
-    <Card fluid className="overflow-auto m-2 p-0" style={{ height: "88vh" }}>
+    <Card.Body>
       {data?.map((card) => (
         <Card key={card.id}>
           <Card.Body>
@@ -59,7 +57,7 @@ const TasksList = ({ tasksResource, handleOpenTask }) => {
           </Card.Body>
         </Card>
       ))}
-    </Card>
+    </Card.Body>
   );
 };
 

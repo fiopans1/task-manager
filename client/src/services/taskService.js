@@ -16,7 +16,7 @@ const createTask = async (task) => {
     invalidateTasksCache();
     return response.data;
   } catch (error) {
-    throw new Error("Error al conectar con el servidor");
+    throw new Error("Error al conectar con el servidor:" + error.message);
   }
 };
 
@@ -77,7 +77,7 @@ const getTasks = () => {
     })
     .then((response) => response.data)
     .catch((error) => {
-      console.error("Error en la llamada a la API:", error);
+      //console.error("Error en la llamada a la API:", error);
       // 6. En caso de error, invalidar la caché para permitir reintentos
       invalidateTasksCache();
       throw error;
