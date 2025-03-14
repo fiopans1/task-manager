@@ -27,8 +27,8 @@ public class TaskRestController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public ResponseEntity<Task> createTask(@RequestBody Task task) { //TO-DO: All ResponseEntity change and put correctly messages
-        return ResponseEntity.ok().body(taskService.createTask(task));
+    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO task) { //TO-DO: All ResponseEntity change and put correctly messages
+        return ResponseEntity.ok().body(TaskDTO.fromEntity(taskService.createTask(task)));
     }
 
     @GetMapping("/tasks")
@@ -40,6 +40,11 @@ public class TaskRestController {
     public ResponseEntity<String> deleteTask(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException { //TO-DO: Change the expcetion to a custom exception
         taskService.deleteTaskById(id);
         return ResponseEntity.ok().body("Task deleted successfully");
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody TaskDTO task) throws ResourceNotFoundException, NotPermissionException { //TO-DO: Change the expcetion to a custom exception
+        return ResponseEntity.ok().body(taskService.updateTask(id, task));
     }
     
 

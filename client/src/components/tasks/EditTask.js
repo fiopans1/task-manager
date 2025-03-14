@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import {
   Container,
   Col,
@@ -11,30 +11,28 @@ import {
 import { useState } from "react";
 import taskervice from "../../services/taskService";
 import { useNotification } from "../common/Noty";
-const NewTask = ({ show, handleClose, refreshTasks }) => {
+const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
   const [isEvent, setIsEvent] = useState(false);
   const { addNotification } = useNotification();
 
+  const [formData, setData] = useState(initialData || {});
   const handleEvent = () => {
     setIsEvent(!isEvent);
   };
-  const [formData, setFormData] = useState({
-    nameOfTask: "",
-    descriptionOfTask: "",
-    state: "NEW",
-    priority: "MIN",
-  });
+  useEffect(() => {
+    setData(initialData || {});
+  }, [initialData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setData({ ...formData, [name]: value });
   };
-  const handleSubmit = async (e) => {
-    //e.preventDefault();
+  const handleSubmit = async () => {
     try {
       //TO-DO: Validar que los campos no estén vacíos y mas cosas, y una vez creada vaciar campos
-      await taskervice.createTask(formData);
+      await taskervice.editTask(formData);
       refreshTasks();
-      addNotification("Task created succesfully", "success");
+      addNotification("Task edited succesfully", "success");
     } catch (error) {
       addNotification("Error: " + error.message, "danger", 5000);
     }
@@ -51,7 +49,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     <Container>
       <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>New Task</Modal.Title>
+          <Modal.Title>Edit Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Container>
@@ -182,13 +180,13 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
             Close
           </Button>
           <Button
-            variant="primary"
+            variant="danger"
             onClick={() => {
               handleClose();
               handleSubmit();
             }}
           >
-            Create
+            Save
           </Button>
         </Modal.Footer>
       </Modal>
@@ -196,4 +194,4 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   );
 };
 
-export default NewTask;
+export default EditTask;

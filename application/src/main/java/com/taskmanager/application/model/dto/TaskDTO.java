@@ -74,6 +74,17 @@ public class TaskDTO {
         taskDTO.setEventTask(task.getEventTask());
         return taskDTO;
     }
+
+    public static Task toEntity(TaskDTO taskDTO) {
+        Task task = new Task();
+        task.setId(taskDTO.getId());
+        task.setNameOfTask(taskDTO.getNameOfTask());
+        task.setDescriptionOfTask(taskDTO.getDescriptionOfTask());
+        task.setState(taskDTO.getState());
+        task.setPriority(taskDTO.getPriority());
+        task.setEventTask(taskDTO.getEventTask());
+        return task;
+    }
     
 
 }

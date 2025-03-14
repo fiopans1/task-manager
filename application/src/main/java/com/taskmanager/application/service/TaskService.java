@@ -30,7 +30,8 @@ public class TaskService {
      * si es admin podemos poner la tarea con el usuario que asigna el admin (en este caso mandar el username).
     */
     @Transactional
-    public Task createTask(Task task) {
+    public Task createTask(TaskDTO taskDto) {
+        Task task = TaskDTO.toEntity(taskDto);
         User user = authService.getCurrentUser();
 
         task.setCreationDate(new Date());
@@ -39,6 +40,21 @@ public class TaskService {
         }else{
             task.setUser(user);
             return tasksRepository.save(task);
+        }
+    }
+
+    @Transactional
+    public Task updateTask(Long id, TaskDTO task) throws ResourceNotFoundException, NotPermissionException {
+        Task taskToUpdate = tasksRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        if(authService.hasRole("ADMIN") || taskToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())){
+            taskToUpdate.setNameOfTask(task.getNameOfTask());
+            taskToUpdate.setDescriptionOfTask(task.getDescriptionOfTask());
+            taskToUpdate.setPriority(task.getPriority());
+            taskToUpdate.setState(task.getState());
+            return tasksRepository.save(taskToUpdate);
+        }else{
+            throw new NotPermissionException("You don't have permission to update this task");
         }
     }
 

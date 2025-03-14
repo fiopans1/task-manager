@@ -16,6 +16,7 @@ import { Suspense } from "react";
 import TasksList from "./TasksList";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNotification } from "../common/Noty";
+import EditTask from "./EditTask";
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
@@ -23,11 +24,18 @@ const Tasks = () => {
   const handleOpenTask = (id) => {
     navigateTo(`${location.pathname}/${id}`);
   };
-  const [show, setShow] = useState(false);
+  const [showNewTask, setshowNewTask] = useState(false);
+  const [showEditTask, setshowEditTask] = useState(false);
+  const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleClose = () => setshowNewTask(false);
+  const handleshowNewTask = () => setshowNewTask(true);
+  const handleCloseEdit = () => setshowEditTask(false);
+  const handleshowEditTask = (task) => {
+    setFormEditData(task);
+    setshowEditTask(true)
+  };
 
   const [tasksResource, setTasksResource] = useState(taskService.getTasks());
 
@@ -63,7 +71,7 @@ const Tasks = () => {
           </Col>
           <Col md={2}>
             <Card>
-              <Button variant="primary" onClick={() => handleShow()}>
+              <Button variant="primary" onClick={() => handleshowNewTask()}>
                 New Task
               </Button>
             </Card>
@@ -78,6 +86,7 @@ const Tasks = () => {
               key={`tasks-list-${refreshKey}`}
               tasksResource={tasksResource}
               handleOpenTask={handleOpenTask}
+              handleEditTask={handleshowEditTask}
               refreshTasks={refreshTasks}
             />
           </Suspense>
@@ -86,10 +95,15 @@ const Tasks = () => {
         </Row>
       </Col>
       <NewTask
-        show={show}
+        show={showNewTask}
         handleClose={handleClose}
-        handleShow={handleShow}
         refreshTasks={refreshTasks}
+      />
+      <EditTask
+        show={showEditTask}
+        handleClose={handleCloseEdit}
+        refreshTasks={refreshTasks}
+        initialData={formEditData}
       />
     </Container>
   );

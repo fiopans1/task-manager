@@ -19,6 +19,22 @@ const createTask = async (task) => {
     throw new Error("Error al conectar con el servidor:" + error.message);
   }
 };
+const editTask = async (task) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.post(serverUrl + "/api/tasks/update/" + task.id, task, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+    invalidateTasksCache();
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
 
 function getSuspender(promise) {
   let status = "pending";
@@ -102,6 +118,7 @@ const taskService = {
   createTask,
   getTasks,
   deleteTask,
+  editTask,
   invalidateTasksCache,
 };
 

@@ -2,7 +2,7 @@ import { Col, Row, Card, Button, Modal } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import taskService from "../../services/taskService";
 import { useNotification } from "../common/Noty";
-const TasksList = ({ tasksResource, handleOpenTask,refreshTasks }) => {
+const TasksList = ({ tasksResource, handleOpenTask, handleEditTask, refreshTasks }) => {
     
   const [data, setData] = useState(tasksResource.read());
   const [showDelete, setShowDelete] = useState(false);
@@ -69,7 +69,7 @@ const TasksList = ({ tasksResource, handleOpenTask,refreshTasks }) => {
                   >
                     Open
                   </Button>
-                  <Button variant="primary" className="me-2 mt-1">
+                  <Button variant="primary" onClick={()=> handleEditTask(card)} className="me-2 mt-1">
                     Edit
                   </Button>
                   <Button onClick={() => {confirmDeleteTask(card.id);}}variant="danger" className="me-2 mt-1">
