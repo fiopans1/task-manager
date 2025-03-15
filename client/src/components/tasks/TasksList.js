@@ -1,13 +1,13 @@
 import { Col, Row, Card, Button, Modal } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import taskService from "../../services/taskService";
-import { useNotification } from "../common/Noty";
+import { successToast, errorToast } from "../common/Noty";
+
 const TasksList = ({ tasksResource, handleOpenTask, handleEditTask, refreshTasks }) => {
     
   const [data, setData] = useState(tasksResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
-  const { addNotification } = useNotification();
   useEffect(() => {
     setData(tasksResource.read());
   }, [tasksResource]);
@@ -19,12 +19,12 @@ const TasksList = ({ tasksResource, handleOpenTask, handleEditTask, refreshTasks
       taskService.invalidateTasksCache();
       setIdToDelete(null);
       refreshTasks();
-      addNotification("Task deleted succesfully", "success");
+      successToast("Task deleted succesfully");
       }else{
-        addNotification("Error: No task selected", "danger", 5000);
+        errorToast("Error: No task selected");
       }
     } catch (error) {
-      addNotification("Error: " + error.message, "danger", 5000);
+      errorToast("Error: " + error.message);
     }
   };
   const confirmDeleteTask = (id) => {

@@ -14,11 +14,10 @@ import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import ListDetails from "./components/lists/ListDetails";
 import Home from "./components/Home";
-import { useNotification } from "./components/common/Noty";
+import { infoToast } from "./components/common/Noty";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
-  const { addNotification } = useNotification();
   useEffect(() => {
     // Verificar si el token existe al cargar la aplicación
     const token = authService.getToken();
@@ -32,7 +31,7 @@ function App() {
 
   const handleLogout = () => {
     authService.logout(); // Eliminar el token
-    addNotification("Logged out", "info");
+    infoToast("Logged out");
     setIsAuthenticated(false);
   };
 

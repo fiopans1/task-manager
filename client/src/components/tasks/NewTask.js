@@ -10,10 +10,10 @@ import {
 } from "react-bootstrap";
 import { useState } from "react";
 import taskervice from "../../services/taskService";
-import { useNotification } from "../common/Noty";
+import { successToast, errorToast } from "../common/Noty";
+
 const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
-  const { addNotification } = useNotification();
 
   const handleEvent = () => {
     setIsEvent(!isEvent);
@@ -34,9 +34,9 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       //TO-DO: Validar que los campos no estén vacíos y mas cosas, y una vez creada vaciar campos
       await taskervice.createTask(formData);
       refreshTasks();
-      addNotification("Task created succesfully", "success");
+      successToast("Task created succesfully");
     } catch (error) {
-      addNotification("Error: " + error.message, "danger", 5000);
+      errorToast("Error: " + error.message);
     }
   };
 

@@ -15,12 +15,12 @@ import taskService from "../../services/taskService";
 import { Suspense } from "react";
 import TasksList from "./TasksList";
 import { ErrorBoundary } from "react-error-boundary";
-import { useNotification } from "../common/Noty";
+import { errorToast } from "../common/Noty";
+
 import EditTask from "./EditTask";
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
-  const { addNotification } = useNotification();
   const handleOpenTask = (id) => {
     navigateTo(`${location.pathname}/${id}`);
   };
@@ -34,7 +34,7 @@ const Tasks = () => {
   const handleCloseEdit = () => setshowEditTask(false);
   const handleshowEditTask = (task) => {
     setFormEditData(task);
-    setshowEditTask(true)
+    setshowEditTask(true);
   };
 
   const [tasksResource, setTasksResource] = useState(taskService.getTasks());
@@ -46,8 +46,8 @@ const Tasks = () => {
   };
 
   const handleErrors = (error, info) => {
-    addNotification("Error: " + error.message, "danger", 5000);
-  }
+    errorToast("Error: " + error.message);
+  };
 
   return (
     <Container fluid>
@@ -78,20 +78,38 @@ const Tasks = () => {
           </Col>
         </Row>
         <Row>
-        {/* //TO-DO Mejorar el mensaje de error por uno mejor */}
-        <Card fluid className="overflow-auto m-2 p-0" style={{ height: "88vh" }}>
-          <ErrorBoundary resetKeys={[refreshKey]} onError={handleErrors} fallback={<Container className="text-center mt-5"><h2 style={{ color: "red"}}>Something went wrong</h2></Container>}>
-          <Suspense fallback={<Container className="text-center mt-5"><Spinner/></Container>}>
-            <TasksList
-              key={`tasks-list-${refreshKey}`}
-              tasksResource={tasksResource}
-              handleOpenTask={handleOpenTask}
-              handleEditTask={handleshowEditTask}
-              refreshTasks={refreshTasks}
-            />
-          </Suspense>
-          </ErrorBoundary>
-        </Card>
+          {/* //TO-DO Mejorar el mensaje de error por uno mejor */}
+          <Card
+            fluid
+            className="overflow-auto m-2 p-0"
+            style={{ height: "88vh" }}
+          >
+            <ErrorBoundary
+              resetKeys={[refreshKey]}
+              onError={handleErrors}
+              fallback={
+                <Container className="text-center mt-5">
+                  <h2 style={{ color: "red" }}>Something went wrong</h2>
+                </Container>
+              }
+            >
+              <Suspense
+                fallback={
+                  <Container className="text-center mt-5">
+                    <Spinner />
+                  </Container>
+                }
+              >
+                <TasksList
+                  key={`tasks-list-${refreshKey}`}
+                  tasksResource={tasksResource}
+                  handleOpenTask={handleOpenTask}
+                  handleEditTask={handleshowEditTask}
+                  refreshTasks={refreshTasks}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          </Card>
         </Row>
       </Col>
       <NewTask

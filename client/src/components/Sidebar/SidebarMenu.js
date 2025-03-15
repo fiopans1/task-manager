@@ -75,7 +75,9 @@ function SidebarMenu({ onLogOut }) {
           className="text-white text-decoration-none"
         >
           <i className="bi bi-person-circle"></i>
-          <span className="ms-2 d-none d-sm-inline">{authService.getUsername()}</span>
+          <span className="ms-2 d-none d-sm-inline">
+            {authService.getUsername()}
+          </span>
         </Dropdown.Toggle>
 
         <Dropdown.Menu>

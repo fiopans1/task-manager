@@ -1,25 +1,24 @@
 import React, { useState } from "react";
 import authService from "../../services/authService";
 import { Container, Form, Button, Card, Spinner } from "react-bootstrap";
-import { useNotification } from "../common/Noty";
 import { Link } from "react-router-dom";
+import { successToast, errorToast } from "../common/Noty";
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { addNotification } = useNotification();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       const token = await authService.login(username, password);
       setLoading(false);
-      addNotification("Login successfull!", "success");
+      successToast("Logged in");
       onLogin(token); // Notificar al padre
     } catch (error) {
       setLoading(false);
-      addNotification("Error al iniciar sesión: " + error.message, "danger", 5000);
+      errorToast("Error al iniciar sesión: " + error.message);
     }
   };
   return (
