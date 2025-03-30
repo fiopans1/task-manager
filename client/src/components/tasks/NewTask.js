@@ -16,13 +16,21 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
 
   const handleEvent = () => {
-    setIsEvent(!isEvent);
+    const newIsEvent = !isEvent;
+    setIsEvent(newIsEvent);
+    setFormData((prevData) => ({
+      ...prevData,
+      isEvent: newIsEvent,
+    }));
   };
   const [formData, setFormData] = useState({
     nameOfTask: "",
     descriptionOfTask: "",
     state: "NEW",
     priority: "MIN",
+    isEvent: false,
+    startDate: "",
+    endDate: "",
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,8 +39,21 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   const handleSubmit = async (e) => {
     //e.preventDefault();
     try {
-      //TO-DO: Validar que los campos no estén vacíos y mas cosas, y una vez creada vaciar campos
-      await taskervice.createTask(formData);
+      // Crear una copia de formData para modificar
+      const taskData = { ...formData };
+
+      // Si es un evento, combinar fecha y hora
+      if (taskData.isEvent) {
+        // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
+        if (startDateField && startTimeField) {
+          taskData.startDate = `${startDateField}T${startTimeField}:00`;
+        }
+
+        if (endDateField && endTimeField) {
+          taskData.endDate = `${endDateField}T${endTimeField}:00`;
+        }
+      }
+      await taskervice.createTask(taskData);
       refreshTasks();
       successToast("Task created succesfully");
     } catch (error) {
@@ -40,13 +61,12 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     }
   };
 
-  // const formatToISO = ({ date, time }) => {
-  //   if (!date || !time) return null;
+  // Añadir estas variables para controlar los campos de fecha y hora
+  const [startDateField, setStartDateField] = useState("");
+  const [startTimeField, setStartTimeField] = useState("");
+  const [endDateField, setEndDateField] = useState("");
+  const [endTimeField, setEndTimeField] = useState("");
 
-  //   // Convertimos a objeto Date en la zona horaria local
-  //   const isoString = new Date(`${date}T${time}:00`).toISOString();
-  //   return isoString; // Devuelve formato ISO
-  // };
   return (
     <Container>
       <Modal show={show} onHide={handleClose} size="lg">
@@ -125,12 +145,20 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                             <Form.Control
                               type="date"
                               placeholder="Enter date"
+                              value={startDateField}
+                              onChange={(e) =>
+                                setStartDateField(e.target.value)
+                              }
                             />
                           </Col>
                           <Col>
                             <Form.Control
                               type="time"
                               placeholder="Enter time"
+                              value={startTimeField}
+                              onChange={(e) =>
+                                setStartTimeField(e.target.value)
+                              }
                             />
                           </Col>
                         </Row>
@@ -146,12 +174,16 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                             <Form.Control
                               type="date"
                               placeholder="Enter date"
+                              value={endDateField}
+                              onChange={(e) => setEndDateField(e.target.value)}
                             />
                           </Col>
                           <Col>
                             <Form.Control
                               type="time"
                               placeholder="Enter time"
+                              value={endTimeField}
+                              onChange={(e) => setEndTimeField(e.target.value)}
                             />
                           </Col>
                         </Row>

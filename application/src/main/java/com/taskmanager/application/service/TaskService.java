@@ -1,6 +1,7 @@
 package com.taskmanager.application.service;
 
 import com.taskmanager.application.model.dto.TaskDTO;
+import com.taskmanager.application.model.entities.EventTask;
 import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
 import com.taskmanager.application.model.entities.Task;
@@ -10,6 +11,7 @@ import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.respository.TaskRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.events.Event;
 
 import java.util.Date;
 import java.util.List;
@@ -52,6 +54,20 @@ public class TaskService {
             taskToUpdate.setDescriptionOfTask(task.getDescriptionOfTask());
             taskToUpdate.setPriority(task.getPriority());
             taskToUpdate.setState(task.getState());
+            if(task.isEvent()){
+                if(taskToUpdate.getEventTask()!=null){ //TO-DO: Implementar esto
+                    taskToUpdate.getEventTask().setStartTime(task.getStartDate());
+                    taskToUpdate.getEventTask().setEndTime(task.getEndDate());
+                }else{
+                    EventTask event = new EventTask();
+                    event.setStartTime(task.getStartDate());
+                    event.setEndTime(task.getEndDate());
+                    taskToUpdate.setEventTask(event);
+                }
+            }else{
+                taskToUpdate.setEventTask(null);
+            }
+                
             return tasksRepository.save(taskToUpdate);
         }else{
             throw new NotPermissionException("You don't have permission to update this task");

@@ -12,13 +12,17 @@ import { useState } from "react";
 import taskervice from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 
-
 const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
-  const [isEvent, setIsEvent] = useState(false);
+  const [isEvent, setIsEvent] = useState(initialData.isEvent);
 
   const [formData, setData] = useState(initialData || {});
   const handleEvent = () => {
-    setIsEvent(!isEvent);
+    const newIsEvent = !isEvent;
+    setIsEvent(newIsEvent);
+    setData((prevData) => ({
+      ...prevData,
+      isEvent: newIsEvent,
+    }));
   };
   useEffect(() => {
     setData(initialData || {});
@@ -30,8 +34,21 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
   };
   const handleSubmit = async () => {
     try {
+      const taskData = { ...formData };
+
+      // Si es un evento, combinar fecha y hora
+      if (taskData.isEvent) {
+        // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
+        if (startDateField && startTimeField) {
+          taskData.startDate = `${startDateField}T${startTimeField}:00`;
+        }
+
+        if (endDateField && endTimeField) {
+          taskData.endDate = `${endDateField}T${endTimeField}:00`;
+        }
+      }
       //TO-DO: Validar que los campos no estén vacíos y mas cosas, y una vez creada vaciar campos
-      await taskervice.editTask(formData);
+      await taskervice.editTask(taskData);
       refreshTasks();
       successToast("Task edited succesfully");
     } catch (error) {
@@ -39,13 +56,50 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
     }
   };
 
-  // const formatToISO = ({ date, time }) => {
-  //   if (!date || !time) return null;
+  // Función para extraer la fecha de un formato ISO (YYYY-MM-DDThh:mm:ss)
+  const extractDateFromISO = (isoString) => {
+    if (!isoString) return "";
 
-  //   // Convertimos a objeto Date en la zona horaria local
-  //   const isoString = new Date(`${date}T${time}:00`).toISOString();
-  //   return isoString; // Devuelve formato ISO
-  // };
+    // Si es un formato ISO completo (con T)
+    if (isoString.includes("T")) {
+      return isoString.split("T")[0]; // Retorna la parte antes de la T
+    }
+
+    // Si ya es solo una fecha
+    return isoString;
+  };
+
+  // Función para extraer la hora de un formato ISO (YYYY-MM-DDThh:mm:ss)
+  const extractTimeFromISO = (isoString) => {
+    if (!isoString) return "";
+
+    // Si es un formato ISO completo (con T)
+    if (isoString.includes("T")) {
+      // Obtiene la parte después de T y elimina los segundos si existen
+      const timePart = isoString.split("T")[1];
+      // Retorna solo horas y minutos (elimina segundos y milisegundos)
+      return timePart.substring(0, 5);
+    }
+
+    // Si es solo una hora
+    return isoString;
+  };
+  useEffect(() => {
+    setData(initialData || {});
+    
+    // También actualizar los campos de fecha y hora
+    if (initialData) {
+      setIsEvent(initialData.isEvent || false);
+      setStartDateField(extractDateFromISO(initialData.startDate || ""));
+      setStartTimeField(extractTimeFromISO(initialData.startDate || ""));
+      setEndDateField(extractDateFromISO(initialData.endDate || ""));
+      setEndTimeField(extractTimeFromISO(initialData.endDate || ""));
+    }
+  }, [initialData]);
+  const [startDateField, setStartDateField] = useState(extractDateFromISO(""));
+  const [startTimeField, setStartTimeField] = useState(extractTimeFromISO(""));
+  const [endDateField, setEndDateField] = useState(extractDateFromISO(""));
+  const [endTimeField, setEndTimeField] = useState(extractTimeFromISO(""));
   return (
     <Container>
       <Modal show={show} onHide={handleClose} size="lg">
@@ -124,12 +178,20 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                             <Form.Control
                               type="date"
                               placeholder="Enter date"
+                              value={startDateField}
+                              onChange={(e) =>
+                                setStartDateField(e.target.value)
+                              }
                             />
                           </Col>
                           <Col>
                             <Form.Control
                               type="time"
                               placeholder="Enter time"
+                              value={startTimeField}
+                              onChange={(e) =>
+                                setStartTimeField(e.target.value)
+                              }
                             />
                           </Col>
                         </Row>
@@ -145,12 +207,16 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                             <Form.Control
                               type="date"
                               placeholder="Enter date"
+                              value={endDateField}
+                              onChange={(e) => setEndDateField(e.target.value)}
                             />
                           </Col>
                           <Col>
                             <Form.Control
                               type="time"
                               placeholder="Enter time"
+                              value={endTimeField}
+                              onChange={(e) => setEndTimeField(e.target.value)}
                             />
                           </Col>
                         </Row>

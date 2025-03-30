@@ -1,6 +1,11 @@
 package com.taskmanager.application.model.dto;
 
+import java.util.Date;
+
+import org.yaml.snakeyaml.events.Event;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.taskmanager.application.model.entities.EventTask;
 import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
@@ -16,7 +21,9 @@ public class TaskDTO {
     private StateTask state;
     private String user;
     private PriorityTask priority;
-    private EventTask eventTask;
+    private boolean isEvent;
+    private Date startDate;
+    private Date endDate;
 
     public TaskDTO() {
     }
@@ -39,8 +46,19 @@ public class TaskDTO {
     public String getUser() {
         return user;
     }
-    public EventTask getEventTask() {
-        return eventTask;
+    public Date getStartDate() {
+        return startDate;
+    }
+    public Date getEndDate() {
+        return endDate;
+    }
+    @JsonProperty("isEvent")
+    public boolean isEvent() {
+        return isEvent;
+    }
+    @JsonProperty("isEvent")
+    public void setIsEvent(boolean isEvent) {
+        this.isEvent = isEvent;
     }
     public void setDescriptionOfTask(String descriptionOfTask) {
         this.descriptionOfTask = descriptionOfTask;
@@ -57,8 +75,11 @@ public class TaskDTO {
     public void setState(StateTask state) {
         this.state = state;
     }
-    public void setEventTask(EventTask eventTask) {
-        this.eventTask = eventTask;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
     public void setUser(String user) {
         this.user = user;
@@ -71,7 +92,13 @@ public class TaskDTO {
         taskDTO.setState(task.getState());
         taskDTO.setUser(task.getUser().getUsername());
         taskDTO.setPriority(task.getPriority());
-        taskDTO.setEventTask(task.getEventTask());
+        if(task.getEventTask() != null) {
+            taskDTO.setIsEvent(true);
+            taskDTO.setStartDate(task.getEventTask().getStartTime());
+            taskDTO.setEndDate(task.getEventTask().getEndTime());
+        } else {
+            taskDTO.setIsEvent(false);
+        }
         return taskDTO;
     }
 
@@ -82,7 +109,12 @@ public class TaskDTO {
         task.setDescriptionOfTask(taskDTO.getDescriptionOfTask());
         task.setState(taskDTO.getState());
         task.setPriority(taskDTO.getPriority());
-        task.setEventTask(taskDTO.getEventTask());
+        if(taskDTO.isEvent()){
+            EventTask eventTask = new EventTask();
+            eventTask.setStartTime(taskDTO.getStartDate());
+            eventTask.setEndTime(taskDTO.getEndDate());
+            task.setEventTask(eventTask);
+        }
         return task;
     }
     

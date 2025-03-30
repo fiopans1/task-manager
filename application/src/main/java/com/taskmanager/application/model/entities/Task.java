@@ -1,5 +1,6 @@
 package com.taskmanager.application.model.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +31,7 @@ public class Task {
     
     private Date creationDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "event_id", nullable = true)
     private EventTask eventTask;
 
@@ -84,6 +85,9 @@ public class Task {
     }
     public void setEventTask(EventTask eventTask) {
         this.eventTask = eventTask;
+        if (eventTask != null) {
+            eventTask.setTask(this);
+        }
     }
     public void setNameOfTask(String nameOfTask) {
         this.nameOfTask = nameOfTask;
