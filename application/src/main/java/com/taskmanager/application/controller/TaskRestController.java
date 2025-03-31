@@ -1,5 +1,6 @@
 package com.taskmanager.application.controller;
 
+import com.taskmanager.application.model.dto.EventTaskDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
@@ -47,6 +48,11 @@ public class TaskRestController {
         return ResponseEntity.ok().body(taskService.updateTask(id, task));
     }
     
+
+    @GetMapping("/events/get")
+    public ResponseEntity<List<EventTaskDTO>> getAllEventsForUser() {
+        return ResponseEntity.ok().body(taskService.getAllEventsForCurrentUser()); //TO-DO: All ResponseEntity change and put correctly messages
+    }
 
 
 

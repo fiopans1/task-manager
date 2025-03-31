@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import taskervice from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
-
+import dayjs from "dayjs";
 const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
 
@@ -36,7 +36,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
     //e.preventDefault();
     try {
       // Crear una copia de formData para modificar
@@ -46,11 +46,11 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       if (taskData.isEvent) {
         // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
-          taskData.startDate = `${startDateField}T${startTimeField}:00`;
+          taskData.startDate = dayjs(`${startDateField}T${startTimeField}`).toISOString();;
         }
 
         if (endDateField && endTimeField) {
-          taskData.endDate = `${endDateField}T${endTimeField}:00`;
+          taskData.endDate = dayjs(`${endDateField}T${endTimeField}`).toISOString();
         }
       }
       await taskervice.createTask(taskData);

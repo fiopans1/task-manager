@@ -1,5 +1,6 @@
 package com.taskmanager.application.service;
 
+import com.taskmanager.application.model.dto.EventTaskDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.entities.EventTask;
 import com.taskmanager.application.model.entities.PriorityTask;
@@ -8,6 +9,7 @@ import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.respository.EventTaskRepository;
 import com.taskmanager.application.respository.TaskRepository;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,9 @@ public class TaskService {
     
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EventTaskRepository eventTaskRepository;
 
     /*Este metodo cuando esté el front bien implementado lo que tiene que hacer es comprobar quien esta
      * logueada, y ver si es admin o no, si no es admin solo ponemos la tarea con el usuario que la creó,
@@ -106,6 +111,12 @@ public class TaskService {
     public Task getTaskById(Long id) throws ResourceNotFoundException {
         return tasksRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventTaskDTO> getAllEventsForCurrentUser() {
+        User user = authService.getCurrentUser();
+        return eventTaskRepository.findAllEventsByUserId(user.getId());
     }
 
 

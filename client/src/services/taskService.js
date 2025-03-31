@@ -114,12 +114,24 @@ const deleteTask = (id) => {
   }).then((response) => response.data);
 };
 
+const getEvents = () => {
+  const serverUrl = store.getState().server.serverUrl;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.get(serverUrl + "/api/tasks/events/get", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
 const taskService = {
   createTask,
   getTasks,
   deleteTask,
   editTask,
   invalidateTasksCache,
+  getEvents,
 };
 
 export default taskService;
