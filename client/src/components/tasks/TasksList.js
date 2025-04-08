@@ -45,7 +45,7 @@ const TasksList = ({ tasksResource, handleOpenTask, handleEditTask, refreshTasks
             <Row>
               <Col md={8}>
                 <Card.Title>{card.nameOfTask}</Card.Title>
-                <Card.Text>{card.descriptionOfTask}</Card.Text>
+                <Card.Text>{card.descriptionOfTask.substring(0, 100)} {card.descriptionOfTask.length>100  && "....."}</Card.Text>
               </Col>
               <Col md={2}>
                 <Row className="mb-2">

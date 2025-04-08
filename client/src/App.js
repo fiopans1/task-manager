@@ -9,7 +9,7 @@ import HomePage from "./pages/HomePage";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "./components/CalendarComponent";
 import Lists from "./components/lists/Lists";
-import TaskDetails from "./components/tasks/TaskDetails";
+import TaskDetails from "./components/tasks/TaskDetails/TaskDetails";
 import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import ListDetails from "./components/lists/ListDetails";

@@ -36,6 +36,10 @@ public class TaskRestController {
     public ResponseEntity<List<TaskDTO>> getAllTasksForUser() {
         return ResponseEntity.ok().body(taskService.findAllTasksForLoggedUser()); //TO-DO: All ResponseEntity change and put correctly messages
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) throws ResourceNotFoundException , NotPermissionException { //TO-DO: Change the expcetion to a custom exception
+        return ResponseEntity.ok().body(TaskDTO.fromEntity(taskService.getTaskById(id)));
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException { //TO-DO: Change the expcetion to a custom exception

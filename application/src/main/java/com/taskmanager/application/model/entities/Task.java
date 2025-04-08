@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.util.Date;
@@ -23,7 +24,8 @@ public class Task {
     @Column(name="name", nullable = false)
     private String nameOfTask;
 
-    @Column(name="description", nullable = false)
+    @Lob
+    @Column(name="description", nullable = false, length = 10000)
     private String descriptionOfTask;
 
     @Column(nullable = false)

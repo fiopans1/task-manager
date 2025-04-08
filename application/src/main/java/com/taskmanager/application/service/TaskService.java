@@ -108,9 +108,14 @@ public class TaskService {
         }
     }
     @Transactional(readOnly = true)
-    public Task getTaskById(Long id) throws ResourceNotFoundException {
-        return tasksRepository.findById(id)
+    public Task getTaskById(Long id) throws ResourceNotFoundException , NotPermissionException {
+        Task task = tasksRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        if(authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())){
+            return task;
+        }else{
+            throw new NotPermissionException("You don't have permission to see this task");
+        }
     }
 
     @Transactional(readOnly = true)

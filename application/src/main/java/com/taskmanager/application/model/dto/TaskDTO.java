@@ -24,6 +24,7 @@ public class TaskDTO {
     private boolean isEvent;
     private Date startDate;
     private Date endDate;
+    private Date creationDate;
 
     public TaskDTO() {
     }
@@ -51,6 +52,9 @@ public class TaskDTO {
     }
     public Date getEndDate() {
         return endDate;
+    }
+    public Date getCreationDate() {
+        return creationDate;
     }
     @JsonProperty("isEvent")
     public boolean isEvent() {
@@ -84,6 +88,9 @@ public class TaskDTO {
     public void setUser(String user) {
         this.user = user;
     }
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
     public static TaskDTO fromEntity(Task task) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
@@ -92,6 +99,7 @@ public class TaskDTO {
         taskDTO.setState(task.getState());
         taskDTO.setUser(task.getUser().getUsername());
         taskDTO.setPriority(task.getPriority());
+        taskDTO.setCreationDate(task.getCreationDate());
         if(task.getEventTask() != null) {
             taskDTO.setIsEvent(true);
             taskDTO.setStartDate(task.getEventTask().getStartTime());
@@ -109,6 +117,7 @@ public class TaskDTO {
         task.setDescriptionOfTask(taskDTO.getDescriptionOfTask());
         task.setState(taskDTO.getState());
         task.setPriority(taskDTO.getPriority());
+        task.setCreationDate(taskDTO.getCreationDate());
         if(taskDTO.isEvent()){
             EventTask eventTask = new EventTask();
             eventTask.setStartTime(taskDTO.getStartDate());
