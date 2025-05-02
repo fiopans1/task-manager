@@ -74,7 +74,9 @@ const CalendarComponent = () => {
   };
   return (
     <Container fluid>
-      <h1>Calendar</h1>
+      <div className="tittle-tab-container-calendar">
+        <h2>Calendar</h2>
+      </div>
       <Row className="justify-content-center">
         <Col xs={12} md={8} style={{ height: "80vh" }}>
           <Calendar

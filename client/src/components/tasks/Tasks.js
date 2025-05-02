@@ -50,40 +50,58 @@ const Tasks = () => {
   };
 
   return (
-    <Container fluid>
-      <h1>My-Tasks</h1>
-      <Col className="align-items-center mb-3">
-        <Row>
-          <Col md={8}>
-            <Card>
-              <InputGroup>
-                <Form.Control className="no-focus-background" />
-                <Button variant="primary">Search</Button>
-              </InputGroup>
-            </Card>
-          </Col>
-          <Col md={2}>
-            <Card>
-              <Button variant="warning" onClick={() => refreshTasks()}>
-                Refresh
-              </Button>
-            </Card>
-          </Col>
-          <Col md={2}>
-            <Card>
-              <Button variant="primary" onClick={() => handleshowNewTask()}>
-                New Task
-              </Button>
-            </Card>
-          </Col>
-        </Row>
-        <Row>
-          {/* //TO-DO Mejorar el mensaje de error por uno mejor */}
-          <Card
-            fluid
-            className="overflow-auto m-2 p-0"
-            style={{ height: "88vh" }}
-          >
+    <Container fluid className="px-3">
+      <div className="tittle-tab-container">
+        <h2>My Tasks</h2>
+      </div>
+
+      {/* Primera fila con controles */}
+      <Row
+        className="mb-3"
+        style={{
+          borderBottom: "1px solid #ccc",
+          boxShadow: "0px 4px 6px -6px rgba(0, 0, 0, 0.2)",
+          borderRadius: "0 0 8px 8px",
+          padding: "10px",
+          marginBottom: "15px",
+        }}
+      >
+        <Col md={8}>
+          <Card>
+            <InputGroup>
+              <Form.Control className="no-focus-background" />
+              <Button variant="primary">Search</Button>
+            </InputGroup>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="h-100">
+            <Button
+              variant="warning"
+              onClick={() => refreshTasks()}
+              className="h-100 w-100"
+            >
+              Refresh
+            </Button>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="h-100">
+            <Button
+              variant="primary"
+              onClick={() => handleshowNewTask()}
+              className="h-100 w-100"
+            >
+              New Task
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Segunda fila con la lista de tareas */}
+      <Row>
+        <Col className="px-0">
+          <Container className="overflow-auto" style={{ height: "80vh" }}>
             <ErrorBoundary
               resetKeys={[refreshKey]}
               onError={handleErrors}
@@ -96,7 +114,7 @@ const Tasks = () => {
               <Suspense
                 fallback={
                   <Container className="text-center mt-5">
-                    <Spinner />
+                    <Spinner animation="border" />
                   </Container>
                 }
               >
@@ -109,9 +127,11 @@ const Tasks = () => {
                 />
               </Suspense>
             </ErrorBoundary>
-          </Card>
-        </Row>
-      </Col>
+          </Container>
+        </Col>
+      </Row>
+
+      {/* Modales */}
       <NewTask
         show={showNewTask}
         handleClose={handleClose}

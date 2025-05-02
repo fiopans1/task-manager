@@ -87,6 +87,8 @@ function SidebarMenu({ onLogOut }) {
               className="w-100 d-sm-inline"
               style={{ textDecoration: "none", color: "inherit" }}
             >
+              <i class="bi bi-gear"></i>
+              {" "}
               Settings
             </Button>
           </Dropdown.Item>
@@ -97,7 +99,7 @@ function SidebarMenu({ onLogOut }) {
               style={{ textDecoration: "none", color: "inherit" }}
               onClick={onLogOut}
             >
-              Log Out
+              <i className="bi bi-box-arrow-in-right"></i> Log Out
             </Button>
           </Dropdown.Item>
         </Dropdown.Menu>

@@ -29,3 +29,36 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.tittle-tab-container {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  width: 100%;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
+  /* Agregar estas propiedades: */
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: calc(100% + 30px);
+}
+.tittle-tab-container-calendar {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  width: 100%;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
+  /* Agregar estas propiedades: */
+  margin-left: -12px;
+  margin-right: -12 px;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: calc(100% + 30px);
+}
