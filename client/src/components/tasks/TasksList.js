@@ -37,14 +37,14 @@ const TasksList = ({
   };
 
   return !data || data.length === 0 ? (
-    <Card.Body className="text-center py-5">
+    <div className="text-center py-5">
       <Card.Title>No tasks avaliable</Card.Title>
       <Card.Text>Please create a new task</Card.Text>
-    </Card.Body>
+    </div>
   ) : (
-    <Card.Body>
+    <div>
       {data?.map((card) => (
-        <Card key={card.id}>
+        <Card className="mt-2" key={card.id}>
           <Card.Body>
             <Row>
               <Col md={8}>
@@ -123,7 +123,7 @@ const TasksList = ({
           </Button>
         </Modal.Footer>
       </Modal>
-    </Card.Body>
+    </div>
   );
 };
 

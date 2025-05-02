@@ -101,7 +101,7 @@ const Tasks = () => {
       {/* Segunda fila con la lista de tareas */}
       <Row>
         <Col className="px-0">
-          <Container className="overflow-auto" style={{ height: "80vh" }}>
+          <Container fluid className="overflow-auto" style={{ height: "80vh", width: "100%" }}>
             <ErrorBoundary
               resetKeys={[refreshKey]}
               onError={handleErrors}
