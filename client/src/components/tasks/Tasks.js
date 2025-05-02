@@ -18,6 +18,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { errorToast } from "../common/Noty";
 
 import EditTask from "./EditTask";
+
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
@@ -28,6 +29,7 @@ const Tasks = () => {
   const [showEditTask, setshowEditTask] = useState(false);
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleClose = () => setshowNewTask(false);
   const handleshowNewTask = () => setshowNewTask(true);
@@ -45,6 +47,13 @@ const Tasks = () => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Implementar la búsqueda si el servicio lo soporta
+    // Por ahora, simplemente actualiza las tareas
+    refreshTasks();
+  };
+
   const handleErrors = (error, info) => {
     errorToast("Error: " + error.message);
   };
@@ -56,58 +65,72 @@ const Tasks = () => {
       </div>
 
       {/* Primera fila con controles */}
-      <Row
-        className="mb-3"
-        style={{
-          borderBottom: "1px solid #ccc",
-          boxShadow: "0px 4px 6px -6px rgba(0, 0, 0, 0.2)",
-          borderRadius: "0 0 8px 8px",
-          padding: "10px",
-          marginBottom: "15px",
-        }}
-      >
-        <Col md={8}>
-          <Card>
-            <InputGroup>
-              <Form.Control className="no-focus-background" />
-              <Button variant="primary">Search</Button>
-            </InputGroup>
-          </Card>
-        </Col>
-        <Col md={2}>
-          <Card className="h-100">
-            <Button
-              variant="warning"
-              onClick={() => refreshTasks()}
-              className="h-100 w-100"
-            >
-              Refresh
-            </Button>
-          </Card>
-        </Col>
-        <Col md={2}>
-          <Card className="h-100">
-            <Button
-              variant="primary"
-              onClick={() => handleshowNewTask()}
-              className="h-100 w-100"
-            >
-              New Task
-            </Button>
-          </Card>
-        </Col>
-      </Row>
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Form onSubmit={handleSearch}>
+            <Row className="align-items-center">
+              <Col md={8}>
+                <InputGroup>
+                  <Form.Control
+                    className="border-end-0"
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Button variant="outline-primary" type="submit">
+                    Search
+                  </Button>
+                </InputGroup>
+              </Col>
+              <Col md={4} className="d-flex justify-content-end">
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => {
+                    setSearchTerm("");
+                    refreshTasks();
+                  }}
+                  className="me-2"
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="outline-info"
+                  className="me-2"
+                  onClick={refreshTasks}
+                >
+                  Refresh
+                </Button>
+                <Button
+                  variant="outline-primary"
+                  onClick={handleshowNewTask}
+                  className="me-2"
+                >
+                  <span className="me-1">+</span> New Task
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
 
       {/* Segunda fila con la lista de tareas */}
       <Row>
-        <Col className="px-0">
-          <Container fluid className="overflow-auto" style={{ height: "80vh", width: "100%" }}>
+        <Col>
+          <Container
+            fluid
+            className="overflow-auto"
+            style={{ height: "80vh", width: "100%" }}
+          >
             <ErrorBoundary
               resetKeys={[refreshKey]}
               onError={handleErrors}
               fallback={
                 <Container className="text-center mt-5">
                   <h2 style={{ color: "red" }}>Something went wrong</h2>
+                  <p>There was an error loading your tasks.</p>
+                  <Button variant="primary" onClick={refreshTasks}>
+                    Try Again
+                  </Button>
                 </Container>
               }
             >
@@ -115,6 +138,7 @@ const Tasks = () => {
                 fallback={
                   <Container className="text-center mt-5">
                     <Spinner animation="border" />
+                    <p className="mt-2">Loading tasks...</p>
                   </Container>
                 }
               >
@@ -143,6 +167,24 @@ const Tasks = () => {
         refreshTasks={refreshTasks}
         initialData={formEditData}
       />
+
+      {/* Estilos CSS adicionales */}
+      <style jsx>{`
+        .tasks-container {
+          overflow-y: auto;
+          padding-right: 5px;
+        }
+        .tasks-container::-webkit-scrollbar {
+          width: 5px;
+        }
+        .tasks-container::-webkit-scrollbar-thumb {
+          background-color: #ccc;
+          border-radius: 5px;
+        }
+        .tasks-container::-webkit-scrollbar-track {
+          background-color: #f5f5f5;
+        }
+      `}</style>
     </Container>
   );
 };
