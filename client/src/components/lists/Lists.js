@@ -9,8 +9,8 @@ const Lists = () => {
   const cards = Array.from({ length: 30 }, (_, index) => ({
     id: index + 1,
     title: `Card ${index + 1}`,
-    description: `Contenido del card ${index + 1}`,
-    color: "red",
+    description: `Tareas relacionadas con el proyecto ${index + 1}`,
+    color: "blue",
   }));
 
   const handleCardClick = (id) => {
@@ -26,7 +26,9 @@ const Lists = () => {
         {/* Card especial */}
         <Card className="border-primary text-center">
           <Card.Body>
-            <Card.Title>+ Create New Task</Card.Title>
+            <Card.Title>
+              <i class="bi bi-plus-lg"></i> Create New Task
+            </Card.Title>
           </Card.Body>
         </Card>
       </Row>
@@ -34,11 +36,13 @@ const Lists = () => {
       {/* Cards dinámicos */}
       {cards.slice(1).map((card) => (
         <Row key={card.id} className="m-1">
-          <Card>
+          <Card style={{ borderTop: `6px solid ${card.color}` }}>
             <Card.Body>
               <div className="d-flex">
                 <div className="flex-grow-1">
-                  <Card.Subtitle>{card.title}</Card.Subtitle>
+                  <Card.Subtitle className="mt-0 mb-0">
+                    {card.title}
+                  </Card.Subtitle>
                 </div>
                 <div className="flex-shrink-0">
                   {" "}
@@ -67,12 +71,22 @@ const Lists = () => {
                 </div>
               </div>
               <Row>
-                <Card.Text>{card.description}</Card.Text>
+                <Card.Text className="mt-0 mb-0" style={{ fontSize: "13px" }}>
+                  {card.description}
+                </Card.Text>
+                <Card.Text
+                  className="mb-1"
+                  style={{ fontSize: "0.7rem", color: "#6b7280" }}
+                >
+                  1 de 3 tareas completadas
+                </Card.Text>
                 <Button
                   variant="success"
                   className="m-2"
                   onClick={() => handleCardClick(card.id)}
                 >
+                  <i className="bi bi-card-checklist"></i>{" "}
+                  {/* Icono de la tarjeta */}
                   See List
                 </Button>
               </Row>
