@@ -31,7 +31,7 @@ const NAVIGATION_ITEMS = [
     label: "Lists",
   },
   {
-    path: "/admin",
+    path: "/home/admin",
     icon: "bi bi-gear-wide-connected",
     label: "Admin Panel",
     adminOnly: true,

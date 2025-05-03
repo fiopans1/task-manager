@@ -14,6 +14,7 @@ import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import ListDetails from "./components/lists/ListDetails";
 import Home from "./components/Home";
+import AdminPanel from "./components/adminpanel/AdminPanel";
 import { infoToast } from "./components/common/Noty";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,6 +70,7 @@ function App() {
           <Route index element={<Lists />} />
           <Route path=":id" element={<ListDetails />} />
         </Route>
+        <Route path="/home/admin" element={<AdminPanel />} />
       </Route>
     </Routes>
   );
