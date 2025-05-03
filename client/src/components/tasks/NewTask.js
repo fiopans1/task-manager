@@ -12,6 +12,7 @@ import { useState } from "react";
 import taskervice from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import dayjs from "dayjs";
+
 const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
 
@@ -36,7 +37,8 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-  const handleSubmit = async (e) => { //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
+  const handleSubmit = async (e) => {
+    //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
     //e.preventDefault();
     try {
       // Crear una copia de formData para modificar
@@ -46,11 +48,15 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       if (taskData.isEvent) {
         // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
-          taskData.startDate = dayjs(`${startDateField}T${startTimeField}`).toISOString();;
+          taskData.startDate = dayjs(
+            `${startDateField}T${startTimeField}`
+          ).toISOString();
         }
 
         if (endDateField && endTimeField) {
-          taskData.endDate = dayjs(`${endDateField}T${endTimeField}`).toISOString();
+          taskData.endDate = dayjs(
+            `${endDateField}T${endTimeField}`
+          ).toISOString();
         }
       }
       await taskervice.createTask(taskData);
@@ -69,37 +75,48 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
 
   return (
     <Container>
-      <Modal show={show} onHide={handleClose} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>New Task</Modal.Title>
+      <Modal
+        show={show}
+        onHide={handleClose}
+        size="lg"
+        centered
+        className="task-modal"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold text-primary">New Task</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="pt-2">
           <Container>
             <Col>
               <Form onSubmit={handleSubmit}>
                 <Form.Group
-                  className="mb-3"
+                  className="mb-4"
                   controlId="exampleForm.ControlInput1"
                 >
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label className="text-secondary fw-medium">
+                    Name
+                  </Form.Label>
                   <Form.Control
                     type="title"
                     placeholder="Name of task"
                     name="nameOfTask"
                     value={formData.nameOfTask}
                     onChange={handleChange}
+                    className="shadow-sm rounded-3 border-light-subtle"
                   />
                 </Form.Group>
-                <Row>
+                <Row className="mb-4">
                   <Col>
-                    <Form.Group controlId="formPriority" className="mb-3">
-                      <Form.Label>Priority</Form.Label>
+                    <Form.Group controlId="formPriority">
+                      <Form.Label className="text-secondary fw-medium">
+                        Priority
+                      </Form.Label>
                       <Form.Select
                         aria-label="Priority"
                         name="priority"
                         onChange={handleChange}
                         value={formData.priority}
-                        defaultValue={formData.priority}
+                        className="shadow-sm rounded-3 border-light-subtle"
                       >
                         <option value="MIN">MIN</option>
                         <option value="HIGH">HIGH</option>
@@ -108,14 +125,16 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                     </Form.Group>
                   </Col>
                   <Col>
-                    <Form.Group controlId="formPriority" className="mb-3">
-                      <Form.Label>Status</Form.Label>
+                    <Form.Group controlId="formPriority">
+                      <Form.Label className="text-secondary fw-medium">
+                        Status
+                      </Form.Label>
                       <Form.Select
                         aria-label="Priority"
                         name="state"
                         onChange={handleChange}
                         value={formData.state}
-                        defaultValue={formData.state}
+                        className="shadow-sm rounded-3 border-light-subtle"
                       >
                         <option value="COMPLETED">COMPLETED</option>
                         <option value="NEW">NEW</option>
@@ -130,16 +149,19 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                   label="Is an Event?"
                   checked={isEvent}
                   onChange={handleEvent}
+                  className="mb-3 form-switch-lg text-secondary fw-medium"
                 />
                 <Collapse in={isEvent}>
-                  <Container>
+                  <Container className="mb-4 bg-light rounded-3 p-3 border border-light-subtle">
                     <Row>
                       <Form.Group
                         controlId="formDate"
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
-                        <Form.Label>Start Event</Form.Label>
+                        <Form.Label className="text-secondary fw-medium">
+                          Start Event
+                        </Form.Label>
                         <Row>
                           <Col>
                             <Form.Control
@@ -149,6 +171,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                               onChange={(e) =>
                                 setStartDateField(e.target.value)
                               }
+                              className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
                           <Col>
@@ -159,6 +182,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                               onChange={(e) =>
                                 setStartTimeField(e.target.value)
                               }
+                              className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
                         </Row>
@@ -168,7 +192,9 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
-                        <Form.Label>End Event</Form.Label>
+                        <Form.Label className="text-secondary fw-medium">
+                          End Event
+                        </Form.Label>
                         <Row>
                           <Col>
                             <Form.Control
@@ -176,6 +202,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                               placeholder="Enter date"
                               value={endDateField}
                               onChange={(e) => setEndDateField(e.target.value)}
+                              className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
                           <Col>
@@ -184,6 +211,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                               placeholder="Enter time"
                               value={endTimeField}
                               onChange={(e) => setEndTimeField(e.target.value)}
+                              className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
                         </Row>
@@ -192,26 +220,33 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                   </Container>
                 </Collapse>
                 <Form.Group
-                  className="mb-3"
+                  className="mb-4"
                   controlId="exampleForm.ControlTextarea1"
                 >
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label className="text-secondary fw-medium">
+                    Description
+                  </Form.Label>
                   <Form.Control
                     as="textarea"
-                    rows={3}
+                    rows={4}
                     placeholder="Description....."
                     value={formData.descriptionOfTask}
                     name="descriptionOfTask"
                     onChange={handleChange}
+                    className="shadow-sm rounded-3 border-light-subtle"
                   />
                 </Form.Group>
               </Form>
             </Col>
           </Container>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="ssecondary" onClick={handleClose}>
-            Close
+        <Modal.Footer className="border-0 pt-0">
+          <Button
+            variant="light"
+            onClick={handleClose}
+            className="rounded-3 px-4 fw-medium"
+          >
+            Cancel
           </Button>
           <Button
             variant="primary"
@@ -219,6 +254,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
               handleClose();
               handleSubmit();
             }}
+            className="rounded-3 px-4 fw-medium"
           >
             Create
           </Button>

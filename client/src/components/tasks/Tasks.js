@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NewTask from "./NewTask";
 import taskService from "../../services/taskService";
 import { Suspense } from "react";
@@ -30,6 +30,23 @@ const Tasks = () => {
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if viewport is mobile size
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIfMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   const handleClose = () => setshowNewTask(false);
   const handleshowNewTask = () => setshowNewTask(true);
@@ -68,7 +85,7 @@ const Tasks = () => {
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Form onSubmit={handleSearch}>
-            <Row className="align-items-center">
+            <Row className={isMobile ? "gy-2" : "align-items-center"}>
               <Col md={8}>
                 <InputGroup>
                   <Form.Control
@@ -82,7 +99,7 @@ const Tasks = () => {
                   </Button>
                 </InputGroup>
               </Col>
-              <Col md={4} className="d-flex justify-content-end">
+              <Col md={4} className={`d-flex ${isMobile ? "mt-2" : "justify-content-end"}`}>
                 <Button
                   variant="outline-secondary"
                   onClick={() => {
@@ -90,6 +107,7 @@ const Tasks = () => {
                     refreshTasks();
                   }}
                   className="me-2"
+                  size={isMobile ? "sm" : ""}
                 >
                   Clear
                 </Button>
@@ -97,6 +115,7 @@ const Tasks = () => {
                   variant="outline-info"
                   className="me-2"
                   onClick={refreshTasks}
+                  size={isMobile ? "sm" : ""}
                 >
                   Refresh
                 </Button>
@@ -104,6 +123,7 @@ const Tasks = () => {
                   variant="outline-primary"
                   onClick={handleshowNewTask}
                   className="me-2"
+                  size={isMobile ? "sm" : ""}
                 >
                   <span className="me-1">+</span> New Task
                 </Button>
@@ -118,8 +138,12 @@ const Tasks = () => {
         <Col>
           <Container
             fluid
-            className="overflow-auto"
-            style={{ height: "80vh", width: "100%" }}
+            className="overflow-auto tasks-container"
+            style={{ 
+              height: isMobile ? "calc(100vh - 230px)" : "80vh", 
+              width: "100%",
+              paddingBottom: isMobile ? "80px" : "20px" 
+            }}
           >
             <ErrorBoundary
               resetKeys={[refreshKey]}
@@ -167,24 +191,6 @@ const Tasks = () => {
         refreshTasks={refreshTasks}
         initialData={formEditData}
       />
-
-      {/* Estilos CSS adicionales */}
-      <style jsx>{`
-        .tasks-container {
-          overflow-y: auto;
-          padding-right: 5px;
-        }
-        .tasks-container::-webkit-scrollbar {
-          width: 5px;
-        }
-        .tasks-container::-webkit-scrollbar-thumb {
-          background-color: #ccc;
-          border-radius: 5px;
-        }
-        .tasks-container::-webkit-scrollbar-track {
-          background-color: #f5f5f5;
-        }
-      `}</style>
     </Container>
   );
 };

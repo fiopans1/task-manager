@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Form, 
-  Button, 
-  ListGroup, 
-  Badge, 
+import React, { useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  ListGroup,
+  Badge,
   Modal,
   InputGroup,
-  FormControl
-} from 'react-bootstrap';
-import { ArrowLeft, PlusCircle, Trash, PencilSquare, CheckCircle, Circle } from 'react-bootstrap-icons';
+  FormControl,
+} from "react-bootstrap";
+import {
+  ArrowLeft,
+  PlusCircle,
+  Trash,
+  PencilSquare,
+  CheckCircle,
+  Circle,
+} from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
 
 const ListDetails = () => {
+  const navigate = useNavigate();
   // Datos de ejemplo incluidos en el componente
   const exampleList = {
     id: 1,
     title: "Proyecto App Móvil",
     description: "Tareas para el desarrollo de la aplicación móvil",
-    color: "primary"
+    color: "primary",
   };
 
   const exampleTodos = [
@@ -28,79 +37,77 @@ const ListDetails = () => {
       id: 101,
       title: "Diseñar wireframes",
       description: "Crear wireframes para todas las pantallas principales",
-      completed: true
+      completed: true,
     },
     {
       id: 102,
       title: "Reunión con el cliente",
       description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false
+      completed: false,
     },
     {
       id: 103,
       title: "Configurar entorno de desarrollo",
       description: "Instalar dependencias y configurar el proyecto base",
-      completed: false
+      completed: false,
     },
     {
       id: 104,
       title: "Investigar APIs necesarias",
       description: "Buscar documentación sobre las APIs que se integrarán",
-      completed: false
+      completed: false,
     },
     {
       id: 105,
       title: "Reunión con el cliente",
       description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false
+      completed: false,
     },
     {
       id: 106,
       title: "Reunión con el cliente",
       description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false
+      completed: false,
     },
     {
       id: 107,
       title: "Reunión con el cliente",
       description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false
+      completed: false,
     },
-
-
   ];
 
   const [list, setList] = useState(exampleList);
   const [todos, setTodos] = useState(exampleTodos);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [newTodoDescription, setNewTodoDescription] = useState('');
+  const [newTodoTitle, setNewTodoTitle] = useState("");
+  const [newTodoDescription, setNewTodoDescription] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editTodo, setEditTodo] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
   // Simulación de función para volver atrás (en una app real, esto sería una navegación)
   const handleBack = () => {
-    console.log("Volver a la lista de tareas principal");
-    // Aquí iría la lógica de navegación (ej: navigate('/lists'))
+    navigate('..')
   };
 
   // Contadores para la barra de progreso
   const totalTodos = todos.length;
-  const completedTodos = todos.filter(todo => todo.completed).length;
-  const progressPercentage = totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
+  const completedTodos = todos.filter((todo) => todo.completed).length;
+  const progressPercentage =
+    totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
   // Agregar una nueva tarea
   const handleAddTodo = () => {
-    if (newTodoTitle.trim() !== '') {
+    if (newTodoTitle.trim() !== "") {
       const newTodo = {
         id: Date.now(),
         title: newTodoTitle,
         description: newTodoDescription,
-        completed: false
+        completed: false,
       };
       setTodos([...todos, newTodo]);
-      setNewTodoTitle('');
-      setNewTodoDescription('');
+      setNewTodoTitle("");
+      setNewTodoDescription("");
       setShowAddModal(false);
     }
   };
@@ -108,7 +115,7 @@ const ListDetails = () => {
   // Marcar como completada/pendiente
   const toggleTodoStatus = (id) => {
     setTodos(
-      todos.map(todo => 
+      todos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
@@ -116,7 +123,7 @@ const ListDetails = () => {
 
   // Eliminar una tarea
   const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   // Abrir modal de edición
@@ -127,11 +134,9 @@ const ListDetails = () => {
 
   // Guardar cambios de edición
   const handleUpdateTodo = () => {
-    if (editTodo && editTodo.title.trim() !== '') {
+    if (editTodo && editTodo.title.trim() !== "") {
       setTodos(
-        todos.map(todo => 
-          todo.id === editTodo.id ? editTodo : todo
-        )
+        todos.map((todo) => (todo.id === editTodo.id ? editTodo : todo))
       );
       setShowEditModal(false);
     }
@@ -143,25 +148,27 @@ const ListDetails = () => {
       <Row className="mb-4">
         <Col>
           <div className="d-flex align-items-center">
-            <Button 
-              variant="outline-secondary" 
-              className="me-3" 
+            <Button
+              variant="outline-secondary"
+              className="me-3"
               onClick={handleBack}
             >
               <ArrowLeft size={20} />
             </Button>
             <div>
               <h2>{list.title}</h2>
-              <div className="text-muted small">{completedTodos} de {totalTodos} tareas completadas</div>
-              
+              <div className="text-muted small">
+                {completedTodos} de {totalTodos} tareas completadas
+              </div>
+
               {/* Barra de progreso */}
-              <div className="progress mt-2" style={{ height: '8px' }}>
-                <div 
-                  className="progress-bar bg-success" 
-                  role="progressbar" 
-                  style={{ width: `${progressPercentage}%` }} 
-                  aria-valuenow={progressPercentage} 
-                  aria-valuemin="0" 
+              <div className="progress mt-2" style={{ height: "8px" }}>
+                <div
+                  className="progress-bar bg-success"
+                  role="progressbar"
+                  style={{ width: `${progressPercentage}%` }}
+                  aria-valuenow={progressPercentage}
+                  aria-valuemin="0"
                   aria-valuemax="100"
                 />
               </div>
@@ -175,8 +182,8 @@ const ListDetails = () => {
         <Col>
           <Card>
             <Card.Body>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 className="w-100 d-flex align-items-center justify-content-center"
                 onClick={() => setShowAddModal(true)}
               >
@@ -189,15 +196,15 @@ const ListDetails = () => {
       </Row>
 
       {/* Lista de tareas */}
-      <Row className='overflow-auto' style={{ maxHeight: '70vh' }}>
+      <Row className="overflow-auto" style={{ maxHeight: "70vh" }}>
         <Col>
           <ListGroup className="todo-list">
             {todos.length === 0 ? (
               <Card className="text-center py-5 text-muted">
                 <Card.Body>
                   <p>No hay tareas en esta lista</p>
-                  <Button 
-                    variant="outline-primary" 
+                  <Button
+                    variant="outline-primary"
                     onClick={() => setShowAddModal(true)}
                   >
                     <PlusCircle className="me-2" size={16} />
@@ -206,16 +213,19 @@ const ListDetails = () => {
                 </Card.Body>
               </Card>
             ) : (
-              todos.map(todo => (
+              todos.map((todo) => (
                 <Card key={todo.id} className="mb-3">
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-start">
-                      <div className="d-flex align-items-start" style={{ width: '80%' }}>
+                      <div
+                        className="d-flex align-items-start"
+                        style={{ width: "80%" }}
+                      >
                         <Button
                           variant="link"
                           className="p-0 me-2"
                           onClick={() => toggleTodoStatus(todo.id)}
-                          style={{ color: todo.completed ? 'green' : 'gray' }}
+                          style={{ color: todo.completed ? "green" : "gray" }}
                         >
                           {todo.completed ? (
                             <CheckCircle size={22} />
@@ -224,11 +234,21 @@ const ListDetails = () => {
                           )}
                         </Button>
                         <div>
-                          <h5 className={todo.completed ? 'text-decoration-line-through text-muted' : ''}>
+                          <h5
+                            className={
+                              todo.completed
+                                ? "text-decoration-line-through text-muted"
+                                : ""
+                            }
+                          >
                             {todo.title}
                           </h5>
                           {todo.description && (
-                            <p className={`mb-0 small ${todo.completed ? 'text-muted' : ''}`}>
+                            <p
+                              className={`mb-0 small ${
+                                todo.completed ? "text-muted" : ""
+                              }`}
+                            >
                               {todo.description}
                             </p>
                           )}
@@ -313,7 +333,9 @@ const ListDetails = () => {
                 <Form.Control
                   type="text"
                   value={editTodo.title}
-                  onChange={(e) => setEditTodo({...editTodo, title: e.target.value})}
+                  onChange={(e) =>
+                    setEditTodo({ ...editTodo, title: e.target.value })
+                  }
                   autoFocus
                 />
               </Form.Group>
@@ -322,8 +344,10 @@ const ListDetails = () => {
                 <Form.Control
                   as="textarea"
                   rows={3}
-                  value={editTodo.description || ''}
-                  onChange={(e) => setEditTodo({...editTodo, description: e.target.value})}
+                  value={editTodo.description || ""}
+                  onChange={(e) =>
+                    setEditTodo({ ...editTodo, description: e.target.value })
+                  }
                 />
               </Form.Group>
             </Form>

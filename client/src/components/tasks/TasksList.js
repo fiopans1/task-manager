@@ -1,4 +1,4 @@
-import { Col, Row, Card, Button, Modal } from "react-bootstrap";
+import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
@@ -12,6 +12,7 @@ const TasksList = ({
   const [data, setData] = useState(tasksResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
+
   useEffect(() => {
     setData(tasksResource.read());
   }, [tasksResource]);
@@ -23,7 +24,7 @@ const TasksList = ({
         taskService.invalidateTasksCache();
         setIdToDelete(null);
         refreshTasks();
-        successToast("Task deleted succesfully");
+        successToast("Task deleted successfully");
       } else {
         errorToast("Error: No task selected");
       }
@@ -31,80 +32,176 @@ const TasksList = ({
       errorToast("Error: " + error.message);
     }
   };
+
   const confirmDeleteTask = (id) => {
     setIdToDelete(id);
     setShowDelete(true);
   };
 
+  // Función para obtener el color de la insignia de prioridad
+  const getPriorityBadgeVariant = (priority) => {
+    if (!priority) return "secondary";
+
+    switch (priority.toLowerCase()) {
+      case "high":
+        return "danger";
+      case "medium":
+        return "warning";
+      case "low":
+        return "success";
+      default:
+        return "info";
+    }
+  };
+
+  // Función para obtener el color de la insignia de estado
+  const getStatusBadgeVariant = (status) => {
+    if (!status) return "secondary";
+
+    switch (status.toLowerCase()) {
+      case "completed":
+        return "success";
+      case "in progress":
+        return "primary";
+      case "pending":
+        return "warning";
+      case "cancelled":
+        return "danger";
+      default:
+        return "info";
+    }
+  };
+
+  // Componente para estado vacío
+  const EmptyState = () => (
+    <Card className="text-center shadow-sm py-5">
+      <Card.Body>
+        <div className="mb-4">
+          <i
+            className="bi bi-clipboard text-muted"
+            style={{ fontSize: "2.5rem" }}
+          ></i>
+        </div>
+        <Card.Title>No tasks available</Card.Title>
+        <Card.Text className="text-muted">Please create a new task</Card.Text>
+      </Card.Body>
+    </Card>
+  );
+
   return !data || data.length === 0 ? (
-    <div className="text-center py-5">
-      <Card.Title>No tasks avaliable</Card.Title>
-      <Card.Text>Please create a new task</Card.Text>
-    </div>
+    <EmptyState />
   ) : (
-    <div>
-      {data?.map((card) => (
-        <Card className="mt-2" key={card.id}>
+    <div className="task-list">
+      {data?.map((task) => (
+        <Card key={task.id} className="mb-3 shadow-sm task-card">
           <Card.Body>
-            <Row>
+            <Row className="align-items-center">
               <Col md={8}>
-                <Card.Title>{card.nameOfTask}</Card.Title>
-                <Card.Text>
-                  {card.descriptionOfTask.substring(0, 100)}{" "}
-                  {card.descriptionOfTask.length > 100 && "....."}
+                <div className="d-flex align-items-center mb-2">
+                  <h5 className="mb-0 me-2">{task.nameOfTask}</h5>
+                  <Badge
+                    bg={getStatusBadgeVariant(task.state)}
+                    className="ms-auto ms-md-2"
+                    pill
+                  >
+                    {task.state}
+                  </Badge>
+                </div>
+                <Card.Text className="text-muted mb-3">
+                  {task.descriptionOfTask ? (
+                    <>
+                      {task.descriptionOfTask.substring(0, 100)}
+                      {task.descriptionOfTask.length > 100 && "..."}
+                    </>
+                  ) : (
+                    <span className="text-muted fst-italic">
+                      No description
+                    </span>
+                  )}
                 </Card.Text>
+                <div className="d-flex align-items-center">
+                  <Badge
+                    bg={getPriorityBadgeVariant(task.priority)}
+                    className="me-2 px-3 py-2"
+                  >
+                    {task.priority}
+                  </Badge>
+                  <div className="d-flex d-md-none mt-2 ms-auto">
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleOpenTask(task.id)}
+                    >
+                      <i className="bi bi-eye"></i>
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleEditTask(task)}
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => confirmDeleteTask(task.id)}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </Button>
+                  </div>
+                </div>
               </Col>
-              <Col md={2}>
-                <Row className="mb-2">
-                  <Card.Subtitle>Priority:</Card.Subtitle>
-                  <Card.Text className="text-truncate">
-                    {card.priority}
-                  </Card.Text>
-                </Row>
-                <Row className="mb-2">
-                  {" "}
-                  <Card.Subtitle>Status:</Card.Subtitle>
-                  <Card.Text>{card.state}</Card.Text>
-                </Row>
-              </Col>
-              <Col md={2}>
-                <Row>
+              <Col md={4} className="d-none d-md-block">
+                <div className="d-flex justify-content-end">
                   <Button
-                    variant="success"
-                    className="me-2 mt-1"
-                    onClick={() => handleOpenTask(card.id)}
+                    variant="outline-secondary"
+                    className="me-2"
+                    onClick={() => handleOpenTask(task.id)}
                   >
-                    <i className="bi bi-eye"></i>
+                    <i className="bi bi-eye me-1"></i>
+                    View
                   </Button>
                   <Button
-                    variant="primary"
-                    onClick={() => handleEditTask(card)}
-                    className="me-2 mt-1"
+                    variant="outline-primary"
+                    className="me-2"
+                    onClick={() => handleEditTask(task)}
                   >
-                    <i className="bi bi-pencil"></i>
+                    <i className="bi bi-pencil me-1"></i>
+                    Edit
                   </Button>
                   <Button
-                    onClick={() => {
-                      confirmDeleteTask(card.id);
-                    }}
-                    variant="danger"
-                    className="me-2 mt-1"
+                    variant="outline-danger"
+                    onClick={() => confirmDeleteTask(task.id)}
                   >
-                    <i className="bi bi-trash"></i>
+                    <i className="bi bi-trash me-1"></i>
+                    Delete
                   </Button>
-                </Row>
+                </div>
               </Col>
             </Row>
           </Card.Body>
         </Card>
       ))}
-      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered>
-        <Modal.Body closeButton>
-          Are you sure you want to delete this task?
+
+      {/* Modal de confirmación para eliminar */}
+      <Modal
+        show={showDelete}
+        onHide={() => setShowDelete(false)}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this task? This action cannot be
+          undone.
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="secondary"
+            variant="outline-secondary"
             onClick={() => {
               setShowDelete(false);
               setIdToDelete(null);
@@ -119,7 +216,7 @@ const TasksList = ({
               deleteTask();
             }}
           >
-            Delete
+            Delete Task
           </Button>
         </Modal.Footer>
       </Modal>

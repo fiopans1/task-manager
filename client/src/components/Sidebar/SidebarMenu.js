@@ -77,8 +77,8 @@ function SidebarMenu({ onLogOut }) {
     // Verificar si el usuario es administrador
     const checkAdminStatus = async () => {
       try {
-        const userRole = await authService.getUserRole();
-        setIsAdmin(userRole === "ADMIN");
+        const userRole = await authService.getRoles();
+        setIsAdmin(userRole.includes("ROLE_ADMIN"));
       } catch (error) {
         console.error("Error checking admin status:", error);
       }
@@ -126,7 +126,9 @@ function SidebarMenu({ onLogOut }) {
                 onClick={isMobile ? toggleMobileMenu : undefined}
               >
                 <div className="d-flex align-items-center position-relative w-100">
-                  <i className={`${item.icon} ${collapsed ? "fs-4" : ""}`}></i>
+                  <i
+                    className={`${item.icon} ${collapsed ? "fs-4 ps-2" : ""}`}
+                  ></i>
                   {(!collapsed || isMobile) && (
                     <>
                       <span
@@ -134,6 +136,7 @@ function SidebarMenu({ onLogOut }) {
                           isMobile ? "" : "d-none d-sm-inline"
                         }`}
                       >
+                        {""}
                         {item.label}
                       </span>
                       {item.badge && (
@@ -155,14 +158,14 @@ function SidebarMenu({ onLogOut }) {
       </div>
 
       {/* Dropdown Menu */}
-      <div className="p-3">
+      <div className={`${!collapsed ? "p-3" : ""}`}>
         <Dropdown drop="up" align="end">
           <Dropdown.Toggle
             variant="dark"
             id="dropdown-basic"
             className="text-white text-decoration-none d-flex align-items-center"
           >
-            <i className="bi bi-person-circle fs-4"></i>
+            <i className={`${!collapsed ? "bi bi-person-circle fs-4" : "bi bi-person-circle"}`}></i>
             {!collapsed && (
               <span
                 className="ms-2 d-none d-sm-inline text-truncate"
@@ -226,9 +229,7 @@ function SidebarMenu({ onLogOut }) {
         >
           <Offcanvas.Header closeButton closeVariant="white">
             <Offcanvas.Title className="text-white">
-              <i className="fs-4 bi bi-speedometer"></i>
-              {" "}
-              Task Manager
+              <i className="fs-4 bi bi-speedometer"></i> Task Manager
             </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="d-flex flex-column justify-content-between p-0">
@@ -265,7 +266,7 @@ function SidebarMenu({ onLogOut }) {
               width: "24px",
               height: "24px",
               right: "-12px",
-              top: "70px",
+              top: "50vh",
               zIndex: 100,
               borderRadius: "50%",
               boxShadow: "0 0 5px rgba(0,0,0,0.3)",

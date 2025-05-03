@@ -1,12 +1,10 @@
-import { Container } from "react-bootstrap";
+import { Container, Button, Spinner, Card } from "react-bootstrap";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState, useEffect } from "react";
 import { errorToast } from "./common/Noty";
 import taskService from "../services/taskService";
-
-
 
 const CalendarComponent = () => {
   const localizer = dayjsLocalizer(dayjs);
@@ -89,39 +87,55 @@ const CalendarComponent = () => {
     };
   };
 
-  const customComponents = {
-    toolbar: (props) => (
-      <div className="custom-toolbar">
-        <div className="toolbar-left">
-          <button onClick={() => props.onNavigate('PREV')} className="nav-button">
-            <i className="fa fa-chevron-left"></i>
-          </button>
-          <button onClick={() => props.onNavigate('TODAY')} className="today-button">
+  // Componente personalizado para la barra de herramientas
+  const CustomToolbar = (props) => {
+    return (
+      <div className="rbc-toolbar">
+        <div className="rbc-btn-group">
+          <Button 
+            variant="outline-secondary" 
+            className="mx-1" 
+            onClick={() => props.onNavigate('PREV')}
+          >
+            &#8249; {/* Símbolo de flecha izquierda HTML */}
+          </Button>
+          <Button 
+            variant="primary" 
+            className="mx-1" 
+            onClick={() => props.onNavigate('TODAY')}
+          >
             Hoy
-          </button>
-          <button onClick={() => props.onNavigate('NEXT')} className="nav-button">
-            <i className="fa fa-chevron-right"></i>
-          </button>
+          </Button>
+          <Button 
+            variant="outline-secondary" 
+            className="mx-1" 
+            onClick={() => props.onNavigate('NEXT')}
+          >
+            &#8250; {/* Símbolo de flecha derecha HTML */}
+          </Button>
         </div>
-        <div className="toolbar-title">
-          <h3>{props.label}</h3>
-        </div>
-        <div className="toolbar-right">
-          <button onClick={() => props.onView('month')} className={`view-button ${props.view === 'month' ? 'active' : ''}`}>
-            Mes
-          </button>
-          <button onClick={() => props.onView('week')} className={`view-button ${props.view === 'week' ? 'active' : ''}`}>
-            Semana
-          </button>
-          <button onClick={() => props.onView('day')} className={`view-button ${props.view === 'day' ? 'active' : ''}`}>
-            Día
-          </button>
-          <button onClick={() => props.onView('agenda')} className={`view-button ${props.view === 'agenda' ? 'active' : ''}`}>
-            Agenda
-          </button>
+        
+        <span className="rbc-toolbar-label fw-bold fs-4">
+          {props.label}
+        </span>
+        
+        <div className="rbc-btn-group">
+          {['month', 'week', 'day', 'agenda'].map(view => (
+            <Button
+              key={view}
+              variant={props.view === view ? "primary" : "outline-secondary"}
+              className="mx-1"
+              onClick={() => props.onView(view)}
+            >
+              {view === 'month' && 'Mes'}
+              {view === 'week' && 'Semana'}
+              {view === 'day' && 'Día'}
+              {view === 'agenda' && 'Agenda'}
+            </Button>
+          ))}
         </div>
       </div>
-    )
+    );
   };
 
   // Formateador de fechas personalizado
@@ -137,45 +151,59 @@ const CalendarComponent = () => {
       localizer.format(end, 'D MMMM', culture)
   };
 
+  // Componentes personalizados
+  const customComponents = {
+    toolbar: CustomToolbar
+  };
+
   return (
-    <Container fluid className="calendar-container">
-      <div className="calendar-header">
-        <h2>Calendario</h2>
-        <div className="calendar-legend">
-          <div className="legend-item">
-            <span className="legend-color" style={{ backgroundColor: "#4361ee" }}></span>
-            <span>Trabajo</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color" style={{ backgroundColor: "#4cc9f0" }}></span>
-            <span>Personal</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color" style={{ backgroundColor: "#f72585" }}></span>
-            <span>Urgente</span>
-          </div>
+    <Container fluid className="py-4 overflow-auto" style={{ height: "100vh" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Calendario</h2>
+        <div className="d-flex gap-4">
+          {Object.entries({
+            work: { label: "Trabajo", color: "#4361ee" },
+            personal: { label: "Personal", color: "#4cc9f0" },
+            urgent: { label: "Urgente", color: "#f72585" }
+          }).map(([key, { label, color }]) => (
+            <div key={key} className="d-flex align-items-center">
+              <div 
+                style={{ 
+                  backgroundColor: color, 
+                  width: "16px", 
+                  height: "16px", 
+                  borderRadius: "4px",
+                  marginRight: "8px" 
+                }} 
+              />
+              <span>{label}</span>
+            </div>
+          ))}
         </div>
       </div>
       
-      <div className="calendar-wrapper">
-        {loading ? (
-          <div className="calendar-loading">
-            <div className="spinner"></div>
-            <p>Cargando eventos...</p>
-          </div>
-        ) : (
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            eventPropGetter={eventPropGetter}
-            components={customComponents}
-            formats={formats}
-            className="modern-calendar"
-          />
-        )}
-      </div>
+      <Card className="shadow-sm">
+        <Card.Body>
+          {loading ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-3">Cargando eventos...</p>
+            </div>
+          ) : (
+            <div style={{ height: "80vh" }}>
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                eventPropGetter={eventPropGetter}
+                components={customComponents}
+                formats={formats}
+              />
+            </div>
+          )}
+        </Card.Body>
+      </Card>
     </Container>
   );
 };

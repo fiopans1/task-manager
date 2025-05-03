@@ -1,8 +1,16 @@
-import React, { useEffect } from "react";
-import { Container, Card, Row, Col } from "react-bootstrap";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { 
+  Container, 
+  Card, 
+  Row, 
+  Col, 
+  Badge, 
+  Button, 
+  ListGroup 
+} from "react-bootstrap";
 import taskService from "../../../services/taskService";
 import { errorToast } from "../../common/Noty";
+
 const TaskDetailsTask = ({ taskId }) => {
   const [showMore, setShowMore] = useState(false);
   const [task, setTask] = useState({
@@ -17,6 +25,7 @@ const TaskDetailsTask = ({ taskId }) => {
     creationDate: "<None>",
     isEvent: false,
   });
+
   useEffect(() => {
     async function fetchTask() {
       try {
@@ -28,90 +37,142 @@ const TaskDetailsTask = ({ taskId }) => {
       }
     }
     fetchTask();
-  }, []);
+  }, [taskId]);
+
+  // Función para determinar el color del estado
+  const getStatusBadgeVariant = (status) => {
+    if (!status || status === "<None>") return "secondary";
+    
+    switch(status.toLowerCase()) {
+      case "completed":
+        return "success";
+      case "in progress":
+        return "primary";
+      case "pending":
+        return "warning";
+      case "cancelled":
+        return "danger";
+      default:
+        return "info";
+    }
+  };
+
+  // Función para determinar el color de la prioridad
+  const getPriorityBadgeVariant = (priority) => {
+    if (!priority || priority === "<None>") return "secondary";
+    
+    switch(priority.toLowerCase()) {
+      case "high":
+        return "danger";
+      case "medium":
+        return "warning";
+      case "low":
+        return "success";
+      default:
+        return "info";
+    }
+  };
+
+  // Formatear fechas para mostrar
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "<None>") return "<None>";
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
-    <Container fluid>
-      <Card className="m-1">
-        <Card.Header>
-          <Card.Title>Task Details</Card.Title>
+    <Container fluid className="my-3">
+      <Card className="shadow-sm">
+        <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center">
+          <Card.Title className="m-0 text-primary">Task Details</Card.Title>
+          <Badge 
+            bg={getStatusBadgeVariant(task.state)} 
+            className="px-3 py-2"
+          >
+            {task.state || "No Status"}
+          </Badge>
         </Card.Header>
+        
         <Card.Body>
-          <Row>
-            <Col>
-              <Row className="mb-2">
-                <Card.Subtitle>Name:</Card.Subtitle>
-                <Card.Text>
-                  {" "}
-                  {task.nameOfTask ? task.nameOfTask : "<None>"}
-                </Card.Text>
-              </Row>
-              <Row className="mb-2">
-                <Card.Subtitle>User:</Card.Subtitle>
-                <Card.Text>
-                  {task.user ? task.user : "No user assigned"}
-                </Card.Text>
-              </Row>
-              <Row className="mb-2">
-                <Card.Subtitle>Creation Date:</Card.Subtitle>
-                <Card.Text>
-                  {task.creationDate ? task.creationDate : "<None>"}
-                </Card.Text>
-              </Row>
-            </Col>
-            <Col>
-              <Row className="mb-2">
-                <Card.Subtitle>Status:</Card.Subtitle>
-                <Card.Text>{task.state ? task.state : "<None>"}</Card.Text>
-              </Row>
-              <Row className="mb-2">
-                <Card.Subtitle>Priority:</Card.Subtitle>
-                <Card.Text>
-                  {task.priority ? task.priority : "<None>"}
-                </Card.Text>
-              </Row>
-              <Row className="mb-2">
-                <Card.Subtitle>Is Event:</Card.Subtitle>
-                <Card.Text>{task.isEvent ? "True" : "False"}</Card.Text>
-              </Row>
-            </Col>
-            <Col>
-              <Row className="mb-2">
-                <Card.Subtitle>Start Event Date:</Card.Subtitle>
-                <Card.Text>
-                  {task.startDate ? task.startDate : "<None>"}
-                </Card.Text>
-              </Row>
-              <Row className="mb-2">
-                <Card.Subtitle>End Event Date:</Card.Subtitle>
-                <Card.Text>{task.endDate ? task.endDate : "<None>"}</Card.Text>
-              </Row>
+          <Row className="mb-4">
+            <Col md={12} lg={8}>
+              <h3 className="h4 mb-3">{task.nameOfTask || "<No Name>"}</h3>
+              
+              <div className="d-flex gap-2 mb-3 flex-wrap">
+                <Badge bg={getPriorityBadgeVariant(task.priority)} className="px-3 py-2">
+                  Priority: {task.priority || "None"}
+                </Badge>
+                
+                <Badge bg={task.isEvent ? "info" : "secondary"} className="px-3 py-2">
+                  Type of Task: {task.isEvent ? "Event" : "Single Task"}
+                </Badge>
+                
+                {task.user && task.user !== "<None>" && (
+                  <Badge bg="dark" className="px-3 py-2">
+                    Assigned to: {task.user}
+                  </Badge>
+                )}
+              </div>
             </Col>
           </Row>
+
+          <ListGroup variant="flush" className="mb-4">
+            <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+              <span className="fw-bold text-secondary">Creation Date:</span>
+              <span>{formatDate(task.creationDate)}</span>
+            </ListGroup.Item>
+            
+            {task.isEvent && (
+              <>
+                <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+                  <span className="fw-bold text-secondary">Start Date:</span>
+                  <span>{formatDate(task.startDate)}</span>
+                </ListGroup.Item>
+                
+                <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+                  <span className="fw-bold text-secondary">End Date:</span>
+                  <span>{formatDate(task.endDate)}</span>
+                </ListGroup.Item>
+              </>
+            )}
+          </ListGroup>
+
+          <Card className="bg-light border-0 p-3">
+            <h5 className="mb-3">Description</h5>
+            {task.descriptionOfTask && task.descriptionOfTask !== "<None>" ? (
+              task.descriptionOfTask.length < 100 ? (
+                <p className="mb-0">{task.descriptionOfTask}</p>
+              ) : (
+                <>
+                  <p className="mb-1">
+                    {showMore
+                      ? task.descriptionOfTask
+                      : `${task.descriptionOfTask.substring(0, 100)}...`}
+                  </p>
+                  <Button
+                    variant="link"
+                    className="p-0 text-decoration-none"
+                    onClick={() => setShowMore(!showMore)}
+                  >
+                    {!showMore ? "Read More..." : "Read Less..."}
+                  </Button>
+                </>
+              )
+            ) : (
+              <p className="text-muted mb-0">No description available</p>
+            )}
+          </Card>
         </Card.Body>
       </Card>
-      <Container fluid>
-        <Col>
-          <h3 className="mt-4">Description:</h3>
-          {task.descriptionOfTask && task.descriptionOfTask.length < 100 ? (
-            <p> {task.descriptionOfTask}</p>
-          ) : (
-            <>
-              <p>
-                {showMore
-                  ? task.descriptionOfTask
-                  : `${task.descriptionOfTask.substring(0, 100)}...`}
-              </p>
-              <span
-                className="text-primary"
-                onClick={() => setShowMore(!showMore)}
-                style={{ cursor: "pointer" }}
-              >
-                {!showMore ? "Read More...." : "Read Less..."}
-              </span>
-            </>
-          )}
-        </Col>
-      </Container>
     </Container>
   );
 };

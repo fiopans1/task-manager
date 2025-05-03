@@ -378,21 +378,6 @@ const TaskDetailsActions = () => {
         </Modal.Footer>
       </Modal>
       
-      {/* CSS adicional */}
-      <style jsx>{`
-        .action-history-list {
-          max-height: 70vh;
-          overflow-y: auto;
-          padding-right: 5px;
-        }
-        .action-history-list::-webkit-scrollbar {
-          width: 6px;
-        }
-        .action-history-list::-webkit-scrollbar-thumb {
-          background-color: #ccc;
-          border-radius: 3px;
-        }
-      `}</style>
     </Container>
   );
 };

@@ -238,14 +238,6 @@ const Lists = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* CSS adicional */}
-      <style jsx>{`
-        .hover-shadow:hover {
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          transition: box-shadow 0.3s ease;
-        }
-      `}</style>
     </Container>
   );
 };
