@@ -57,6 +57,7 @@ public class ListElement {
     public void setCompleted(boolean isCompleted) {
         this.isCompleted = isCompleted;
     }
+    
     public void setListTM(ListTM listTM) {
         this.listTM = listTM;
     }
