@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 
 @Entity
-@Table(name="USER")
+@Table(name="app_user")
 public class User implements UserDetails {
 
     @Id
@@ -55,8 +55,10 @@ public class User implements UserDetails {
     private Date creationDate;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonIgnore
     private Set<Task> tasksForUser = new HashSet<>();
+
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<ListTM> listsForUser = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -120,6 +122,13 @@ public class User implements UserDetails {
     }
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Set<ListTM> getListsForUser() {
+        return listsForUser;
+    }
+    public void setListsForUser(Set<ListTM> listsForUser) {
+        this.listsForUser = listsForUser;
     }
 
     @Override

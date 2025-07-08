@@ -30,12 +30,12 @@ const NAVIGATION_ITEMS = [
     icon: "bi bi-card-checklist",
     label: "Lists",
   },
-  {
-    path: "/home/admin",
-    icon: "bi bi-gear-wide-connected",
-    label: "Admin Panel",
-    adminOnly: true,
-  },
+  // {
+  //   path: "/home/admin",
+  //   icon: "bi bi-gear-wide-connected",
+  //   label: "Admin Panel",
+  //   adminOnly: true,
+  // },
 ];
 
 function SidebarMenu({ onLogOut }) {
@@ -165,7 +165,11 @@ function SidebarMenu({ onLogOut }) {
             id="dropdown-basic"
             className="text-white text-decoration-none d-flex align-items-center"
           >
-            <i className={`${!collapsed ? "bi bi-person-circle fs-4" : "bi bi-person-circle"}`}></i>
+            <i
+              className={`${
+                !collapsed ? "bi bi-person-circle fs-4" : "bi bi-person-circle"
+              }`}
+            ></i>
             {!collapsed && (
               <span
                 className="ms-2 d-none d-sm-inline text-truncate"
