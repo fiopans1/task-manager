@@ -1,0 +1,130 @@
+import {
+  Container,
+  Col,
+  Form,
+  Modal,
+  Button,
+  Row,
+  Collapse,
+} from "react-bootstrap";
+import { useState, useEffect } from "react";
+import listService from "../../services/listService";
+import { successToast, errorToast } from "../common/Noty";
+
+const NewEditLists = ({
+  show,
+  handleClose,
+  refreshLists,
+  editOrNew,
+  initialData,
+}) => {
+  const [formData, setFormData] = useState({
+    id: null,
+    nameOfList: "",
+    descriptionOfList: "",
+    color: "#0d6efd",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFormData({
+        id: initialData.id || null,
+        nameOfList: initialData.nameOfList || "",
+        descriptionOfList: initialData.descriptionOfList || "",
+        color: initialData.color || "#0d6efd",
+      });
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e) => {
+    //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
+    //e.preventDefault();
+    try {
+      if (editOrNew && formData.id) {
+        await listService.updateList(formData);
+        successToast("List updated successfully");
+      } else {
+        await listService.createList(formData);
+        successToast("List created successfully");
+      }
+      refreshLists();
+    } catch (error) {
+      errorToast("Error: " + error.message);
+    }
+  };
+
+  return (
+    <Container>
+      <Modal show={show} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editOrNew ? "Editar Lista" : "Nueva Lista de Tareas"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Título</Form.Label>
+              <Form.Control
+                type="text"
+                name="title"
+                value={formData.nameOfList}
+                onChange={handleChange}
+                placeholder="Nombre de la lista"
+                autoFocus
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                as="textarea"
+                name="description"
+                value={formData.descriptionOfList}
+                onChange={handleChange}
+                placeholder="Breve descripción de la lista"
+                rows={3}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Color</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type="color"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  title="Elige un color para la lista"
+                  className="me-2"
+                />
+                <div
+                  className="flex-grow-1 rounded"
+                  style={{ backgroundColor: formData.color, height: "38px" }}
+                ></div>
+              </div>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              handleClose();
+              handleSubmit();
+            }}
+          >
+            {editOrNew ? "Actualizar" : "Crear Lista"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
+  );
+};
+
+export default NewEditLists;

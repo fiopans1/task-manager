@@ -15,6 +15,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import ListsList from "./ListsList";
+import NewEditLists from "./NewEditLists";
 
 const List = () => {
   const [showNewList, setshowNewList] = useState(false);
@@ -133,17 +134,16 @@ const List = () => {
         </Card.Body>
       </Card>
 
-
-            {/* Segunda fila con la lista de tareas */}
+      {/* Segunda fila con la lista de tareas */}
       <Row>
         <Col>
           <Container
             fluid
             className="overflow-auto tasks-container"
-            style={{ 
-              height: isMobile ? "calc(100vh - 230px)" : "80vh", 
+            style={{
+              height: isMobile ? "calc(100vh - 230px)" : "80vh",
               width: "100%",
-              paddingBottom: isMobile ? "80px" : "20px" 
+              paddingBottom: isMobile ? "80px" : "20px",
             }}
           >
             <ErrorBoundary
@@ -179,6 +179,21 @@ const List = () => {
           </Container>
         </Col>
       </Row>
+      {/* Modales */}
+      <NewEditLists
+        show={showNewList}
+        handleClose={handleClose}
+        refreshTasks={refreshLists}
+        editOrNew={false}
+        initialData={{}}
+      />
+      <NewEditLists
+        show={showEditList}
+        handleClose={handleCloseEdit}
+        refreshTasks={refreshLists}
+        editOrNew={true}
+        initialData={formEditData}
+      />
     </Container>
   );
 };

@@ -183,7 +183,7 @@ const Lists = () => {
       ))}
 
       {/* Modal para agregar/editar tarea */}
-      <Modal show={showModal} onHide={handleCloseModal} centered>
+     <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>{newTask.id ? 'Editar Lista' : 'Nueva Lista de Tareas'}</Modal.Title>
         </Modal.Header>

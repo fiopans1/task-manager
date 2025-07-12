@@ -3,6 +3,39 @@ import store from "../redux/store";
 
 const resourceCache = new Map();
 
+const createList = async (list) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.post(serverUrl + "/api/lists/create", list, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+    invalidateListsCache();
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
+
+const editList = async (list) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.post(serverUrl + "/api/tasks/update/" + list.id, list, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+    invalidateListsCache();
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
 
 function getSuspender(promise) {
   let status = "pending";
@@ -30,7 +63,7 @@ function getSuspender(promise) {
   return { read };
 }
 
-const invalidateTasksCache = (key = "tasks") => {
+const invalidateListsCache = (key = "lists") => {
   console.log("Invalidando cache de tareas");
   resourceCache.delete(key);
 };
@@ -63,7 +96,7 @@ const getLists = () => {
     .catch((error) => {
       //console.error("Error en la llamada a la API:", error);
       // 6. En caso de error, invalidar la caché para permitir reintentos
-      invalidateTasksCache();
+      invalidateListsCache();
       throw error;
     });
   const resource = getSuspender(promise);
