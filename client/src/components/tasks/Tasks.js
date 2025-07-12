@@ -16,7 +16,6 @@ import { Suspense } from "react";
 import TasksList from "./TasksList";
 import { ErrorBoundary } from "react-error-boundary";
 import { errorToast } from "../common/Noty";
-
 import EditTask from "./EditTask";
 
 const Tasks = () => {
