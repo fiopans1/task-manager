@@ -13,13 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.taskmanager.application.model.dto.ListTMDTO;
+import com.taskmanager.application.model.dto.TaskDTO;
+import com.taskmanager.application.model.entities.ListTM;
+import com.taskmanager.application.model.exceptions.NotPermissionException;
+import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
-
 
 @RestController
 @RequestMapping("/api/lists")
@@ -30,12 +32,12 @@ public class ListRestController {
 
     @PostMapping("/create")
     public ResponseEntity<ListTMDTO> createList(@RequestBody ListTMDTO entity) {
-        return null;
+        return ResponseEntity.ok().body(ListTMDTO.fromEntity(listService.createList(entity)));
     }
 
     @GetMapping("/lists")
     public ResponseEntity<List<ListTMDTO>> getAllListForUser() {
-        return null;
+        return ResponseEntity.ok().body(listService.findAllListsForLoggedUser()); //TO-DO: All ResponseEntity change and put correctly messages
     }
 
     //TODO: This method will be return a list with all the elements of the list
@@ -45,18 +47,14 @@ public class ListRestController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteList(@PathVariable Long id) {
-        return null;
+    public ResponseEntity<String> deleteList(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException {
+        listService.deleteListById(id);
+        return ResponseEntity.ok().body("List deleted successfully");
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<ListTMDTO> updateList(@PathVariable Long id, @RequestBody ListTMDTO entity) {
-        return null;
+    public ResponseEntity<ListTMDTO> updateList(@PathVariable Long id, @RequestBody ListTMDTO entity) throws ResourceNotFoundException, NotPermissionException {
+        return ResponseEntity.ok().body(listService.updateList(id, entity));
     }
-    
-    
-    
 
-
-    
 }

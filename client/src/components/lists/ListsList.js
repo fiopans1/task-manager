@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
+import { Row, Card, Button, Modal } from "react-bootstrap";
 import { successToast, errorToast } from "../common/Noty";
 import listService from "../../services/listService";
 const ListsList = ({
@@ -8,16 +8,7 @@ const ListsList = ({
   handleEditList,
   refreshLists,
 }) => {
-  const [data, setData] = useState(
-    Array.from({ length: 10 }, (_, index) => ({
-      id: index + 1,
-      title: `Proyecto ${index + 1}`,
-      description: `Tareas relacionadas con el proyecto ${index + 1}`,
-      color: "#0d6efd",
-      tasksCompleted: Math.floor(Math.random() * 3),
-      totalTasks: 3,
-    }))
-  ); //useState(listsResource.read());
+  const [data, setData] = useState(listsResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
@@ -43,9 +34,9 @@ const ListsList = ({
         listService.invalidateListsCache();
         setIdToDelete(null);
         refreshLists();
-        successToast("Task deleted successfully");
+        successToast("List deleted successfully");
       } else {
-        errorToast("Error: No task selected");
+        errorToast("Error: No lists selected");
       }
     } catch (error) {
       errorToast("Error: " + error.message);
@@ -58,23 +49,13 @@ const ListsList = ({
   };
 
   useEffect(() => {
-    const initialCards = Array.from({ length: 10 }, (_, index) => ({
-      id: index + 1,
-      title: `Proyecto ${index + 1}`,
-      description: `Tareas relacionadas con el proyecto ${index + 1}`,
-      color: "#0d6efd",
-      tasksCompleted: Math.floor(Math.random() * 3),
-      totalTasks: 3,
-    }));
-
-    setData(initialCards);
-    //setData(listsResource.read());
+    setData(listsResource.read());
   }, [listsResource]);
 
   return !data || data.length === 0 ? (
     <EmptyState />
   ) : (
-    <div className="task-list">
+    <div className="list-list">
       {data?.map((card) => (
         <Row key={card.id} className="m-1">
           <Card
@@ -85,7 +66,7 @@ const ListsList = ({
               <div className="d-flex">
                 <div className="flex-grow-1">
                   <Card.Subtitle className="mt-0 mb-0 fw-bold">
-                    {card.title}
+                    {card.nameOfList}
                   </Card.Subtitle>
                 </div>
                 <div className="flex-shrink-0">
@@ -114,14 +95,14 @@ const ListsList = ({
               </div>
               <Row>
                 <Card.Text className="mt-2 mb-0" style={{ fontSize: "13px" }}>
-                  {card.description}
+                  {card.descriptionOfList}
                 </Card.Text>
-                <Card.Text
+                {/* <Card.Text
                   className="mb-1"
                   style={{ fontSize: "0.7rem", color: "#6b7280" }}
                 >
                   {card.tasksCompleted} de {card.totalTasks} tareas completadas
-                </Card.Text>
+                </Card.Text> */}
                 <Button
                   variant="success"
                   className="m-2"

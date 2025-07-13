@@ -20,16 +20,20 @@ const createList = async (list) => {
   }
 };
 
-const editList = async (list) => {
+const updateList = async (list) => {
   try {
     const serverUrl = store.getState().server.serverUrl;
     const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.post(serverUrl + "/api/tasks/update/" + list.id, list, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    });
+    const response = await axios.post(
+      serverUrl + "/api/lists/update/" + list.id,
+      list,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      }
+    );
     invalidateListsCache();
     return response.data;
   } catch (error) {
@@ -104,8 +108,24 @@ const getLists = () => {
   return resource;
 };
 
+const deleteList = (id) => {
+  const serverUrl = store.getState().server.serverUrl;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios
+    .delete(serverUrl + "/api/lists/delete/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    })
+    .then((response) => response.data);
+};
 const listService = {
-    getLists,
+  getLists,
+  createList,
+  updateList,
+  invalidateListsCache,
+  deleteList,
 };
 
 export default listService;

@@ -5,8 +5,8 @@ import com.taskmanager.application.model.entities.ListTM;
 public class ListTMDTO {
 
     private Long id;
-    private String name;
-    private String description;
+    private String nameOfList;
+    private String descriptionOfList;
     private String color;
     private String user;
 
@@ -18,22 +18,18 @@ public class ListTMDTO {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDescriptionOfList() {
+        return descriptionOfList;
     }
-
-    public void setName(String name) {
-        this.name = name;
+    public String getNameOfList() {
+        return nameOfList;
     }
-
-    public String getDescription() {
-        return description;
+    public void setNameOfList(String nameOfList) {
+        this.nameOfList = nameOfList;
     }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescriptionOfList(String descriptionOfList) {
+        this.descriptionOfList = descriptionOfList;
     }
-
     public String getColor() {
         return color;
     }
@@ -53,8 +49,8 @@ public class ListTMDTO {
     public static ListTMDTO fromEntity(ListTM list) {
         ListTMDTO dto = new ListTMDTO();
         dto.setId(list.getId());
-        dto.setName(list.getNameOfList());
-        dto.setDescription(list.getDescriptionOfList());
+        dto.setNameOfList(list.getNameOfList());
+        dto.setDescriptionOfList(list.getDescriptionOfList());
         dto.setColor(list.getColor());
         dto.setUser(list.getUser().getUsername());
         return dto;
@@ -62,9 +58,11 @@ public class ListTMDTO {
 
     public static ListTM toEntity(ListTMDTO listDTO) {
         ListTM entity = new ListTM();
-        entity.setId(listDTO.getId());
-        entity.setNameOfList(listDTO.getName());
-        entity.setDescriptionOfList(listDTO.getDescription());
+        if (listDTO.getId() != null) {
+            entity.setId(listDTO.getId());
+        }
+        entity.setNameOfList(listDTO.getNameOfList());
+        entity.setDescriptionOfList(listDTO.getDescriptionOfList());
         entity.setColor(listDTO.getColor());
         return entity;
     }

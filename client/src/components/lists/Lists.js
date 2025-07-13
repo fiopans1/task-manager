@@ -56,7 +56,7 @@ const List = () => {
   const [listsResource, setListsResource] = useState(listService.getLists());
 
   const refreshLists = () => {
-    listService.invalidateListCache();
+    listService.invalidateListsCache();
     setListsResource(listService.getLists());
     setRefreshKey((prevKey) => prevKey + 1);
   };
@@ -183,14 +183,14 @@ const List = () => {
       <NewEditLists
         show={showNewList}
         handleClose={handleClose}
-        refreshTasks={refreshLists}
+        refreshLists={refreshLists}
         editOrNew={false}
         initialData={{}}
       />
       <NewEditLists
         show={showEditList}
         handleClose={handleCloseEdit}
-        refreshTasks={refreshLists}
+        refreshLists={refreshLists}
         editOrNew={true}
         initialData={formEditData}
       />

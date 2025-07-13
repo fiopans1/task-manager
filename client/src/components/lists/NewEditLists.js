@@ -30,7 +30,7 @@ const NewEditLists = ({
   };
 
   useEffect(() => {
-    if (initialData && Object.keys(initialData).length > 0) {
+    if (editOrNew && initialData && Object.keys(initialData).length > 0) {
       setFormData({
         id: initialData.id || null,
         nameOfList: initialData.nameOfList || "",
@@ -38,7 +38,7 @@ const NewEditLists = ({
         color: initialData.color || "#0d6efd",
       });
     }
-  }, [initialData]);
+  }, [initialData, editOrNew]);
 
   const handleSubmit = async (e) => {
     //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
@@ -62,7 +62,7 @@ const NewEditLists = ({
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            {editOrNew ? "Editar Lista" : "Nueva Lista de Tareas"}
+            {editOrNew ? "Edit List" : "New List"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -71,10 +71,10 @@ const NewEditLists = ({
               <Form.Label>Título</Form.Label>
               <Form.Control
                 type="text"
-                name="title"
+                name="nameOfList"
                 value={formData.nameOfList}
                 onChange={handleChange}
-                placeholder="Nombre de la lista"
+                placeholder="Name of the list"
                 autoFocus
               />
             </Form.Group>
@@ -82,10 +82,10 @@ const NewEditLists = ({
               <Form.Label>Descripción</Form.Label>
               <Form.Control
                 as="textarea"
-                name="description"
+                name="descriptionOfList"
                 value={formData.descriptionOfList}
                 onChange={handleChange}
-                placeholder="Breve descripción de la lista"
+                placeholder="Description of the list"
                 rows={3}
               />
             </Form.Group>
@@ -97,7 +97,7 @@ const NewEditLists = ({
                   name="color"
                   value={formData.color}
                   onChange={handleChange}
-                  title="Elige un color para la lista"
+                  title="Choose a color for the list"
                   className="me-2"
                 />
                 <div
@@ -119,7 +119,7 @@ const NewEditLists = ({
               handleSubmit();
             }}
           >
-            {editOrNew ? "Actualizar" : "Crear Lista"}
+            {editOrNew ? "Update" : "Create List"}
           </Button>
         </Modal.Footer>
       </Modal>
