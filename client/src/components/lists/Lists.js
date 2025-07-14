@@ -168,7 +168,7 @@ const List = () => {
                 }
               >
                 <ListsList
-                  key={`tasks-list-${refreshKey}`}
+                  key={`lists-list-${refreshKey}`}
                   listsResource={listsResource}
                   handleOpenList={handleOpenList}
                   handleEditList={handleshowEditList}

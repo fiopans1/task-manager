@@ -96,7 +96,7 @@ const ListDetails = () => {
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
-  // Agregar una nueva tarea. (llamada a endpoint)
+  // Agregar una nueva tarea
   const handleAddTodo = () => {
     if (newTodoTitle.trim() !== "") {
       const newTodo = {
@@ -105,8 +105,7 @@ const ListDetails = () => {
         description: newTodoDescription,
         completed: false,
       };
-      //resetear campos del formulario
-      setTodos([...todos, newTodo]); //cambiar por funcion de refresh
+      setTodos([...todos, newTodo]);
       setNewTodoTitle("");
       setNewTodoDescription("");
       setShowAddModal(false);
@@ -114,7 +113,7 @@ const ListDetails = () => {
   };
 
   // Marcar como completada/pendiente
-  const toggleTodoStatus = (id) => { //llamada al endpoint
+  const toggleTodoStatus = (id) => {
     setTodos(
       todos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
@@ -123,7 +122,7 @@ const ListDetails = () => {
   };
 
   // Eliminar una tarea
-  const deleteTodo = (id) => { //llamanda al endpoint
+  const deleteTodo = (id) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
@@ -134,7 +133,7 @@ const ListDetails = () => {
   };
 
   // Guardar cambios de edición
-  const handleUpdateTodo = () => { //llamada al endpoint
+  const handleUpdateTodo = () => {
     if (editTodo && editTodo.title.trim() !== "") {
       setTodos(
         todos.map((todo) => (todo.id === editTodo.id ? editTodo : todo))
