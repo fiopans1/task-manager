@@ -56,11 +56,15 @@ public class ListElementDTO {
         dto.setDescription(entity.getDescriptionOfElement());
         dto.setListId(entity.getId());
         dto.setIsCompleted(entity.isIsCompleted());
+        dto.setListId(entity.getListTM() != null ? entity.getListTM().getId() : null);
         return dto;
     }
 
     public static ListElement toEntity(ListElementDTO dto) {
         ListElement entity = new ListElement();
+        if (dto.getId() != null) {
+            entity.setId(dto.getId());
+        }
         entity.setId(dto.getId());
         entity.setNameOfElement(dto.getName());
         entity.setDescriptionOfElement(dto.getDescription());
