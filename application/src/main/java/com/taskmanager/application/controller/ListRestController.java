@@ -38,7 +38,6 @@ public class ListRestController {
         return ResponseEntity.ok().body(listService.findAllListsForLoggedUser()); //TO-DO: All ResponseEntity change and put correctly messages
     }
 
-    //TODO: This method will be return a list with all the elements of the list
     @GetMapping("/getList/{id}")
     public ResponseEntity<ListTMDTO> getListWithElements(@PathVariable Long id) throws ResourceNotFoundException, NotPermissionException {
         return ResponseEntity.ok().body(listService.getListWithElementsById(id));
@@ -55,6 +54,7 @@ public class ListRestController {
         return ResponseEntity.ok().body(listService.updateList(id, entity));
     }
 
+    //The id is the List ID, not the element ID
     @PostMapping("/addElement/{id}")
     public ResponseEntity<String> addElementToList(@PathVariable Long id, @RequestBody ListElementDTO elementDTO) throws ResourceNotFoundException, NotPermissionException {
         listService.addElementToList(id, elementDTO);

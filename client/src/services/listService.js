@@ -120,12 +120,85 @@ const deleteList = (id) => {
     })
     .then((response) => response.data);
 };
+
+const deleteElementList = async (id) => {
+  const serverUrl = store.getState().server.serverUrl;
+  const token = "Bearer " + store.getState().auth.token;
+  await axios
+    .delete(serverUrl + "/api/lists/deleteElement/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+};
+
+const createElementList = async (id, element) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.post(
+      serverUrl + "/api/lists/addElement/" + id,
+      element,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
+
+const updateElementList = async (id, element) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.post(
+      serverUrl + "/api/lists/updateElement/" + id,
+      element,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
+
+const getElementsList = async (id) => {
+  try {
+    const serverUrl = store.getState().server.serverUrl;
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.get(serverUrl + "/api/lists/getList/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al conectar con el servidor:" + error.message);
+  }
+};
+
 const listService = {
   getLists,
   createList,
   updateList,
   invalidateListsCache,
   deleteList,
+  deleteElementList,
+  createElementList,
+  updateElementList,
+  getElementsList,
 };
 
 export default listService;

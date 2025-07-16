@@ -12,10 +12,10 @@ import Lists from "./components/lists/Lists";
 import TaskDetails from "./components/tasks/TaskDetails/TaskDetails";
 import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
-import ListDetails from "./components/lists/ListDetails";
 import Home from "./components/Home";
 // import AdminPanel from "./components/adminpanel/AdminPanel";
 import { infoToast } from "./components/common/Noty";
+import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ function App() {
         <Route path="/home/calendar" element={<CalendarComponent />} />
         <Route path="/home/lists" element={<OutletUtil />}>
           <Route index element={<Lists />} />
-          <Route path=":id" element={<ListDetails />} />
+          <Route path=":id" element={<ListDetailsGeneral />} />
         </Route>
         {/* <Route path="/home/admin" element={<AdminPanel />} /> */}
       </Route>

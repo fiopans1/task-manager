@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Row,
@@ -21,95 +21,66 @@ import {
   Circle,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
-
-const ListDetails = () => {
+import listService from "../../../services/listService";
+import { successToast, errorToast } from "../../common/Noty";
+const ListDetails = ({listId}) => {
   const navigate = useNavigate();
-  // Datos de ejemplo incluidos en el componente
-  const exampleList = {
+
+  const [list, setList] = useState({
     id: 1,
-    title: "Proyecto App Móvil",
-    description: "Tareas para el desarrollo de la aplicación móvil",
-    color: "primary",
-  };
-
-  const exampleTodos = [
-    {
-      id: 101,
-      title: "Diseñar wireframes",
-      description: "Crear wireframes para todas las pantallas principales",
-      completed: true,
-    },
-    {
-      id: 102,
-      title: "Reunión con el cliente",
-      description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false,
-    },
-    {
-      id: 103,
-      title: "Configurar entorno de desarrollo",
-      description: "Instalar dependencias y configurar el proyecto base",
-      completed: false,
-    },
-    {
-      id: 104,
-      title: "Investigar APIs necesarias",
-      description: "Buscar documentación sobre las APIs que se integrarán",
-      completed: false,
-    },
-    {
-      id: 105,
-      title: "Reunión con el cliente",
-      description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false,
-    },
-    {
-      id: 106,
-      title: "Reunión con el cliente",
-      description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false,
-    },
-    {
-      id: 107,
-      title: "Reunión con el cliente",
-      description: "Discutir los requisitos y alcance del proyecto a las 15:00",
-      completed: false,
-    },
-  ];
-
-  const [list, setList] = useState(exampleList);
-  const [todos, setTodos] = useState(exampleTodos);
+    nameOfList: "<None>",
+    descriptionOfList: "<None>",
+    color : "<None>",
+    user : "<None>",
+    listElements: [],
+  });
+  const [todos, setTodos] = useState([]);
   const [newTodoTitle, setNewTodoTitle] = useState("");
   const [newTodoDescription, setNewTodoDescription] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editTodo, setEditTodo] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  const refreshList = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedList = await listService.getElementsList(listId);
+        setList(fetchedList);
+        setTodos(fetchedList.listElements);
+      } catch (error) {
+        errorToast("Error when try to load the List details: " + error.message);
+      }
+    };
 
-  // Simulación de función para volver atrás (en una app real, esto sería una navegación)
+    fetchData();
+  }, [listId, refreshKey]);
+
   const handleBack = () => {
     navigate('..')
   };
 
-  // Contadores para la barra de progreso
   const totalTodos = todos.length;
-  const completedTodos = todos.filter((todo) => todo.completed).length;
+  const completedTodos = todos.filter((todo) => todo.isCompleted).length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
   // Agregar una nueva tarea. (llamada a endpoint)
-  const handleAddTodo = () => {
+  const handleSubmitAddTodo = async () => {
     if (newTodoTitle.trim() !== "") {
-      const newTodo = {
-        id: Date.now(),
-        title: newTodoTitle,
+      await listService.createElementList(listId, {
+        name: newTodoTitle,
         description: newTodoDescription,
-        completed: false,
-      };
-      //resetear campos del formulario
-      setTodos([...todos, newTodo]); //cambiar por funcion de refresh
+        isCompleted: false,
+      });
+      refreshList();
       setNewTodoTitle("");
       setNewTodoDescription("");
       setShowAddModal(false);
+      successToast("Task added successfully");
     }
   };
 
@@ -117,14 +88,16 @@ const ListDetails = () => {
   const toggleTodoStatus = (id) => { //llamada al endpoint
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo.id === id ? { ...todo, completed: !todo.isCompleted } : todo
       )
     );
   };
 
   // Eliminar una tarea
-  const deleteTodo = (id) => { //llamanda al endpoint
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleDeleteTodo = async (id) => { //llamanda al endpoint
+    await listService.deleteElementList(id);
+    refreshList();
+    successToast("Task deleted successfully");
   };
 
   // Abrir modal de edición
@@ -134,12 +107,12 @@ const ListDetails = () => {
   };
 
   // Guardar cambios de edición
-  const handleUpdateTodo = () => { //llamada al endpoint
-    if (editTodo && editTodo.title.trim() !== "") {
-      setTodos(
-        todos.map((todo) => (todo.id === editTodo.id ? editTodo : todo))
-      );
+  const handleUpdateTodo =async () => { //llamada al endpoint
+    if (editTodo && editTodo.name.trim() !== "") {
+      await listService.updateElementList(editTodo.id, editTodo);
+      refreshList();
       setShowEditModal(false);
+      successToast("Task updated successfully");
     }
   };
 
@@ -157,7 +130,7 @@ const ListDetails = () => {
               <ArrowLeft size={20} />
             </Button>
             <div>
-              <h2>{list.title}</h2>
+              <h2>{list.nameOfList}</h2>
               <div className="text-muted small">
                 {completedTodos} de {totalTodos} tareas completadas
               </div>
@@ -200,7 +173,7 @@ const ListDetails = () => {
       <Row className="overflow-auto" style={{ maxHeight: "70vh" }}>
         <Col>
           <ListGroup className="todo-list">
-            {todos.length === 0 ? (
+            {!todos ||todos.length === 0 ? (
               <Card className="text-center py-5 text-muted">
                 <Card.Body>
                   <p>No hay tareas en esta lista</p>
@@ -226,9 +199,9 @@ const ListDetails = () => {
                           variant="link"
                           className="p-0 me-2"
                           onClick={() => toggleTodoStatus(todo.id)}
-                          style={{ color: todo.completed ? "green" : "gray" }}
+                          style={{ color: todo.isCompleted ? "green" : "gray" }}
                         >
-                          {todo.completed ? (
+                          {todo.isCompleted ? (
                             <CheckCircle size={22} />
                           ) : (
                             <Circle size={22} />
@@ -237,17 +210,17 @@ const ListDetails = () => {
                         <div>
                           <h5
                             className={
-                              todo.completed
+                              todo.isCompleted
                                 ? "text-decoration-line-through text-muted"
                                 : ""
                             }
                           >
-                            {todo.title}
+                            {todo.name}
                           </h5>
                           {todo.description && (
                             <p
                               className={`mb-0 small ${
-                                todo.completed ? "text-muted" : ""
+                                todo.isCompleted ? "text-muted" : ""
                               }`}
                             >
                               {todo.description}
@@ -261,14 +234,14 @@ const ListDetails = () => {
                           size="sm"
                           className="me-2"
                           onClick={() => openEditModal(todo)}
-                          disabled={todo.completed}
+                          disabled={todo.isCompleted}
                         >
                           <PencilSquare size={16} />
                         </Button>
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => deleteTodo(todo.id)}
+                          onClick={() => handleDeleteTodo(todo.id)}
                         >
                           <Trash size={16} />
                         </Button>
@@ -315,7 +288,7 @@ const ListDetails = () => {
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleAddTodo}>
+          <Button variant="primary" onClick={handleSubmitAddTodo}>
             Agregar Tarea
           </Button>
         </Modal.Footer>
@@ -333,9 +306,9 @@ const ListDetails = () => {
                 <Form.Label>Título</Form.Label>
                 <Form.Control
                   type="text"
-                  value={editTodo.title}
+                  value={editTodo.name}
                   onChange={(e) =>
-                    setEditTodo({ ...editTodo, title: e.target.value })
+                    setEditTodo({ ...editTodo, name: e.target.value })
                   }
                   autoFocus
                 />
