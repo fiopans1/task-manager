@@ -23,15 +23,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import listService from "../../../services/listService";
 import { successToast, errorToast } from "../../common/Noty";
-const ListDetails = ({listId}) => {
+const ListDetails = ({ listId }) => {
   const navigate = useNavigate();
 
   const [list, setList] = useState({
     id: 1,
     nameOfList: "<None>",
     descriptionOfList: "<None>",
-    color : "<None>",
-    user : "<None>",
+    color: "<None>",
+    user: "<None>",
     listElements: [],
   });
   const [todos, setTodos] = useState([]);
@@ -41,10 +41,10 @@ const ListDetails = ({listId}) => {
   const [editTodo, setEditTodo] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   const refreshList = () => {
     setRefreshKey((prevKey) => prevKey + 1);
-  }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,7 +60,7 @@ const ListDetails = ({listId}) => {
   }, [listId, refreshKey]);
 
   const handleBack = () => {
-    navigate('..')
+    navigate("..");
   };
 
   const totalTodos = todos.length;
@@ -70,34 +70,47 @@ const ListDetails = ({listId}) => {
 
   // Agregar una nueva tarea. (llamada a endpoint)
   const handleSubmitAddTodo = async () => {
-    if (newTodoTitle.trim() !== "") {
-      await listService.createElementList(listId, {
-        name: newTodoTitle,
-        description: newTodoDescription,
-        isCompleted: false,
-      });
-      refreshList();
-      setNewTodoTitle("");
-      setNewTodoDescription("");
-      setShowAddModal(false);
-      successToast("Task added successfully");
+    try {
+      if (newTodoTitle.trim() !== "") {
+        await listService.createElementList(listId, {
+          name: newTodoTitle,
+          description: newTodoDescription,
+          isCompleted: false,
+        });
+        refreshList();
+        setNewTodoTitle("");
+        setNewTodoDescription("");
+        setShowAddModal(false);
+        successToast("Task added successfully");
+      }
+    } catch (error) {
+      errorToast("Error: " + error.message);
     }
   };
 
   // Marcar como completada/pendiente
-  const toggleTodoStatus = (id) => { //llamada al endpoint
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.isCompleted } : todo
-      )
-    );
+  const handleTodoStatus = async (todoToEdit) => {
+    try {
+      const updatedTodo = {
+        ...todoToEdit,
+        isCompleted: !todoToEdit.isCompleted,
+      };
+      await listService.updateElementList(updatedTodo.id, updatedTodo);
+      refreshList();
+    } catch (error) {
+      errorToast("Error: " + error.message);
+    }
   };
 
   // Eliminar una tarea
-  const handleDeleteTodo = async (id) => { //llamanda al endpoint
-    await listService.deleteElementList(id);
-    refreshList();
-    successToast("Task deleted successfully");
+  const handleDeleteTodo = async (id) => {
+    try {
+      await listService.deleteElementList(id);
+      refreshList();
+      successToast("Task deleted successfully");
+    } catch (error) {
+      errorToast("Error: " + error.message);
+    }
   };
 
   // Abrir modal de edición
@@ -107,12 +120,17 @@ const ListDetails = ({listId}) => {
   };
 
   // Guardar cambios de edición
-  const handleUpdateTodo =async () => { //llamada al endpoint
-    if (editTodo && editTodo.name.trim() !== "") {
-      await listService.updateElementList(editTodo.id, editTodo);
-      refreshList();
-      setShowEditModal(false);
-      successToast("Task updated successfully");
+  const handleUpdateTodo = async () => {
+    try {
+      if (editTodo) {
+        await listService.updateElementList(editTodo.id, editTodo);
+        refreshList();
+        setShowEditModal(false);
+        successToast("Task updated successfully");
+      }
+      setEditTodo(null);
+    } catch (error) {
+      errorToast("Error: " + error.message);
     }
   };
 
@@ -132,7 +150,7 @@ const ListDetails = ({listId}) => {
             <div>
               <h2>{list.nameOfList}</h2>
               <div className="text-muted small">
-                {completedTodos} de {totalTodos} tareas completadas
+                {completedTodos} of {totalTodos} completed Tasks
               </div>
 
               {/* Barra de progreso */}
@@ -162,7 +180,7 @@ const ListDetails = ({listId}) => {
                 onClick={() => setShowAddModal(true)}
               >
                 <PlusCircle className="me-2" size={20} />
-                Agregar Nueva Tarea
+                Add New Task
               </Button>
             </Card.Body>
           </Card>
@@ -173,16 +191,16 @@ const ListDetails = ({listId}) => {
       <Row className="overflow-auto" style={{ maxHeight: "70vh" }}>
         <Col>
           <ListGroup className="todo-list">
-            {!todos ||todos.length === 0 ? (
+            {!todos || todos.length === 0 ? (
               <Card className="text-center py-5 text-muted">
                 <Card.Body>
-                  <p>No hay tareas en esta lista</p>
+                  <p>No tasks in this list</p>
                   <Button
                     variant="outline-primary"
                     onClick={() => setShowAddModal(true)}
                   >
                     <PlusCircle className="me-2" size={16} />
-                    Agregar la primera tarea
+                    Add the first task
                   </Button>
                 </Card.Body>
               </Card>
@@ -198,7 +216,7 @@ const ListDetails = ({listId}) => {
                         <Button
                           variant="link"
                           className="p-0 me-2"
-                          onClick={() => toggleTodoStatus(todo.id)}
+                          onClick={() => handleTodoStatus(todo)}
                           style={{ color: todo.isCompleted ? "green" : "gray" }}
                         >
                           {todo.isCompleted ? (
@@ -258,12 +276,12 @@ const ListDetails = ({listId}) => {
       {/* Modal para agregar tarea */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Agregar Nueva Tarea</Modal.Title>
+          <Modal.Title>Add New Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Título</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Escribe el título de la tarea"
@@ -273,7 +291,7 @@ const ListDetails = ({listId}) => {
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label>Descripción (opcional)</Form.Label>
+              <Form.Label>Description (optional)</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -286,10 +304,10 @@ const ListDetails = ({listId}) => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Cancelar
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmitAddTodo}>
-            Agregar Tarea
+            Add Task
           </Button>
         </Modal.Footer>
       </Modal>
@@ -297,13 +315,13 @@ const ListDetails = ({listId}) => {
       {/* Modal para editar tarea */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar Tarea</Modal.Title>
+          <Modal.Title>Edit Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {editTodo && (
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label>Título</Form.Label>
+                <Form.Label>Title</Form.Label>
                 <Form.Control
                   type="text"
                   value={editTodo.name}
@@ -314,7 +332,7 @@ const ListDetails = ({listId}) => {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Descripción (opcional)</Form.Label>
+                <Form.Label>Description (optional)</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -329,10 +347,10 @@ const ListDetails = ({listId}) => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            Cancelar
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleUpdateTodo}>
-            Guardar Cambios
+            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>

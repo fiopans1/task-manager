@@ -1,6 +1,8 @@
 package com.taskmanager.application.model.entities;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.ManyToAny;
@@ -24,24 +26,23 @@ public class ListTM {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name="name", nullable = false)
+
+    @Column(name = "name", nullable = false)
     private String nameOfList;
-    
+
     @Lob
-    @Column(name="description", nullable = false, length = 10000)
+    @Column(name = "description", nullable = false, length = 10000)
     private String descriptionOfList;
 
     @Column(nullable = false)
     private String color;
 
-    @OneToMany(mappedBy = "listTM" , cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<ListElement> listElements = new HashSet<>();;
+    @OneToMany(mappedBy = "listTM", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ListElement> listElements = new ArrayList<>();
 
     @ManyToOne
     private User user;
 
-    
     public ListTM() {
     }
 
@@ -76,17 +77,20 @@ public class ListTM {
     public void setColor(String color) {
         this.color = color;
     }
-    
-    public Set<ListElement> getListElements() {
+
+    public List<ListElement> getListElements() {
         return listElements;
     }
-    public void setListElements(Set<ListElement> listElements) {
+
+    public void setListElements(List<ListElement> listElements) {
         this.listElements = listElements;
     }
+
     public User getUser() {
         return user;
     }
+
     public void setUser(User user) {
-        this.user = user;   
+        this.user = user;
     }
 }

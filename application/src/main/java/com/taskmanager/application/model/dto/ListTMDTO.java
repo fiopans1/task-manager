@@ -81,7 +81,7 @@ public class ListTMDTO {
         entity.setDescriptionOfList(listDTO.getDescriptionOfList());
         entity.setColor(listDTO.getColor());
         if(includeElements && listDTO.getListElements() != null) {
-            entity.setListElements(listDTO.getListElements().stream().map(ListElementDTO::toEntity).collect(Collectors.toSet()));
+            entity.setListElements(listDTO.getListElements().stream().map(ListElementDTO::toEntity).toList());
         }
         return entity;
     }
