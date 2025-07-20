@@ -108,7 +108,7 @@ const Tasks = () => {
                   className="me-2"
                   size={isMobile ? "sm" : ""}
                 >
-                  Clear
+                  Clear Filter
                 </Button>
                 <Button
                   variant="outline-info"
@@ -171,6 +171,7 @@ const Tasks = () => {
                   handleOpenTask={handleOpenTask}
                   handleEditTask={handleshowEditTask}
                   refreshTasks={refreshTasks}
+                  searchTerm={searchTerm}
                 />
               </Suspense>
             </ErrorBoundary>

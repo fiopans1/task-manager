@@ -8,13 +8,25 @@ const TasksList = ({
   handleOpenTask,
   handleEditTask,
   refreshTasks,
+  searchTerm,
 }) => {
   const [data, setData] = useState(tasksResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
   useEffect(() => {
-    setData(tasksResource.read());
+    const fetchData = async () => {
+      try {
+        var data = tasksResource.read();
+        data = data.filter((task) =>
+          task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setData(data);
+      } catch (error) {
+        errorToast("Error fetching lists: " + error.message);
+      }
+    };
+    fetchData();
   }, [tasksResource]);
 
   const deleteTask = async () => {
