@@ -7,6 +7,7 @@ const ListsList = ({
   handleOpenList,
   handleEditList,
   refreshLists,
+  searchTerm,
 }) => {
   const [data, setData] = useState(listsResource.read());
   const [showDelete, setShowDelete] = useState(false);
@@ -49,7 +50,18 @@ const ListsList = ({
   };
 
   useEffect(() => {
-    setData(listsResource.read());
+    const fetchData = async () => {
+      try {
+        var data = await listsResource.read();
+        data = data.filter((list) =>
+          list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setData(data);
+      } catch (error) {
+        errorToast("Error fetching lists: " + error.message);
+      }
+    };
+    fetchData();
   }, [listsResource]);
 
   return !data || data.length === 0 ? (
@@ -97,12 +109,12 @@ const ListsList = ({
                 <Card.Text className="mt-2 mb-0" style={{ fontSize: "13px" }}>
                   {card.descriptionOfList}
                 </Card.Text>
-                {/* <Card.Text
+                <Card.Text
                   className="mb-1"
                   style={{ fontSize: "0.7rem", color: "#6b7280" }}
                 >
-                  {card.tasksCompleted} de {card.totalTasks} tareas completadas
-                </Card.Text> */}
+                  {card.completedElements} of {card.totalElements} completed tasks
+                </Card.Text>
                 <Button
                   variant="success"
                   className="m-2"

@@ -7,10 +7,7 @@ import {
   Form,
   Button,
   ListGroup,
-  Badge,
   Modal,
-  InputGroup,
-  FormControl,
 } from "react-bootstrap";
 import {
   ArrowLeft,
@@ -64,7 +61,7 @@ const ListDetails = ({ listId }) => {
   };
 
   const totalTodos = todos.length;
-  const completedTodos = todos.filter((todo) => todo.isCompleted).length;
+  const completedTodos = todos.filter((todo) => todo.completed).length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
@@ -75,7 +72,7 @@ const ListDetails = ({ listId }) => {
         await listService.createElementList(listId, {
           name: newTodoTitle,
           description: newTodoDescription,
-          isCompleted: false,
+          completed: false,
         });
         refreshList();
         setNewTodoTitle("");
@@ -93,7 +90,7 @@ const ListDetails = ({ listId }) => {
     try {
       const updatedTodo = {
         ...todoToEdit,
-        isCompleted: !todoToEdit.isCompleted,
+        completed: !todoToEdit.completed,
       };
       await listService.updateElementList(updatedTodo.id, updatedTodo);
       refreshList();
@@ -217,9 +214,9 @@ const ListDetails = ({ listId }) => {
                           variant="link"
                           className="p-0 me-2"
                           onClick={() => handleTodoStatus(todo)}
-                          style={{ color: todo.isCompleted ? "green" : "gray" }}
+                          style={{ color: todo.completed ? "green" : "gray" }}
                         >
-                          {todo.isCompleted ? (
+                          {todo.completed ? (
                             <CheckCircle size={22} />
                           ) : (
                             <Circle size={22} />
@@ -228,7 +225,7 @@ const ListDetails = ({ listId }) => {
                         <div>
                           <h5
                             className={
-                              todo.isCompleted
+                              todo.completed
                                 ? "text-decoration-line-through text-muted"
                                 : ""
                             }
@@ -238,7 +235,7 @@ const ListDetails = ({ listId }) => {
                           {todo.description && (
                             <p
                               className={`mb-0 small ${
-                                todo.isCompleted ? "text-muted" : ""
+                                todo.completed ? "text-muted" : ""
                               }`}
                             >
                               {todo.description}
@@ -252,7 +249,7 @@ const ListDetails = ({ listId }) => {
                           size="sm"
                           className="me-2"
                           onClick={() => openEditModal(todo)}
-                          disabled={todo.isCompleted}
+                          disabled={todo.completed}
                         >
                           <PencilSquare size={16} />
                         </Button>

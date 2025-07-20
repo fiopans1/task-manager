@@ -16,6 +16,8 @@ public class ListTMDTO {
     private String color;
     private String user;
     private List<ListElementDTO> listElements;
+    private int totalElements = 0;
+    private int completedElements = 0;
 
     public Long getId() {
         return id;
@@ -28,15 +30,19 @@ public class ListTMDTO {
     public String getDescriptionOfList() {
         return descriptionOfList;
     }
+
     public String getNameOfList() {
         return nameOfList;
     }
+
     public void setNameOfList(String nameOfList) {
         this.nameOfList = nameOfList;
     }
+
     public void setDescriptionOfList(String descriptionOfList) {
         this.descriptionOfList = descriptionOfList;
     }
+
     public String getColor() {
         return color;
     }
@@ -52,11 +58,29 @@ public class ListTMDTO {
     public void setUser(String user) {
         this.user = user;
     }
+
     public List<ListElementDTO> getListElements() {
         return listElements;
     }
+
     public void setListElements(List<ListElementDTO> listElements) {
         this.listElements = listElements;
+    }
+
+    public int getTotalElements() {
+        return totalElements;
+    }
+
+    public void setTotalElements(int totalElements) {
+        this.totalElements = totalElements;
+    }
+
+    public int getCompletedElements() {
+        return completedElements;
+    }
+
+    public void setCompletedElements(int completedElements) {
+        this.completedElements = completedElements;
     }
 
     public static ListTMDTO fromEntity(ListTM list, boolean includeElements) {
@@ -66,6 +90,8 @@ public class ListTMDTO {
         dto.setDescriptionOfList(list.getDescriptionOfList());
         dto.setColor(list.getColor());
         dto.setUser(list.getUser().getUsername());
+        dto.setTotalElements(list.getListElements().size());
+        dto.setCompletedElements((int) list.getListElements().stream().filter(ListElement::isCompleted).count());
         if (includeElements) {
             dto.setListElements(list.getListElements().stream().map(element -> ListElementDTO.fromEntity(element)).toList());
         }
@@ -80,11 +106,10 @@ public class ListTMDTO {
         entity.setNameOfList(listDTO.getNameOfList());
         entity.setDescriptionOfList(listDTO.getDescriptionOfList());
         entity.setColor(listDTO.getColor());
-        if(includeElements && listDTO.getListElements() != null) {
+        if (includeElements && listDTO.getListElements() != null) {
             entity.setListElements(listDTO.getListElements().stream().map(ListElementDTO::toEntity).toList());
         }
         return entity;
     }
-
 
 }

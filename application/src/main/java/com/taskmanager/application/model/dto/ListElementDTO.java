@@ -7,7 +7,7 @@ public class ListElementDTO {
     private Long id;
     private String name;
     private String description;
-    private boolean isCompleted;
+    private boolean completed;
     private Long listId;
 
     public Long getId() {
@@ -34,11 +34,11 @@ public class ListElementDTO {
         this.description = description;
     }
 
-    public boolean isIsCompleted() {
-        return isCompleted;
+    public boolean isCompleted() {
+        return completed;
     }
-    public void setIsCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     public Long getListId() {
@@ -55,7 +55,7 @@ public class ListElementDTO {
         dto.setName(entity.getNameOfElement());
         dto.setDescription(entity.getDescriptionOfElement());
         dto.setListId(entity.getId());
-        dto.setIsCompleted(entity.isIsCompleted());
+        dto.setCompleted(entity.isCompleted());
         dto.setListId(entity.getListTM() != null ? entity.getListTM().getId() : null);
         return dto;
     }
@@ -68,7 +68,7 @@ public class ListElementDTO {
         entity.setId(dto.getId());
         entity.setNameOfElement(dto.getName());
         entity.setDescriptionOfElement(dto.getDescription());
-        entity.setCompleted(dto.isIsCompleted());
+        entity.setCompleted(dto.isCompleted());
         return entity;
     }
 }

@@ -110,7 +110,7 @@ const List = () => {
                   className="me-2"
                   size={isMobile ? "sm" : ""}
                 >
-                  Clear
+                  Clear Filter
                 </Button>
                 <Button
                   variant="outline-info"
@@ -173,6 +173,7 @@ const List = () => {
                   handleOpenList={handleOpenList}
                   handleEditList={handleshowEditList}
                   refreshLists={refreshLists}
+                  searchTerm={searchTerm}
                 />
               </Suspense>
             </ErrorBoundary>

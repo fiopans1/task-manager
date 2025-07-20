@@ -113,7 +113,7 @@ public class ListService {
         if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             element.setNameOfElement(elementDTO.getName());
             element.setDescriptionOfElement(elementDTO.getDescription());
-            element.setCompleted(elementDTO.isIsCompleted());
+            element.setCompleted(elementDTO.isCompleted());
             return listElementRepository.save(element);
         } else {
             throw new NotPermissionException("You don't have permission to update this element");

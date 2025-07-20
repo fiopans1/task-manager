@@ -23,7 +23,7 @@ public class ListElement {
     @Column(name="description", nullable = false, length = 10000)
     private String descriptionOfElement;
 
-    private boolean isCompleted;
+    private boolean completed;
 
     @ManyToOne(fetch=FetchType.LAZY)
     private ListTM listTM;
@@ -55,8 +55,8 @@ public class ListElement {
         this.descriptionOfElement = descriptionOfElement;
     }
 
-    public void setCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
     
     public void setListTM(ListTM listTM) {
@@ -67,8 +67,8 @@ public class ListElement {
         return listTM;
     }
 
-    public boolean isIsCompleted() {
-        return isCompleted;
+    public boolean isCompleted() {
+        return completed;
     }
     
 
