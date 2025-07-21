@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import authService from "../../services/authService";
-import { Container, Form, Button, Card, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Form,
+  Button,
+  Card,
+  Spinner,
+  Row,
+  Col,
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
+
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,48 +30,82 @@ function LoginPage({ onLogin }) {
       errorToast("Error al iniciar sesión: " + error.message);
     }
   };
+
   return (
     <Container
       fluid
-      className="vh-100 d-flex justify-content-center align-items-center animated-background p-5"
+      className="task-manager-bg vh-100 d-flex justify-content-center align-items-center p-3"
     >
-      <Card className="p-5 shadow-sm rounded">
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" controlId="formBasicUsername">
-            <Form.Label className="fs-3">Username</Form.Label>
-            <Form.Control
-              className="form-control-lg"
-              type="username"
-              placeholder="Enter username"
-              value={username}
-              onChange={(e) => setusername(e.target.value)}
-              required
-            />
-          </Form.Group>
+      <Row className="w-100 justify-content-center">
+        <Col xs={12} sm={8} md={6} lg={4} xl={3}>
+          <Card className="modern-card p-4 p-md-5 rounded-4">
+            {/* Header del Task Manager */}
+            <div className="text-center mb-4">
+              <h2 className="brand-title display-6">Task Manager</h2>
+              <p className="text-muted mb-0">Manage your tasks efficiently</p>
+            </div>
 
-          <Form.Group className="mb-3" controlId="formBasicPassword">
-            <Form.Label className="fs-3">Password</Form.Label>
-            <Form.Control
-              className="form-control-lg"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Button size="lg" variant="primary" type="submit">
-            {loading ? (
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-            ) : (
-              "Login"
-            )}
-          </Button>
-        </Form>
-        <small className="mt-3 text-muted">if you don't have account. Go to <Link to="/register">Register</Link></small>
-      </Card>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-4" controlId="formBasicUsername">
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Username
+                </Form.Label>
+                <Form.Control
+                  size="lg"
+                  className="modern-input rounded-3 border-2"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setusername(e.target.value)}
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-4" controlId="formBasicPassword">
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Password
+                </Form.Label>
+                <Form.Control
+                  size="lg"
+                  className="modern-input rounded-3 border-2"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </Form.Group>
+
+              <Button
+                size="lg"
+                className="modern-btn w-100 py-3 fw-semibold rounded-3 mb-4"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner animation="border" size="sm" className="me-2" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </Form>
+
+            {/* Footer */}
+            <hr className="mb-3" />
+            <div className="text-center">
+              <small className="text-muted">
+                New to Task Manager?{" "}
+                <Link to="/register" className="modern-link">
+                  Create account
+                </Link>
+              </small>
+            </div>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 }

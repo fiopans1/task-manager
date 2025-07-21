@@ -24,6 +24,7 @@ function RegisterPage() {
     surname2: "",
     age: 0,
   });
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -51,138 +52,177 @@ function RegisterPage() {
       errorToast("Error al registrarse: " + error.message);
     }
   };
+
   return (
-    <Container
-      fluid
-      className="animated-background d-flex justify-content-center align-items-center"
-    >
-      <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={10} md={8} lg={6} xl={4}>
-          <Card
-            className="p-4 shadow-sm rounded"
-            style={{ backgroundColor: "#ffffff" }}
-          >
-            <h2 className="text-center mb-4" style={{ color: "#4c4c4c" }}>
-              Registro
-            </h2>
-            <Form onSubmit={handleSubmit}>
-              <Form.Group controlId="formName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter first name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <Row>
-                <Col>
-                  <Form.Group controlId="formSurname1">
-                    <Form.Label>Surname 1</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter surname"
-                      name="surname1"
-                      value={formData.surname1}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
 
-                <Col>
-                  <Form.Group controlId="formSurname2">
-                    <Form.Label>Surname 2</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter surname"
-                      name="surname2"
-                      value={formData.surname2}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+      <Container
+        fluid
+        className="task-manager-bg d-flex justify-content-center align-items-center py-4"
+      >
+        <Row className="w-100 justify-content-center">
+          <Col xs={12} sm={10} md={8} lg={6} xl={5}>
+            <Card className="modern-card p-4 p-md-5 rounded-4">
+              
+              {/* Header del Task Manager */}
+              <div className="text-center mb-4">
+                <h2 className="brand-title display-6">Join Task Manager</h2>
+                <p className="text-muted mb-0">Create your account to get started</p>
+              </div>
 
-              <Form.Group controlId="formUsername" className="mb-3">
-                <Form.Label>Nombre de Usuario</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Ingresa tu nombre de usuario"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  style={{ borderRadius: "10px" }}
-                />
-              </Form.Group>
-              <Form.Group controlId="formEmail" className="mb-3">
-                <Form.Label>Correo Electrónico</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Ingresa tu correo"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  style={{ borderRadius: "10px" }}
-                />
-              </Form.Group>
+              <Form onSubmit={handleSubmit}>
+                {/* Nombre completo */}
+                <Row className="mb-3">
+                  <Col>
+                    <Form.Group controlId="formName">
+                      <Form.Label className="fw-semibold text-dark">First Name</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="text"
+                        placeholder="Enter first name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              <Form.Group controlId="formAge">
-                <Form.Label>Age</Form.Label>
-                <Form.Control
-                  type="number"
-                  placeholder="Enter age"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleChange}
-                />
-              </Form.Group>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="formSurname1">
+                      <Form.Label className="fw-semibold text-dark">Surname 1</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="text"
+                        placeholder="Enter surname"
+                        name="surname1"
+                        value={formData.surname1}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formSurname2">
+                      <Form.Label className="fw-semibold text-dark">Surname 2</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="text"
+                        placeholder="Enter surname"
+                        name="surname2"
+                        value={formData.surname2}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              <Form.Group controlId="formPassword" className="mb-3">
-                <Form.Label>Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Crea tu contraseña"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  style={{ borderRadius: "10px" }}
-                />
-              </Form.Group>
+                {/* Username y Email */}
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="formUsername">
+                      <Form.Label className="fw-semibold text-dark">Username</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="text"
+                        placeholder="Choose username"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formAge">
+                      <Form.Label className="fw-semibold text-dark">Age</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="number"
+                        placeholder="Enter age"
+                        name="age"
+                        value={formData.age}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              <Form.Group controlId="formConfirmPassword" className="mb-4">
-                <Form.Label>Confirmar Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Confirma tu contraseña"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  style={{ borderRadius: "10px" }}
-                />
-              </Form.Group>
+                <Form.Group controlId="formEmail" className="mb-3">
+                  <Form.Label className="fw-semibold text-dark">Email Address</Form.Label>
+                  <Form.Control
+                    className="modern-input rounded-3 border-2"
+                    type="email"
+                    placeholder="Enter your email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
 
-              <Button size="lg" variant="primary" type="submit">
-                {loading ? (
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                ) : (
-                  "Registrarse"
-                )}
-              </Button>
-            </Form>
-            <small className="mt-3 text-muted">
-              if you have account. Go to <Link to="/login">Login</Link>
-            </small>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+                {/* Contraseñas */}
+                <Row className="mb-4">
+                  <Col md={6}>
+                    <Form.Group controlId="formPassword">
+                      <Form.Label className="fw-semibold text-dark">Password</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="password"
+                        placeholder="Create password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formConfirmPassword">
+                      <Form.Label className="fw-semibold text-dark">Confirm Password</Form.Label>
+                      <Form.Control
+                        className="modern-input rounded-3 border-2"
+                        type="password"
+                        placeholder="Confirm password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Button 
+                  className="modern-btn w-100 py-3 fw-semibold rounded-3 mb-4" 
+                  size="lg" 
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
+              </Form>
+
+              {/* Footer */}
+              <hr className="mb-3" />
+              <div className="text-center">
+                <small className="text-muted">
+                  Already have an account? {" "}
+                  <Link to="/login" className="modern-link">
+                    Sign in here
+                  </Link>
+                </small>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
   );
 }
 

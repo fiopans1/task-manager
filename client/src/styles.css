@@ -139,20 +139,19 @@
   .nav-pills .nav-link {
     padding: 10px 15px;
   }
-  
+
   /* Mostrar textos en el menú móvil */
   .offcanvas .nav-link span {
     display: inline-block !important;
     margin-left: 10px !important;
   }
-  
+
   /* Asegurar que los íconos estén alineados */
   .offcanvas .nav-link i {
     width: 20px;
     text-align: center;
   }
 }
-
 
 /* CalendarStyles.css */
 
@@ -211,7 +210,7 @@
 /* Estilos para el calendario */
 .modern-calendar {
   height: 100% !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Estilos para la barra de herramientas personalizada */
@@ -337,8 +336,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Ajustes responsive */
@@ -348,18 +351,19 @@
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .custom-toolbar {
     flex-direction: column;
     gap: 12px;
     align-items: center;
   }
-  
-  .toolbar-left, .toolbar-right {
+
+  .toolbar-left,
+  .toolbar-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .calendar-wrapper {
     height: 65vh;
   }
@@ -387,7 +391,7 @@
   :global(.task-modal .modal-dialog) {
     margin: 0.5rem;
   }
-  
+
   :global(.task-modal .row) {
     --bs-gutter-y: 0.75rem;
   }
@@ -414,7 +418,7 @@
   .tittle-tab-container h2 {
     font-size: 1.5rem;
   }
-  
+
   /* Ensure bottom of list is visible */
   .tasks-container {
     margin-bottom: 20px;
@@ -422,10 +426,9 @@
 }
 
 .hover-shadow:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
-
 
 .task-card {
   transition: all 0.2s ease;
@@ -447,7 +450,6 @@
   background-color: #ccc;
   border-radius: 3px;
 }
-
 
 :global(.task-modal .modal-content) {
   border-radius: 12px;
@@ -471,7 +473,7 @@
   :global(.task-modal .modal-dialog) {
     margin: 0.5rem;
   }
-  
+
   :global(.task-modal .row) {
     --bs-gutter-y: 0.75rem;
   }
@@ -522,4 +524,141 @@
 /* today indicator */
 :global(.rbc-today) {
   background: rgba(59, 130, 246, 0.05);
+}
+
+/* HomePage*/
+
+.welcome-subtitle {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.modern-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+}
+
+.modern-input-group .input-group-text {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.modern-btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.modern-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.modern-btn-outline {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.modern-btn-outline:hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.modern-btn:active {
+  transform: translateY(0);
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.feature-text {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/*RegisterPage*/
+
+.task-manager-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  min-height: 100vh;
+}
+
+.task-manager-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='7' r='1'/%3E%3Ccircle cx='47' cy='7' r='1'/%3E%3Ccircle cx='7' cy='27' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='27' r='1'/%3E%3Ccircle cx='7' cy='47' r='1'/%3E%3Ccircle cx='27' cy='47' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.modern-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: none !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+.brand-title {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.modern-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+}
+
+.modern-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.modern-btn:hover {
+  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.modern-btn:active {
+  transform: translateY(0);
+}
+
+.modern-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.modern-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
 }
