@@ -60,7 +60,7 @@ public class TaskService {
             taskToUpdate.setPriority(task.getPriority());
             taskToUpdate.setState(task.getState());
             if(task.isEvent()){
-                if(taskToUpdate.getEventTask()!=null){ //TO-DO: Implementar esto
+                if(taskToUpdate.getEventTask()!=null){
                     taskToUpdate.getEventTask().setStartTime(task.getStartDate());
                     taskToUpdate.getEventTask().setEndTime(task.getEndDate());
                 }else{

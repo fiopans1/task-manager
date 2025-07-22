@@ -48,8 +48,8 @@ public class TaskRestController {
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody TaskDTO task) throws ResourceNotFoundException, NotPermissionException { //TO-DO: Change the expcetion to a custom exception
-        return ResponseEntity.ok().body(taskService.updateTask(id, task));
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO task) throws ResourceNotFoundException, NotPermissionException { //TO-DO: Change the expcetion to a custom exception
+        return ResponseEntity.ok().body(TaskDTO.fromEntity(taskService.updateTask(id, task)));
     }
     
 
