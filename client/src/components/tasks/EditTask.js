@@ -87,11 +87,15 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
       if (taskData.isEvent) {
         // ISO format for LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
-          taskData.startDate = dayjs(`${startDateField}T${startTimeField}`).toISOString();
+          taskData.startDate = dayjs(
+            `${startDateField}T${startTimeField}`
+          ).toISOString();
         }
 
         if (endDateField && endTimeField) {
-          taskData.endDate = dayjs(`${endDateField}T${endTimeField}`).toISOString();
+          taskData.endDate = dayjs(
+            `${endDateField}T${endTimeField}`
+          ).toISOString();
         }
       }
 
@@ -103,9 +107,24 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
     }
   };
 
+  const priorityOptions = ["LOW", "MIN", "MEDIUM", "HIGH", "CRITICAL"];
+  const statusOptions = [
+    "COMPLETED",
+    "CANCELLED",
+    "IN_PROGRESS",
+    "NEW",
+    "PAUSSED",
+  ];
+
   return (
     <Container>
-      <Modal show={show} onHide={handleClose} size="lg" centered className="task-modal">
+      <Modal
+        show={show}
+        onHide={handleClose}
+        size="lg"
+        centered
+        className="task-modal"
+      >
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-primary">Edit Task</Modal.Title>
         </Modal.Header>
@@ -113,11 +132,10 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
           <Container>
             <Col>
               <Form>
-                <Form.Group
-                  className="mb-4"
-                  controlId="editTaskNameInput"
-                >
-                  <Form.Label className="text-secondary fw-medium">Name</Form.Label>
+                <Form.Group className="mb-4" controlId="editTaskNameInput">
+                  <Form.Label className="text-secondary fw-medium">
+                    Name
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Name of task"
@@ -129,8 +147,10 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                 </Form.Group>
                 <Row className="mb-4">
                   <Col>
-                    <Form.Group controlId="editFormPriority">
-                      <Form.Label className="text-secondary fw-medium">Priority</Form.Label>
+                    <Form.Group controlId="formPriority">
+                      <Form.Label className="text-secondary fw-medium">
+                        Priority
+                      </Form.Label>
                       <Form.Select
                         aria-label="Priority"
                         name="priority"
@@ -138,15 +158,19 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                         value={formData.priority}
                         className="shadow-sm rounded-3 border-light-subtle"
                       >
-                        <option value="MIN">MIN</option>
-                        <option value="MEDIUM">MEDIUM</option>
-                        <option value="HIGH">HIGH</option>
+                        {priorityOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>
                   <Col>
-                    <Form.Group controlId="editFormStatus">
-                      <Form.Label className="text-secondary fw-medium">Status</Form.Label>
+                    <Form.Group controlId="formStatus">
+                      <Form.Label className="text-secondary fw-medium">
+                        Status
+                      </Form.Label>
                       <Form.Select
                         aria-label="Status"
                         name="state"
@@ -154,9 +178,11 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                         value={formData.state}
                         className="shadow-sm rounded-3 border-light-subtle"
                       >
-                        <option value="NEW">NEW</option>
-                        <option value="IN_PROGRESS">IN_PROGRESS</option>
-                        <option value="COMPLETED">COMPLETED</option>
+                        {statusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>
@@ -177,14 +203,18 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
-                        <Form.Label className="text-secondary fw-medium">Start Event</Form.Label>
+                        <Form.Label className="text-secondary fw-medium">
+                          Start Event
+                        </Form.Label>
                         <Row>
                           <Col>
                             <Form.Control
                               type="date"
                               placeholder="Enter date"
                               value={startDateField}
-                              onChange={(e) => setStartDateField(e.target.value)}
+                              onChange={(e) =>
+                                setStartDateField(e.target.value)
+                              }
                               className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
@@ -193,7 +223,9 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                               type="time"
                               placeholder="Enter time"
                               value={startTimeField}
-                              onChange={(e) => setStartTimeField(e.target.value)}
+                              onChange={(e) =>
+                                setStartTimeField(e.target.value)
+                              }
                               className="shadow-sm rounded-3 border-light-subtle"
                             />
                           </Col>
@@ -204,7 +236,9 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
-                        <Form.Label className="text-secondary fw-medium">End Event</Form.Label>
+                        <Form.Label className="text-secondary fw-medium">
+                          End Event
+                        </Form.Label>
                         <Row>
                           <Col>
                             <Form.Control
@@ -229,11 +263,10 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                     </Row>
                   </Container>
                 </Collapse>
-                <Form.Group
-                  className="mb-4"
-                  controlId="editTaskDescription"
-                >
-                  <Form.Label className="text-secondary fw-medium">Description</Form.Label>
+                <Form.Group className="mb-4" controlId="editTaskDescription">
+                  <Form.Label className="text-secondary fw-medium">
+                    Description
+                  </Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={4}
@@ -249,7 +282,11 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
           </Container>
         </Modal.Body>
         <Modal.Footer className="border-0 pt-0">
-          <Button variant="light" onClick={handleClose} className="rounded-3 px-4 fw-medium">
+          <Button
+            variant="light"
+            onClick={handleClose}
+            className="rounded-3 px-4 fw-medium"
+          >
             Cancel
           </Button>
           <Button

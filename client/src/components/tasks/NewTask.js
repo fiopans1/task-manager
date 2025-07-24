@@ -73,6 +73,15 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [endDateField, setEndDateField] = useState("");
   const [endTimeField, setEndTimeField] = useState("");
 
+  const priorityOptions = ["LOW", "MIN", "MEDIUM", "HIGH", "CRITICAL"];
+  const statusOptions = [
+    "COMPLETED",
+    "CANCELLED",
+    "IN_PROGRESS",
+    "NEW",
+    "PAUSSED",
+  ];
+
   return (
     <Container>
       <Modal
@@ -118,27 +127,31 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                         value={formData.priority}
                         className="shadow-sm rounded-3 border-light-subtle"
                       >
-                        <option value="MIN">MIN</option>
-                        <option value="HIGH">HIGH</option>
-                        <option value="MEDIUM">MEDIUM</option>
+                        {priorityOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>
                   <Col>
-                    <Form.Group controlId="formPriority">
+                    <Form.Group controlId="formStatus">
                       <Form.Label className="text-secondary fw-medium">
                         Status
                       </Form.Label>
                       <Form.Select
-                        aria-label="Priority"
+                        aria-label="Status"
                         name="state"
                         onChange={handleChange}
                         value={formData.state}
                         className="shadow-sm rounded-3 border-light-subtle"
                       >
-                        <option value="COMPLETED">COMPLETED</option>
-                        <option value="NEW">NEW</option>
-                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        {statusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>

@@ -1,6 +1,6 @@
 package com.taskmanager.application.model.entities;
 
 public enum PriorityTask {
-    MEDIUM, HIGH, MIN;
+    MEDIUM, HIGH, MIN, CRITICAL, LOW;
 
 }

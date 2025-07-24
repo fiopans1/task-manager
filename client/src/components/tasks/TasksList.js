@@ -52,17 +52,20 @@ const TasksList = ({
 
   // Función para obtener el color de la insignia de prioridad
   const getPriorityBadgeVariant = (priority) => {
-    if (!priority) return "secondary";
-
+    if (!priority || priority === "<None>") return "secondary";
     switch (priority.toLowerCase()) {
-      case "high":
+      case "critical":
         return "danger";
-      case "medium":
+      case "high":
         return "warning";
-      case "low":
+      case "medium":
+        return "primary";
+      case "min":
         return "success";
-      default:
+      case "low":
         return "info";
+      default:
+        return "secondary";
     }
   };
 
@@ -73,14 +76,16 @@ const TasksList = ({
     switch (status.toLowerCase()) {
       case "completed":
         return "success";
-      case "in progress":
-        return "primary";
-      case "pending":
-        return "warning";
       case "cancelled":
         return "danger";
-      default:
+      case "in_progress":
+        return "primary";
+      case "new":
         return "info";
+      case "paussed":
+        return "warning";
+      default:
+        return "secondary";
     }
   };
 

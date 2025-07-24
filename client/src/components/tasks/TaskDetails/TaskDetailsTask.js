@@ -59,14 +59,18 @@ const TaskDetailsTask = ({ taskId }) => {
   const getPriorityBadgeVariant = (priority) => {
     if (!priority || priority === "<None>") return "secondary";
     switch (priority.toLowerCase()) {
-      case "high":
+      case "critical":
         return "danger";
-      case "medium":
+      case "high":
         return "warning";
-      case "low":
+      case "medium":
+        return "primary";
+      case "min":
         return "success";
-      default:
+      case "low":
         return "info";
+      default:
+        return "secondary";
     }
   };
 
@@ -78,7 +82,11 @@ const TaskDetailsTask = ({ taskId }) => {
         return 100;
       case "in_progress":
         return 50;
+      case "paussed":
+        return 50;
       case "new":
+        return 0;
+      case "cancelled":
         return 0;
       default:
         return 0;
@@ -138,39 +146,40 @@ const TaskDetailsTask = ({ taskId }) => {
       {/* Card principal con diseño moderno */}
       <Card className="border-0 shadow-lg" style={{ borderRadius: "20px", overflow: "hidden" }}>
         {/* Header del card con gradiente */}
-        <Card.Header 
-          className="border-0 text-white p-4"
-          style={{
-            background: `linear-gradient(135deg, ${
-              task.state?.toLowerCase() === 'completed' ? '#28a745, #20c997' :
-              task.state?.toLowerCase() === 'in_progress' ? '#007bff, #6f42c1' :
-              task.state?.toLowerCase() === 'new' ? '#ffc107, #fd7e14' :
-              //task.state?.toLowerCase() === 'cancelled' ? '#dc3545, #e83e8c' :
-              '#6c757d, #495057'
-            })`,
-          }}
-        >
-          <Stack direction="horizontal" className="justify-content-between align-items-center">
-            <div>
-              <h3 className="mb-1" style={{ fontWeight: "600" }}>
-                {task.nameOfTask || "Untitled Task"}
-              </h3>
-              <Stack direction="horizontal" gap={2}>
-                <CheckCircle size={16} />
-                <small>Task ID: #{task.id}</small>
-              </Stack>
-            </div>
-            <Badge 
-              bg="light" 
-              text="dark"
-              className="px-4 py-2 rounded-pill"
-              style={{ fontSize: "0.9rem", fontWeight: "600" }}
-            >
-              {task.state || "No Status"}
-            </Badge>
-          </Stack>
-          
-          {/* Barra de progreso */}
+          <Card.Header 
+            className="border-0 text-white p-4"
+            style={{
+              background: `linear-gradient(135deg, ${
+                task.state?.toLowerCase() === 'completed' ? '#28a745, #20c997' :
+                task.state?.toLowerCase() === 'in_progress' ? '#007bff, #6f42c1' :
+                task.state?.toLowerCase() === 'new' ? '#ffc107, #fd7e14' :
+                task.state?.toLowerCase() === 'paussed' ? '#6f42c1, #8a63d2' :
+                task.state?.toLowerCase() === 'cancelled' ? '#dc3545, #e83e8c' :
+                '#6c757d, #495057'
+              })`,
+            }}
+          >
+            <Stack direction="horizontal" className="justify-content-between align-items-center">
+              <div>
+                <h3 className="mb-1" style={{ fontWeight: "600" }}>
+            {task.nameOfTask || "Untitled Task"}
+                </h3>
+                <Stack direction="horizontal" gap={2}>
+            <CheckCircle size={16} />
+            <small>Task ID: #{task.id}</small>
+                </Stack>
+              </div>
+              <Badge 
+                bg="light" 
+                text="dark"
+                className="px-4 py-2 rounded-pill"
+                style={{ fontSize: "0.9rem", fontWeight: "600" }}
+              >
+                {task.state || "No Status"}
+              </Badge>
+            </Stack>
+            
+            {/* Barra de progreso */}
           <div className="mt-3">
             <small className="text-white-50">Progress</small>
             <ProgressBar 
