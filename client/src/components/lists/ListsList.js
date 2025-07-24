@@ -53,15 +53,18 @@ const ListsList = ({
     const fetchData = async () => {
       try {
         var data = await listsResource.read();
-        data = data.filter((list) =>
-          list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        if (searchTerm) {
+          data = data.filter((list) =>
+            list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
         setData(data);
       } catch (error) {
         errorToast("Error fetching lists: " + error.message);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listsResource]);
 
   return !data || data.length === 0 ? (
@@ -113,7 +116,8 @@ const ListsList = ({
                   className="mb-1"
                   style={{ fontSize: "0.7rem", color: "#6b7280" }}
                 >
-                  {card.completedElements} of {card.totalElements} completed tasks
+                  {card.completedElements} of {card.totalElements} completed
+                  tasks
                 </Card.Text>
                 <Button
                   variant="success"

@@ -18,15 +18,18 @@ const TasksList = ({
     const fetchData = async () => {
       try {
         var data = tasksResource.read();
-        data = data.filter((task) =>
-          task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        if (searchTerm) {
+          data = data.filter((task) =>
+            task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
         setData(data);
       } catch (error) {
         errorToast("Error fetching lists: " + error.message);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tasksResource]);
 
   const deleteTask = async () => {
