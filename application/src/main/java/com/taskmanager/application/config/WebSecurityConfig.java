@@ -46,7 +46,7 @@ public class WebSecurityConfig{
         
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-        }));
+        })); //TO-DO: Change this for a filter
 
          
         return http.build();
