@@ -19,10 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
-
-
-
 @Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
@@ -54,7 +50,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             throw new RuntimeException(e);
         }
         filterChain.doFilter(request, response);
-
 
     }
 

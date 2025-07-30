@@ -80,6 +80,94 @@ const getRoles = () => {
   }
 };
 
+// Verificar si el token es válido (no expirado)
+const isTokenValid = () => {
+  const token = getToken();
+  if (!token) return false;
+
+  try {
+    const payload = decodeJwt(token);
+    const currentTime = Date.now() / 1000;
+    return payload.exp > currentTime;
+  } catch (error) {
+    console.error("Error validating token:", error);
+    return false;
+  }
+};
+
+// ============== NUEVOS MÉTODOS OAUTH2 ==============
+
+
+// Iniciar login con OAuth2 (redirige al backend)
+const loginWithOAuth2 = (provider) => {
+  const serverUrl = store.getState().server.serverUrl;
+  const oauth2Url = `${serverUrl}/oauth2/authorization/${provider}`;
+  
+  console.log(`Redirecting to OAuth2: ${oauth2Url}`);
+  window.location.href = oauth2Url;
+};
+
+// Procesar token OAuth2 después del redirect
+const processOAuth2Token = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const error = urlParams.get('error');
+  
+  console.log('Processing OAuth2 callback:', { token: !!token, error });
+  
+  if (error) {
+    const message = urlParams.get('message') || 'Error de autenticación OAuth2';
+    throw new Error(decodeURIComponent(message));
+  }
+  
+  if (token) {
+    store.dispatch(setToken(token));
+    
+    // Limpiar parámetros de la URL
+    const newUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    
+    return token;
+  }
+  
+  return null;
+};
+
+// Verificar si hay un token OAuth2 pendiente al cargar la página
+const checkForOAuth2Token = () => {
+  // Solo procesar si hay parámetros en la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has('token') && !urlParams.has('error')) {
+    return null;
+  }
+
+  try {
+    return processOAuth2Token();
+  } catch (error) {
+    console.error('Error procesando token OAuth2:', error);
+    // Limpiar URL en caso de error
+    const newUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    throw error;
+  }
+};
+
+// Obtener email del token (útil para OAuth2)
+const getUserEmail = () => {
+  const token = store.getState().auth.token;
+  if (token) {
+    try {
+      const payload = decodeJwt(token);
+      return payload.email || payload.sub;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+  return null;
+};
+
+
 // Método para cerrar sesión y eliminar el token de localStorage
 const logout = () => {
   store.dispatch(clearToken());
@@ -91,6 +179,13 @@ const authService = {
   logout,
   getUsername,
   getRoles,
+  getUserEmail,
+  isTokenValid,
+
+  // Métodos OAuth2
+  loginWithOAuth2,
+  processOAuth2Token,
+  checkForOAuth2Token,
 };
 
 export default authService;

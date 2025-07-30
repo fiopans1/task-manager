@@ -47,7 +47,6 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     private int age;
@@ -67,6 +66,8 @@ public class User implements UserDetails {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<RoleOfUser> roles = new HashSet<>();
+
+    private Set<AuthProvider> authProviders = new HashSet<>();
     
     @Embedded
     private FullName name;
@@ -131,6 +132,17 @@ public class User implements UserDetails {
         this.listsForUser = listsForUser;
     }
 
+    public Set<AuthProvider> getAuthProviders() {
+        return authProviders;
+    }
+    public void setAuthProviders(Set<AuthProvider> authProviders) {
+        this.authProviders = authProviders;
+    }
+
+    public void addAuthProvider(AuthProvider provider) {
+        this.authProviders.add(provider);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = roles.stream()
@@ -143,6 +155,24 @@ public class User implements UserDetails {
             })
             .collect(Collectors.toSet());
         return authorities;
+    }
+
+    public void setAuthoritiesAsRoles(Collection<? extends GrantedAuthority> authorities) {
+        Set<RoleOfUser> newRoles = new HashSet<>();
+        
+        for (GrantedAuthority authority : authorities) {
+            String authorityName = authority.getAuthority();
+            
+            // Check if it's a role (starts with ROLE_)
+            if (authorityName.startsWith("ROLE_")) {
+                String roleName = authorityName.substring(5); // Remove "ROLE_" prefix
+                RoleOfUser role = new RoleOfUser();
+                role.setName(roleName);
+                newRoles.add(role);
+            }
+        }
+        
+        this.roles = newRoles;
     }
     public void setRoles(Set<RoleOfUser> roles) {
         this.roles = roles;

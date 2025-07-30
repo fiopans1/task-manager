@@ -1,3 +1,6 @@
 *.DS_Store
 node_modules
 task-manager.db
+application.properties
+.env
+jwtKeys

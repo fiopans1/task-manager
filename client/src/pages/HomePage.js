@@ -83,10 +83,39 @@ const HomePage = ({ showServerUrl = true }) => {
                     />
                   </InputGroup>
                 </Form.Group>
-              </div>
+                </div>
             )}
 
-            {/* Botones de Acción */}
+            {/* ➕ NUEVO - Sección Quick Access OAuth2 */}
+            <div className="mb-4">
+              <div className="text-center mb-3">
+                <small className="text-muted fw-semibold">
+                  🚀 Quick Access
+                </small>
+              </div>
+              
+              <Button
+                className="modern-btn-success modern-btn py-3 rounded-3 w-100 mb-3"
+                size="lg"
+                onClick={() => navigateTo("/oauth2-login")}
+              >
+                <span className="me-2">⚡</span>
+                Continue with Google or GitHub
+                <small className="d-block mt-1 opacity-75">
+                  Fast & secure login
+                </small>
+              </Button>
+            </div>
+
+            {/* Separador */}
+            <div className="text-center mb-4">
+              <hr className="my-3" />
+              <small className="text-muted bg-white px-3">
+                Or use traditional login
+              </small>
+            </div>
+
+            {/* Botones de Acción Tradicionales */}
             <div className="d-grid gap-3">
               <Button
                 className="modern-btn-primary modern-btn py-3 rounded-3"

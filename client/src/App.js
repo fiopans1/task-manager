@@ -13,17 +13,45 @@ import TaskDetails from "./components/tasks/TaskDetails/TaskDetails";
 import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import Home from "./components/Home";
+import OAuth2Login from "./components/auth/OAuth2Login";
 // import AdminPanel from "./components/adminpanel/AdminPanel";
-import { infoToast } from "./components/common/Noty";
+import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
-    // Verificar si el token existe al cargar la aplicación
-    const token = authService.getToken();
-    setIsAuthenticated(!!token); // Si hay un token, estamos autenticados
-  }, []);
+    const initializeAuth = async () => {
+      try {
+        // 1. Verificar si hay un token OAuth2 en la URL
+        const oauth2Token = authService.checkForOAuth2Token();
+        if (oauth2Token) {
+          console.log("OAuth2 token detected:", oauth2Token);
+          setIsAuthenticated(true);
+          successToast("¡Login exitoso con OAuth2!");
+          navigate("/home", { replace: true });
+          return;
+        }
+
+        // 2. Verificar token existente
+        const existingToken = authService.getToken();
+        if (existingToken) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error("Error durante inicialización de auth:", error);
+        errorToast(error.message || "Error de autenticación");
+
+        authService.logout();
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [navigate]);
 
   const handleLogin = (token) => {
     setIsAuthenticated(true); // Cambiar estado de autenticación
@@ -35,6 +63,17 @@ function App() {
     infoToast("Logged out");
     setIsAuthenticated(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Verificando autenticación...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -52,6 +91,17 @@ function App() {
       />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+            {/* ➕ NUEVO - Login OAuth2 */}
+      <Route 
+        path="/oauth2-login" 
+        element={
+          isAuthenticated ? (
+            <Navigate to="/home" replace />
+          ) : (
+            <OAuth2Login onLogin={handleLogin} />
+          )
+        } 
+      />
       <Route
         path="/home"
         element={

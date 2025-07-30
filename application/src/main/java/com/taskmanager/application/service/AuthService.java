@@ -2,6 +2,7 @@ package com.taskmanager.application.service;
 
 import com.taskmanager.application.model.dto.LoginDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
+import com.taskmanager.application.model.entities.AuthProvider;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
@@ -93,6 +94,7 @@ public class AuthService {
             if(roleService.existsBasicRole()){
                 user.addRole(roleService.getBasicRole());
             }
+            user.addAuthProvider(AuthProvider.LOCAL);
             userRepository.save(user);
             response.addSuccessMessage("User registered successfully!"); //TO-DO: Change this message
             return response;
