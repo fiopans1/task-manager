@@ -47,7 +47,6 @@ const TaskDetailsTask = ({ taskId }) => {
       try {
         const task = await taskService.getTaskById(taskId);
         setTask(task);
-        console.log("get task");
       } catch (error) {
         errorToast("Error fetching data: " + error.message);
       }

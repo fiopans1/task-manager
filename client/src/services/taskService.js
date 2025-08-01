@@ -63,7 +63,6 @@ function getSuspender(promise) {
 }
 
 const invalidateTasksCache = (key = "tasks") => {
-  console.log("Invalidando cache de tareas");
   resourceCache.delete(key);
 };
 

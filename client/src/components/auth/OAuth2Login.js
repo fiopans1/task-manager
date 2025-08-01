@@ -19,12 +19,11 @@ function OAuth2Login({ onLogin }) {
       try {
         const oauth2Token = authService.checkForOAuth2Token();
         if (oauth2Token) {
-          console.log('OAuth2 token detected, processing...');
-          successToast("¡Login exitoso con OAuth2!");
+          successToast("Login successfully with OAuth2");
           onLogin(oauth2Token); // Notificar a App.js
         }
       } catch (error) {
-        console.error('Error procesando token OAuth2:', error);
+        console.error('Error processing OAuth2 token:', error);
         errorToast("Error OAuth2: " + error.message);
       }
     };

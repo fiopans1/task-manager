@@ -103,7 +103,6 @@ const loginWithOAuth2 = (provider) => {
   const serverUrl = store.getState().server.serverUrl;
   const oauth2Url = `${serverUrl}/oauth2/authorization/${provider}`;
   
-  console.log(`Redirecting to OAuth2: ${oauth2Url}`);
   window.location.href = oauth2Url;
 };
 
@@ -113,7 +112,6 @@ const processOAuth2Token = () => {
   const token = urlParams.get('token');
   const error = urlParams.get('error');
   
-  console.log('Processing OAuth2 callback:', { token: !!token, error });
   
   if (error) {
     const message = urlParams.get('message') || 'Error de autenticación OAuth2';

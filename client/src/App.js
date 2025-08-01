@@ -27,9 +27,8 @@ function App() {
         // 1. Verificar si hay un token OAuth2 en la URL
         const oauth2Token = authService.checkForOAuth2Token();
         if (oauth2Token) {
-          console.log("OAuth2 token detected:", oauth2Token);
           setIsAuthenticated(true);
-          successToast("¡Login exitoso con OAuth2!");
+          successToast("Login successfully with OAuth2");
           navigate("/home", { replace: true });
           return;
         }
@@ -40,8 +39,8 @@ function App() {
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error("Error durante inicialización de auth:", error);
-        errorToast(error.message || "Error de autenticación");
+        console.error("Error during auth initialization:", error);
+        errorToast(error.message || "Authentication error occurred");
 
         authService.logout();
         setIsAuthenticated(false);
