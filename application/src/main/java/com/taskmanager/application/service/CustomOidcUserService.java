@@ -48,14 +48,15 @@ public class CustomOidcUserService extends OidcUserService {
      */
     private OidcUser processOidcUser(OidcUserRequest userRequest, OidcUser oidcUser) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        String email = oidcUser.getEmail();
+        AuthProvider authProvider = AuthProvider.fromString(provider);
 
-        if (email == null || email.isEmpty()) {
-            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el proveedor OIDC: " + provider);
+        // Validar proveedor
+        if (authProvider == null || !authProvider.isOAuth2Provider()) {
+            throw new OAuth2AuthenticationProcessingException("Proveedor OIDC no soportado: " + provider);
         }
 
         // Buscar o crear usuario
-        User user = findOrCreateUser(oidcUser, provider, email);
+        User user = findOrCreateUser(oidcUser, authProvider, userRequest);
 
         // Crear y retornar UserPrincipal con los datos del usuario OIDC
         // Nota: Los atributos OIDC incluyen tanto claims estándar como atributos adicionales
@@ -65,7 +66,12 @@ public class CustomOidcUserService extends OidcUserService {
     /**
      * Busca o crea un usuario basado en la información de OIDC
      */
-    private User findOrCreateUser(OidcUser oidcUser, String provider, String email) {
+    private User findOrCreateUser(OidcUser oidcUser, AuthProvider provider, OidcUserRequest userRequest) {
+        String email = provider.extractEmail(oidcUser, userRequest);
+        if (email == null || email.isEmpty()) {
+            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el usuario OIDC");
+        }
+
         return userRepository.findByEmail(email)
             .map(existingUser -> updateExistingUser(existingUser, oidcUser, provider))
             .orElseGet(() -> createNewUser(oidcUser, provider, email));
@@ -74,39 +80,25 @@ public class CustomOidcUserService extends OidcUserService {
     /**
      * Actualiza un usuario existente con información de OIDC
      */
-    private User updateExistingUser(User existingUser, OidcUser oidcUser, String provider) {
+    private User updateExistingUser(User existingUser, OidcUser oidcUser, AuthProvider provider) {
         // Agregar el nuevo proveedor si no lo tiene
-        AuthProvider authProvider = AuthProvider.fromString(provider);
-        if (!existingUser.getAuthProviders().contains(authProvider)) {
-            existingUser.addAuthProvider(authProvider);
+        if (!existingUser.getAuthProviders().contains(provider)) {
+            existingUser.addAuthProvider(provider);
         }
 
         // Actualizar información del usuario si es necesario
-        // Para Google/OIDC, usamos getFullName() y getGivenName(), getFamilyName()
-        String fullName = oidcUser.getFullName();
-        String givenName = oidcUser.getGivenName();
-        String familyName = oidcUser.getFamilyName();
-        
-        if (existingUser.getName() == null) {
-            if (fullName != null && !fullName.isEmpty()) {
-                // Si tenemos nombre completo, lo parseamos
-                String[] nameParts = parseFullName(fullName);
-                existingUser.setName(new FullName(nameParts[0], nameParts[1], nameParts[2]));
-            } else if (givenName != null || familyName != null) {
-                // Si tenemos nombres por separado
-                existingUser.setName(new FullName(
-                    givenName != null ? givenName : "",
-                    "",
-                    familyName != null ? familyName : ""
-                ));
-            }
+        FullName fullName = provider.extractFullName(oidcUser);
+        if (fullName != null && !fullName.getFullName().isEmpty() && existingUser.getName() == null) {
+            existingUser.setName(fullName);
         }
 
-        // Actualizar imagen de perfil si viene del proveedor OIDC
-        // String picture = oidcUser.getPicture();
-        // if (picture != null && !picture.isEmpty()) {
-        //     // existingUser.setProfilePicture(picture);
-        // }
+        String username = provider.extractUsername(oidcUser);
+        if (existingUser.getUsername() == null || existingUser.getUsername().isEmpty()) {
+            if (username == null || username.isEmpty()) {
+                username = generateUniqueUsername(existingUser.getEmail());
+            }
+            existingUser.setUsername(username);
+        }
 
         // Actualizar timestamp de último login
         // existingUser.setLastLoginDate(new Date());
@@ -117,49 +109,35 @@ public class CustomOidcUserService extends OidcUserService {
     /**
      * Crea un nuevo usuario basado en información de OIDC
      */
-    private User createNewUser(OidcUser oidcUser, String provider, String email) {
+    private User createNewUser(OidcUser oidcUser, AuthProvider provider, String email) {
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.addAuthProvider(AuthProvider.fromString(provider));
-        
-        // Establecer nombre usando métodos específicos de OIDC
-        String fullName = oidcUser.getFullName();
-        String givenName = oidcUser.getGivenName();
-        String familyName = oidcUser.getFamilyName();
-        
-        if (fullName != null && !fullName.isEmpty()) {
-            // Si tenemos nombre completo, lo parseamos
-            String[] nameParts = parseFullName(fullName);
-            newUser.setName(new FullName(nameParts[0], nameParts[1], nameParts[2]));
-        } else if (givenName != null || familyName != null) {
-            // Si tenemos nombres por separado
-            newUser.setName(new FullName(
-                givenName != null ? givenName : "",
-                "",
-                familyName != null ? familyName : ""
-            ));
-        }
+        newUser.addAuthProvider(provider);
 
-        // TO-DO: Find if in the provider we can get the username
-        // Para Google, podemos usar el 'preferred_username' claim si está disponible
-        String preferredUsername = oidcUser.getPreferredUsername();
-        if (preferredUsername != null && !preferredUsername.isEmpty()) {
-            newUser.setUsername(generateUniqueUsername(preferredUsername));
-        } else {
-            // Generar username único basado en email
-            newUser.setUsername(generateUniqueUsername(email));
+        String username = provider.extractUsername(oidcUser);
+        if (username == null || username.isEmpty() || userRepository.existsByUsername(username)) {
+            username = generateUniqueUsername(email);
         }
+        newUser.setUsername(username);
+
+        FullName fullName = provider.extractFullName(oidcUser);
+        if (fullName == null) {
+            fullName = new FullName(username, "", "");
+        }
+        newUser.setName(fullName);
         
         // Establecer imagen de perfil usando el método específico de OIDC
-        String picture = oidcUser.getPicture();
-        if (picture != null && !picture.isEmpty()) {
-            // newUser.setProfilePicture(picture);
-        }
+        // String picture = provider.extractProfilePicture(oidcUser);
+        // if (picture != null && !picture.isEmpty()) {
+        //     newUser.setProfilePicture(picture);
+        // }
         
         // Asignar rol básico si existe
         if (roleService.existsBasicRole()) {
             newUser.addRole(roleService.getBasicRole());
         }
+
+        newUser.setAge(-1);
 
         // Establecer timestamps
         newUser.setCreationDate(new Date());
@@ -168,18 +146,10 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Genera un username único basado en el email o preferred_username
+     * Genera un username único basado en el email
      */
-    private String generateUniqueUsername(String baseInput) {
-        String baseUsername;
-        
-        // Si el input contiene @, es un email
-        if (baseInput.contains("@")) {
-            baseUsername = baseInput.substring(0, baseInput.indexOf('@'));
-        } else {
-            baseUsername = baseInput;
-        }
-        
+    private String generateUniqueUsername(String email) {
+        String baseUsername = email.substring(0, email.indexOf('@'));
         String username = baseUsername;
         int counter = 1;
         
@@ -190,17 +160,5 @@ public class CustomOidcUserService extends OidcUserService {
         }
         
         return username;
-    }
-
-    /**
-     * Parsea un nombre completo en partes (nombre, segundo nombre, apellido)
-     */
-    private String[] parseFullName(String fullName) {
-        String[] parts = fullName.trim().split("\\s+");
-        String firstName = parts.length > 0 ? parts[0] : "";
-        String middleName = parts.length > 2 ? parts[1] : "";
-        String lastName = parts.length > 1 ? parts[parts.length - 1] : "";
-        
-        return new String[]{firstName, middleName, lastName};
     }
 }

@@ -13,20 +13,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
-
 @Configuration
 public class DataLoader {
+
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepository, RoleRepository roleRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
         return args -> { //TO-DO: Check if the role exists in DB y borrar todo esto, y que se controle la creacion de usuario con una propiedad
             // Crea el rol ADMIN si no existe
             RoleOfUser adminRole = roleRepository.findByName("ADMIN")
-            .orElseGet(() -> {
-                RoleOfUser role = new RoleOfUser();
-                role.setName("ADMIN");
-                return roleRepository.save(role);
-            });
+                    .orElseGet(() -> {
+                        RoleOfUser role = new RoleOfUser();
+                        role.setName("ADMIN");
+                        return roleRepository.save(role);
+                    });
 
             // Crea el usuario ADMIN si no existe
             if (userRepository.findByUsername("admin").isEmpty()) {
@@ -39,20 +38,19 @@ public class DataLoader {
 
             }
 
-
             RoleOfUser basicRole = roleRepository.findByName("BASIC")
-            .orElseGet(() -> {
-                RoleOfUser role = new RoleOfUser();
-                role.setName("BASIC");
-                AuthorityOfRole authority = authorityRepository.findByName("READ_PRIVILEGES")
-                .orElseGet(() -> {
-                    AuthorityOfRole auth = new AuthorityOfRole();
-                    auth.setName("READ_PRIVILEGES");
-                    return authorityRepository.save(auth);
-                });
-                role.setAuthorities(Set.of(authority));
-                return roleRepository.save(role);
-            });
+                    .orElseGet(() -> {
+                        RoleOfUser role = new RoleOfUser();
+                        role.setName("BASIC");
+                        AuthorityOfRole authority = authorityRepository.findByName("READ_PRIVILEGES")
+                                .orElseGet(() -> {
+                                    AuthorityOfRole auth = new AuthorityOfRole();
+                                    auth.setName("READ_PRIVILEGES");
+                                    return authorityRepository.save(auth);
+                                });
+                        role.setAuthorities(Set.of(authority));
+                        return roleRepository.save(role);
+                    });
 
             // Crea el usuario ADMIN si no existe
             if (userRepository.findByUsername("basic").isEmpty()) {
@@ -66,4 +64,3 @@ public class DataLoader {
         };
     }
 }
-

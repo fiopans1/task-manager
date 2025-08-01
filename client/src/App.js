@@ -91,7 +91,6 @@ function App() {
       />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-            {/* ➕ NUEVO - Login OAuth2 */}
       <Route 
         path="/oauth2-login" 
         element={

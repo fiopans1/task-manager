@@ -49,14 +49,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
      */
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        String email = oauth2User.getAttribute("email");
+        AuthProvider authProvider = AuthProvider.fromString(provider);
 
-        if (email == null || email.isEmpty()) {
-            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el proveedor OAuth2: " + provider);
+        // Validar proveedor
+        if (authProvider == null || !authProvider.isOAuth2Provider()) {
+            throw new OAuth2AuthenticationProcessingException("Proveedor OAuth2 no soportado: " + provider);
         }
-
         // Buscar o crear usuario
-        User user = findOrCreateUser(oauth2User, provider, email);
+        User user = findOrCreateUser(oauth2User, authProvider, userRequest);
 
         // Crear y retornar UserPrincipal con los datos del usuario
         return UserPrincipal.create(user, oauth2User.getAttributes());
@@ -65,35 +65,39 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     /**
      * Busca o crea un usuario basado en la información de OAuth2
      */
-    private User findOrCreateUser(OAuth2User oAuth2User, String provider, String email) {
+    private User findOrCreateUser(OAuth2User oAuth2User, AuthProvider provider, OAuth2UserRequest userRequest) {
+        String email = provider.extractEmail(oAuth2User, userRequest);
+        if (email == null || email.isEmpty()) {
+            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el usuario OAuth2");
+        }
         return userRepository.findByEmail(email)
-            .map(existingUser -> updateExistingUser(existingUser, oAuth2User, provider))
-            .orElseGet(() -> createNewUser(oAuth2User, provider, email));
+                .map(existingUser -> updateExistingUser(existingUser, oAuth2User, provider))
+                .orElseGet(() -> createNewUser(oAuth2User, provider, email));
+
     }
 
     /**
      * Actualiza un usuario existente con información de OAuth2
      */
-    private User updateExistingUser(User existingUser, OAuth2User oAuth2User, String provider) {
+    private User updateExistingUser(User existingUser, OAuth2User oAuth2User, AuthProvider provider) {
         // Agregar el nuevo proveedor si no lo tiene
-        AuthProvider authProvider = AuthProvider.fromString(provider);
-        if (!existingUser.getAuthProviders().contains(authProvider)) {
-            existingUser.addAuthProvider(authProvider);
+        if (!existingUser.getAuthProviders().contains(provider)) {
+            existingUser.addAuthProvider(provider);
         }
 
         // Actualizar información del usuario si es necesario
-        String name = oAuth2User.getAttribute("name");
-        if (name != null && !name.isEmpty() && existingUser.getName() == null) {
-            existingUser.setName(new FullName(name, "", ""));
+        FullName fullName = provider.extractFullName(oAuth2User);
+        if (fullName != null && !fullName.getFullName().isEmpty() && existingUser.getName() == null) {
+            existingUser.setName(fullName);
         }
 
-        // Actualizar imagen de perfil si viene del proveedor
-        // String picture = getProfilePicture(oAuth2User, provider);
-        // if (picture != null && !picture.isEmpty()) {
-        //     existingUser.setProfilePicture(picture);
-        // }
-
-        // Actualizar timestamp de último login
+        String username = provider.extractUsername(oAuth2User);
+        if (existingUser.getUsername() == null || existingUser.getUsername().isEmpty()) {
+            if (username == null || username.isEmpty()) {
+                username = generateUniqueUsername(existingUser.getEmail());
+            }
+            existingUser.setUsername(username);
+        }
 
         return userRepository.save(existingUser);
     }
@@ -101,30 +105,35 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     /**
      * Crea un nuevo usuario basado en información de OAuth2
      */
-    private User createNewUser(OAuth2User oAuth2User, String provider, String email) {
+    private User createNewUser(OAuth2User oAuth2User, AuthProvider provider, String email) {
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.addAuthProvider(AuthProvider.fromString(provider));
-        
-        // Establecer nombre si está disponible
-        String name = oAuth2User.getAttribute("name");
-        if (name != null && !name.isEmpty()) {
-            newUser.setName(new FullName(name, "", ""));
+        newUser.addAuthProvider(provider);
+
+        String username = provider.extractUsername(oAuth2User);
+        if (username == null || username.isEmpty() || userRepository.existsByUsername(username)) {
+            username = generateUniqueUsername(email);
         }
-        //TO-DO: Find if in the provider we can get the username
-        // Generar username único basado en email
-        newUser.setUsername(generateUniqueUsername(email));
-        
+        newUser.setUsername(username);
+
+        FullName fullName = provider.extractFullName(oAuth2User);
+        if (fullName == null) {
+            fullName = new FullName(username, "", "");
+        }
+
+        newUser.setName(fullName);
+
         // Establecer imagen de perfil
         // String picture = getProfilePicture(oAuth2User, provider);
         // if (picture != null && !picture.isEmpty()) {
         //     newUser.setProfilePicture(picture);
         // }
-        
         // Asignar rol básico si existe
         if (roleService.existsBasicRole()) {
             newUser.addRole(roleService.getBasicRole());
         }
+
+        newUser.setAge(-1);
 
         // Establecer timestamps
         newUser.setCreationDate(new Date());
@@ -139,13 +148,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String baseUsername = email.substring(0, email.indexOf('@'));
         String username = baseUsername;
         int counter = 1;
-        
+
         // Verificar si el username ya existe y generar uno único
         while (userRepository.existsByUsername(username)) {
             username = baseUsername + counter;
             counter++;
         }
-        
+
         return username;
     }
 

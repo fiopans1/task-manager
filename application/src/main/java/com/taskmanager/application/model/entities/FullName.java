@@ -63,4 +63,24 @@ public class FullName {
         return fullName.toString();
     }
 
+    public static FullName empty() {
+        return new FullName("", "", "");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof FullName)) return false;
+        FullName other = (FullName) obj;
+        return name.equals(other.name) && surname1.equals(other.surname1) && surname2.equals(other.surname2);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + surname1.hashCode();
+        result = 31 * result + surname2.hashCode();
+        return result;
+    }
+
 }

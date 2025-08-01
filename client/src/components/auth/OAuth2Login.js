@@ -10,7 +10,6 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
-import "./OAuth2Login.css";
 
 function OAuth2Login({ onLogin }) {
   const [oauth2Loading, setOauth2Loading] = useState("");
