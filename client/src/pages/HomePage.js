@@ -10,29 +10,9 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setServerUrl } from "../redux/slices/serverSlice";
 
-const HomePage = ({ showServerUrl = true }) => {
+const HomePage = () => {
   const navigateTo = useNavigate();
-  const dispatch = useDispatch();
-
-  // Obtener el estado persistido de Redux
-  const serverUrlFromRedux = useSelector((state) => state.server.serverUrl);
-
-  // Controlar el estado local del componente
-  const [url, setUrl] = useState(serverUrlFromRedux);
-
-  // Sincronizar el estado local con el estado global persistido
-  useEffect(() => {
-    setUrl(serverUrlFromRedux);
-  }, [serverUrlFromRedux]);
-
-  // Manejar los cambios del input
-  const handleChange = (e) => {
-    const newUrl = e.target.value;
-    setUrl(newUrl);
-    dispatch(setServerUrl(newUrl));
-  };
 
   return (
     <Container
@@ -66,57 +46,13 @@ const HomePage = ({ showServerUrl = true }) => {
               </Row>
             </div>
 
-            {/* Server URL Input - Controlable */}
-            {showServerUrl && (
-              <div className="mb-4">
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-dark mb-2">
-                    Server Configuration
-                  </Form.Label>
-                  <InputGroup className="modern-input-group">
-                    <InputGroup.Text>🌐 Server URL</InputGroup.Text>
-                    <Form.Control
-                      className="modern-input rounded-end-3 border-2"
-                      placeholder="localhost"
-                      value={url}
-                      onChange={handleChange}
-                    />
-                  </InputGroup>
-                </Form.Group>
-                </div>
-            )}
-
-            {/* ➕ NUEVO - Sección Quick Access OAuth2 */}
-            <div className="mb-4">
+            {/* Botones de Acción Tradicionales */}
+            <div className="d-grid gap-3">
               <div className="text-center mb-3">
                 <small className="text-muted fw-semibold">
                   🚀 Quick Access
                 </small>
               </div>
-              
-              <Button
-                className="modern-btn-success modern-btn py-3 rounded-3 w-100 mb-3"
-                size="lg"
-                onClick={() => navigateTo("/oauth2-login")}
-              >
-                <span className="me-2">⚡</span>
-                Continue with Google or GitHub
-                <small className="d-block mt-1 opacity-75">
-                  Fast & secure login
-                </small>
-              </Button>
-            </div>
-
-            {/* Separador */}
-            <div className="text-center mb-4">
-              <hr className="my-3" />
-              <small className="text-muted bg-white px-3">
-                Or use traditional login
-              </small>
-            </div>
-
-            {/* Botones de Acción Tradicionales */}
-            <div className="d-grid gap-3">
               <Button
                 className="modern-btn-primary modern-btn py-3 rounded-3"
                 size="lg"
@@ -135,6 +71,34 @@ const HomePage = ({ showServerUrl = true }) => {
                 Create New Account
               </Button>
             </div>
+            {process.env.REACT_APP_OAUTH2_ENABLED === "true" && (
+              <div>
+                {/* Separador */}
+                <div className="text-center mb-4">
+                  <hr className="my-3" />
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-center mb-3">
+                    <small className="text-muted fw-semibold">
+                      🚀 Quick Access
+                    </small>
+                  </div>
+
+                  <Button
+                    className="modern-btn-success modern-btn py-3 rounded-3 w-100 mb-3"
+                    size="lg"
+                    onClick={() => navigateTo("/oauth2-login")}
+                  >
+                    <span className="me-2">⚡</span>
+                    Continue with SSO
+                    <small className="d-block mt-1 opacity-75">
+                      Fast & secure login
+                    </small>
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Footer informativo */}
             <div className="text-center mt-4 pt-3 border-top">

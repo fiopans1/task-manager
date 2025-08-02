@@ -68,6 +68,13 @@ public enum AuthProvider {
         return getService().extractProviderId(oauthUser);
     }
 
+    public boolean isProviderActive() {
+        if (serviceClass == null) { // LOCAL provider does not have an active state
+            return false;
+        }
+        return getService().isProviderActive();
+    }
+
     /**
      * Método estático para crear desde string
      */

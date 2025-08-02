@@ -31,4 +31,9 @@ public interface OAuth2ProviderService {
      * Obtiene el identificador único del proveedor
      */
     String extractProviderId(OAuth2User user);
+
+    /**
+     * Extrae si dicho provider está activo o no
+     */
+    boolean isProviderActive();
 }

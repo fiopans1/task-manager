@@ -5,7 +5,7 @@ const resourceCache = new Map();
 
 const createTask = async (task) => {
   try {
-    const serverUrl = store.getState().server.serverUrl;
+    const serverUrl = process.env.REACT_APP_BACKEND_URL;
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/create", task, {
       headers: {
@@ -21,7 +21,7 @@ const createTask = async (task) => {
 };
 const editTask = async (task) => {
   try {
-    const serverUrl = store.getState().server.serverUrl;
+    const serverUrl = process.env.REACT_APP_BACKEND_URL;
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/update/" + task.id, task, {
       headers: {
@@ -73,7 +73,7 @@ const getTasks = () => {
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
-  const serverUrl = store.getState().server.serverUrl;
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
   const token = "Bearer " + store.getState().auth.token;
   if (!serverUrl || !token) {
     console.error("No se encontró serverUrl o token", { serverUrl, token });
@@ -103,7 +103,7 @@ const getTasks = () => {
 };
 
 const deleteTask = (id) => {
-  const serverUrl = store.getState().server.serverUrl;
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
   const token = "Bearer " + store.getState().auth.token;
   return axios.delete(serverUrl + "/api/tasks/delete/" + id, {
     headers: {
@@ -114,7 +114,7 @@ const deleteTask = (id) => {
 };
 
 const getEvents = () => {
-  const serverUrl = store.getState().server.serverUrl;
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
   const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/events/get", {
     headers: {
@@ -125,7 +125,7 @@ const getEvents = () => {
 };
 
 const getTaskById = (id) => {
-  const serverUrl = store.getState().server.serverUrl;
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
   const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/" + id, {
     headers: {

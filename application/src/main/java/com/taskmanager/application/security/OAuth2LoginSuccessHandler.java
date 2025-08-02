@@ -29,7 +29,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Autowired
     private JWTUtilityService jwtUtilityService;
 
-    @Value("${app.oauth2.authorized-redirect-uris}")
+    @Value("${taskmanager.oauth2.authorized-redirect-uris}")
     private String authorizedRedirectUri;
 
     @Override

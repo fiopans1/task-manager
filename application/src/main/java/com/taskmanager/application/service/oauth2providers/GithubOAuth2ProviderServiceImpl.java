@@ -3,6 +3,7 @@ package com.taskmanager.application.service.oauth2providers;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,9 @@ import com.taskmanager.application.model.entities.FullName;
 
 @Service
 public class GithubOAuth2ProviderServiceImpl implements OAuth2ProviderService {
+
+    @Value("${taskmanager.oauth2.github.enabled:false}")
+    private boolean isProviderActive;
 
     @Override
     public String extractEmail(OAuth2User user, OAuth2UserRequest userRequest) {
@@ -98,5 +102,10 @@ public class GithubOAuth2ProviderServiceImpl implements OAuth2ProviderService {
             System.err.println("Error fetching email from GitHub: " + e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public boolean isProviderActive() {
+        return isProviderActive;
     }
 }

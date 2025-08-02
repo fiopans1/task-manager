@@ -11,17 +11,15 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import serverReducer from "./slices/serverSlice";
 import authReducer from "./slices/authSlice";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "server"], // Solo persistimos los reducers auth y server
+  whitelist: ["auth"],
 };
 const rootReducer = combineReducers({
   // Combinamos los reducers
   auth: authReducer,
-  server: serverReducer,
 });
 const persistedRootReducer = persistReducer(persistConfig, rootReducer); //Persistimos el reducer root
 const store = configureStore({

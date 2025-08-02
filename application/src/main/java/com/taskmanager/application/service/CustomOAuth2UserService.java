@@ -55,6 +55,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (authProvider == null || !authProvider.isOAuth2Provider()) {
             throw new OAuth2AuthenticationProcessingException("Proveedor OAuth2 no soportado: " + provider);
         }
+
+        if (!authProvider.isProviderActive()) {
+            throw new OAuth2AuthenticationProcessingException("Provider OAuth2 inactive: " + provider);
+        }
+        
         // Buscar o crear usuario
         User user = findOrCreateUser(oauth2User, authProvider, userRequest);
 

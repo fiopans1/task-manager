@@ -52,7 +52,10 @@ public class CustomOidcUserService extends OidcUserService {
 
         // Validar proveedor
         if (authProvider == null || !authProvider.isOAuth2Provider()) {
-            throw new OAuth2AuthenticationProcessingException("Proveedor OIDC no soportado: " + provider);
+            throw new OAuth2AuthenticationProcessingException("Provider OIDC not supported: " + provider);
+        }
+        if (!authProvider.isProviderActive()) {
+            throw new OAuth2AuthenticationProcessingException("Provider OIDC inactive: " + provider);
         }
 
         // Buscar o crear usuario

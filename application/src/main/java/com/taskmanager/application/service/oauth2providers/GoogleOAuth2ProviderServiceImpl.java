@@ -1,5 +1,6 @@
 package com.taskmanager.application.service.oauth2providers;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -9,6 +10,9 @@ import com.taskmanager.application.model.entities.FullName;
 
 @Service
 public class GoogleOAuth2ProviderServiceImpl implements OAuth2ProviderService {
+
+    @Value("${taskmanager.oauth2.google.enabled:false}")
+    private boolean isProviderActive;
 
     @Override
     public String extractEmail(OAuth2User user, OAuth2UserRequest userRequest) {
@@ -97,5 +101,10 @@ public class GoogleOAuth2ProviderServiceImpl implements OAuth2ProviderService {
             return oidcUser.getSubject();
         }
         return user.getAttribute("sub");
+    }
+
+    @Override
+    public boolean isProviderActive() {
+        return isProviderActive;
     }
 }

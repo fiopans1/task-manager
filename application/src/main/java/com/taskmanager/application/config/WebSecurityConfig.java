@@ -1,11 +1,13 @@
 package com.taskmanager.application.config;
 
 import com.taskmanager.application.security.JWTAuthorizationFilter;
+import com.taskmanager.application.security.OAuth2LoginFailureHandler;
 import com.taskmanager.application.security.OAuth2LoginSuccessHandler;
 import com.taskmanager.application.service.CustomOAuth2UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,6 +35,12 @@ public class WebSecurityConfig {
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
 
+    @Autowired
+    private OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+
+    @Value("${taskmanager.oauth2.enabled:true}")
+    private boolean oAuth2IsEnabled;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeRequests
@@ -48,15 +56,16 @@ public class WebSecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
 
-        http.oauth2Login(oauth2 -> oauth2
-                // .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorize"))
-                .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
-                .userInfoEndpoint(userInfo -> userInfo
-                .userService(customOAuth2UserService)
-                )
-                .successHandler(oAuth2LoginSuccessHandler)
-        // .failureHandler(oAuth2LoginFailureHandler) // opcional
-        );
+        if (oAuth2IsEnabled) {
+            http.oauth2Login(oauth2 -> oauth2
+                    .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
+                    .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                    )
+                    .successHandler(oAuth2LoginSuccessHandler)
+                    .failureHandler(oAuth2LoginFailureHandler)
+            );
+        }
 
         http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check sino necesitamos el constructor
 
