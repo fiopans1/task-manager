@@ -6,6 +6,8 @@ import com.taskmanager.application.security.OAuth2LoginSuccessHandler;
 import com.taskmanager.application.service.CustomOAuth2UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+
     @Autowired
     private JWTAuthorizationFilter jwtAuthorizationFilter;
 
@@ -43,6 +47,8 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        logger.info("Configuring security filter chain");
+
         http.authorizeHttpRequests(authorizeRequests
                 -> authorizeRequests.requestMatchers("/auth/**", "/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //TO-DO: Change thiis for a filter
@@ -57,6 +63,7 @@ public class WebSecurityConfig {
         http.httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
 
         if (oAuth2IsEnabled) {
+            logger.info("OAuth2 is enabled, configuring OAuth2 login");
             http.oauth2Login(oauth2 -> oauth2
                     .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
                     .userInfoEndpoint(userInfo -> userInfo
@@ -65,14 +72,18 @@ public class WebSecurityConfig {
                     .successHandler(oAuth2LoginSuccessHandler)
                     .failureHandler(oAuth2LoginFailureHandler)
             );
+        } else {
+            logger.info("OAuth2 is disabled");
         }
 
         http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check sino necesitamos el constructor
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
+            logger.warn("Unauthorized access attempt from: {}", request.getRemoteAddr());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         })); //TO-DO: Change this for a filter
 
+        logger.info("Security filter chain configured successfully");
         return http.build();
     }
 

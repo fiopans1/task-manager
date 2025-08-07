@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,8 @@ import com.taskmanager.application.model.entities.RoleOfUser;
 import com.taskmanager.application.model.entities.User;
 
 public class UserPrincipal implements OAuth2User, OidcUser, UserDetails {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserPrincipal.class);
 
     private Long id;
     private String email;
@@ -38,20 +42,25 @@ public class UserPrincipal implements OAuth2User, OidcUser, UserDetails {
     }
 
     public static UserPrincipal create(User user) {
+        logger.debug("Creating UserPrincipal for user: {}", user.getUsername());
         Set<GrantedAuthority> authorities = (Set<GrantedAuthority>) user.getAuthorities();
 
-        return new UserPrincipal(
+        UserPrincipal userPrincipal = new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
                 user.getUsername(),
                 user.getName(),
                 user.getRoles() != null ? user.getRoles() : Collections.emptySet()
         );
+        logger.debug("UserPrincipal created successfully for user: {}", user.getUsername());
+        return userPrincipal;
     }
 
     public static UserPrincipal create(User user, Map<String, Object> attributes) {
+        logger.debug("Creating UserPrincipal with OAuth2 attributes for user: {}", user.getUsername());
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         userPrincipal.setAttributes(attributes);
+        logger.debug("UserPrincipal with OAuth2 attributes created for user: {}", user.getUsername());
         return userPrincipal;
     }
 

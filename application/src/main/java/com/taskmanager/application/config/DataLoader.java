@@ -8,6 +8,8 @@ import com.taskmanager.application.respository.RoleRepository;
 import com.taskmanager.application.respository.UserRepository;
 import java.util.Collections;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +18,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DataLoader {
 
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepository, RoleRepository roleRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
         return args -> { //TO-DO: Check if the role exists in DB y borrar todo esto, y que se controle la creacion de usuario con una propiedad
+            logger.info("Initializing database with default data...");
+
             // Crea el rol ADMIN si no existe
             RoleOfUser adminRole = roleRepository.findByName("ADMIN")
                     .orElseGet(() -> {
+                        logger.info("Creating ADMIN role");
                         RoleOfUser role = new RoleOfUser();
                         role.setName("ADMIN");
                         return roleRepository.save(role);
@@ -29,13 +36,14 @@ public class DataLoader {
 
             // Crea el usuario ADMIN si no existe
             if (userRepository.findByUsername("admin").isEmpty()) {
+                logger.info("Creating default admin user");
                 User admin = new User();
                 admin.setUsername("admin");
                 admin.setPassword(passwordEncoder.encode("admin")); // Encripta la contraseña
                 admin.setEmail("admin@example.com");
                 admin.setRoles(Collections.singleton(adminRole)); // Asigna el rol ADMIN
                 userRepository.save(admin);
-
+                logger.info("Default admin user created successfully");
             }
 
             RoleOfUser basicRole = roleRepository.findByName("BASIC")
