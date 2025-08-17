@@ -20,7 +20,7 @@ const TaskDetailsActions = () => {
   
   // Estados para el manejo de acciones
   const [actions, setActions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
   // Estados para el modal
@@ -36,9 +36,15 @@ const TaskDetailsActions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("newest"); // "newest" o "oldest"
   const [filteredActions, setFilteredActions] = useState([]);
+
+
+
+
   
   // Cargar datos iniciales
+
   useEffect(() => {
+    setLoading(true);
     // Simulamos una carga de datos
     setTimeout(() => {
       const initialActions = Array.from({ length: 15 }, (_, index) => ({
@@ -55,10 +61,16 @@ const TaskDetailsActions = () => {
       setLoading(false);
     }, 500);
   }, [taskId]);
+
+
+
+
+
   
-  // Actualizar acciones filtradas cuando cambien los filtros o búsquedas
+  //    Filtros
+
   useEffect(() => {
-    let result = [...actions];
+    let result = [...actions]; //TODO : Obtener los datos
     
     // Aplicar búsqueda
     if (searchTerm) {
@@ -80,6 +92,12 @@ const TaskDetailsActions = () => {
     
     setFilteredActions(result);
   }, [actions, searchTerm, sortOrder]);
+
+
+
+
+
+
   
   // Abrir modal para nueva acción
   const handleAddAction = () => {
@@ -97,7 +115,7 @@ const TaskDetailsActions = () => {
     });
   };
   
-  // Manejar cambios en el formulario
+  // Nueva accion
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewAction(prev => ({ ...prev, [name]: value }));
@@ -119,6 +137,11 @@ const TaskDetailsActions = () => {
     setActions(prev => [actionToAdd, ...prev]);
     handleCloseModal();
   };
+
+
+
+
+
   
   // Función para formatear fechas
   const formatDate = (date) => {
@@ -191,7 +214,7 @@ const TaskDetailsActions = () => {
         <Col>
           <h3 className="mb-0">
             <i className="bi bi-clock-history me-2"></i>
-            Historial de Acciones
+            Action History
           </h3>
         </Col>
         <Col xs="auto">
@@ -201,12 +224,12 @@ const TaskDetailsActions = () => {
             onClick={handleAddAction}
           >
             <i className="bi bi-plus-lg me-2"></i>
-            Nueva Acción
+            New Action
           </Button>
         </Col>
       </Row>
       
-      {/* Filtros y búsqueda */}
+      {/* Filters and search */}
       <Row className="mb-3 align-items-center">
         <Col md={6} className="mb-2 mb-md-0">
           <InputGroup>
@@ -214,7 +237,7 @@ const TaskDetailsActions = () => {
               <i className="bi bi-search"></i>
             </InputGroup.Text>
             <FormControl
-              placeholder="Buscar acciones..."
+              placeholder="Search actions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -231,7 +254,7 @@ const TaskDetailsActions = () => {
         <Col md={6} className="d-flex justify-content-md-end">
           <DropdownButton 
             id="dropdown-sort" 
-            title={<><i className="bi bi-sort-down me-1"></i> {sortOrder === "newest" ? "Más recientes primero" : "Más antiguos primero"}</>}
+            title={<><i className="bi bi-sort-down me-1"></i> {sortOrder === "newest" ? "Newest first" : "Oldest first"}</>}
             variant="outline-secondary"
           >
             <Dropdown.Item 
@@ -239,32 +262,32 @@ const TaskDetailsActions = () => {
               onClick={() => setSortOrder("newest")}
             >
               <i className="bi bi-sort-down me-2"></i>
-              Más recientes primero
+              Newest first
             </Dropdown.Item>
             <Dropdown.Item 
               active={sortOrder === "oldest"}
               onClick={() => setSortOrder("oldest")}
             >
               <i className="bi bi-sort-up me-2"></i>
-              Más antiguos primero
+              Oldest first
             </Dropdown.Item>
           </DropdownButton>
         </Col>
       </Row>
       
-      {/* Lista de acciones */}
+      {/* Action list */}
       <div>
         {filteredActions.length === 0 ? (
           <Card className="text-center py-5 my-3">
             <Card.Body>
               <i className="bi bi-inbox fs-1 text-muted"></i>
-              <h5 className="mt-3">No hay acciones para mostrar</h5>
+              <h5 className="mt-3">No actions for this task</h5>
               <p className="text-muted">
-                {searchTerm ? "No se encontraron acciones con ese criterio de búsqueda." : "Todavía no hay acciones registradas para esta tarea."}
+                {searchTerm ? "No actions found with that search criteria." : "No actions have been recorded for this task yet."}
               </p>
               {searchTerm && (
                 <Button variant="outline-secondary" onClick={() => setSearchTerm("")}>
-                  Limpiar búsqueda
+                  Clear search
                 </Button>
               )}
             </Card.Body>
@@ -309,71 +332,62 @@ const TaskDetailsActions = () => {
         )}
       </div>
       
-      {/* Paginación (opcional) */}
-      {filteredActions.length > 10 && (
-        <div className="d-flex justify-content-center mt-4">
-          <Button variant="outline-primary" size="sm">
-            Cargar más acciones
-          </Button>
-        </div>
-      )}
-      
-      {/* Modal para agregar nueva acción */}
+      {/* Modal for adding new action */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             <i className="bi bi-plus-circle me-2"></i>
-            Nueva Acción
+            New Action
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Título de la acción</Form.Label>
+              <Form.Label>Action title</Form.Label>
               <Form.Control
                 type="text"
                 name="action"
                 value={newAction.action}
                 onChange={handleInputChange}
-                placeholder="Ej: Actualización de prioridad"
+                placeholder="E.g: Priority update"
                 autoFocus
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 name="description"
                 value={newAction.description}
                 onChange={handleInputChange}
-                placeholder="Describa detalladamente la acción realizada..."
+                placeholder="Describe the action performed in detail..."
                 rows={4}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Tipo de acción</Form.Label>
+              <Form.Label>Action type</Form.Label>
               <Form.Select 
                 name="type"
                 value={newAction.type || "create"}
                 onChange={handleInputChange}
               >
-                <option value="create">Creación</option>
-                <option value="update">Actualización</option>
-                <option value="comment">Comentario</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="comment">Comment</option>
               </Form.Select>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
-            Cancelar
+            Cancel
           </Button>
           <Button 
             variant="primary" 
             onClick={handleSaveAction}
             disabled={!newAction.action.trim() || !newAction.description.trim()}
           >
-            Guardar Acción
+            Save Action
           </Button>
         </Modal.Footer>
       </Modal>

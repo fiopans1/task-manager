@@ -6,14 +6,18 @@ import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.respository.AuthorityRepository;
 import com.taskmanager.application.respository.RoleRepository;
 import com.taskmanager.application.respository.UserRepository;
+
 import java.util.Collections;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.taskmanager.application.model.entities.AuthProvider;
 
 @Configuration
 public class DataLoader {
@@ -42,6 +46,7 @@ public class DataLoader {
                 admin.setPassword(passwordEncoder.encode("admin")); // Encripta la contraseña
                 admin.setEmail("admin@example.com");
                 admin.setRoles(Collections.singleton(adminRole)); // Asigna el rol ADMIN
+                admin.addAuthProvider(AuthProvider.LOCAL);
                 userRepository.save(admin);
                 logger.info("Default admin user created successfully");
             }
@@ -66,6 +71,7 @@ public class DataLoader {
                 user.setUsername("basic");
                 user.setPassword(passwordEncoder.encode("basic")); // Encripta la contraseña
                 user.setEmail("basic@example.com");
+                user.addAuthProvider(AuthProvider.LOCAL);
                 user.setRoles(Collections.singleton(basicRole)); // Asigna el rol ADMIN
                 userRepository.save(user);
             }

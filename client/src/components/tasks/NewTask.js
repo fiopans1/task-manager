@@ -33,6 +33,23 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     startDate: "",
     endDate: "",
   });
+
+  const restartForm = () => {
+    setFormData({
+      nameOfTask: "",
+      descriptionOfTask: "",
+      state: "NEW",
+      priority: "MIN",
+      isEvent: false,
+      startDate: "",
+      endDate: "",
+    });
+    setIsEvent(false);
+    setStartDateField("");
+    setStartTimeField("");
+    setEndDateField("");
+    setEndTimeField("");
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -60,6 +77,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
         }
       }
       await taskervice.createTask(taskData);
+      restartForm();
       refreshTasks();
       successToast("Task created succesfully");
     } catch (error) {
