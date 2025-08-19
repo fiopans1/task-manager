@@ -104,5 +104,12 @@ public class Task {
     public void setUser(User user) {
         this.user = user;
     }
+    public void addAction(ActionTask action) {
+        if(actions == null){
+            actions = new ArrayList<>();
+        }
+        actions.add(action);
+        action.setTask(this);
+    }
 
 }

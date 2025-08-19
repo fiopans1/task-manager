@@ -2,6 +2,7 @@ package com.taskmanager.application.service;
 
 import com.taskmanager.application.model.dto.EventTaskDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
+import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.entities.EventTask;
 import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
@@ -9,6 +10,7 @@ import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.respository.ActionTaskRepository;
 import com.taskmanager.application.respository.EventTaskRepository;
 import com.taskmanager.application.respository.TaskRepository;
 
@@ -18,8 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.taskmanager.application.model.dto.ActionTaskDTO;
 
 @Service
 public class TaskService {
@@ -31,6 +36,9 @@ public class TaskService {
 
     @Autowired
     private AuthService authService;
+    
+    @Autowired
+    private ActionTaskRepository actionTaskRepository;
 
     @Autowired
     private EventTaskRepository eventTaskRepository;
@@ -196,4 +204,51 @@ public class TaskService {
         
         return events;
     }
+
+
+    @Transactional
+    public ActionTask addActionToTask(Long taskId, ActionTaskDTO actionTask) throws ResourceNotFoundException, NotPermissionException {
+
+        logger.info("Adding action to task with ID: {}", taskId);
+        
+        Task task = tasksRepository.findById(taskId)
+            .orElseThrow(() -> {
+                logger.error("Task not found with ID: {}", taskId);
+                return new ResourceNotFoundException("Task not found with id " + taskId);
+            });
+
+        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            logger.warn("Permission denied adding action to task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to add actions to this task");
+        }
+
+        logger.debug("Permission granted for adding action to task ID: {}", taskId);
+        ActionTask newAction = ActionTaskDTO.toEntity(actionTask);
+        task.addAction(newAction);
+        ActionTask toReturn = actionTaskRepository.save(newAction);
+        logger.info("Successfully added action to task with ID: {}", taskId);
+        return toReturn;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionTask> getAllActionsForTask(Long taskId) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Retrieving all actions for task with ID: {}", taskId);
+
+        Task task = tasksRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    logger.error("Task not found with ID: {}", taskId);
+                    return new ResourceNotFoundException("Task not found with id " + taskId);
+                });
+
+        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            logger.warn("Permission denied accessing actions for task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to see the actions for this task");
+        }
+
+        logger.debug("Permission granted for accessing actions for task ID: {}", taskId);
+        List<ActionTask> actions = actionTaskRepository.findAllByTask(task);
+        logger.info("Successfully retrieved {} actions for task with ID: {}", actions.size(), taskId);
+        return actions;
+    }
+
 }

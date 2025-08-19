@@ -5,6 +5,7 @@ import java.sql.Date;
 import org.hibernate.annotations.ManyToAny;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,8 +23,9 @@ public class ActionTask {
     private ActionType actionType;
     private String user;
     
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     private Task task;
+    
     private Date actionDate;
 
     public ActionTask() {
