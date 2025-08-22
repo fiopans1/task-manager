@@ -251,4 +251,69 @@ public class TaskService {
         return actions;
     }
 
+    @Transactional
+    public void deleteActionFromTask(Long taskId, Long actionId) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Deleting action with ID: {} from task with ID: {}", actionId, taskId);
+
+        Task task = tasksRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    logger.error("Task not found with ID: {}", taskId);
+                    return new ResourceNotFoundException("Task not found with id " + taskId);
+                });
+
+        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            logger.warn("Permission denied deleting action from task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to delete actions from this task");
+        }
+
+        logger.debug("Permission granted for deleting action from task ID: {}", taskId);
+        ActionTask action = actionTaskRepository.findById(actionId)
+                .orElseThrow(() -> {
+                    logger.error("Action not found with ID: {}", actionId);
+                    return new ResourceNotFoundException("Action not found with id " + actionId);
+                });
+
+        if (!action.getTask().equals(task)) {
+            logger.warn("Action with ID: {} does not belong to task with ID: {}", actionId, taskId);
+            throw new NotPermissionException("You don't have permission to delete this action");
+        }
+
+        actionTaskRepository.delete(action);
+        logger.info("Successfully deleted action with ID: {} from task with ID: {}", actionId, taskId);
+    }
+    @Transactional
+    public ActionTask updateActionTask(Long taskId, Long actionId, ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Updating action with ID: {} from task with ID: {}", actionId, taskId);
+
+        Task task = tasksRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    logger.error("Task not found with ID: {}", taskId);
+                    return new ResourceNotFoundException("Task not found with id " + taskId);
+                });
+
+        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            logger.warn("Permission denied updating action from task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to update actions from this task");
+        }
+
+        logger.debug("Permission granted for updating action from task ID: {}", taskId);
+        ActionTask action = actionTaskRepository.findById(actionId)
+                .orElseThrow(() -> {
+                    logger.error("Action not found with ID: {}", actionId);
+                    return new ResourceNotFoundException("Action not found with id " + actionId);
+                });
+
+        if (!action.getTask().equals(task)) {
+            logger.warn("Action with ID: {} does not belong to task with ID: {}", actionId, taskId);
+            throw new NotPermissionException("You don't have permission to update this action");
+        }
+
+        action.setActionName(actionTaskDTO.getActionName());
+        action.setActionDescription(actionTaskDTO.getActionDescription());
+        
+        ActionTask updatedAction = actionTaskRepository.save(action);
+        logger.info("Successfully updated action with ID: {} from task with ID: {}", actionId, taskId);
+        return updatedAction;
+    }
+
 }

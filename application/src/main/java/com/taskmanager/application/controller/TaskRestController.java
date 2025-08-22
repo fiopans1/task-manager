@@ -1,8 +1,9 @@
 package com.taskmanager.application.controller;
 
+import com.taskmanager.application.model.dto.ActionTaskDTO;
 import com.taskmanager.application.model.dto.EventTaskDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
-import com.taskmanager.application.model.entities.Task;
+import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.TaskService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -120,6 +122,81 @@ public class TaskRestController {
             throw e;
         }
     }
-    
+
+    // ===== ACTION ENDPOINTS =====
+
+    @PostMapping("/{taskId}/actions")
+    public ResponseEntity<ActionTaskDTO> addActionToTask(@PathVariable Long taskId, @RequestBody ActionTaskDTO actionTaskDTO) 
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Adding action to task with ID: {}", taskId);
+
+        try {
+            ActionTask newAction = taskService.addActionToTask(taskId, actionTaskDTO);
+            logger.info("Action added successfully to task with ID: {}", taskId);
+            return ResponseEntity.ok().body(ActionTaskDTO.fromEntity(newAction));
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to add action to task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error adding action to task with ID: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/{taskId}/actions")
+    public ResponseEntity<List<ActionTaskDTO>> getAllActionsForTask(@PathVariable Long taskId) 
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Retrieving all actions for task with ID: {}", taskId);
+
+        try {
+            List<ActionTask> actions = taskService.getAllActionsForTask(taskId);
+            logger.debug("Retrieved {} actions for task with ID: {}", actions.size(), taskId);
+            return ResponseEntity.ok().body(actions.stream()
+                    .map(ActionTaskDTO::fromEntity)
+                    .toList());
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to retrieve actions for task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error retrieving actions for task with ID: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @PutMapping("/{taskId}/actions/{actionId}")
+    public ResponseEntity<ActionTaskDTO> updateActionTask(@PathVariable Long taskId, @PathVariable Long actionId, 
+            @RequestBody ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Updating action with ID: {} for task with ID: {}", actionId, taskId);
+
+        try {
+            ActionTask updatedAction = taskService.updateActionTask(taskId, actionId, actionTaskDTO);
+            logger.info("Action updated successfully with ID: {} for task with ID: {}", actionId, taskId);
+            return ResponseEntity.ok().body(ActionTaskDTO.fromEntity(updatedAction));
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to update action with ID: {} for task with ID: {} - {}", actionId, taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating action with ID: {} for task with ID: {}", actionId, taskId, e);
+            throw e;
+        }
+    }
+
+    @DeleteMapping("/{taskId}/actions/{actionId}")
+    public ResponseEntity<String> deleteActionFromTask(@PathVariable Long taskId, @PathVariable Long actionId) 
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Deleting action with ID: {} from task with ID: {}", actionId, taskId);
+
+        try {
+            taskService.deleteActionFromTask(taskId, actionId);
+            logger.info("Action deleted successfully with ID: {} from task with ID: {}", actionId, taskId);
+            return ResponseEntity.ok().body("Action deleted successfully");
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to delete action with ID: {} from task with ID: {} - {}", actionId, taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error deleting action with ID: {} from task with ID: {}", actionId, taskId, e);
+            throw e;
+        }
+    }
 
 }
