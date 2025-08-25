@@ -1,213 +1,222 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { 
-  Container, 
-  Card, 
-  Row, 
-  Col, 
-  Button, 
-  Modal, 
-  Form, 
+import { useState, useEffect, useCallback } from "react";
+import {
+  Container,
+  Card,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
   Badge,
   InputGroup,
   FormControl,
   Dropdown,
-  DropdownButton
+  DropdownButton,
+  Spinner,
+  Alert,
 } from "react-bootstrap";
+import taskService from "../../../services/taskService";
+import { successToast, errorToast } from "../../common/Noty";
 
-const TaskDetailsActions = () => {
-  const { taskId } = useParams();
-  
+const TaskDetailsActions = ({ taskId }) => {
   // Estados para el manejo de acciones
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   // Estados para el modal
   const [showModal, setShowModal] = useState(false);
   const [newAction, setNewAction] = useState({
-    action: "",
-    description: "",
-    user: "CurrentUser", // Normalmente vendría de un contexto de autenticación
-    timestamp: new Date()
+    actionName: "",
+    actionDescription: "",
+    user: "CurrentUser",
+    actionDate: new Date(),
+    actionType: "COMMENT", // Valor por defecto
   });
-  
+
   // Estados para filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("newest"); // "newest" o "oldest"
+  const [sortOrder, setSortOrder] = useState("newest");
   const [filteredActions, setFilteredActions] = useState([]);
 
-
-
-
-  
-  // Cargar datos iniciales
-
-  useEffect(() => {
+  // Función para cargar datos (SIN useCallback para evitar dependencia circular)
+  const fetchData = async () => {
+    if (!taskId) return;
+    
+    console.log('fetchData llamada para taskId:', taskId); // Debug
     setLoading(true);
-    // Simulamos una carga de datos
-    setTimeout(() => {
-      const initialActions = Array.from({ length: 15 }, (_, index) => ({
-        id: index + 1,
-        user: `user${index % 5 + 1}`,
-        action: `Action ${index + 1}`,
-        description: `This is a detailed description of action ${index + 1} related to task ${taskId}. It explains what was done and why.`,
-        timestamp: new Date(Date.now() - index * 86400000), // Cada acción es un día anterior
-        type: index % 3 === 0 ? "create" : index % 3 === 1 ? "update" : "comment"
-      }));
-      
+    setError(null);
+    try {
+      const initialActions = await taskService.getActionsTask(taskId);
       setActions(initialActions);
-      setFilteredActions(initialActions);
+    } catch (error) {
+      errorToast("Error al cargar acciones: " + (error.message || error));
+      setError(error.message || "Error al cargar acciones");
+      console.error("Error fetching actions:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
+  };
+
+  // Función pública para refrescar (esta sí puede usar useCallback)
+  const refreshActions = useCallback(() => {
+    fetchData();
   }, [taskId]);
 
-
-
-
-
-  
-  //    Filtros
-
+  // Efecto para cargar datos iniciales - SOLO depende de taskId
   useEffect(() => {
-    let result = [...actions]; //TODO : Obtener los datos
-    
+    if (taskId) {
+      fetchData();
+    }
+  }, [taskId]); // Solo taskId como dependencia
+
+  // Efecto separado para filtros (sin llamadas al backend)
+  useEffect(() => {
+    let result = [...actions];
+
     // Aplicar búsqueda
     if (searchTerm) {
-      result = result.filter(item => 
-        item.action.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        item.user.toLowerCase().includes(searchTerm.toLowerCase())
+      result = result.filter(
+        (item) =>
+          item.actionName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.actionDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.user?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     // Aplicar ordenamiento
     result.sort((a, b) => {
+      const dateA = new Date(a.actionDate);
+      const dateB = new Date(b.actionDate);
+      
       if (sortOrder === "newest") {
-        return b.timestamp - a.timestamp;
+        return dateB - dateA;
       } else {
-        return a.timestamp - b.timestamp;
+        return dateA - dateB;
       }
     });
-    
+
     setFilteredActions(result);
-  }, [actions, searchTerm, sortOrder]);
+  }, [actions, searchTerm, sortOrder]); // Solo depende de actions, searchTerm y sortOrder
 
-
-
-
-
-
-  
   // Abrir modal para nueva acción
   const handleAddAction = () => {
     setShowModal(true);
   };
-  
+
   // Cerrar modal
   const handleCloseModal = () => {
     setShowModal(false);
     setNewAction({
-      action: "",
-      description: "",
+      actionName: "",
+      actionDescription: "",
       user: "CurrentUser",
-      timestamp: new Date()
+      actionDate: new Date(),
+      actionType: "COMMENT",
     });
   };
-  
-  // Nueva accion
+
+  // Manejar cambios en el formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewAction(prev => ({ ...prev, [name]: value }));
+    setNewAction((prev) => ({ ...prev, [name]: value }));
   };
-  
+
   // Guardar nueva acción
-  const handleSaveAction = () => {
-    if (!newAction.action.trim() || !newAction.description.trim()) {
-      return; // Validación básica
+  const handleSaveAction = async () => {
+    try {
+      if (!newAction.actionName || !newAction.actionDescription) {
+        errorToast("Por favor completa todos los campos requeridos");
+        return;
+      }
+
+      const actionToAdd = {
+        ...newAction,
+        actionDate: new Date().toISOString(),
+      };
+
+      await taskService.createActionTask(taskId, actionToAdd);
+      
+      // Refrescar los datos después de crear
+      await fetchData();
+      
+      successToast("Acción guardada exitosamente");
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving action:", error);
+      errorToast("Error al guardar la acción: " + (error.message || error));
     }
-    
-    const actionToAdd = {
-      id: actions.length > 0 ? Math.max(...actions.map(a => a.id)) + 1 : 1,
-      ...newAction,
-      timestamp: new Date(),
-      type: "create" // Por defecto es una creación
-    };
-    
-    setActions(prev => [actionToAdd, ...prev]);
-    handleCloseModal();
   };
 
-
-
-
-
-  
   // Función para formatear fechas
-  const formatDate = (date) => {
-    return new Date(date).toLocaleString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const formatDate = (actionDate) => {
+    if (!actionDate) return "Fecha no disponible";
+    
+    try {
+      return new Date(actionDate).toLocaleString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      return "Fecha inválida";
+    }
   };
-  
+
   // Obtener estilo según el tipo de acción
-  const getActionStyle = (type) => {
-    switch(type) {
+  const getActionStyle = (actionType) => {
+    switch (actionType?.toLowerCase()) {
       case "create":
         return {
           badge: "success",
-          icon: "bi bi-plus-circle-fill"
+          icon: "bi bi-plus-circle-fill",
         };
       case "update":
         return {
           badge: "primary",
-          icon: "bi bi-pencil-fill"
+          icon: "bi bi-pencil-fill",
         };
-      case "comment":
+      case "COMMENT":
         return {
           badge: "info",
-          icon: "bi bi-chat-left-text-fill"
+          icon: "bi bi-chat-left-text-fill",
         };
       default:
         return {
           badge: "secondary",
-          icon: "bi bi-clipboard-data"
+          icon: "bi bi-clipboard-data",
         };
     }
   };
-  
+
   if (loading) {
     return (
       <Container fluid className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
+        <Spinner animation="border" variant="primary" />
         <p className="mt-3">Cargando historial de acciones...</p>
       </Container>
     );
   }
-  
+
   if (error) {
     return (
       <Container fluid>
-        <Card className="border-danger mt-4">
-          <Card.Body className="text-center text-danger">
-            <i className="bi bi-exclamation-triangle-fill fs-1"></i>
-            <h5 className="mt-2">Error al cargar el historial</h5>
-            <p>{error}</p>
-            <Button variant="outline-danger" onClick={() => window.location.reload()}>
-              Reintentar
-            </Button>
-          </Card.Body>
-        </Card>
+        <Alert variant="danger" className="mt-4">
+          <Alert.Heading>
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            Error al cargar el historial
+          </Alert.Heading>
+          <p>{error}</p>
+          <Button variant="outline-danger" onClick={fetchData}>
+            Reintentar
+          </Button>
+        </Alert>
       </Container>
     );
   }
-  
+
   return (
     <Container fluid>
       <Row className="align-items-center my-4">
@@ -218,8 +227,8 @@ const TaskDetailsActions = () => {
           </h3>
         </Col>
         <Col xs="auto">
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             className="d-flex align-items-center"
             onClick={handleAddAction}
           >
@@ -228,7 +237,7 @@ const TaskDetailsActions = () => {
           </Button>
         </Col>
       </Row>
-      
+
       {/* Filters and search */}
       <Row className="mb-3 align-items-center">
         <Col md={6} className="mb-2 mb-md-0">
@@ -242,8 +251,8 @@ const TaskDetailsActions = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             {searchTerm && (
-              <Button 
-                variant="outline-secondary" 
+              <Button
+                variant="outline-secondary"
                 onClick={() => setSearchTerm("")}
               >
                 <i className="bi bi-x-lg"></i>
@@ -252,19 +261,24 @@ const TaskDetailsActions = () => {
           </InputGroup>
         </Col>
         <Col md={6} className="d-flex justify-content-md-end">
-          <DropdownButton 
-            id="dropdown-sort" 
-            title={<><i className="bi bi-sort-down me-1"></i> {sortOrder === "newest" ? "Newest first" : "Oldest first"}</>}
+          <DropdownButton
+            id="dropdown-sort"
+            title={
+              <>
+                <i className="bi bi-sort-down me-1"></i>{" "}
+                {sortOrder === "newest" ? "Newest first" : "Oldest first"}
+              </>
+            }
             variant="outline-secondary"
           >
-            <Dropdown.Item 
+            <Dropdown.Item
               active={sortOrder === "newest"}
               onClick={() => setSortOrder("newest")}
             >
               <i className="bi bi-sort-down me-2"></i>
               Newest first
             </Dropdown.Item>
-            <Dropdown.Item 
+            <Dropdown.Item
               active={sortOrder === "oldest"}
               onClick={() => setSortOrder("oldest")}
             >
@@ -274,7 +288,7 @@ const TaskDetailsActions = () => {
           </DropdownButton>
         </Col>
       </Row>
-      
+
       {/* Action list */}
       <div>
         {filteredActions.length === 0 ? (
@@ -283,10 +297,15 @@ const TaskDetailsActions = () => {
               <i className="bi bi-inbox fs-1 text-muted"></i>
               <h5 className="mt-3">No actions for this task</h5>
               <p className="text-muted">
-                {searchTerm ? "No actions found with that search criteria." : "No actions have been recorded for this task yet."}
+                {searchTerm
+                  ? "No actions found with that search criteria."
+                  : "No actions have been recorded for this task yet."}
               </p>
               {searchTerm && (
-                <Button variant="outline-secondary" onClick={() => setSearchTerm("")}>
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => setSearchTerm("")}
+                >
                   Clear search
                 </Button>
               )}
@@ -294,7 +313,7 @@ const TaskDetailsActions = () => {
           </Card>
         ) : (
           filteredActions.map((item) => {
-            const style = getActionStyle(item.type);
+            const style = getActionStyle(item.actionType);
             return (
               <Card key={item.id} className="mb-3 shadow-sm border-0">
                 <Card.Header className="bg-white">
@@ -304,7 +323,9 @@ const TaskDetailsActions = () => {
                         <Badge bg={style.badge} className="me-2 p-2">
                           <i className={style.icon}></i>
                         </Badge>
-                        <Card.Title className="mb-0 fs-5">{item.action}</Card.Title>
+                        <Card.Title className="mb-0 fs-5">
+                          {item.actionName}
+                        </Card.Title>
                       </div>
                     </Col>
                     <Col xs="auto">
@@ -317,21 +338,21 @@ const TaskDetailsActions = () => {
                         </div>
                         <small className="text-muted">
                           <i className="bi bi-calendar-event me-1"></i>
-                          {formatDate(item.timestamp)}
+                          {formatDate(item.actionDate)}
                         </small>
                       </div>
                     </Col>
                   </Row>
                 </Card.Header>
                 <Card.Body>
-                  <Card.Text>{item.description}</Card.Text>
+                  <Card.Text>{item.actionDescription}</Card.Text>
                 </Card.Body>
               </Card>
             );
           })
         )}
       </div>
-      
+
       {/* Modal for adding new action */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
@@ -346,8 +367,8 @@ const TaskDetailsActions = () => {
               <Form.Label>Action title</Form.Label>
               <Form.Control
                 type="text"
-                name="action"
-                value={newAction.action}
+                name="actionName"
+                value={newAction.actionName}
                 onChange={handleInputChange}
                 placeholder="E.g: Priority update"
                 autoFocus
@@ -357,8 +378,8 @@ const TaskDetailsActions = () => {
               <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
-                name="description"
-                value={newAction.description}
+                name="actionDescription"
+                value={newAction.actionDescription}
                 onChange={handleInputChange}
                 placeholder="Describe the action performed in detail..."
                 rows={4}
@@ -366,14 +387,14 @@ const TaskDetailsActions = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Action type</Form.Label>
-              <Form.Select 
-                name="type"
-                value={newAction.type || "create"}
+              <Form.Select
+                name="actionType"
+                value={newAction.actionType}
                 onChange={handleInputChange}
               >
                 <option value="create">Create</option>
                 <option value="update">Update</option>
-                <option value="comment">Comment</option>
+                <option value="COMMENT">COMMENT</option>
               </Form.Select>
             </Form.Group>
           </Form>
@@ -382,18 +403,18 @@ const TaskDetailsActions = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Cancel
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={handleSaveAction}
-            disabled={!newAction.action.trim() || !newAction.description.trim()}
+            disabled={!newAction.actionName || !newAction.actionDescription}
           >
             Save Action
           </Button>
         </Modal.Footer>
       </Modal>
-      
     </Container>
   );
 };
 
+// Exportar también la función de refresh si necesitas acceso externo
 export default TaskDetailsActions;

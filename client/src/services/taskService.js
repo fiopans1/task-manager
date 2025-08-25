@@ -135,10 +135,58 @@ const getTaskById = (id) => {
   }).then((response) => response.data);
 };
 
+const createActionTask = (id, action) => {
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.post(serverUrl + "/api/tasks/" + id + "/actions", action, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
+const deleteActionTask = (taskId, actionId) => {
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.delete(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
+const updateActionTask = (taskId, actionId, action) => {
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.put(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, action, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
+const getActionsTask = (taskId) => {
+  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = "Bearer " + store.getState().auth.token;
+  return axios.get(serverUrl + "/api/tasks/" + taskId + "/actions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  }).then((response) => response.data);
+};
+
 const taskService = {
   createTask,
   getTasks,
   deleteTask,
+  createActionTask,
+  deleteActionTask,
+  updateActionTask,
+  getActionsTask,
   editTask,
   invalidateTasksCache,
   getEvents,

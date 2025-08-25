@@ -11,7 +11,7 @@ const TaskDetails = () => {
       style={{ height: "100vh" }}
     >
       <TaskDetailsTask taskId={params.id} />
-      <TaskDetailsActions />
+      <TaskDetailsActions taskId={params.id} />
     </Container>
   );
 };
