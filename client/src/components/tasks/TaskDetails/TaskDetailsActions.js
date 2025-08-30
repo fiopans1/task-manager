@@ -42,16 +42,15 @@ const TaskDetailsActions = ({ taskId }) => {
   // Función para cargar datos (SIN useCallback para evitar dependencia circular)
   const fetchData = async () => {
     if (!taskId) return;
-    
-    console.log('fetchData llamada para taskId:', taskId); // Debug
+
     setLoading(true);
     setError(null);
     try {
       const initialActions = await taskService.getActionsTask(taskId);
       setActions(initialActions);
     } catch (error) {
-      errorToast("Error al cargar acciones: " + (error.message || error));
-      setError(error.message || "Error al cargar acciones");
+      errorToast("Error loading actions: " + (error.message || error));
+      setError(error.message || "Error loading actions");
       console.error("Error fetching actions:", error);
     } finally {
       setLoading(false);
@@ -79,7 +78,9 @@ const TaskDetailsActions = ({ taskId }) => {
       result = result.filter(
         (item) =>
           item.actionName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.actionDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.actionDescription
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           item.user?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -88,7 +89,7 @@ const TaskDetailsActions = ({ taskId }) => {
     result.sort((a, b) => {
       const dateA = new Date(a.actionDate);
       const dateB = new Date(b.actionDate);
-      
+
       if (sortOrder === "newest") {
         return dateB - dateA;
       } else {
@@ -126,7 +127,7 @@ const TaskDetailsActions = ({ taskId }) => {
   const handleSaveAction = async () => {
     try {
       if (!newAction.actionName || !newAction.actionDescription) {
-        errorToast("Por favor completa todos los campos requeridos");
+        errorToast("Please fill in all required fields");
         return;
       }
 
@@ -136,22 +137,22 @@ const TaskDetailsActions = ({ taskId }) => {
       };
 
       await taskService.createActionTask(taskId, actionToAdd);
-      
+
       // Refrescar los datos después de crear
       await fetchData();
-      
-      successToast("Acción guardada exitosamente");
+
+      successToast("Action saved successfully");
       handleCloseModal();
     } catch (error) {
       console.error("Error saving action:", error);
-      errorToast("Error al guardar la acción: " + (error.message || error));
+      errorToast("Error saving action: " + (error.message || error));
     }
   };
 
   // Función para formatear fechas
   const formatDate = (actionDate) => {
-    if (!actionDate) return "Fecha no disponible";
-    
+    if (!actionDate) return "Date not available";
+
     try {
       return new Date(actionDate).toLocaleString("es-ES", {
         day: "2-digit",
@@ -195,7 +196,7 @@ const TaskDetailsActions = ({ taskId }) => {
     return (
       <Container fluid className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Cargando historial de acciones...</p>
+        <p className="mt-3">Loading action history...</p>
       </Container>
     );
   }
@@ -206,11 +207,11 @@ const TaskDetailsActions = ({ taskId }) => {
         <Alert variant="danger" className="mt-4">
           <Alert.Heading>
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            Error al cargar el historial
+            Error loading history
           </Alert.Heading>
           <p>{error}</p>
           <Button variant="outline-danger" onClick={fetchData}>
-            Reintentar
+            Retry
           </Button>
         </Alert>
       </Container>
@@ -227,14 +228,26 @@ const TaskDetailsActions = ({ taskId }) => {
           </h3>
         </Col>
         <Col xs="auto">
-          <Button
-            variant="primary"
-            className="d-flex align-items-center"
-            onClick={handleAddAction}
-          >
-            <i className="bi bi-plus-lg me-2"></i>
-            New Action
-          </Button>
+          <div className="d-flex gap-2">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="d-flex align-items-center px-3"
+              onClick={fetchData}
+            >
+              <i className="bi bi-arrow-clockwise me-1"></i>
+              Refresh
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="d-flex align-items-center px-3"
+              onClick={handleAddAction}
+            >
+              <i className="bi bi-plus-lg me-1"></i>
+              New Action
+            </Button>
+          </div>
         </Col>
       </Row>
 
@@ -392,8 +405,8 @@ const TaskDetailsActions = ({ taskId }) => {
                 value={newAction.actionType}
                 onChange={handleInputChange}
               >
-                <option value="create">Create</option>
-                <option value="update">Update</option>
+                {/* <option value="create">Create</option>
+                <option value="update">Update</option> */}
                 <option value="COMMENT">COMMENT</option>
               </Form.Select>
             </Form.Group>

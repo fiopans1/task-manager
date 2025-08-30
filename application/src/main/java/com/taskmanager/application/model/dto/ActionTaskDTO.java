@@ -1,6 +1,6 @@
 package com.taskmanager.application.model.dto;
 
-import java.sql.Date;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.taskmanager.application.model.entities.ActionTask;

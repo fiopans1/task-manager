@@ -1,6 +1,8 @@
 package com.taskmanager.application.model.entities;
 
-import java.sql.Date;
+
+
+import java.util.Date;
 
 import org.hibernate.annotations.ManyToAny;
 

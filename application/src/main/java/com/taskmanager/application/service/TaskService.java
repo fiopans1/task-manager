@@ -224,6 +224,8 @@ public class TaskService {
 
         logger.debug("Permission granted for adding action to task ID: {}", taskId);
         ActionTask newAction = ActionTaskDTO.toEntity(actionTask);
+        newAction.setUser(task.getUser().getUsername());
+        newAction.setActionDate(new Date());
         task.addAction(newAction);
         ActionTask toReturn = actionTaskRepository.save(newAction);
         logger.info("Successfully added action to task with ID: {}", taskId);
