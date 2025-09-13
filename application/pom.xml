@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.taskmanager</groupId>
-    <artifactId>application</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>application</name>
+    <artifactId>taskmanager</artifactId>
+    <version>0.0.1-Alpha</version>
+    <name>TaskManager</name>
     <description>My personal taskmanager</description>
     <url/>
     <licenses>
