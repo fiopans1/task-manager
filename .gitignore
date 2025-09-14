@@ -4,3 +4,4 @@ task-manager.db
 application.properties
 .env
 jwtKeys
+task-manager
