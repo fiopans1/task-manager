@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script de compilación y despliegue para aplicación Spring Boot + React (separados)
+Script de compilación y despliegue para aplicación Task Manager
 """
 
 import os
@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class BuildTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar"):
+    def __init__(self, project_root, name_jar_file="taskmanager.jar", name_final_file="TaskManager"):
         self.project_root = Path(project_root).resolve()
         self.backend_dir = self.project_root / 'application'
         self.frontend_dir = self.project_root / 'client'
@@ -26,7 +26,8 @@ class BuildTaskManager:
         self.scripts_dir = self.project_root / 'scripts'
         self.deploy_dir = self.project_root / 'task-manager'
         self.jar_name = name_jar_file
-    
+        self.name_final_file = name_final_file
+
     def check_dependencies(self):
         """Verifica que las dependencias necesarias estén instaladas."""
         logger.info("Verificando dependencias...")
@@ -64,7 +65,16 @@ class BuildTaskManager:
         except subprocess.CalledProcessError as e:
             logger.error(f"Error al compilar el frontend: {e}")
             sys.exit(1)
-            
+    
+    def compress_folder_deploy(self):
+        if not self.deploy_dir.exists():
+            raise FileNotFoundError(f"El directorio de despliegue {self.deploy_dir} no existe.")
+        if not self.deploy_dir.is_dir():
+            raise NotADirectoryError(f"{self.deploy_dir} no es un directorio válido.")
+
+        shutil.make_archive(self.project_root / self.name_final_file, 'zip', root_dir=self.deploy_dir) #En un futuro necesario parametrizar el nombre del archivo final
+        logger.info(f"Directorio {self.deploy_dir} comprimido en {self.project_root / f'{self.name_final_file}.zip'}")
+
     def copy_files_after_deploy(self):
         """Copia los archivos compilados al directorio de despliegue."""
         logger.info("Copiando archivos al directorio de despliegue...")
@@ -118,6 +128,10 @@ class BuildTaskManager:
         
         logger.info(f"Despliegue completado en: {self.deploy_dir}")
         
+        self.compress_folder_deploy()
+
+        logger.info(f"Archivo comprimido creado en: {self.project_root / f'{self.name_final_file}.zip'}")
+
 
 def main():
     parser = argparse.ArgumentParser(description='Script de compilación y despliegue para Task Manager')
@@ -129,6 +143,8 @@ def main():
                        help='Solo compilar el frontend')
     parser.add_argument('--name-jar-file', default='taskmanager.jar',
                        help='Nombre del archivo JAR del backend')
+    parser.add_argument('--name-final-file', default='TaskManager',
+                       help='Nombre del archivo final comprimido sin extensión')
 
     args = parser.parse_args()
 
