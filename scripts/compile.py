@@ -7,7 +7,6 @@ import os
 import sys
 import subprocess
 import shutil
-import json
 from pathlib import Path
 import argparse
 import logging
