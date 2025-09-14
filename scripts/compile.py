@@ -23,6 +23,7 @@ class BuildTaskManager:
         self.frontend_dir = self.project_root / 'client'
         self.backend_target_dir = self.backend_dir / 'target'
         self.frontend_build_dir = self.frontend_dir / 'build'
+        self.scripts_dir = self.project_root / 'scripts'
         self.deploy_dir = self.project_root / 'task-manager'
         self.jar_name = name_jar_file
     
@@ -63,7 +64,19 @@ class BuildTaskManager:
         except subprocess.CalledProcessError as e:
             logger.error(f"Error al compilar el frontend: {e}")
             sys.exit(1)
-    
+            
+    def copy_files_after_deploy(self):
+        """Copia los archivos compilados al directorio de despliegue."""
+        logger.info("Copiando archivos al directorio de despliegue...")
+        if not self.deploy_dir.exists():
+            self.deploy_dir.mkdir(parents=True)
+        
+        if not self.deploy_bin_dir.exists():
+            self.deploy_bin_dir.mkdir(parents=True)
+
+        shutil.copytree(self.scripts_dir / 'bin_files', self.deploy_bin_dir, dirs_exist_ok=True)
+        shutil.copytree(self.scripts_dir / 'config_files', self.deploy_config_dir, dirs_exist_ok=True)
+
     def deploy(self):
         """Genera el directorio de despliegue y copia los archivos necesarios."""
         logger.info("Desplegando la aplicación...")
@@ -97,6 +110,14 @@ class BuildTaskManager:
             logger.error(f"No se encontró el directorio de build del frontend: {self.frontend_build_dir}")
             sys.exit(1)
         shutil.copytree(self.frontend_build_dir, self.deploy_lib_dir / 'frontend')
+        
+        # Copiar archivos de configuración
+        logger.info("Copiando ficheros necesarios para la instalacion...")
+        self.copy_files_after_deploy()
+        
+        
+        logger.info(f"Despliegue completado en: {self.deploy_dir}")
+        
 
 def main():
     parser = argparse.ArgumentParser(description='Script de compilación y despliegue para Task Manager')
