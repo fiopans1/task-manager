@@ -65,6 +65,37 @@ class BuildTaskManager:
             logger.error(f"Error al compilar el frontend: {e}")
             sys.exit(1)
     
+    def copy_templates(self):
+        """Copia los archivos de plantilla a sus ubicaciones correspondientes."""
+        logger.info("Copiando archivos de plantilla...")
+        mappings = [
+            {
+                'source': self.scripts_dir / 'config_templates' / 'application-properties.template',
+                'destination': self.deploy_dir / 'config' / 'application.properties'
+            },
+            # {
+            #     'source': self.scripts_dir / 'config_files' / 'env.template', 
+            #     'destination': self.deploy_dir / '.env'
+            # }
+        ]
+        
+        for mapping in mappings:
+            source = mapping['source']
+            destination = mapping['destination']
+            
+            try:
+                if source.exists():
+                    # Crear directorio de destino si no existe
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    # Copiar archivo
+                    shutil.copy2(source, destination)
+                    logger.info(f"✓ Copiado: {source} → {destination}")
+                else:
+                    logger.warning(f"✗ No encontrado: {source}")
+            except Exception as e:
+                logger.error(f"✗ Error al copiar {source} a {destination}: {e}")
+    
     def compress_folder_deploy(self):
         if not self.deploy_dir.exists():
             raise FileNotFoundError(f"El directorio de despliegue {self.deploy_dir} no existe.")
@@ -85,6 +116,7 @@ class BuildTaskManager:
 
         shutil.copytree(self.scripts_dir / 'bin_files', self.deploy_bin_dir, dirs_exist_ok=True)
         shutil.copytree(self.scripts_dir / 'config_files', self.deploy_config_dir, dirs_exist_ok=True)
+        self.copy_templates()
 
     def deploy(self):
         """Genera el directorio de despliegue y copia los archivos necesarios."""
@@ -123,6 +155,8 @@ class BuildTaskManager:
         # Copiar archivos de configuración
         logger.info("Copiando ficheros necesarios para la instalacion...")
         self.copy_files_after_deploy()
+        
+        
         
         
         logger.info(f"Despliegue completado en: {self.deploy_dir}")

@@ -1,16 +1,26 @@
 # task-manager
+
 This is my personal task manager application
-
-
 
 ## Lanzar el deploy:
 
 python3 compile.py --action deploy --name-jar-file taskmanager-0.0.1-Alpha.jar --name-final-file TaskManager
 
+## Ejecutar el start:
 
+python3 start.py --start-all --name-jar-file taskmanager-0.0.1-Alpha.jar
 
+kill -9 $(lsof -ti:8080)
 
+## Generar las claves:
 
+### Generar clave privada
+
+openssl genrsa -out src/main/resources/keys/private_key.pem 2048
+
+### Generar clave pública
+
+openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/resources/keys/public_key.pem
 
 ## License
 
