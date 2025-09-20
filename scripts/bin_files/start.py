@@ -17,10 +17,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class StartBackendTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar"):
+    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080):
         self.project_root = Path(project_root).resolve()
         self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
+        self.backend_port = backend_port
     
     def start_task_manager_back(self):
 
@@ -34,19 +35,22 @@ class StartBackendTaskManager:
             '-jar', str(self.backend_jar_dir),
             f'--spring.config.location=file:{self.backend_config_dir}',
             '--spring.profiles.active=prod',
-            '--server.port=8080',
+            f'--server.port={self.backend_port}',
         ]
+        logger.info(f"Starting backend on port {self.backend_port}")
         return subprocess.Popen(cmd)
     
 
 class StartFrontendTaskManager:
-    def __init__(self, project_root):
+    def __init__(self, project_root, frontend_port=3000):
         self.project_root = Path(project_root).resolve()
         self.frontend_dir = self.project_root / 'lib' / 'frontend'
         self.caddy_executable = self.project_root / 'lib'
+        self.frontend_port = frontend_port
 
     def start_task_manager_front(self):
         """Iniciar en modo producción"""
+        logger.info(f"Starting frontend on port {self.frontend_port}")
         cmd = [
             './caddy',
             'run', '--config', '../config/Caddyfile', '--adapter', 'caddyfile'
@@ -54,12 +58,14 @@ class StartFrontendTaskManager:
         return subprocess.Popen(cmd, cwd=self.caddy_executable)
 
 class StartTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar"):
+    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080, frontend_port=3000):
         self.project_root = Path(project_root).resolve()
         self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
-        self.backend_starter = StartBackendTaskManager(project_root, name_jar_file)
-        self.frontend_starter = StartFrontendTaskManager(self.project_root)
+        self.backend_port = backend_port
+        self.frontend_port = frontend_port
+        self.backend_starter = StartBackendTaskManager(project_root, name_jar_file, backend_port)
+        self.frontend_starter = StartFrontendTaskManager(self.project_root, frontend_port)
 
     def start_backend(self):
         self.backend_starter.start_task_manager_back()
@@ -71,7 +77,7 @@ class StartTaskManager:
         backend_ready = False
         while not backend_ready:
             try:
-                r = requests.get("http://localhost:8080/health")
+                r = requests.get(f"http://localhost:{self.backend_port}/health")
                 if r.status_code == 200:
                     backend_ready = True
                     logger.info("✅ Backend listo")
@@ -83,7 +89,7 @@ class StartTaskManager:
         frontend_ready = False
         while not frontend_ready:
             try:
-                r = requests.get("http://localhost:3000/health")
+                r = requests.get(f"http://localhost:{self.frontend_port}/health")
                 if r.status_code == 200:
                     frontend_ready = True
                     logger.info("✅ Frontend listo")
@@ -107,11 +113,34 @@ def main():
                         help='Iniciar tanto el backend como el frontend')
     parser.add_argument('--name-jar-file', default='taskmanager.jar',
                         help='Nombre del archivo JAR del backend')
+    parser.add_argument('--project-root', 
+                        help='Ruta del directorio raíz del proyecto (por defecto: directorio actual)')
+    parser.add_argument('--backend-port', type=int, default=8080,
+                        help='Puerto para el backend (default: 8080)')
+    parser.add_argument('--frontend-port', type=int, default=3000,
+                        help='Puerto para el frontend (default: 3000)')
     args = parser.parse_args()
     
+    # Determinar el directorio raíz del proyecto
+    if args.project_root:
+        script_dir = args.project_root
+        logger.info(f"Using specified project root: {script_dir}")
+    else:
+        # Usar el directorio actual como raíz del proyecto
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        logger.info(f"Using current directory as project root: {script_dir}")
     
-    script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    starter = StartTaskManager(script_dir, args.name_jar_file)  
+    starter = StartTaskManager(
+        script_dir, 
+        args.name_jar_file, 
+        args.backend_port, 
+        args.frontend_port
+    )
+    
+    logger.info(f"Configuration:")
+    logger.info(f"  - Backend port: {args.backend_port}")
+    logger.info(f"  - Frontend port: {args.frontend_port}")
+    logger.info(f"  - JAR file: {args.name_jar_file}")  
     
     if args.start_backend:
         starter.start_backend()

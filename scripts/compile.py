@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script de compilación y despliegue para aplicación Task Manager
+Compilation and deployment script for Task Manager application
 """
 
 import os
@@ -15,12 +15,13 @@ import tarfile
 import zipfile
 import platform
 
-# Configuración del logging
+# Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class BuildTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", name_final_file="TaskManager"):
+    def __init__(self, project_root, name_jar_file="taskmanager.jar", name_final_file="TaskManager", 
+                 caddy_version="v2.7.6", specify_specifications=False, target_platform=None, target_architecture=None):
         self.project_root = Path(project_root).resolve()
         self.backend_dir = self.project_root / 'application'
         self.frontend_dir = self.project_root / 'client'
@@ -31,34 +32,64 @@ class BuildTaskManager:
         self.jar_name = name_jar_file
         self.name_final_file = name_final_file
         
-        # Configuración de Caddy
-        self.caddy_version = "v2.7.6"  # Puedes actualizar esta versión
+        # Caddy configuration
+        self.caddy_version = caddy_version
         self.caddy_url_base = "https://github.com/caddyserver/caddy/releases/download"
+        
+        # Specification parameters
+        self.specify_specifications = specify_specifications
+        self.target_platform = target_platform
+        self.target_architecture = target_architecture
 
     def get_caddy_download_info(self):
-        """Determina la URL de descarga y el nombre del archivo según la plataforma."""
-        system = platform.system().lower()
-        machine = platform.machine().lower()
+        """Determines the download URL and filename according to the platform."""
         
-        # Mapeo de arquitecturas
-        arch_map = {
-            'x86_64': 'amd64',
-            'amd64': 'amd64',
-            'i386': '386',
-            'i686': '386',
-            'arm64': 'arm64',
-            'aarch64': 'arm64',
-            'armv7l': 'armv7',
-            'armv6l': 'armv6'
-        }
-        
-        arch = arch_map.get(machine, 'amd64')
+        if self.specify_specifications:
+            # Use specified platform and architecture
+            system = self.target_platform.lower() if self.target_platform else 'linux'
+            specified_arch = self.target_architecture.lower() if self.target_architecture else 'amd64'
+            
+            # Map specified architecture to Caddy naming convention
+            arch_map = {
+                'x86_64': 'amd64',
+                'amd64': 'amd64',
+                'i386': '386',
+                'i686': '386',
+                'arm64': 'arm64',
+                'aarch64': 'arm64',
+                'armv7l': 'armv7',
+                'armv6l': 'armv6',
+                'armv7': 'armv7',
+                'armv6': 'armv6'
+            }
+            arch = arch_map.get(specified_arch, specified_arch)
+            
+            logger.info(f"Using specified platform: {system}, architecture: {arch}")
+        else:
+            # Auto-detect platform and architecture
+            system = platform.system().lower()
+            machine = platform.machine().lower()
+            
+            # Architecture mapping
+            arch_map = {
+                'x86_64': 'amd64',
+                'amd64': 'amd64',
+                'i386': '386',
+                'i686': '386',
+                'arm64': 'arm64',
+                'aarch64': 'arm64',
+                'armv7l': 'armv7',
+                'armv6l': 'armv6'
+            }
+            
+            arch = arch_map.get(machine, 'amd64')
+            logger.info(f"Auto-detected platform: {system}, architecture: {arch}")
         
         if system == 'windows':
             os_name = 'windows'
             extension = 'zip'
             executable = 'caddy.exe'
-        elif system == 'darwin':
+        elif system == 'darwin' or system == 'mac':
             os_name = 'mac'
             extension = 'tar.gz'
             executable = 'caddy'
@@ -67,11 +98,11 @@ class BuildTaskManager:
             extension = 'tar.gz'
             executable = 'caddy'
         else:
-            # Fallback a Linux
+            # Fallback to Linux
             os_name = 'linux'
             extension = 'tar.gz'
             executable = 'caddy'
-            logger.warning(f"Sistema operativo no reconocido: {system}. Usando Linux como fallback.")
+            logger.warning(f"Unrecognized operating system: {system}. Using Linux as fallback.")
         
         filename = f"caddy_{self.caddy_version.lstrip('v')}_{os_name}_{arch}.{extension}"
         url = f"{self.caddy_url_base}/{self.caddy_version}/{filename}"
@@ -79,18 +110,18 @@ class BuildTaskManager:
         return url, filename, executable, extension
 
     def download_caddy(self):
-        """Descarga Caddy desde GitHub releases."""
-        logger.info(f"Descargando Caddy {self.caddy_version}...")
+        """Downloads Caddy from GitHub releases."""
+        logger.info(f"Downloading Caddy {self.caddy_version}...")
         
         url, filename, executable, extension = self.get_caddy_download_info()
         
-        # Crear directorio temporal para la descarga
+        # Create temporary directory for download
         temp_dir = self.deploy_dir / 'tmp'
         temp_dir.mkdir(exist_ok=True)
         
         try:
-            # Descargar el archivo
-            logger.info(f"Descargando desde: {url}")
+            # Download the file
+            logger.info(f"Downloading from: {url}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
             
@@ -99,9 +130,9 @@ class BuildTaskManager:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            logger.info(f"Archivo descargado: {file_path}")
+            logger.info(f"File downloaded: {file_path}")
             
-            # Extraer el archivo
+            # Extract the file
             if extension == 'zip':
                 with zipfile.ZipFile(file_path, 'r') as zip_ref:
                     zip_ref.extractall(temp_dir)
@@ -109,74 +140,74 @@ class BuildTaskManager:
                 with tarfile.open(file_path, 'r:gz') as tar_ref:
                     tar_ref.extractall(temp_dir)
             
-            # Verificar que el ejecutable existe
+            # Verify that the executable exists
             caddy_executable = temp_dir / executable
             if not caddy_executable.exists():
-                raise FileNotFoundError(f"No se encontró el ejecutable de Caddy: {caddy_executable}")
+                raise FileNotFoundError(f"Caddy executable not found: {caddy_executable}")
             
-            # Hacer el archivo ejecutable en sistemas Unix
+            # Make the file executable on Unix systems
             if os.name != 'nt':
                 os.chmod(caddy_executable, 0o755)
             
-            logger.info("Caddy descargado y extraído exitosamente.")
+            logger.info("Caddy downloaded and extracted successfully.")
             return caddy_executable
             
         except requests.RequestException as e:
-            logger.error(f"Error al descargar Caddy: {e}")
+            logger.error(f"Error downloading Caddy: {e}")
             sys.exit(1)
         except Exception as e:
-            logger.error(f"Error al procesar Caddy: {e}")
+            logger.error(f"Error processing Caddy: {e}")
             sys.exit(1)
 
     def cleanup_caddy_temp(self):
-        """Limpia los archivos temporales de Caddy."""
+        """Cleans up Caddy temporary files."""
         temp_dir = self.deploy_dir / 'temp'
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
-            logger.info("Archivos temporales de Caddy eliminados.")
+            logger.info("Caddy temporary files deleted.")
 
 
     def check_dependencies(self):
-        """Verifica que las dependencias necesarias estén instaladas."""
-        logger.info("Verificando dependencias...")
+        """Verifies that necessary dependencies are installed."""
+        logger.info("Checking dependencies...")
         try:
             subprocess.run(['mvn', '-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            logger.info("Maven está instalado.")
+            logger.info("Maven is installed.")
         except (subprocess.CalledProcessError, FileNotFoundError):
-            logger.error("Maven no está instalado o no se encuentra en el PATH.")
+            logger.error("Maven is not installed or not found in PATH.")
             sys.exit(1)
         
         try:
             subprocess.run(['npm', '-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            logger.info("Node.js y npm están instalados.")
+            logger.info("Node.js and npm are installed.")
         except (subprocess.CalledProcessError, FileNotFoundError):
-            logger.error("Node.js y npm no están instalados o no se encuentran en el PATH.")
+            logger.error("Node.js and npm are not installed or not found in PATH.")
             sys.exit(1)
 
     def build_backend(self):
-        """Compila el backend con Maven."""
-        logger.info("Compilando el backend...")
+        """Compiles the backend with Maven."""
+        logger.info("Compiling backend...")
         try:
             subprocess.run(['mvn', 'clean', 'package', '-DskipTests'], cwd=self.backend_dir, check=True)
-            logger.info("Backend compilado exitosamente.")
+            logger.info("Backend compiled successfully.")
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error al compilar el backend: {e}")
+            logger.error(f"Error compiling backend: {e}")
             sys.exit(1)
 
     def build_frontend(self):
-        """Compila el frontend con npm."""
-        logger.info("Compilando el frontend...")
+        """Compiles the frontend with npm."""
+        logger.info("Compiling frontend...")
         try:
             subprocess.run(['npm', 'install'], cwd=self.frontend_dir, check=True)
             subprocess.run(['npm', 'run', 'build'], cwd=self.frontend_dir, check=True)
-            logger.info("Frontend compilado exitosamente.")
+            logger.info("Frontend compiled successfully.")
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error al compilar el frontend: {e}")
+            logger.error(f"Error compiling frontend: {e}")
             sys.exit(1)
     
     def copy_templates(self):
-        """Copia los archivos de plantilla a sus ubicaciones correspondientes."""
-        logger.info("Copiando archivos de plantilla...")
+        """Copies template files to their corresponding locations."""
+        logger.info("Copying template files...")
         mappings = [
             {
                 'source': self.scripts_dir / 'config_templates' / 'application-properties.template',
@@ -194,29 +225,29 @@ class BuildTaskManager:
             
             try:
                 if source.exists():
-                    # Crear directorio de destino si no existe
+                    # Create destination directory if it doesn't exist
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     
-                    # Copiar archivo
+                    # Copy file
                     shutil.copy2(source, destination)
-                    logger.info(f"✓ Copiado: {source} → {destination}")
+                    logger.info(f"✓ Copied: {source} → {destination}")
                 else:
-                    logger.warning(f"✗ No encontrado: {source}")
+                    logger.warning(f"✗ Not found: {source}")
             except Exception as e:
-                logger.error(f"✗ Error al copiar {source} a {destination}: {e}")
+                logger.error(f"✗ Error copying {source} to {destination}: {e}")
     
     def compress_folder_deploy(self):
         if not self.deploy_dir.exists():
-            raise FileNotFoundError(f"El directorio de despliegue {self.deploy_dir} no existe.")
+            raise FileNotFoundError(f"Deployment directory {self.deploy_dir} does not exist.")
         if not self.deploy_dir.is_dir():
-            raise NotADirectoryError(f"{self.deploy_dir} no es un directorio válido.")
+            raise NotADirectoryError(f"{self.deploy_dir} is not a valid directory.")
 
-        shutil.make_archive(self.project_root / self.name_final_file, 'zip', root_dir=self.deploy_dir) #En un futuro necesario parametrizar el nombre del archivo final
-        logger.info(f"Directorio {self.deploy_dir} comprimido en {self.project_root / f'{self.name_final_file}.zip'}")
+        shutil.make_archive(self.project_root / self.name_final_file, 'zip', root_dir=self.deploy_dir) # In the future, the final file name needs to be parameterized
+        logger.info(f"Directory {self.deploy_dir} compressed to {self.project_root / f'{self.name_final_file}.zip'}")
 
     def copy_files_after_deploy(self):
-        """Copia los archivos compilados al directorio de despliegue."""
-        logger.info("Copiando archivos al directorio de despliegue...")
+        """Copies compiled files to deployment directory."""
+        logger.info("Copying files to deployment directory...")
         if not self.deploy_dir.exists():
             self.deploy_dir.mkdir(parents=True)
         
@@ -228,8 +259,8 @@ class BuildTaskManager:
         self.copy_templates()
 
     def deploy(self):
-        """Genera el directorio de despliegue y copia los archivos necesarios."""
-        logger.info("Desplegando la aplicación...")
+        """Generates deployment directory and copies necessary files."""
+        logger.info("Deploying application...")
         if self.deploy_dir.exists():
             shutil.rmtree(self.deploy_dir)
         self.deploy_dir.mkdir(parents=True)
@@ -246,68 +277,78 @@ class BuildTaskManager:
         self.build_backend()
         self.build_frontend()
         
-        # Descargar e integrar Caddy
-        logger.info("Integrando Caddy...")
+        # Download and integrate Caddy
+        logger.info("Integrating Caddy...")
         caddy_executable = self.download_caddy()
 
-        # Copiar Caddy al directorio lib
+        # Copy Caddy to lib directory
         caddy_dest = self.deploy_lib_dir / caddy_executable.name
         shutil.copy2(caddy_executable, caddy_dest)
-        logger.info(f"Caddy copiado a: {caddy_dest}")
+        logger.info(f"Caddy copied to: {caddy_dest}")
 
-        # Copiar el JAR del backend
+        # Copy backend JAR
         jar_path = self.backend_target_dir / self.jar_name
         if not jar_path.exists():
-            logger.error(f"No se encontró el archivo JAR: {jar_path}")
+            logger.error(f"JAR file not found: {jar_path}")
             sys.exit(1)            
         (self.deploy_lib_dir / 'backend').mkdir(parents=True)
         shutil.copy(jar_path, self.deploy_lib_dir / 'backend' / self.jar_name)
 
 
-        # Copiar los archivos del frontend
+        # Copy frontend files
         if not self.frontend_build_dir.exists():
-            logger.error(f"No se encontró el directorio de build del frontend: {self.frontend_build_dir}")
+            logger.error(f"Frontend build directory not found: {self.frontend_build_dir}")
             sys.exit(1)
         shutil.copytree(self.frontend_build_dir, self.deploy_lib_dir / 'frontend')
         
-        # Copiar archivos de configuración
-        logger.info("Copiando ficheros necesarios para la instalacion...")
+        # Copy configuration files
+        logger.info("Copying necessary files for installation...")
         self.copy_files_after_deploy()
         
-        logger.info(f"Despliegue completado en: {self.deploy_dir}")
+        logger.info(f"Deployment completed at: {self.deploy_dir}")
         
         self.compress_folder_deploy()
 
-        logger.info(f"Archivo comprimido creado en: {self.project_root / f'{self.name_final_file}.zip'}")
+        logger.info(f"Compressed file created at: {self.project_root / f'{self.name_final_file}.zip'}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Script de compilación y despliegue para Task Manager')
+    parser = argparse.ArgumentParser(description='Compilation and deployment script for Task Manager')
     parser.add_argument('--action', choices=['build', 'deploy'], default='full',
-                       help='Acción a realizar: build (solo compilar), deploy (solo desplegar), full (compilar y desplegar)')
+                       help='Action to perform: build (compile only), deploy (deploy only), full (compile and deploy)')
     parser.add_argument('--backend-only', action='store_true',
-                       help='Solo compilar el backend')
+                       help='Compile backend only')
     parser.add_argument('--frontend-only', action='store_true',
-                       help='Solo compilar el frontend')
+                       help='Compile frontend only')
     parser.add_argument('--name-jar-file', default='taskmanager.jar',
-                       help='Nombre del archivo JAR del backend')
+                       help='Backend JAR file name')
     parser.add_argument('--name-final-file', default='TaskManager',
-                       help='Nombre del archivo final comprimido sin extensión')
-    parser.add_argument('--plattform', choices=['windows', 'linux'], default='linux',
-                       help='Plataforma objetivo para los scripts de despliegue (default: linux)')
+                       help='Final compressed file name without extension')
+    parser.add_argument('--platform', choices=['windows', 'linux', 'mac', 'darwin'], default='linux',
+                       help='Target platform for Caddy download (default: linux)')
     parser.add_argument('--architecture', default='arm64',
-                       help='Arquitectura objetivo para los scripts de despliegue (default: arm64)')
+                       help='Target architecture for Caddy download (default: arm64)')
+    parser.add_argument('--specify-specifications', action='store_true',
+                       help='Use specified platform and architecture instead of auto-detection')
     parser.add_argument('--version', default='1.0.0',
-                       help='Versión de la aplicación (default: 1.0.0)')
+                       help='Application version (default: 1.0.0)')
     parser.add_argument('--caddy-version', default='v2.7.6',
-                       help='Versión de Caddy a descargar (default: v2.7.6)')
+                       help='Caddy version to download (default: v2.7.6)')
     
 
     args = parser.parse_args()
 
-    # Obtener el directorio del script actual
+    # Get current script directory
     script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    build_manager = BuildTaskManager(script_dir, name_jar_file=args.name_jar_file)
+    build_manager = BuildTaskManager(
+        script_dir, 
+        name_jar_file=args.name_jar_file,
+        name_final_file=args.name_final_file,
+        caddy_version=args.caddy_version,
+        specify_specifications=args.specify_specifications,
+        target_platform=args.platform,
+        target_architecture=args.architecture
+    )
 
     if args.action == 'build':
         build_manager.check_dependencies()
@@ -321,7 +362,7 @@ def main():
     elif args.action == 'deploy':
         build_manager.deploy()
 
-    logger.info("Proceso completado exitosamente.")
+    logger.info("Process completed successfully.")
         
 
 
