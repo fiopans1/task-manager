@@ -12,6 +12,7 @@ python3 start.py --start-all --name-jar-file taskmanager-0.0.1-Alpha.jar
 
 kill -9 $(lsof -ti:8080)
 
+./caddy run --config ../config/Caddyfile --adapter caddyfile 
 ## Generar las claves:
 
 ### Generar clave privada

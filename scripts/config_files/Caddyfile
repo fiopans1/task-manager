@@ -1,0 +1,16 @@
+:3000 {
+    root * ../lib/frontend
+    file_server
+    
+    # SPA fallback - redirige rutas no encontradas al index.html
+    try_files {path} /index.html
+    
+    # Headers básicos
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+    }
+    
+    # Compresión
+    encode gzip
+}

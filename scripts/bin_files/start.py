@@ -22,7 +22,7 @@ class StartBackendTaskManager:
         self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
     
-    def start_task_manager_prod(self):
+    def start_task_manager_back(self):
 
         environment_variables = {
             'DEPLOY_ROOT': self.project_root,
@@ -43,14 +43,15 @@ class StartFrontendTaskManager:
     def __init__(self, project_root):
         self.project_root = Path(project_root).resolve()
         self.frontend_dir = self.project_root / 'lib' / 'frontend'
+        self.caddy_executable = self.project_root / 'lib'
 
-    def start_task_manager_prod(self):
+    def start_task_manager_front(self):
         """Iniciar en modo producción"""
         cmd = [
-            'npm',
-            'run', 'start-prod'
+            './caddy',
+            'run', '--config', '../config/Caddyfile', '--adapter', 'caddyfile'
         ]
-        return subprocess.Popen(cmd, cwd=self.frontend_dir)
+        return subprocess.Popen(cmd, cwd=self.caddy_executable)
 
 class StartTaskManager:
     def __init__(self, project_root, name_jar_file="taskmanager.jar"):
@@ -58,12 +59,13 @@ class StartTaskManager:
         self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_starter = StartBackendTaskManager(project_root, name_jar_file)
+        self.frontend_starter = StartFrontendTaskManager(self.project_root)
 
     def start_backend(self):
-        self.backend_starter.start_task_manager_prod()
+        self.backend_starter.start_task_manager_back()
 
     def start_frontend(self):
-        pass
+        self.frontend_starter.start_task_manager_front()
     
     def wait_for_backend_up(self):
         backend_ready = False
@@ -76,13 +78,24 @@ class StartTaskManager:
             except Exception:
                 pass
             time.sleep(2)  # espera 2 segundos antes de volver a intentar
+
+    def wait_for_frontend_up(self):
+        frontend_ready = False
+        while not frontend_ready:
+            try:
+                r = requests.get("http://localhost:3000/health")
+                if r.status_code == 200:
+                    frontend_ready = True
+                    logger.info("✅ Frontend listo")
+            except Exception:
+                pass
+            time.sleep(2)  # espera 2 segundos antes de volver a intentar
     
     def startAll(self):
         self.start_backend()
         self.wait_for_backend_up()
         self.start_frontend()
-
-
+        self.wait_for_frontend_up()
 
 def main():
     parser = argparse.ArgumentParser(description='Script para iniciar la aplicación Task Manager')

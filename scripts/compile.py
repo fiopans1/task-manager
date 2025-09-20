@@ -10,6 +10,10 @@ import shutil
 from pathlib import Path
 import argparse
 import logging
+import requests
+import tarfile
+import zipfile
+import platform
 
 # Configuración del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,6 +30,111 @@ class BuildTaskManager:
         self.deploy_dir = self.project_root / 'task-manager'
         self.jar_name = name_jar_file
         self.name_final_file = name_final_file
+        
+        # Configuración de Caddy
+        self.caddy_version = "v2.7.6"  # Puedes actualizar esta versión
+        self.caddy_url_base = "https://github.com/caddyserver/caddy/releases/download"
+
+    def get_caddy_download_info(self):
+        """Determina la URL de descarga y el nombre del archivo según la plataforma."""
+        system = platform.system().lower()
+        machine = platform.machine().lower()
+        
+        # Mapeo de arquitecturas
+        arch_map = {
+            'x86_64': 'amd64',
+            'amd64': 'amd64',
+            'i386': '386',
+            'i686': '386',
+            'arm64': 'arm64',
+            'aarch64': 'arm64',
+            'armv7l': 'armv7',
+            'armv6l': 'armv6'
+        }
+        
+        arch = arch_map.get(machine, 'amd64')
+        
+        if system == 'windows':
+            os_name = 'windows'
+            extension = 'zip'
+            executable = 'caddy.exe'
+        elif system == 'darwin':
+            os_name = 'mac'
+            extension = 'tar.gz'
+            executable = 'caddy'
+        elif system == 'linux':
+            os_name = 'linux'
+            extension = 'tar.gz'
+            executable = 'caddy'
+        else:
+            # Fallback a Linux
+            os_name = 'linux'
+            extension = 'tar.gz'
+            executable = 'caddy'
+            logger.warning(f"Sistema operativo no reconocido: {system}. Usando Linux como fallback.")
+        
+        filename = f"caddy_{self.caddy_version.lstrip('v')}_{os_name}_{arch}.{extension}"
+        url = f"{self.caddy_url_base}/{self.caddy_version}/{filename}"
+        
+        return url, filename, executable, extension
+
+    def download_caddy(self):
+        """Descarga Caddy desde GitHub releases."""
+        logger.info(f"Descargando Caddy {self.caddy_version}...")
+        
+        url, filename, executable, extension = self.get_caddy_download_info()
+        
+        # Crear directorio temporal para la descarga
+        temp_dir = self.deploy_dir / 'tmp'
+        temp_dir.mkdir(exist_ok=True)
+        
+        try:
+            # Descargar el archivo
+            logger.info(f"Descargando desde: {url}")
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            file_path = temp_dir / filename
+            with open(file_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            logger.info(f"Archivo descargado: {file_path}")
+            
+            # Extraer el archivo
+            if extension == 'zip':
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+            elif extension == 'tar.gz':
+                with tarfile.open(file_path, 'r:gz') as tar_ref:
+                    tar_ref.extractall(temp_dir)
+            
+            # Verificar que el ejecutable existe
+            caddy_executable = temp_dir / executable
+            if not caddy_executable.exists():
+                raise FileNotFoundError(f"No se encontró el ejecutable de Caddy: {caddy_executable}")
+            
+            # Hacer el archivo ejecutable en sistemas Unix
+            if os.name != 'nt':
+                os.chmod(caddy_executable, 0o755)
+            
+            logger.info("Caddy descargado y extraído exitosamente.")
+            return caddy_executable
+            
+        except requests.RequestException as e:
+            logger.error(f"Error al descargar Caddy: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Error al procesar Caddy: {e}")
+            sys.exit(1)
+
+    def cleanup_caddy_temp(self):
+        """Limpia los archivos temporales de Caddy."""
+        temp_dir = self.deploy_dir / 'temp'
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+            logger.info("Archivos temporales de Caddy eliminados.")
+
 
     def check_dependencies(self):
         """Verifica que las dependencias necesarias estén instaladas."""
@@ -136,6 +245,15 @@ class BuildTaskManager:
         self.check_dependencies()
         self.build_backend()
         self.build_frontend()
+        
+        # Descargar e integrar Caddy
+        logger.info("Integrando Caddy...")
+        caddy_executable = self.download_caddy()
+
+        # Copiar Caddy al directorio lib
+        caddy_dest = self.deploy_lib_dir / caddy_executable.name
+        shutil.copy2(caddy_executable, caddy_dest)
+        logger.info(f"Caddy copiado a: {caddy_dest}")
 
         # Copiar el JAR del backend
         jar_path = self.backend_target_dir / self.jar_name
@@ -156,9 +274,6 @@ class BuildTaskManager:
         logger.info("Copiando ficheros necesarios para la instalacion...")
         self.copy_files_after_deploy()
         
-        
-        
-        
         logger.info(f"Despliegue completado en: {self.deploy_dir}")
         
         self.compress_folder_deploy()
@@ -168,7 +283,7 @@ class BuildTaskManager:
 
 def main():
     parser = argparse.ArgumentParser(description='Script de compilación y despliegue para Task Manager')
-    parser.add_argument('--action', choices=['build', 'deploy', 'full'], default='full',
+    parser.add_argument('--action', choices=['build', 'deploy'], default='full',
                        help='Acción a realizar: build (solo compilar), deploy (solo desplegar), full (compilar y desplegar)')
     parser.add_argument('--backend-only', action='store_true',
                        help='Solo compilar el backend')
@@ -178,6 +293,15 @@ def main():
                        help='Nombre del archivo JAR del backend')
     parser.add_argument('--name-final-file', default='TaskManager',
                        help='Nombre del archivo final comprimido sin extensión')
+    parser.add_argument('--plattform', choices=['windows', 'linux'], default='linux',
+                       help='Plataforma objetivo para los scripts de despliegue (default: linux)')
+    parser.add_argument('--architecture', default='arm64',
+                       help='Arquitectura objetivo para los scripts de despliegue (default: arm64)')
+    parser.add_argument('--version', default='1.0.0',
+                       help='Versión de la aplicación (default: 1.0.0)')
+    parser.add_argument('--caddy-version', default='v2.7.6',
+                       help='Versión de Caddy a descargar (default: v2.7.6)')
+    
 
     args = parser.parse_args()
 
@@ -195,8 +319,6 @@ def main():
             build_manager.build_backend()
             build_manager.build_frontend()
     elif args.action == 'deploy':
-        build_manager.deploy()
-    elif args.action == 'full':
         build_manager.deploy()
 
     logger.info("Proceso completado exitosamente.")

@@ -76,6 +76,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/health" element={<div>OK</div>} />
       <Route
         path="/"
         element={

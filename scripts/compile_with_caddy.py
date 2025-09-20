@@ -85,7 +85,7 @@ class BuildTaskManager:
         url, filename, executable, extension = self.get_caddy_download_info()
         
         # Crear directorio temporal para la descarga
-        temp_dir = self.project_root / 'temp_caddy'
+        temp_dir = self.deploy_dir / 'tmp'
         temp_dir.mkdir(exist_ok=True)
         
         try:
