@@ -144,8 +144,10 @@ def main():
     
     if args.start_backend:
         starter.start_backend()
+        starter.wait_for_backend_up()
     elif args.start_frontend:
         starter.start_frontend()
+        starter.wait_for_frontend_up()
     elif args.start_all:
         starter.startAll()
 

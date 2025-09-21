@@ -1,0 +1,32 @@
+#Docker file de compilacion
+FROM alpine:latest
+
+#METADATA:
+LABEL maintainer="fiopans1"
+LABEL description="Dockerfile de compilacion de Task Manager"
+LABEL version="1.0"
+
+#Install dependencias
+RUN apk update && apk add --no-cache \
+    python3 \
+    py3-pip \
+    curl \
+    wget \
+    bash \
+    nano \
+    openjdk23-jdk \
+    nodejs \
+    npm \
+    maven \ 
+    git
+
+#Set work directory
+WORKDIR /app
+
+#Clone repo
+RUN git clone https://github.com/fiopans1/task-manager.git
+
+#Set work directory
+WORKDIR /app/task-manager/scripts
+
+
