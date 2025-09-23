@@ -23,6 +23,13 @@ openssl genrsa -out src/main/resources/keys/private_key.pem 2048
 
 openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/resources/keys/public_key.pem
 
+
+#Compilar con docker:
+
+docker build -f /scripts/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
+
+docker run  -v <rutalocal>:/output fiopans1/taskmanager-compilation:alpha
+
 ## License
 
 Copyright (c) 2025 Diego Suárez Ramos (@fiopans1)

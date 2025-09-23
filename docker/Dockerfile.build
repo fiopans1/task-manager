@@ -1,24 +1,27 @@
-#Docker file de compilacion
-FROM alpine:latest
+# 1. Imagen base: Eclipse Temurin con OpenJDK 23 sobre Ubuntu
+FROM eclipse-temurin:23-jdk
 
-#METADATA:
+# METADATA:
 LABEL maintainer="fiopans1"
-LABEL description="Dockerfile de compilacion de Task Manager"
-LABEL version="1.0"
+LABEL description="Dockerfile de compilacion de Task Manager (base Debian/Ubuntu)"
+LABEL version="1.1"
 
-#Install dependencias
-RUN apk update && apk add --no-cache \
+# 2. Instalar dependencias con apt-get
+#    - Se usa noninteractive para evitar que las instalaciones pidan confirmación.
+#    - --no-install-recommends hace la instalación más ligera.
+#    - OpenJDK 23 ya está en la imagen, así que no se necesita instalar.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
-    py3-pip \
+    python3-pip \
     curl \
     wget \
     bash \
     nano \
-    openjdk23-jdk \
     nodejs \
     npm \
-    maven \ 
-    git
+    maven \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 #Create output directory
 RUN mkdir -p /output
@@ -27,18 +30,19 @@ RUN mkdir -p /output
 WORKDIR /app
 
 # Copiar el requirements.txt
-COPY ../scripts/requirements.txt /requirements.txt
-COPY entrypoint.sh /app/entrypoint.sh
-COPY env-setup.sh /app/env-setup.sh
+COPY scripts/requirements.txt /app/requirements.txt
+COPY docker/entrypoint.sh /app/entrypoint.sh
+COPY docker/env-setup.sh /app/env-setup.sh
 
-#Install python dependencies
-RUN pip3 install -r requirements.txt
+# 3. Instalar dependencias de Python
+#  Debian/Ubuntu también usa PEP 668, así que mantenemos --break-system-packages
+RUN pip3 install --break-system-packages -r /app/requirements.txt
 
 #Define volume
 VOLUME /output
 
 RUN chmod +x /app/entrypoint.sh
 
-# Configurar el punto de entrada y el comando por defecto
+# Configurar el punto de entrada y el comando por defecto (sin cambios)
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["compile"]
