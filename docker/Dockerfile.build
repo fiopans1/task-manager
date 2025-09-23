@@ -20,16 +20,25 @@ RUN apk update && apk add --no-cache \
     maven \ 
     git
 
+#Create output directory
+RUN mkdir -p /output
+
 #Set work directory
 WORKDIR /app
 
-#Clone repo
-RUN git clone https://github.com/fiopans1/task-manager.git
-
-#Set work directory
-WORKDIR /app/task-manager/scripts
+# Copiar el requirements.txt
+COPY ../scripts/requirements.txt /requirements.txt
+COPY entrypoint.sh /app/entrypoint.sh
+COPY env-setup.sh /app/env-setup.sh
 
 #Install python dependencies
 RUN pip3 install -r requirements.txt
 
+#Define volume
+VOLUME /output
 
+RUN chmod +x /app/entrypoint.sh
+
+# Configurar el punto de entrada y el comando por defecto
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["compile"]
