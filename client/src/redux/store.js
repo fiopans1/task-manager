@@ -12,18 +12,22 @@ import {
   REGISTER,
 } from "redux-persist";
 import authReducer from "./slices/authSlice";
+
 const persistConfig = {
   key: "root",
   storage,
   whitelist: ["auth"],
 };
+
 const rootReducer = combineReducers({
   // Combinamos los reducers
   auth: authReducer,
 });
-const persistedRootReducer = persistReducer(persistConfig, rootReducer); //Persistimos el reducer root
+
+const persistedRootReducer = persistReducer(persistConfig, rootReducer);
+
 const store = configureStore({
-  reducer: persistedRootReducer, // Configuramos el store
+  reducer: persistedRootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
@@ -32,5 +36,10 @@ const store = configureStore({
     }),
 });
 
-export const persistor = persistStore(store); // Creamos el persistor
+// Exponer el store para Cypress
+if (window.Cypress) {
+  window.store = store;
+}
+
+export const persistor = persistStore(store);
 export default store;
