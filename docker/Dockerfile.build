@@ -29,10 +29,10 @@ RUN mkdir -p /output
 #Set work directory
 WORKDIR /app
 
-# Copiar el requirements.txt
+# Copiar archivos necesarios para la compilación
 COPY scripts/requirements.txt /app/requirements.txt
-COPY docker/entrypoint.sh /app/entrypoint.sh
-COPY docker/env-setup.sh /app/env-setup.sh
+COPY docker/scripts_compilation/entrypoint.sh /app/entrypoint.sh
+COPY docker/scripts_compilation/env-setup.sh /app/env-setup.sh
 
 # 3. Instalar dependencias de Python
 #  Debian/Ubuntu también usa PEP 668, así que mantenemos --break-system-packages
