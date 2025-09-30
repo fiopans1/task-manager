@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
     git \
+    unzip \
+    lsof \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -42,6 +44,6 @@ RUN pip3 install --break-system-packages -r /app/requirements.txt
 #Define volume
 VOLUME /app/bd
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["--start-all"]
