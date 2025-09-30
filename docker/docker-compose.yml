@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  taskmanager:
+    image: fiopans1/taskmanager-deployment:latest
+    container_name: taskmanager
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    volumes:
+      - taskmanager-data:/app/bd
+    environment:
+      - BACKEND_PORT=8080
+      - FRONTEND_PORT=3000
+      - NAME_JAR_FILE=taskmanager.jar
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  taskmanager-data:
+    driver: local
