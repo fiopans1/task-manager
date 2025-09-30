@@ -161,7 +161,7 @@ class BuildTaskManager:
 
     def cleanup_caddy_temp(self):
         """Cleans up Caddy temporary files."""
-        temp_dir = self.deploy_dir / 'temp'
+        temp_dir = self.deploy_dir / 'tmp'
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
             logger.info("Caddy temporary files deleted.")

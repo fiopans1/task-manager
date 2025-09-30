@@ -5,4 +5,5 @@ application.properties
 .env
 jwtKeys
 task-manager
-TaskManager.zip
+TaskManager.zip__pycache__/
+*.pyc
