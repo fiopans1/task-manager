@@ -6,3 +6,13 @@ application.properties
 jwtKeys
 task-manager
 TaskManager.zip
+
+# Test artifacts and coverage
+**/coverage/
+**/test-results/
+**/.nyc_output/
+**/junit-reports/
+**/*.log
+**/target/
+**/.pytest_cache/
+**/__pycache__/
