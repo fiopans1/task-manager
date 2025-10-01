@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import authService from "../../services/authService";
+import configService from "../../services/configService";
 import { Container, Button, Card, Spinner, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
@@ -61,7 +62,7 @@ function OAuth2Login({ onLogin }) {
             {/* Botones OAuth2 */}
             <div className="oauth2-section mb-4">
               {/* Google */}
-              {process.env.REACT_APP_OAUTH2_GOOGLE_ENABLED === "true" && (
+              {configService.isOAuth2ProviderEnabled('google') && (
                 <Button
                   size="lg"
                   variant="outline-danger"
@@ -108,7 +109,7 @@ function OAuth2Login({ onLogin }) {
               )}
 
               {/* GitHub */}
-              {process.env.REACT_APP_OAUTH2_GITHUB_ENABLED === "true" && (
+              {configService.isOAuth2ProviderEnabled('github') && (
                 <Button
                   size="lg"
                   variant="outline-dark"
@@ -141,7 +142,7 @@ function OAuth2Login({ onLogin }) {
               )}
 
               {/* Authentik */}
-              {process.env.REACT_APP_OAUTH2_AUTHENTIK_ENABLED === "true" && (
+              {configService.isOAuth2ProviderEnabled('authentik') && (
                 <Button
                   size="lg"
                   variant="outline-dark"

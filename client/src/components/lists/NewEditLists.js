@@ -1,11 +1,8 @@
 import {
   Container,
-  Col,
   Form,
   Modal,
   Button,
-  Row,
-  Collapse,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import listService from "../../services/listService";

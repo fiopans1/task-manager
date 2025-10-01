@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Card,
@@ -57,16 +57,12 @@ const TaskDetailsActions = ({ taskId }) => {
     }
   };
 
-  // Función pública para refrescar (esta sí puede usar useCallback)
-  const refreshActions = useCallback(() => {
-    fetchData();
-  }, [taskId]);
-
   // Efecto para cargar datos iniciales - SOLO depende de taskId
   useEffect(() => {
     if (taskId) {
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]); // Solo taskId como dependencia
 
   // Efecto separado para filtros (sin llamadas al backend)
