@@ -198,6 +198,16 @@ class BuildTaskManager:
         """Compiles the frontend with npm."""
         logger.info("Compiling frontend...")
         try:
+            # Copy config template to public directory before building
+            config_template = self.scripts_dir / 'config_templates' / 'config.template.js'
+            config_dest = self.frontend_dir / 'public' / 'config.js'
+            
+            if config_template.exists():
+                shutil.copy2(config_template, config_dest)
+                logger.info(f"✓ Copied config template to: {config_dest}")
+            else:
+                logger.warning(f"✗ Config template not found: {config_template}")
+            
             subprocess.run(['npm', 'install'], cwd=self.frontend_dir, check=True)
             subprocess.run(['npm', 'run', 'build'], cwd=self.frontend_dir, check=True)
             logger.info("Frontend compiled successfully.")
@@ -213,10 +223,10 @@ class BuildTaskManager:
                 'source': self.scripts_dir / 'config_templates' / 'application-properties.template',
                 'destination': self.deploy_dir / 'config' / 'application.properties'
             },
-            # {
-            #     'source': self.scripts_dir / 'config_files' / 'env.template', 
-            #     'destination': self.deploy_dir / '.env'
-            # }
+            {
+                'source': self.scripts_dir / 'config_templates' / 'Caddyfile.template',
+                'destination': self.deploy_dir / 'config' / 'Caddyfile'
+            },
         ]
         
         for mapping in mappings:

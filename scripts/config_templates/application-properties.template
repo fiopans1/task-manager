@@ -1,62 +1,136 @@
-############################################
-#  DATOS GENERALES
-############################################
+################################################################################
+# Task Manager Application Configuration
+################################################################################
+# 
+# This file contains the configuration properties for the Task Manager
+# application. Modify the values according to your deployment environment.
+#
+# For production deployments:
+# - Update database credentials and paths
+# - Configure OAuth2 providers if needed
+# - Adjust logging levels appropriately
+# - Set proper frontend base URL
+#
+################################################################################
+
+################################################################################
+# APPLICATION SETTINGS
+################################################################################
 spring.application.name=Task Manager
+server.port=8080
+
+# Frontend base URL - Update this to match your frontend deployment URL
 taskmanager.frontend.base-url=http://localhost:3000
 
-############################################
-#  BASE DE DATOS  SQLITE
-############################################
+################################################################################
+# DATABASE CONFIGURATION - SQLite
+################################################################################
+# Database location relative to deployment root
 spring.datasource.url=jdbc:sqlite:${DEPLOY_ROOT}/metadata/task-manager.db?foreign_keys=on
 spring.datasource.driver-class-name=org.sqlite.JDBC
 spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
 
+# Connection pool settings
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
 
-############################################
-#  JPA / HIBERNATE
-############################################
-spring.jpa.hibernate.ddl-auto=create
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+################################################################################
+# JPA / HIBERNATE CONFIGURATION
+################################################################################
+# Schema generation strategy: create, create-drop, update, validate, none
+# Use 'update' for production to preserve existing data
+spring.jpa.hibernate.ddl-auto=update
+
+# SQL logging - set to false in production for performance
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=false
 spring.jpa.open-in-view=false
 
-############################################
-#  JWT, LOGGING  (sin cambios)
-############################################
+# Performance settings
+spring.jpa.properties.hibernate.jdbc.batch_size=20
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+
+################################################################################
+# SECURITY - JWT CONFIGURATION
+################################################################################
+# Paths to JWT key files relative to classpath
 jwtKeys.privateKeyPath=jwtKeys/private_key.pem
 jwtKeys.publicKeyPath=jwtKeys/public_key.pem
+
+# JWT token expiration time (in milliseconds)
+# Default: 86400000 ms = 24 hours
+# jwt.expiration=86400000
+
+################################################################################
+# LOGGING CONFIGURATION
+################################################################################
+# External logging configuration file
 logging.config=file:${DEPLOY_ROOT}/config/log-backend-config.xml
 
-############################################
-#  OAUTH2
-############################################
+# Console logging level (uncomment to override)
+# logging.level.root=INFO
+# logging.level.com.fiopans1.taskmanager=DEBUG
+
+################################################################################
+# OAUTH2 CONFIGURATION
+################################################################################
+# Enable/disable OAuth2 authentication
 taskmanager.oauth2.enabled=false
+
+# Authorized redirect URIs after successful OAuth2 authentication
 taskmanager.oauth2.authorized-redirect-uris=${taskmanager.frontend.base-url}/oauth2-login
+
 # ----------------------------
-# GOOGLE OAUTH2 CONFIGURATION
+# GOOGLE OAUTH2 PROVIDER
 # ----------------------------
+# Uncomment and configure to enable Google OAuth2 authentication
 # taskmanager.oauth2.google.enabled=true
 # spring.security.oauth2.client.registration.google.client-name=Google
-# spring.security.oauth2.client.registration.google.client-id={GOOGLE_CLIENT_ID}
-# spring.security.oauth2.client.registration.google.client-secret={GOOGLE_CLIENT_SECRET}
+# spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+# spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
 # spring.security.oauth2.client.registration.google.scope=openid,profile,email
 # spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/oauth2/callback/{registrationId}
+
 # ----------------------------
-# GITHUB OAUTH2 CONFIGURATION
+# GITHUB OAUTH2 PROVIDER
 # ----------------------------
+# Uncomment and configure to enable GitHub OAuth2 authentication
 # taskmanager.oauth2.github.enabled=true
 # spring.security.oauth2.client.registration.github.client-name=GitHub
-# spring.security.oauth2.client.registration.github.client-id={GITHUB_CLIENT_ID}
-# spring.security.oauth2.client.registration.github.client-secret={GITHUB_CLIENT_SECRET}
+# spring.security.oauth2.client.registration.github.client-id=YOUR_GITHUB_CLIENT_ID
+# spring.security.oauth2.client.registration.github.client-secret=YOUR_GITHUB_CLIENT_SECRET
 # spring.security.oauth2.client.registration.github.scope=read:user,user:email
 # spring.security.oauth2.client.registration.github.redirect-uri={baseUrl}/oauth2/callback/{registrationId}
+
 # ----------------------------
-# AUTHENTIK OAUTH2 CONFIGURATION
+# AUTHENTIK OAUTH2 PROVIDER
 # ----------------------------
+# Uncomment and configure to enable Authentik OAuth2 authentication
 # taskmanager.oauth2.authentik.enabled=false
 # spring.security.oauth2.client.registration.authentik.client-name=Authentik
-# spring.security.oauth2.client.registration.authentik.client-id={your-authentik-client-id}
-# spring.security.oauth2.client.registration.authentik.client-secret={your-authentik-client-secret}
+# spring.security.oauth2.client.registration.authentik.client-id=YOUR_AUTHENTIK_CLIENT_ID
+# spring.security.oauth2.client.registration.authentik.client-secret=YOUR_AUTHENTIK_CLIENT_SECRET
 # spring.security.oauth2.client.registration.authentik.scope=openid,profile,email
-# spring.security.oauth2.client.registration.authentik.redirect-uri={baseUrl}/oauth2/callback//{registrationId}
-# ----------------------------
+# spring.security.oauth2.client.registration.authentik.redirect-uri={baseUrl}/oauth2/callback/{registrationId}
+# spring.security.oauth2.client.provider.authentik.authorization-uri=https://YOUR_AUTHENTIK_DOMAIN/application/o/authorize/
+# spring.security.oauth2.client.provider.authentik.token-uri=https://YOUR_AUTHENTIK_DOMAIN/application/o/token/
+# spring.security.oauth2.client.provider.authentik.user-info-uri=https://YOUR_AUTHENTIK_DOMAIN/application/o/userinfo/
+# spring.security.oauth2.client.provider.authentik.jwk-set-uri=https://YOUR_AUTHENTIK_DOMAIN/application/o/jwks/
+
+################################################################################
+# ACTUATOR CONFIGURATION (Optional)
+################################################################################
+# Uncomment to enable Spring Boot Actuator endpoints
+# management.endpoints.web.exposure.include=health,info,metrics
+# management.endpoint.health.show-details=when-authorized
+
+################################################################################
+# CORS CONFIGURATION (Optional)
+################################################################################
+# Uncomment to configure CORS if needed
+# taskmanager.cors.allowed-origins=${taskmanager.frontend.base-url}
+# taskmanager.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+# taskmanager.cors.allowed-headers=*
+# taskmanager.cors.allow-credentials=true

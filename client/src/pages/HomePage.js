@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import configService from "../services/configService";
 
 const HomePage = () => {
   const navigateTo = useNavigate();
@@ -71,7 +72,7 @@ const HomePage = () => {
                 Create New Account
               </Button>
             </div>
-            {process.env.REACT_APP_OAUTH2_ENABLED === "true" && (
+            {configService.isOAuth2Enabled() && (
               <div>
                 {/* Separador */}
                 <div className="text-center mb-4">

@@ -1,11 +1,12 @@
 import axios from "axios";
 import store from "../redux/store";
+import configService from "./configService";
 
 const resourceCache = new Map();
 
 const createTask = async (task) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getApiBaseUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/create", task, {
       headers: {
@@ -21,7 +22,7 @@ const createTask = async (task) => {
 };
 const editTask = async (task) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getApiBaseUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/update/" + task.id, task, {
       headers: {
@@ -73,7 +74,7 @@ const getTasks = () => {
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   if (!serverUrl || !token) {
     console.error("No se encontró serverUrl o token", { serverUrl, token });
@@ -103,7 +104,7 @@ const getTasks = () => {
 };
 
 const deleteTask = (id) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.delete(serverUrl + "/api/tasks/delete/" + id, {
     headers: {
@@ -114,7 +115,7 @@ const deleteTask = (id) => {
 };
 
 const getEvents = () => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/events/get", {
     headers: {
@@ -125,7 +126,7 @@ const getEvents = () => {
 };
 
 const getTaskById = (id) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/" + id, {
     headers: {
@@ -136,7 +137,7 @@ const getTaskById = (id) => {
 };
 
 const createActionTask = (id, action) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.post(serverUrl + "/api/tasks/" + id + "/actions", action, {
     headers: {
@@ -147,7 +148,7 @@ const createActionTask = (id, action) => {
 };
 
 const deleteActionTask = (taskId, actionId) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.delete(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, {
     headers: {
@@ -158,7 +159,7 @@ const deleteActionTask = (taskId, actionId) => {
 };
 
 const updateActionTask = (taskId, actionId, action) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.put(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, action, {
     headers: {
@@ -169,7 +170,7 @@ const updateActionTask = (taskId, actionId, action) => {
 };
 
 const getActionsTask = (taskId) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/" + taskId + "/actions", {
     headers: {
