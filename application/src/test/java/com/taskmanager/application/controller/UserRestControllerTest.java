@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskmanager.application.model.entities.AuthProvider;
-import com.taskmanager.application.model.entities.Role;
+import com.taskmanager.application.model.entities.RoleOfUser;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.respository.UserRepository;
 
@@ -39,13 +39,13 @@ public class UserRestControllerTest extends BaseControllerTest {
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
         testUser.setAge(25);
-        testUser.setProvider(AuthProvider.LOCAL);
-        testUser.setCreatedDate(new Date());
+        testUser.addAuthProvider(AuthProvider.LOCAL);
+        testUser.setCreationDate(new Date());
 
-        Role userRole = new Role();
+        RoleOfUser userRole = new RoleOfUser("ROLE_USER");
         userRole.setId(1L);
         userRole.setName("USER");
-        testUser.setRoles(Arrays.asList(userRole));
+        testUser.addRole(userRole);
 
         // Setup admin user
         adminUser = new User();
@@ -53,13 +53,14 @@ public class UserRestControllerTest extends BaseControllerTest {
         adminUser.setUsername("adminuser");
         adminUser.setEmail("admin@example.com");
         adminUser.setAge(30);
-        adminUser.setProvider(AuthProvider.LOCAL);
-        adminUser.setCreatedDate(new Date());
+        adminUser.addAuthProvider(AuthProvider.LOCAL);
+        adminUser.setCreationDate(new Date());
 
-        Role adminRole = new Role();
+        RoleOfUser adminRole = new RoleOfUser("ROLE_ADMIN");
         adminRole.setId(2L);
         adminRole.setName("ADMIN");
-        adminUser.setRoles(Arrays.asList(userRole, adminRole));
+        adminUser.addRole(adminRole);
+        adminUser.addRole(userRole);
     }
 
     @Test

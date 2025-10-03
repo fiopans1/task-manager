@@ -27,7 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.taskmanager.application.model.dto.LoginDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.entities.AuthProvider;
-import com.taskmanager.application.model.entities.Role;
+import com.taskmanager.application.model.entities.RoleOfUser;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
@@ -67,7 +67,7 @@ public class AuthServiceTest {
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        
+
         // Setup test user
         testUser = new User();
         testUser.setId(1L);
@@ -75,13 +75,13 @@ public class AuthServiceTest {
         testUser.setEmail("test@example.com");
         testUser.setPassword(passwordEncoder.encode("password123"));
         testUser.setAge(25);
-        
-        Role userRole = new Role();
+
+        RoleOfUser userRole = new RoleOfUser("USER");
         userRole.setId(1L);
         userRole.setName("USER");
-        testUser.setRoles(Arrays.asList(userRole));
-        testUser.setProvider(AuthProvider.LOCAL);
-        testUser.setCreatedDate(new Date());
+        testUser.addRole(userRole);
+        testUser.setAuthProviders(Set.of(AuthProvider.LOCAL));
+        testUser.setCreationDate(new Date());
 
         // Setup login DTO
         loginDTO = new LoginDTO();
@@ -155,12 +155,14 @@ public class AuthServiceTest {
         newUser.setEmail("newuser@example.com");
         newUser.setPassword("password123");
         newUser.setAge(30);
-        
-        Role userRole = new Role();
+
+        RoleOfUser userRole = new RoleOfUser("USER");
+        userRole.setId(1L);
         userRole.setName("USER");
-        
-        when(userValidation.validate(any(User.class))).thenReturn(new ResponseDTO());
-        when(roleService.findRoleByName("USER")).thenReturn(Optional.of(userRole));
+
+        when(userValidation.validateUser(any(User.class))).thenReturn(new ResponseDTO());
+        when(roleService.existsBasicRole()).thenReturn(true);
+        when(roleService.getBasicRole()).thenReturn(userRole);
         when(userRepository.save(any(User.class))).thenReturn(newUser);
 
         // Act
@@ -169,8 +171,9 @@ public class AuthServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(0, result.getErrorCount());
-        verify(userValidation).validate(newUser);
-        verify(roleService).findRoleByName("USER");
+        verify(userValidation).validateUser(newUser);
+        verify(roleService).existsBasicRole();
+        verify(roleService).getBasicRole();
         verify(userRepository).save(any(User.class));
     }
 
@@ -219,8 +222,8 @@ public class AuthServiceTest {
     void testGetCurrentUserRoles() {
         // Arrange
         Collection<GrantedAuthority> authorities = Arrays.asList(
-            new SimpleGrantedAuthority("ROLE_USER"),
-            new SimpleGrantedAuthority("ROLE_ADMIN")
+                new SimpleGrantedAuthority("ROLE_USER"),
+                new SimpleGrantedAuthority("ROLE_ADMIN")
         );
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -240,8 +243,8 @@ public class AuthServiceTest {
     void testHasRole() {
         // Arrange
         Collection<GrantedAuthority> authorities = Arrays.asList(
-            new SimpleGrantedAuthority("ROLE_USER"),
-            new SimpleGrantedAuthority("ROLE_ADMIN")
+                new SimpleGrantedAuthority("ROLE_USER"),
+                new SimpleGrantedAuthority("ROLE_ADMIN")
         );
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -249,9 +252,9 @@ public class AuthServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // Act & Assert
-        assertTrue(authService.hasRole("ADMIN"));
-        assertTrue(authService.hasRole("USER"));
-        assertFalse(authService.hasRole("SUPERADMIN"));
+        assertTrue(authService.hasRole("ROLE_ADMIN"));
+        assertTrue(authService.hasRole("ROLE_USER"));
+        assertFalse(authService.hasRole("ROLE_SUPERADMIN"));
     }
 
     @Test

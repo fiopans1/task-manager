@@ -80,7 +80,7 @@ public class TaskRestControllerEnhancedTest extends BaseControllerTest {
         testActionDTO = new ActionTaskDTO();
         testActionDTO.setActionName("New Action");
         testActionDTO.setActionDescription("New Action Description");
-        testActionDTO.setActionType(ActionType.UPDATE);
+        testActionDTO.setActionType(ActionType.COMMENT);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TaskRestControllerEnhancedTest extends BaseControllerTest {
         when(authService.getCurrentUser()).thenReturn(testUser);
 
         // Act & Assert
-        mockMvc.perform(get("/api/tasks")
+        mockMvc.perform(get("/api/tasks/tasks")
                 .header("Authorization", "Bearer " + generateMockToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());

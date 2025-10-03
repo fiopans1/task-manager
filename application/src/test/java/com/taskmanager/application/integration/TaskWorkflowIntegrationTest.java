@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,8 +59,8 @@ public class TaskWorkflowIntegrationTest {
         testUser.setEmail("integration@test.com");
         testUser.setPassword("$2a$10$abc123");
         testUser.setAge(25);
-        testUser.setProvider(AuthProvider.LOCAL);
-        testUser.setCreatedDate(new Date());
+        testUser.setAuthProviders(Set.of(AuthProvider.LOCAL));
+        testUser.setCreationDate(new Date());
         testUser = userRepository.save(testUser);
     }
 
