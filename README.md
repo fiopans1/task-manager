@@ -147,11 +147,11 @@ kill -9 $(lsof -ti:3000)
 
 ### Frontend Can't Connect to Backend
 
-Check `lib/frontend/config.js` and ensure `api.baseUrl` matches your backend URL.
+Check `conf/config.js` and ensure `api.baseUrl` matches your backend URL.
 
 ### OAuth2 Issues
 
-Ensure both backend (`config/application.properties`) and frontend (`lib/frontend/config.js`) have matching OAuth2 settings enabled.
+Ensure both backend (`config/application.properties`) and frontend (`conf/config.js`) have matching OAuth2 settings enabled.
 
 ## Contributing
 

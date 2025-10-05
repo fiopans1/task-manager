@@ -70,7 +70,7 @@ spring.security.oauth2.client.provider.authentik.user-info-uri=https://YOUR_DOMA
 
 ### Frontend Configuration
 
-**File:** `lib/frontend/config.js` (copied to `public/config.js` during build)  
+**File:** `conf/config.js`  
 **Template:** `scripts/config_templates/config.template.js`
 
 #### Key Settings
@@ -119,8 +119,8 @@ The frontend loads configuration from `config.js` before the React app initializ
 - File is `.gitignore`d to prevent committing local settings
 
 **Production:**
-- Configuration is copied from template during build
-- Edit the deployed `config.js` file to change settings
+- Configuration is copied to `conf/config.js` during deployment
+- Edit the deployed `conf/config.js` file to change settings
 - No frontend rebuild required
 
 ### Web Server Configuration
@@ -166,10 +166,10 @@ python3 compile.py --action deploy
 
 This will:
 1. Build the backend with Maven
-2. Copy `config.template.js` to `client/public/config.js`
-3. Build the frontend with npm
-4. Download Caddy server
-5. Copy all configuration templates to `task-manager/config/`
+2. Build the frontend with npm (without config.js)
+3. Download Caddy server
+4. Copy all configuration templates to deployment directories
+5. Copy `config.template.js` to `task-manager/conf/config.js`
 6. Create deployment package `TaskManager.zip`
 
 ### 2. Extract Deployment Package
@@ -181,14 +181,14 @@ cd task-manager
 
 ### 3. Configure Application
 
-Edit configuration files in the `config/` directory:
+Edit configuration files in the `config/` and `conf/` directories:
 
 ```bash
 # Backend configuration
 nano config/application.properties
 
-# Frontend configuration (edit built file directly)
-nano lib/frontend/config.js
+# Frontend configuration
+nano conf/config.js
 
 # Web server configuration
 nano config/Caddyfile
@@ -261,7 +261,7 @@ This ensures backward compatibility during migration.
 
 ### Frontend can't connect to backend
 
-Check `lib/frontend/config.js`:
+Check `conf/config.js`:
 ```javascript
 api: {
   baseUrl: 'http://localhost:8080'  // Must match backend URL
@@ -276,7 +276,7 @@ api: {
    taskmanager.oauth2.google.enabled=true
    ```
 
-2. **Frontend:** Check `lib/frontend/config.js`:
+2. **Frontend:** Check `conf/config.js`:
    ```javascript
    oauth2: {
      enabled: true,
