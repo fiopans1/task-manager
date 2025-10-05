@@ -2,10 +2,11 @@ import axios from "axios";
 import store from "../redux/store";
 import { setToken, clearToken } from "../redux/slices/authSlice";
 import { decodeJwt } from "jose";
+import configService from "./configService";
 // Método para iniciar sesión y almacenar el token en localStorage
 const login = async (username, password) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const response = await axios.post(
       serverUrl + `/auth/login`,
       {
@@ -44,7 +45,7 @@ const register = async (formData) => {
         surname2: formData.surname2,
       },
     };
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const response = await axios.post(serverUrl + "/auth/register", userData);
     return response.data; // Puedes devolver los datos de respuesta, como el token, si es necesario
   } catch (error) {
@@ -100,7 +101,7 @@ const isTokenValid = () => {
 
 // Iniciar login con OAuth2 (redirige al backend)
 const loginWithOAuth2 = (provider) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getBackendUrl();
   const oauth2Url = `${serverUrl}/oauth2/authorization/${provider}`;
   
   window.location.href = oauth2Url;

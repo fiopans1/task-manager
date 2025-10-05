@@ -1,11 +1,12 @@
 import axios from "axios";
 import store from "../redux/store";
+import configService from "./configService";
 
 const resourceCache = new Map();
 
 const createList = async (list) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/lists/create", list, {
       headers: {
@@ -22,7 +23,7 @@ const createList = async (list) => {
 
 const updateList = async (list) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(
       serverUrl + "/api/lists/update/" + list.id,
@@ -78,7 +79,7 @@ const getLists = () => {
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getBackendUrl();
   const token = "Bearer " + store.getState().auth.token;
   if (!serverUrl || !token) {
     console.error("No se encontró serverUrl o token", { serverUrl, token });
@@ -108,7 +109,7 @@ const getLists = () => {
 };
 
 const deleteList = (id) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getBackendUrl();
   const token = "Bearer " + store.getState().auth.token;
   return axios
     .delete(serverUrl + "/api/lists/delete/" + id, {
@@ -121,7 +122,7 @@ const deleteList = (id) => {
 };
 
 const deleteElementList = async (id) => {
-  const serverUrl = process.env.REACT_APP_BACKEND_URL;
+  const serverUrl = configService.getBackendUrl();
   const token = "Bearer " + store.getState().auth.token;
   await axios
     .delete(serverUrl + "/api/lists/deleteElement/" + id, {
@@ -134,7 +135,7 @@ const deleteElementList = async (id) => {
 
 const createElementList = async (id, element) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(
       serverUrl + "/api/lists/addElement/" + id,
@@ -154,7 +155,7 @@ const createElementList = async (id, element) => {
 
 const updateElementList = async (id, element) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(
       serverUrl + "/api/lists/updateElement/" + id,
@@ -174,7 +175,7 @@ const updateElementList = async (id, element) => {
 
 const getElementsList = async (id) => {
   try {
-    const serverUrl = process.env.REACT_APP_BACKEND_URL;
+    const serverUrl = configService.getBackendUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.get(serverUrl + "/api/lists/getList/" + id, {
       headers: {

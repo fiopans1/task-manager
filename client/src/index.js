@@ -9,16 +9,39 @@ import { Provider } from "react-redux";
 import store, { persistor } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { ToastContainer } from "react-toastify";
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-          <Router>
-            <App />
-            <ToastContainer autoClose={3000} />
-          </Router>
-      </PersistGate>
-    </Provider>
-  </React.StrictMode>
-);
+import configService from "./services/configService";
+
+// Initialize configuration before rendering the app
+configService.loadConfig()
+  .then(() => {
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(
+      <React.StrictMode>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+              <Router>
+                <App />
+                <ToastContainer autoClose={3000} />
+              </Router>
+          </PersistGate>
+        </Provider>
+      </React.StrictMode>
+    );
+  })
+  .catch((error) => {
+    console.error("Failed to load configuration:", error);
+    // Render app anyway with fallback to environment variables
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(
+      <React.StrictMode>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+              <Router>
+                <App />
+                <ToastContainer autoClose={3000} />
+              </Router>
+          </PersistGate>
+        </Provider>
+      </React.StrictMode>
+    );
+  });

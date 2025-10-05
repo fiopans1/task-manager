@@ -2,6 +2,28 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Configuration
+
+This application uses an external configuration system for runtime settings. See [CONFIGURATION.md](../CONFIGURATION.md) for detailed information.
+
+### Quick Start
+
+1. Copy the configuration template:
+   ```bash
+   cp config-template.json public/config.json
+   ```
+
+2. Edit `public/config.json` with your backend URL:
+   ```json
+   {
+     "BACKEND_URL": "http://localhost:8080"
+   }
+   ```
+
+3. Start the development server (see below)
+
+The configuration file supports runtime changes without rebuilding, making it ideal for different deployment environments.
+
 ## Available Scripts
 
 In the project directory, you can run:

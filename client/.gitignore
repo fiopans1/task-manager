@@ -11,6 +11,9 @@
 # production
 /build
 
+# configuration (use config-template.json as reference)
+/public/config.json
+
 # misc
 .DS_Store
 .env.local
