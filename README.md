@@ -1,34 +1,165 @@
-# task-manager
+# Task Manager
 
-This is my personal task manager application
+A professional task management application with calendar integration, custom lists, and OAuth2 authentication support.
 
-## Lanzar el deploy:
+## Features
 
-python3 compile.py --action deploy --name-jar-file taskmanager-0.0.1-Alpha.jar --name-final-file TaskManager
+- ✅ Task creation and management with priorities and states
+- 📅 Calendar integration for task scheduling
+- 📋 Custom lists for organizing tasks
+- ⏱️ Time tracking for tasks
+- 🔐 OAuth2 authentication (Google, GitHub, Authentik)
+- 🎨 Modern, responsive UI
 
-## Ejecutar el start:
+## Quick Start
 
-python3 start.py --start-all --name-jar-file taskmanager-0.0.1-Alpha.jar
+### Prerequisites
 
-kill -9 $(lsof -ti:8080)
+- Java 17 or higher
+- Maven 3.6+
+- Node.js 18+ and npm
+- Python 3.8+
 
-./caddy run --config ../config/Caddyfile --adapter caddyfile 
-## Generar las claves:
+### Building the Application
 
-### Generar clave privada
+```bash
+cd scripts
+python3 compile.py --action deploy
+```
 
+This will create a `TaskManager.zip` file containing the complete deployment package.
+
+### Running the Application
+
+1. Extract the deployment package:
+```bash
+unzip TaskManager.zip
+cd task-manager
+```
+
+2. Configure the application (see [Configuration Guide](docs/CONFIGURATION.md))
+
+3. Start the application:
+```bash
+cd bin
+python3 start.py --start-all
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+
+## Configuration
+
+The application uses a professional configuration system with separate files for backend, frontend, and web server.
+
+See the [Configuration Guide](docs/CONFIGURATION.md) for detailed information on:
+- Application settings
+- OAuth2 provider setup
+- Frontend configuration
+- Web server customization
+- Deployment best practices
+
+## Development
+
+### Backend Development
+
+```bash
+cd application
+mvn spring-boot:run
+```
+
+### Frontend Development
+
+```bash
+cd client
+npm install
+npm start
+```
+
+Don't forget to create a `client/public/config.js` file for development (see template in `scripts/config_templates/config.template.js`).
+
+## Security
+
+### Generating JWT Keys
+
+The application uses RSA keys for JWT token signing:
+
+```bash
+# Generate private key
 openssl genrsa -out src/main/resources/keys/private_key.pem 2048
 
-### Generar clave pública
-
+# Generate public key
 openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/resources/keys/public_key.pem
+```
 
+## Docker Build
 
-#Compilar con docker:
+Build the application using Docker:
 
-docker build -f /scripts/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
+```bash
+docker build -f scripts/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
+docker run -v /path/to/output:/output fiopans1/taskmanager-compilation:alpha
+```
 
-docker run  -v <rutalocal>:/output fiopans1/taskmanager-compilation:alpha
+## Project Structure
+
+```
+task-manager/
+├── application/          # Spring Boot backend
+├── client/              # React frontend
+├── scripts/             # Build and deployment scripts
+│   ├── config_templates/  # Configuration templates
+│   ├── config_files/      # Static configuration files
+│   └── bin_files/         # Runtime scripts
+├── docs/                # Documentation
+└── docker/              # Docker configurations
+```
+
+## Architecture
+
+- **Backend:** Spring Boot 3.x with Spring Security, JPA, and OAuth2
+- **Frontend:** React 18 with Redux Toolkit, React Router, and Bootstrap
+- **Database:** SQLite (can be configured for other databases)
+- **Web Server:** Caddy server for serving frontend SPA
+
+## Upgrading from Environment Variables
+
+If you're upgrading from a version that used `REACT_APP_*` environment variables, the new configuration system provides better flexibility:
+
+- **No rebuild required** for configuration changes
+- **Single deployment artifact** works in multiple environments
+- **Runtime configuration** loaded from `config.js`
+
+See the [Configuration Guide](docs/CONFIGURATION.md) for migration details.
+
+## Troubleshooting
+
+### Port Already in Use
+
+```bash
+# Kill process on port 8080 (backend)
+kill -9 $(lsof -ti:8080)
+
+# Kill process on port 3000 (frontend)
+kill -9 $(lsof -ti:3000)
+```
+
+### Frontend Can't Connect to Backend
+
+Check `lib/frontend/config.js` and ensure `api.baseUrl` matches your backend URL.
+
+### OAuth2 Issues
+
+Ensure both backend (`config/application.properties`) and frontend (`lib/frontend/config.js`) have matching OAuth2 settings enabled.
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+1. Code follows existing style conventions
+2. All tests pass
+3. Configuration changes are documented
+4. No secrets are committed to version control
 
 ## License
 
