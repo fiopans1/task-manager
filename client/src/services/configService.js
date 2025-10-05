@@ -7,6 +7,14 @@ let config = null;
 let configPromise = null;
 
 /**
+ * Resets the configuration state (mainly for testing)
+ */
+const resetConfig = () => {
+  config = null;
+  configPromise = null;
+};
+
+/**
  * Fetches the configuration file with cache-busting
  * @returns {Promise<Object>} Configuration object
  */
@@ -70,8 +78,7 @@ const getBackendUrl = () => {
  * @returns {Promise<Object>} Updated configuration object
  */
 const reloadConfig = async () => {
-  config = null;
-  configPromise = null;
+  resetConfig();
   return loadConfig();
 };
 
@@ -93,7 +100,8 @@ const configService = {
   loadConfig,
   getBackendUrl,
   reloadConfig,
-  getConfigValue
+  getConfigValue,
+  resetConfig // Export for testing
 };
 
 export default configService;
