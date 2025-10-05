@@ -198,15 +198,8 @@ class BuildTaskManager:
         """Compiles the frontend with npm."""
         logger.info("Compiling frontend...")
         try:
-            # Copy config template to public directory before building
-            config_template = self.scripts_dir / 'config_templates' / 'config.template.js'
-            config_dest = self.frontend_dir / 'public' / 'config.js'
-            
-            if config_template.exists():
-                shutil.copy2(config_template, config_dest)
-                logger.info(f"✓ Copied config template to: {config_dest}")
-            else:
-                logger.warning(f"✗ Config template not found: {config_template}")
+            # Note: config.js is no longer copied to public directory before building
+            # It will be deployed separately to the /conf directory
             
             subprocess.run(['npm', 'install'], cwd=self.frontend_dir, check=True)
             subprocess.run(['npm', 'run', 'build'], cwd=self.frontend_dir, check=True)
@@ -226,6 +219,10 @@ class BuildTaskManager:
             {
                 'source': self.scripts_dir / 'config_templates' / 'Caddyfile.template',
                 'destination': self.deploy_dir / 'config' / 'Caddyfile'
+            },
+            {
+                'source': self.scripts_dir / 'config_templates' / 'config.template.js',
+                'destination': self.deploy_dir / 'conf' / 'config.js'
             },
         ]
         
@@ -280,6 +277,8 @@ class BuildTaskManager:
         self.deploy_lib_dir = self.deploy_dir / 'lib'
         (self.deploy_dir / 'config').mkdir(parents=True)
         self.deploy_config_dir = self.deploy_dir / 'config'
+        (self.deploy_dir / 'conf').mkdir(parents=True)
+        self.deploy_conf_dir = self.deploy_dir / 'conf'
         (self.deploy_dir / 'metadata').mkdir(parents=True)
         self.deploy_metadata_dir = self.deploy_dir / 'metadata'
 

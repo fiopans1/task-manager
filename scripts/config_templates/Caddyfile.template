@@ -20,6 +20,12 @@
     # FILE SERVING & SPA ROUTING
     ################################################################################
     
+    # Serve config.js from the conf directory
+    handle /config.js {
+        root * ../conf
+        file_server
+    }
+    
     # Enable file server for static assets
     file_server
     
@@ -69,15 +75,23 @@
     
     # Cache static assets with versioned filenames aggressively
     @static {
-        path *.js *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico *.webp
+        path *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico *.webp
+        not path /config.js
     }
     header @static Cache-Control "public, max-age=31536000, immutable"
     
-    # Cache index.html and manifest with shorter TTL (no cache)
-    @html {
-        path /index.html /manifest.json /robots.txt
+    # Cache versioned JS files aggressively (except config.js)
+    @versioned_js {
+        path *.js
+        not path /config.js
     }
-    header @html Cache-Control "public, max-age=0, must-revalidate"
+    header @versioned_js Cache-Control "public, max-age=31536000, immutable"
+    
+    # Cache index.html, manifest, and config.js with shorter TTL (no cache)
+    @no_cache {
+        path /index.html /manifest.json /robots.txt /config.js
+    }
+    header @no_cache Cache-Control "public, max-age=0, must-revalidate"
     
     ################################################################################
     # LOGGING (Optional - Uncomment to enable)
@@ -116,6 +130,13 @@
 #
 # yourdomain.com {
 #     root * ../lib/frontend
+#     
+#     # Serve config.js from the conf directory
+#     handle /config.js {
+#         root * ../conf
+#         file_server
+#     }
+#     
 #     file_server
 #     try_files {path} /index.html
 #     encode gzip
@@ -132,14 +153,21 @@
 #     
 #     # Caching (same as above)
 #     @static {
-#         path *.js *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico *.webp
+#         path *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico *.webp
+#         not path /config.js
 #     }
 #     header @static Cache-Control "public, max-age=31536000, immutable"
 #     
-#     @html {
-#         path /index.html /manifest.json /robots.txt
+#     @versioned_js {
+#         path *.js
+#         not path /config.js
 #     }
-#     header @html Cache-Control "public, max-age=0, must-revalidate"
+#     header @versioned_js Cache-Control "public, max-age=31536000, immutable"
+#     
+#     @no_cache {
+#         path /index.html /manifest.json /robots.txt /config.js
+#     }
+#     header @no_cache Cache-Control "public, max-age=0, must-revalidate"
 #     
 #     # Automatic HTTPS with Let's Encrypt
 #     tls your-email@example.com
