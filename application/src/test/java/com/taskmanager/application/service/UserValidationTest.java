@@ -192,8 +192,6 @@ public class UserValidationTest {
     void testValidate_UsernameWithSpecialChars() {
         // Arrange
         validUser.setUsername("user_name-123");
-        when(userRepository.existsByUsername(any())).thenReturn(false);
-        when(userRepository.existsByEmail(any())).thenReturn(false);
 
         // Act
         ResponseDTO result = userValidation.validateUser(validUser);
