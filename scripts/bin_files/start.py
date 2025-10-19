@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scrip para incio de la aplicación Task Manager
+Script para inicio de la aplicación Task Manager
 """
 import os
 import time
@@ -22,6 +22,16 @@ class StartBackendTaskManager:
         self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_port = backend_port
+        
+        
+        # Validate that required files exist
+        if not self.backend_jar_dir.exists():
+            logger.error(f"Backend JAR file not found: {self.backend_jar_dir}")
+            raise FileNotFoundError(f"Backend JAR file not found: {self.backend_jar_dir}")
+
+        if not self.backend_config_dir.exists():
+            logger.warning(f"Configuration file not found: {self.backend_config_dir}")
+            logger.warning("Backend will start with default configuration")
     
     def start_task_manager_back(self):
 
@@ -38,7 +48,15 @@ class StartBackendTaskManager:
             f'--server.port={self.backend_port}',
         ]
         logger.info(f"Starting backend on port {self.backend_port}")
-        return subprocess.Popen(cmd)
+        try:
+            return subprocess.Popen(cmd)
+        except FileNotFoundError as e:
+            logger.error(f"Failed to start backend: {e}")
+            logger.error("Make sure Java is installed and the JAR file exists")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error starting backend: {e}")
+            sys.exit(1)
     
 
 class StartFrontendTaskManager:
@@ -47,6 +65,16 @@ class StartFrontendTaskManager:
         self.frontend_dir = self.project_root / 'lib' / 'frontend'
         self.caddy_executable = self.project_root / 'lib'
         self.frontend_port = frontend_port
+        
+        # Validate that required directories exist
+        if not self.frontend_dir.exists():
+            logger.error(f"Frontend directory not found: {self.frontend_dir}")
+            raise FileNotFoundError(f"Frontend directory not found: {self.frontend_dir}")
+
+        caddy_path = self.caddy_executable / 'caddy'
+        if not caddy_path.exists():
+            logger.error(f"Caddy executable not found: {caddy_path}")
+            raise FileNotFoundError(f"Caddy executable not found: {caddy_path}")
 
     def start_task_manager_front(self):
         """Iniciar en modo producción"""
@@ -55,7 +83,15 @@ class StartFrontendTaskManager:
             './caddy',
             'run', '--config', '../config/Caddyfile', '--adapter', 'caddyfile'
         ]
-        return subprocess.Popen(cmd, cwd=self.caddy_executable)
+        try:
+            return subprocess.Popen(cmd, cwd=self.caddy_executable)
+        except FileNotFoundError as e:
+            logger.error(f"Failed to start frontend: {e}")
+            logger.error("Make sure Caddy executable exists in lib directory")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error starting frontend: {e}")
+            sys.exit(1)
 
 class StartTaskManager:
     def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080, frontend_port=3000):
@@ -130,12 +166,22 @@ def main():
         script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         logger.info(f"Using current directory as project root: {script_dir}")
     
-    starter = StartTaskManager(
-        script_dir, 
-        args.name_jar_file, 
-        args.backend_port, 
-        args.frontend_port
-    )
+    # Validate at least one action is specified
+    if not (args.start_backend or args.start_frontend or args.start_all):
+        logger.error("Error: You must specify at least one action")
+        parser.print_help()
+        sys.exit(1)
+
+    try:
+        starter = StartTaskManager(
+            script_dir, 
+            args.name_jar_file, 
+            args.backend_port, 
+            args.frontend_port
+        )
+    except FileNotFoundError as e:
+        logger.error(f"Initialization failed: {e}")
+        sys.exit(1)
     
     logger.info(f"Configuration:")
     logger.info(f"  - Backend port: {args.backend_port}")

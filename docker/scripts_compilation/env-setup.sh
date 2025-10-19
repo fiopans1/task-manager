@@ -4,7 +4,7 @@ set_default() {
     local default_value=$2
     
     if [ -z "${!var_name}" ]; then
-        export $var_name="$default_value"
+        export "${var_name}=${default_value}"
         echo "   $var_name: $default_value (default)"
     else
         echo "   $var_name: ${!var_name} (existing)"

@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+.npm
+
+# Java/Maven
+application/target
+*.class
+*.log
+
+# Build outputs (except TaskManager.zip which is needed for deployment)
+task-manager/
+dist/
+build/
+
+# Source code (not needed in deployment image)
+application/
+client/
+scripts/
+!scripts/requirements.txt
+
+# Environment
+.env
+*.db
+jwtKeys/
+
+# Keep these
+!TaskManager.zip
+!README.md
+!docker/
