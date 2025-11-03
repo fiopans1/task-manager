@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 #Create bd directory
-RUN mkdir -p /app/bd
+RUN mkdir -p /app/metadata
 
 # Copiar archivos necesarios para la ejecución
 COPY scripts/requirements.txt /app/requirements.txt
@@ -42,7 +42,7 @@ COPY TaskManager.zip /app/TaskManager.zip
 RUN pip3 install --break-system-packages -r /app/requirements.txt
 
 #Define volume
-VOLUME /app/bd
+VOLUME /app/metadata
 
 RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -17,17 +17,31 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class StartBackendTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080):
+    def __init__(self, project_root, backend_port=8080):
         self.project_root = Path(project_root).resolve()
-        self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
+        self.backend_dir = self.project_root / 'lib' / 'backend'
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_port = backend_port
+        self.backend_jar_path = None
         
+        # Buscar el archivo JAR en el directorio backend
+        if not self.backend_dir.exists():
+            logger.error(f"Backend directory not found: {self.backend_dir}")
+            raise FileNotFoundError(f"Backend directory not found: {self.backend_dir}")
         
-        # Validate that required files exist
-        if not self.backend_jar_dir.exists():
-            logger.error(f"Backend JAR file not found: {self.backend_jar_dir}")
-            raise FileNotFoundError(f"Backend JAR file not found: {self.backend_jar_dir}")
+        jar_files = list(self.backend_dir.glob('*.jar'))
+        
+        if len(jar_files) == 0:
+            logger.error(f"No JAR file found in: {self.backend_dir}")
+            raise FileNotFoundError(f"No JAR file found in: {self.backend_dir}")
+        elif len(jar_files) > 1:
+            logger.warning(f"Multiple JAR files found in {self.backend_dir}:")
+            for jar in jar_files:
+                logger.warning(f"  - {jar.name}")
+            logger.info(f"Using the first one: {jar_files[0].name}")
+        
+        self.backend_jar_path = jar_files[0]
+        logger.info(f"Found backend JAR: {self.backend_jar_path.name}")
 
         if not self.backend_config_dir.exists():
             logger.warning(f"Configuration file not found: {self.backend_config_dir}")
@@ -42,7 +56,7 @@ class StartBackendTaskManager:
             os.environ[key] = str(value)
         cmd = [
             'java',
-            '-jar', str(self.backend_jar_dir),
+            '-jar', str(self.backend_jar_path),
             f'--spring.config.location=file:{self.backend_config_dir}',
             '--spring.profiles.active=prod',
             f'--server.port={self.backend_port}',
@@ -94,13 +108,11 @@ class StartFrontendTaskManager:
             sys.exit(1)
 
 class StartTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080, frontend_port=3000):
+    def __init__(self, project_root, backend_port=8080, frontend_port=3000):
         self.project_root = Path(project_root).resolve()
-        self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
-        self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_port = backend_port
         self.frontend_port = frontend_port
-        self.backend_starter = StartBackendTaskManager(project_root, name_jar_file, backend_port)
+        self.backend_starter = StartBackendTaskManager(project_root, backend_port)
         self.frontend_starter = StartFrontendTaskManager(self.project_root, frontend_port)
 
     def start_backend(self):
@@ -147,8 +159,6 @@ def main():
                         help='Iniciar solo el frontend')
     parser.add_argument('--start-all', action='store_true',
                         help='Iniciar tanto el backend como el frontend')
-    parser.add_argument('--name-jar-file', default='taskmanager.jar',
-                        help='Nombre del archivo JAR del backend')
     parser.add_argument('--project-root', 
                         help='Ruta del directorio raíz del proyecto (por defecto: directorio actual)')
     parser.add_argument('--backend-port', type=int, default=8080,
@@ -175,7 +185,6 @@ def main():
     try:
         starter = StartTaskManager(
             script_dir, 
-            args.name_jar_file, 
             args.backend_port, 
             args.frontend_port
         )
@@ -185,8 +194,7 @@ def main():
     
     logger.info(f"Configuration:")
     logger.info(f"  - Backend port: {args.backend_port}")
-    logger.info(f"  - Frontend port: {args.frontend_port}")
-    logger.info(f"  - JAR file: {args.name_jar_file}")  
+    logger.info(f"  - Frontend port: {args.frontend_port}")  
     
     if args.start_backend:
         starter.start_backend()
