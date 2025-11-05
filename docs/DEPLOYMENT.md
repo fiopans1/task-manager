@@ -114,7 +114,6 @@ docker run -d \
 |----------|-------------|-------------------|
 | `BACKEND_PORT` | Puerto del backend | `8080` |
 | `FRONTEND_PORT` | Puerto del frontend | `3000` |
-| `NAME_JAR_FILE` | Nombre del archivo JAR | `taskmanager.jar` |
 | `PROJECT_ROOT` | Directorio raíz del proyecto | `/app/task-manager` |
 
 ### Argumentos del Contenedor

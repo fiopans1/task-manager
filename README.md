@@ -98,7 +98,7 @@ openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/re
 Build the application using Docker:
 
 ```bash
-docker build -f scripts/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
+docker build -f docker/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
 docker run -v /path/to/output:/output fiopans1/taskmanager-compilation:alpha
 ```
 

@@ -29,6 +29,7 @@ WORKDIR /app
 
 #Create bd directory
 RUN mkdir -p /app/metadata
+RUN mkdir -p /files_to_copy
 
 # Copiar archivos necesarios para la ejecución
 COPY scripts/requirements.txt /app/requirements.txt
@@ -43,6 +44,7 @@ RUN pip3 install --break-system-packages -r /app/requirements.txt
 
 #Define volume
 VOLUME /app/metadata
+VOLUME /files_to_copy
 
 RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

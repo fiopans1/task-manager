@@ -28,6 +28,14 @@ log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
 
+# Verificar que PROJECT_ROOT esté definido
+if [ -z "$PROJECT_ROOT" ]; then
+    log_error "Error: La variable PROJECT_ROOT no está definida"
+    exit 1
+fi
+
+log_info "Usando PROJECT_ROOT: $PROJECT_ROOT"
+
 # Función principal para preparar el entorno
 prepare_environment() {
     local zip_file="/app/TaskManager.zip"
@@ -56,8 +64,8 @@ prepare_environment() {
     log "✓ Archivo extraído correctamente"
 
     # Verificar que la estructura esperada existe
-    if [ ! -d "/app/task-manager" ]; then
-        log_error "Error: No se encontró el directorio /app/task-manager después de la extracción"
+    if [ ! -d "$PROJECT_ROOT" ]; then
+        log_error "Error: No se encontró el directorio $PROJECT_ROOT después de la extracción"
         exit 1
     fi
 
@@ -66,39 +74,98 @@ prepare_environment() {
     # Dar permisos de ejecución a los scripts
     log "Configurando permisos de ejecución..."
 
-    if [ -f "/app/task-manager/bin/start.py" ]; then
-        chmod +x /app/task-manager/bin/start.py
+    if [ -f "$PROJECT_ROOT/bin/start.py" ]; then
+        chmod +x "$PROJECT_ROOT/bin/start.py"
         log "✓ Permisos configurados para start.py"
     else
-        log_warning "No se encontró /app/task-manager/bin/start.py"
+        log_warning "No se encontró $PROJECT_ROOT/bin/start.py"
     fi
 
-    if [ -f "/app/task-manager/bin/stop.py" ]; then
-        chmod +x /app/task-manager/bin/stop.py
+    if [ -f "$PROJECT_ROOT/bin/stop.py" ]; then
+        chmod +x "$PROJECT_ROOT/bin/stop.py"
         log "✓ Permisos configurados para stop.py"
     else
-        log_warning "No se encontró /app/task-manager/bin/stop.py"
+        log_warning "No se encontró $PROJECT_ROOT/bin/stop.py"
     fi
 
-    if [ -f "/app/task-manager/lib/caddy" ]; then
-        chmod +x /app/task-manager/lib/caddy
+    if [ -f "$PROJECT_ROOT/lib/caddy" ]; then
+        chmod +x "$PROJECT_ROOT/lib/caddy"
         log "✓ Permisos configurados para caddy"
     else
-        log_warning "No se encontró /app/task-manager/lib/caddy"
+        log_warning "No se encontró $PROJECT_ROOT/lib/caddy"
     fi
 
     # Verificar estructura de directorios
     log_info "Estructura de directorios:"
-    ls -la /app/task-manager/ || true
+    ls -la "$PROJECT_ROOT/" || true
 
-    log_info "Contenido de /app/task-manager/lib:"
-    ls -la /app/task-manager/lib/ || true
+    log_info "Contenido de $PROJECT_ROOT/lib:"
+    ls -la "$PROJECT_ROOT/lib/" || true
 
-    log_info "Contenido de /app/task-manager/bin:"
-    ls -la /app/task-manager/bin/ || true
+    log_info "Contenido de $PROJECT_ROOT/bin:"
+    ls -la "$PROJECT_ROOT/bin/" || true
 
     log "✅ Entorno preparado correctamente"
 }
 
-# Ejecutar la función principal
+# Función para copiar archivos de configuración desde el volumen compartido
+copy_config_files() {
+    local volume_dir="/files_to_copy"
+    
+    log "Verificando archivos de configuración personalizados..."
+
+    # Verificar si el directorio del volumen existe
+    if [ ! -d "$volume_dir" ]; then
+        log_warning "Directorio $volume_dir no encontrado. Usando configuración por defecto."
+        return 0
+    fi
+
+    log_info "Directorio de configuración personalizada encontrado: $volume_dir"
+
+    # Copiar application.properties si existe
+    if [ -f "$volume_dir/application.properties" ]; then
+        log_info "Copiando application.properties personalizado..."
+        cp "$volume_dir/application.properties" "$PROJECT_ROOT/config/application.properties"
+        log "✓ application.properties actualizado"
+    else
+        log_info "No se encontró application.properties personalizado. Usando el existente."
+    fi
+
+    # Copiar Caddyfile si existe
+    if [ -f "$volume_dir/Caddyfile" ]; then
+        log_info "Copiando Caddyfile personalizado..."
+        cp "$volume_dir/Caddyfile" "$PROJECT_ROOT/config/Caddyfile"
+        log "✓ Caddyfile actualizado"
+    else
+        log_info "No se encontró Caddyfile personalizado. Usando el existente."
+    fi
+
+    # Copiar log-backend-config.xml si existe
+    if [ -f "$volume_dir/log-backend-config.xml" ]; then
+        log_info "Copiando log-backend-config.xml personalizado..."
+        cp "$volume_dir/log-backend-config.xml" "$PROJECT_ROOT/config/log-backend-config.xml"
+        log "✓ log-backend-config.xml actualizado"
+    else
+        log_info "No se encontró log-backend-config.xml personalizado. Usando el existente."
+    fi
+
+    # Copiar config.js si existe
+    if [ -f "$volume_dir/config.js" ]; then
+        log_info "Copiando config.js personalizado..."
+        # Verificar que el directorio frontend existe
+        if [ -d "$PROJECT_ROOT/lib/frontend" ]; then
+            cp "$volume_dir/config.js" "$PROJECT_ROOT/lib/frontend/config.js"
+            log "✓ config.js actualizado"
+        else
+            log_warning "Directorio $PROJECT_ROOT/lib/frontend no encontrado. No se puede copiar config.js"
+        fi
+    else
+        log_info "No se encontró config.js personalizado. Usando el existente."
+    fi
+
+    log "✅ Verificación de archivos de configuración completada"
+}
+
+# Ejecutar las funciones principales
 prepare_environment
+copy_config_files

@@ -31,37 +31,31 @@ log_info() {
 # Función para mostrar la ayuda
 show_help() {
     echo "Uso: $0 [opciones]"
-    echo ""
-    echo "Opciones disponibles:"
-    echo "  --start-all               Iniciar backend y frontend (default)"
-    echo "  --start-backend           Iniciar solo el backend"
-    echo "  --start-frontend          Iniciar solo el frontend"
-    echo "  --stop                    Detener la aplicación"
-    echo "  --stop-backend            Detener solo el backend"
-    echo "  --stop-frontend           Detener solo el frontend"
-    echo "  --backend-port PORT       Puerto del backend (default: 8080)"
-    echo "  --frontend-port PORT      Puerto del frontend (default: 3000)"
-    echo "  --name-jar-file FILE      Nombre del archivo JAR (default: taskmanager.jar)"
-    echo "  bash                      Iniciar sesión de bash interactiva"
-    echo "  help                      Mostrar esta ayuda"
-    echo ""
-    echo "Ejemplos:"
-    echo "  $0 --start-all"
-    echo "  $0 --start-backend --backend-port 8080"
-    echo "  $0 --stop"
-    echo "  $0 bash"
+    # echo ""
+    # echo "Opciones disponibles:"
+    # echo "  --start-all               Iniciar backend y frontend (default)"
+    # echo "  --start-backend           Iniciar solo el backend"
+    # echo "  --start-frontend          Iniciar solo el frontend"
+    # echo "  --stop                    Detener la aplicación"
+    # echo "  --stop-backend            Detener solo el backend"
+    # echo "  --stop-frontend           Detener solo el frontend"
+    # echo "  --backend-port PORT       Puerto del backend (default: 8080)"
+    # echo "  --frontend-port PORT      Puerto del frontend (default: 3000)"
+    # echo "  --name-jar-file FILE      Nombre del archivo JAR (default: taskmanager.jar)"
+    # echo "  bash                      Iniciar sesión de bash interactiva"
+    # echo "  help                      Mostrar esta ayuda"
+    # echo ""
+    # echo "Ejemplos:"
+    # echo "  $0 --start-all"
+    # echo "  $0 --start-backend --backend-port 8080"
+    # echo "  $0 --stop"
+    # echo "  $0 bash"
 }
 
 # Cargar configuración de variables de entorno
 if [ -f "/app/env-setup.sh" ]; then
     log "Cargando configuración de variables de entorno desde /app/env-setup.sh..."
     source /app/env-setup.sh
-else
-    log_warning "No se encontró el archivo /app/env-setup.sh. Usando valores por defecto."
-    export NAME_JAR_FILE="taskmanager.jar"
-    export BACKEND_PORT="8080"
-    export FRONTEND_PORT="3000"
-    export PROJECT_ROOT="/app/task-manager"
 fi
 
 # Función para preparar el entorno si es necesario
@@ -84,7 +78,6 @@ start_application() {
     local start_mode=$1
     local backend_port=${2:-$BACKEND_PORT}
     local frontend_port=${3:-$FRONTEND_PORT}
-    local jar_file=${4:-$NAME_JAR_FILE}
 
     prepare_if_needed
 
@@ -92,7 +85,6 @@ start_application() {
     log_info "Modo: $start_mode"
     log_info "Backend port: $backend_port"
     log_info "Frontend port: $frontend_port"
-    log_info "JAR file: $jar_file"
 
     cd /app/task-manager/bin
 
@@ -102,13 +94,11 @@ start_application() {
                 --project-root /app/task-manager \
                 --backend-port "$backend_port" \
                 --frontend-port "$frontend_port" \
-                --name-jar-file "$jar_file"
             ;;
         "backend")
             python3 start.py --start-backend \
                 --project-root /app/task-manager \
                 --backend-port "$backend_port" \
-                --name-jar-file "$jar_file"
             ;;
         "frontend")
             python3 start.py --start-frontend \
@@ -170,7 +160,6 @@ ACTION="start"
 MODE="all"
 CUSTOM_BACKEND_PORT=""
 CUSTOM_FRONTEND_PORT=""
-CUSTOM_JAR_FILE=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -212,10 +201,6 @@ while [[ $# -gt 0 ]]; do
             CUSTOM_FRONTEND_PORT="$2"
             shift 2
             ;;
-        --name-jar-file)
-            CUSTOM_JAR_FILE="$2"
-            shift 2
-            ;;
         bash)
             log "Iniciando sesión de bash..."
             exec bash
@@ -235,12 +220,11 @@ done
 # Usar valores personalizados si se proporcionan, de lo contrario usar los por defecto
 BACKEND_PORT=${CUSTOM_BACKEND_PORT:-$BACKEND_PORT}
 FRONTEND_PORT=${CUSTOM_FRONTEND_PORT:-$FRONTEND_PORT}
-NAME_JAR_FILE=${CUSTOM_JAR_FILE:-$NAME_JAR_FILE}
 
 # Ejecutar la acción correspondiente
 case "$ACTION" in
     start)
-        start_application "$MODE" "$BACKEND_PORT" "$FRONTEND_PORT" "$NAME_JAR_FILE"
+        start_application "$MODE" "$BACKEND_PORT" "$FRONTEND_PORT"
         ;;
     stop)
         stop_application "$MODE" "$BACKEND_PORT" "$FRONTEND_PORT"
