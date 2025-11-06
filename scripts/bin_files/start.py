@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scrip para incio de la aplicación Task Manager
+Script para inicio de la aplicación Task Manager
 """
 import os
 import time
@@ -17,11 +17,35 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class StartBackendTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080):
+    def __init__(self, project_root, backend_port=8080):
         self.project_root = Path(project_root).resolve()
-        self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
+        self.backend_dir = self.project_root / 'lib' / 'backend'
         self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_port = backend_port
+        self.backend_jar_path = None
+        
+        # Buscar el archivo JAR en el directorio backend
+        if not self.backend_dir.exists():
+            logger.error(f"Backend directory not found: {self.backend_dir}")
+            raise FileNotFoundError(f"Backend directory not found: {self.backend_dir}")
+        
+        jar_files = list(self.backend_dir.glob('*.jar'))
+        
+        if len(jar_files) == 0:
+            logger.error(f"No JAR file found in: {self.backend_dir}")
+            raise FileNotFoundError(f"No JAR file found in: {self.backend_dir}")
+        elif len(jar_files) > 1:
+            logger.warning(f"Multiple JAR files found in {self.backend_dir}:")
+            for jar in jar_files:
+                logger.warning(f"  - {jar.name}")
+            logger.info(f"Using the first one: {jar_files[0].name}")
+        
+        self.backend_jar_path = jar_files[0]
+        logger.info(f"Found backend JAR: {self.backend_jar_path.name}")
+
+        if not self.backend_config_dir.exists():
+            logger.warning(f"Configuration file not found: {self.backend_config_dir}")
+            logger.warning("Backend will start with default configuration")
     
     def start_task_manager_back(self):
 
@@ -32,13 +56,21 @@ class StartBackendTaskManager:
             os.environ[key] = str(value)
         cmd = [
             'java',
-            '-jar', str(self.backend_jar_dir),
+            '-jar', str(self.backend_jar_path),
             f'--spring.config.location=file:{self.backend_config_dir}',
             '--spring.profiles.active=prod',
             f'--server.port={self.backend_port}',
         ]
         logger.info(f"Starting backend on port {self.backend_port}")
-        return subprocess.Popen(cmd)
+        try:
+            return subprocess.Popen(cmd)
+        except FileNotFoundError as e:
+            logger.error(f"Failed to start backend: {e}")
+            logger.error("Make sure Java is installed and the JAR file exists")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error starting backend: {e}")
+            sys.exit(1)
     
 
 class StartFrontendTaskManager:
@@ -47,6 +79,16 @@ class StartFrontendTaskManager:
         self.frontend_dir = self.project_root / 'lib' / 'frontend'
         self.caddy_executable = self.project_root / 'lib'
         self.frontend_port = frontend_port
+        
+        # Validate that required directories exist
+        if not self.frontend_dir.exists():
+            logger.error(f"Frontend directory not found: {self.frontend_dir}")
+            raise FileNotFoundError(f"Frontend directory not found: {self.frontend_dir}")
+
+        caddy_path = self.caddy_executable / 'caddy'
+        if not caddy_path.exists():
+            logger.error(f"Caddy executable not found: {caddy_path}")
+            raise FileNotFoundError(f"Caddy executable not found: {caddy_path}")
 
     def start_task_manager_front(self):
         """Iniciar en modo producción"""
@@ -55,16 +97,22 @@ class StartFrontendTaskManager:
             './caddy',
             'run', '--config', '../config/Caddyfile', '--adapter', 'caddyfile'
         ]
-        return subprocess.Popen(cmd, cwd=self.caddy_executable)
+        try:
+            return subprocess.Popen(cmd, cwd=self.caddy_executable)
+        except FileNotFoundError as e:
+            logger.error(f"Failed to start frontend: {e}")
+            logger.error("Make sure Caddy executable exists in lib directory")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error starting frontend: {e}")
+            sys.exit(1)
 
 class StartTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", backend_port=8080, frontend_port=3000):
+    def __init__(self, project_root, backend_port=8080, frontend_port=3000):
         self.project_root = Path(project_root).resolve()
-        self.backend_jar_dir = self.project_root / 'lib' / 'backend' / name_jar_file
-        self.backend_config_dir = self.project_root / 'config' / 'application.properties'
         self.backend_port = backend_port
         self.frontend_port = frontend_port
-        self.backend_starter = StartBackendTaskManager(project_root, name_jar_file, backend_port)
+        self.backend_starter = StartBackendTaskManager(project_root, backend_port)
         self.frontend_starter = StartFrontendTaskManager(self.project_root, frontend_port)
 
     def start_backend(self):
@@ -111,8 +159,6 @@ def main():
                         help='Iniciar solo el frontend')
     parser.add_argument('--start-all', action='store_true',
                         help='Iniciar tanto el backend como el frontend')
-    parser.add_argument('--name-jar-file', default='taskmanager.jar',
-                        help='Nombre del archivo JAR del backend')
     parser.add_argument('--project-root', 
                         help='Ruta del directorio raíz del proyecto (por defecto: directorio actual)')
     parser.add_argument('--backend-port', type=int, default=8080,
@@ -130,17 +176,25 @@ def main():
         script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         logger.info(f"Using current directory as project root: {script_dir}")
     
-    starter = StartTaskManager(
-        script_dir, 
-        args.name_jar_file, 
-        args.backend_port, 
-        args.frontend_port
-    )
+    # Validate at least one action is specified
+    if not (args.start_backend or args.start_frontend or args.start_all):
+        logger.error("Error: You must specify at least one action")
+        parser.print_help()
+        sys.exit(1)
+
+    try:
+        starter = StartTaskManager(
+            script_dir, 
+            args.backend_port, 
+            args.frontend_port
+        )
+    except FileNotFoundError as e:
+        logger.error(f"Initialization failed: {e}")
+        sys.exit(1)
     
     logger.info(f"Configuration:")
     logger.info(f"  - Backend port: {args.backend_port}")
-    logger.info(f"  - Frontend port: {args.frontend_port}")
-    logger.info(f"  - JAR file: {args.name_jar_file}")  
+    logger.info(f"  - Frontend port: {args.frontend_port}")  
     
     if args.start_backend:
         starter.start_backend()

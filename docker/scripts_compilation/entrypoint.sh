@@ -69,13 +69,13 @@ compile_project() {
     
     # Ejecutar el script de compilación
     log_info "Ejecutando compile.py..."
-    python3 compile.py --action "${ACTION}" --name-jar-file "${NAME_JAR_FILE}" --name-final-file "${NAME_FINAL_FILE}" --platform "${PLATFORM}" --version "${VERSION}" --architecture "${ARCHITECTURE}" --caddy-version "${CADDY_VERSION}"
+    python3 compile.py --action "${ACTION}" --name-final-file "${NAME_FINAL_FILE}" --platform "${PLATFORM}" --version "${VERSION}" --architecture "${ARCHITECTURE}" --caddy-version "${CADDY_VERSION}"
     
     # Verificar si se creó el archivo ZIP
     if [ -f "/app/task-manager/${NAME_FINAL_FILE}.zip" ]; then
         # Copiar el archivo a /output
         log_info "Copiando ${NAME_FINAL_FILE}.zip a /output..."
-        cp /app/task-manager/${NAME_FINAL_FILE}.zip /output/
+        cp "/app/task-manager/${NAME_FINAL_FILE}.zip" "/output/"
 
         log "Compilación completada correctamente. El archivo ${NAME_FINAL_FILE}.zip está disponible en /output"
     else
@@ -101,7 +101,8 @@ copy_to_output() {
     
     ensure_output_dir
     
-    local filename=$(basename "$source_file")
+    local filename
+    filename=$(basename "$source_file")
     log "Copiando $source_file a /output/$filename..."
     cp "$source_file" "/output/$filename"
     
@@ -123,8 +124,8 @@ run_python() {
         log_error "Error: El script $script no existe"
         exit 1
     fi
-    
-    log "Ejecutando script Python: $script $@"
+
+    log "Ejecutando script Python: $script $*"
     python3 "$script" "$@"
     
     log "Script ejecutado correctamente"

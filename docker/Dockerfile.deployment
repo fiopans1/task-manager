@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
     git \
+    unzip \
+    lsof \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -26,7 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 #Create bd directory
-RUN mkdir -p /app/bd
+RUN mkdir -p /app/metadata
+RUN mkdir -p /files_to_copy
 
 # Copiar archivos necesarios para la ejecución
 COPY scripts/requirements.txt /app/requirements.txt
@@ -40,8 +43,9 @@ COPY TaskManager.zip /app/TaskManager.zip
 RUN pip3 install --break-system-packages -r /app/requirements.txt
 
 #Define volume
-VOLUME /app/bd
+VOLUME /app/metadata
+VOLUME /files_to_copy
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["--start-all"]
