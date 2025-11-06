@@ -15,7 +15,6 @@ echo "🔧 Configurando variables por defecto..."
 
 
 set_default "ACTION" "deploy"
-set_default "NAME_JAR_FILE" "taskmanager-0.0.1-Alpha.jar"
 set_default "NAME_FINAL_FILE" "TaskManager"
 set_default "PLATFORM" "mac"
 set_default "VERSION" "1.0.0"

@@ -69,7 +69,7 @@ compile_project() {
     
     # Ejecutar el script de compilación
     log_info "Ejecutando compile.py..."
-    python3 compile.py --action "${ACTION}" --name-jar-file "${NAME_JAR_FILE}" --name-final-file "${NAME_FINAL_FILE}" --platform "${PLATFORM}" --version "${VERSION}" --architecture "${ARCHITECTURE}" --caddy-version "${CADDY_VERSION}"
+    python3 compile.py --action "${ACTION}" --name-final-file "${NAME_FINAL_FILE}" --platform "${PLATFORM}" --version "${VERSION}" --architecture "${ARCHITECTURE}" --caddy-version "${CADDY_VERSION}"
     
     # Verificar si se creó el archivo ZIP
     if [ -f "/app/task-manager/${NAME_FINAL_FILE}.zip" ]; then

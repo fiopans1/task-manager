@@ -41,7 +41,6 @@ show_help() {
     # echo "  --stop-frontend           Detener solo el frontend"
     # echo "  --backend-port PORT       Puerto del backend (default: 8080)"
     # echo "  --frontend-port PORT      Puerto del frontend (default: 3000)"
-    # echo "  --name-jar-file FILE      Nombre del archivo JAR (default: taskmanager.jar)"
     # echo "  bash                      Iniciar sesión de bash interactiva"
     # echo "  help                      Mostrar esta ayuda"
     # echo ""

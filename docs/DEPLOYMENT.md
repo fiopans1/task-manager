@@ -1,4 +1,4 @@
- Task Manager - Guía de Despliegue con Docker
+Task Manager - Guía de Despliegue con Docker
 
 Esta guía explica cómo compilar y desplegar la aplicación Task Manager utilizando Docker.
 
@@ -34,6 +34,7 @@ docker run -v $(pwd):/output fiopans1/taskmanager-compilation:latest compile
 ```
 
 Esto generará `TaskManager.zip` en el directorio actual con la siguiente estructura:
+
 ```
 TaskManager.zip
 └── task-manager/
@@ -66,6 +67,7 @@ docker build -f docker/Dockerfile.deployment -t fiopans1/taskmanager-deployment:
 ### Paso 2: Ejecutar el contenedor
 
 #### Opción 1: Iniciar todo (backend + frontend)
+
 ```bash
 docker run -d \
   --name taskmanager \
@@ -76,6 +78,7 @@ docker run -d \
 ```
 
 #### Opción 2: Solo backend
+
 ```bash
 docker run -d \
   --name taskmanager-backend \
@@ -85,6 +88,7 @@ docker run -d \
 ```
 
 #### Opción 3: Solo frontend
+
 ```bash
 docker run -d \
   --name taskmanager-frontend \
@@ -102,7 +106,6 @@ Puedes configurar la aplicación usando variables de entorno:
 docker run -d \
   -e BACKEND_PORT=9090 \
   -e FRONTEND_PORT=4000 \
-  -e NAME_JAR_FILE=taskmanager-custom.jar \
   -p 9090:9090 \
   -p 4000:4000 \
   fiopans1/taskmanager-deployment:latest
@@ -110,24 +113,23 @@ docker run -d \
 
 ### Variables Disponibles
 
-| Variable | Descripción | Valor por Defecto |
-|----------|-------------|-------------------|
-| `BACKEND_PORT` | Puerto del backend | `8080` |
-| `FRONTEND_PORT` | Puerto del frontend | `3000` |
-| `PROJECT_ROOT` | Directorio raíz del proyecto | `/app/task-manager` |
+| Variable        | Descripción                  | Valor por Defecto   |
+| --------------- | ---------------------------- | ------------------- |
+| `BACKEND_PORT`  | Puerto del backend           | `8080`              |
+| `FRONTEND_PORT` | Puerto del frontend          | `3000`              |
+| `PROJECT_ROOT`  | Directorio raíz del proyecto | `/app/task-manager` |
 
 ### Argumentos del Contenedor
 
-| Argumento | Descripción |
-|-----------|-------------|
-| `--start-all` | Iniciar backend y frontend (por defecto) |
-| `--start-backend` | Iniciar solo el backend |
-| `--start-frontend` | Iniciar solo el frontend |
-| `--backend-port PORT` | Especificar puerto del backend |
-| `--frontend-port PORT` | Especificar puerto del frontend |
-| `--name-jar-file FILE` | Especificar nombre del archivo JAR |
-| `bash` | Iniciar sesión bash interactiva |
-| `help` | Mostrar ayuda |
+| Argumento              | Descripción                              |
+| ---------------------- | ---------------------------------------- |
+| `--start-all`          | Iniciar backend y frontend (por defecto) |
+| `--start-backend`      | Iniciar solo el backend                  |
+| `--start-frontend`     | Iniciar solo el frontend                 |
+| `--backend-port PORT`  | Especificar puerto del backend           |
+| `--frontend-port PORT` | Especificar puerto del frontend          |
+| `bash`                 | Iniciar sesión bash interactiva          |
+| `help`                 | Mostrar ayuda                            |
 
 ## 📚 Ejemplos de Uso
 
@@ -149,7 +151,7 @@ docker run -d \
 Crea un archivo `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   taskmanager:
@@ -168,7 +170,9 @@ services:
 volumes:
   taskmanager-data:
 ```
+
 Luego ejecuta:
+
 ```bash
 docker-compose up -d
 ```
@@ -183,6 +187,7 @@ docker run -it \
 ```
 
 Dentro del contenedor:
+
 ```bash
 # Preparar el entorno
 /app/prepare_environment.sh
@@ -250,6 +255,7 @@ docker top taskmanager
 ### Problema: El contenedor se detiene inmediatamente
 
 **Solución**: Verifica los logs para identificar el error:
+
 ```bash
 docker logs taskmanager
 ```
@@ -257,6 +263,7 @@ docker logs taskmanager
 ### Problema: Puerto ya en uso
 
 **Solución**: Usa puertos diferentes:
+
 ```bash
 docker run -d \
   -p 8081:8080 \
@@ -265,6 +272,7 @@ docker run -d \
 ```
 
 O detén el proceso que está usando el puerto:
+
 ```bash
 # Linux/Mac
 lsof -ti:8080 | xargs kill -9
@@ -277,6 +285,7 @@ taskkill /F /PID <PID>
 ### Problema: Error al extraer TaskManager.zip
 
 **Solución**: Verifica que el archivo ZIP sea válido:
+
 ```bash
 unzip -t TaskManager.zip
 ```
@@ -286,6 +295,7 @@ Si el archivo está corrupto, vuelve a generar la compilación.
 ### Problema: Backend no responde
 
 **Solución**: Verifica que Java esté correctamente configurado:
+
 ```bash
 docker exec taskmanager java -version
 docker exec taskmanager ps aux | grep java
@@ -294,6 +304,7 @@ docker exec taskmanager ps aux | grep java
 ### Problema: Frontend no carga
 
 **Solución**: Verifica que Caddy esté corriendo:
+
 ```bash
 docker exec taskmanager ps aux | grep caddy
 docker exec taskmanager /app/task-manager/lib/caddy version
@@ -302,6 +313,7 @@ docker exec taskmanager /app/task-manager/lib/caddy version
 ### Problema: Permisos insuficientes
 
 **Solución**: Asegúrate de que los scripts tengan permisos de ejecución:
+
 ```bash
 docker exec taskmanager ls -la /app/task-manager/bin/
 docker exec taskmanager chmod +x /app/task-manager/bin/*.py

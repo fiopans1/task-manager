@@ -39,7 +39,7 @@ log_info "Usando PROJECT_ROOT: $PROJECT_ROOT"
 # Función principal para preparar el entorno
 prepare_environment() {
     local zip_file="/app/TaskManager.zip"
-    local extract_dir="/app"
+    local extract_dir=$(dirname "$PROJECT_ROOT")
 
     log "Iniciando preparación del entorno de despliegue..."
 
@@ -51,10 +51,15 @@ prepare_environment() {
 
     log_info "Archivo ZIP encontrado: $zip_file"
 
-    # Extraer el archivo ZIP
-    log "Extrayendo $zip_file..."
-    cd "$extract_dir"
-    unzip -q "$zip_file"
+    # Crear el directorio de destino si no existe
+    if [ ! -d "$PROJECT_ROOT" ]; then
+        log_info "Creando directorio: $PROJECT_ROOT"
+        mkdir -p "$PROJECT_ROOT"
+    fi
+
+    # Extraer el archivo ZIP directamente en PROJECT_ROOT
+    log "Extrayendo $zip_file en $PROJECT_ROOT..."
+    unzip -q "$zip_file" -d "$PROJECT_ROOT"
 
     if [ $? -ne 0 ]; then
         log_error "Error al extraer el archivo ZIP"
@@ -95,12 +100,29 @@ prepare_environment() {
         log_warning "No se encontró $PROJECT_ROOT/lib/caddy"
     fi
 
+    # Dar permisos de lectura al JAR del backend
+    if [ -d "$PROJECT_ROOT/lib/backend" ]; then
+        log "Configurando permisos para archivos JAR..."
+        find "$PROJECT_ROOT/lib/backend" -name "*.jar" -exec chmod 644 {} \;
+        jar_count=$(find "$PROJECT_ROOT/lib/backend" -name "*.jar" | wc -l)
+        if [ "$jar_count" -gt 0 ]; then
+            log "✓ Permisos configurados para $jar_count archivo(s) JAR"
+        else
+            log_warning "No se encontraron archivos JAR en $PROJECT_ROOT/lib/backend"
+        fi
+    else
+        log_warning "No se encontró el directorio $PROJECT_ROOT/lib/backend"
+    fi
+
     # Verificar estructura de directorios
     log_info "Estructura de directorios:"
     ls -la "$PROJECT_ROOT/" || true
 
     log_info "Contenido de $PROJECT_ROOT/lib:"
     ls -la "$PROJECT_ROOT/lib/" || true
+
+    log_info "Contenido de $PROJECT_ROOT/lib/backend:"
+    ls -la "$PROJECT_ROOT/lib/backend/" || true
 
     log_info "Contenido de $PROJECT_ROOT/bin:"
     ls -la "$PROJECT_ROOT/bin/" || true

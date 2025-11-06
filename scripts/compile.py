@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class BuildTaskManager:
-    def __init__(self, project_root, name_jar_file="taskmanager.jar", name_final_file="TaskManager", 
+    def __init__(self, project_root, name_final_file="TaskManager", 
                  caddy_version="v2.7.6", specify_specifications=False, target_platform=None, target_architecture=None):
         self.project_root = Path(project_root).resolve()
         self.backend_dir = self.project_root / 'application'
@@ -29,7 +29,6 @@ class BuildTaskManager:
         self.frontend_build_dir = self.frontend_dir / 'build'
         self.scripts_dir = self.project_root / 'scripts'
         self.deploy_dir = self.project_root / 'task-manager'
-        self.jar_name = name_jar_file
         self.name_final_file = name_final_file
         
         # Caddy configuration
@@ -295,13 +294,28 @@ class BuildTaskManager:
         shutil.copy2(caddy_executable, caddy_dest)
         logger.info(f"Caddy copied to: {caddy_dest}")
 
-        # Copy backend JAR
-        jar_path = self.backend_target_dir / self.jar_name
-        if not jar_path.exists():
-            logger.error(f"JAR file not found: {jar_path}")
-            sys.exit(1)            
+        # Copy backend JAR - buscar automáticamente el JAR en el directorio target
+        logger.info("Searching for JAR file in backend target directory...")
+        jar_files = list(self.backend_target_dir.glob('*.jar'))
+        
+        # Filtrar archivos .original
+        jar_files = [jar for jar in jar_files if not jar.name.endswith('.original')]
+        
+        if len(jar_files) == 0:
+            logger.error(f"No JAR file found in: {self.backend_target_dir}")
+            sys.exit(1)
+        elif len(jar_files) > 1:
+            logger.warning(f"Multiple JAR files found in {self.backend_target_dir}:")
+            for jar in jar_files:
+                logger.warning(f"  - {jar.name}")
+            logger.info(f"Using the first one: {jar_files[0].name}")
+        
+        jar_path = jar_files[0]
+        logger.info(f"Found backend JAR: {jar_path.name}")
+        
         (self.deploy_lib_dir / 'backend').mkdir(parents=True)
-        shutil.copy(jar_path, self.deploy_lib_dir / 'backend' / self.jar_name)
+        shutil.copy(jar_path, self.deploy_lib_dir / 'backend' / jar_path.name)
+        logger.info(f"JAR copied to: {self.deploy_lib_dir / 'backend' / jar_path.name}")
 
 
         # Copy frontend files
@@ -329,8 +343,6 @@ def main():
                        help='Compile backend only')
     parser.add_argument('--frontend-only', action='store_true',
                        help='Compile frontend only')
-    parser.add_argument('--name-jar-file', default='taskmanager.jar',
-                       help='Backend JAR file name')
     parser.add_argument('--name-final-file', default='TaskManager',
                        help='Final compressed file name without extension')
     parser.add_argument('--platform', choices=['windows', 'linux', 'mac', 'darwin'], default='linux',
@@ -351,7 +363,6 @@ def main():
     script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     build_manager = BuildTaskManager(
         script_dir, 
-        name_jar_file=args.name_jar_file,
         name_final_file=args.name_final_file,
         caddy_version=args.caddy_version,
         specify_specifications=args.specify_specifications,

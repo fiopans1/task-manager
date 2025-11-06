@@ -17,4 +17,4 @@ echo "🔧 Configurando variables por defecto..."
 # Variables por defecto para despliegue
 set_default "BACKEND_PORT" "8080"
 set_default "FRONTEND_PORT" "3000"
-set_default "PROJECT_ROOT" "/app/TaskManager"
+set_default "PROJECT_ROOT" "/app/task-manager"
