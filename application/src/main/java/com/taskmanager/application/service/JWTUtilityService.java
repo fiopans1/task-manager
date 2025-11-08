@@ -39,10 +39,10 @@ public class JWTUtilityService {
 
     private static final Logger logger = LoggerFactory.getLogger(JWTUtilityService.class);
 
-    @Value("classpath:jwtKeys/private_key.pem")
+    @Value("${jwtKeys.privateKeyPath}")
     private Resource privateKeyResource;
 
-    @Value("classpath:jwtKeys/public_key.pem")
+    @Value("${jwtKeys.publicKeyPath}")
     private Resource publicKeyResource;
 
     private PrivateKey loadPrivateKey(Resource resource) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
