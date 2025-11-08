@@ -295,6 +295,9 @@ class BuildTaskManager:
         caddy_dest = self.deploy_lib_dir / caddy_executable.name
         shutil.copy2(caddy_executable, caddy_dest)
         logger.info(f"Caddy copied to: {caddy_dest}")
+        
+        # Limpiar archivos temporales de Caddy
+        self.cleanup_caddy_temp()
 
         # Copy backend JAR - buscar automáticamente el JAR en el directorio target
         logger.info("Searching for JAR file in backend target directory...")

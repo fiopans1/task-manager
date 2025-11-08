@@ -56,8 +56,8 @@ spring.jpa.properties.hibernate.order_updates=true
 # SECURITY - JWT CONFIGURATION
 ################################################################################
 # Paths to JWT key files relative to classpath
-jwtKeys.privateKeyPath=jwtKeys/private_key.pem
-jwtKeys.publicKeyPath=jwtKeys/public_key.pem
+jwtKeys.privateKeyPath=file:${DEPLOY_ROOT}/config/keys/private_key.pem
+jwtKeys.publicKeyPath=file:${DEPLOY_ROOT}/config/keys/public_key.pem
 
 # JWT token expiration time (in milliseconds)
 # Default: 86400000 ms = 24 hours
