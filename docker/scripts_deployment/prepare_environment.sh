@@ -188,6 +188,60 @@ copy_config_files() {
     log "✅ Verificación de archivos de configuración completada"
 }
 
+# Función para generar claves JWT
+generate_jwt_keys() {
+    local keys_dir="$PROJECT_ROOT/config/keys"
+    local key_generator="$PROJECT_ROOT/bin/key_generator.py"
+    
+    log "Verificando claves JWT..."
+
+    # Verificar si el script key_generator.py existe
+    if [ ! -f "$key_generator" ]; then
+        log_error "Error: No se encontró el script key_generator.py en $key_generator"
+        return 1
+    fi
+
+    # Verificar si el directorio de claves existe
+    if [ ! -d "$keys_dir" ]; then
+        log_info "Creando directorio de claves: $keys_dir"
+        mkdir -p "$keys_dir"
+    fi
+
+    # Verificar si las claves ya existen
+    if [ -f "$keys_dir/private_key.pem" ] && [ -f "$keys_dir/public_key.pem" ]; then
+        log_info "Las claves JWT ya existen en $keys_dir"
+        log_info "Saltando generación de claves..."
+        return 0
+    fi
+
+    # Generar las claves
+    log "Generando claves JWT en $keys_dir..."
+    
+    # Hacer el script ejecutable
+    chmod +x "$key_generator"
+    
+    # Ejecutar el generador de claves
+    if python3 "$key_generator" --output-dir "$keys_dir" --no-backup; then
+        log "✓ Claves JWT generadas correctamente"
+        
+        # Verificar que las claves se generaron
+        if [ -f "$keys_dir/private_key.pem" ] && [ -f "$keys_dir/public_key.pem" ]; then
+            log "✓ Archivos de claves verificados:"
+            log "  - private_key.pem"
+            log "  - public_key.pem"
+        else
+            log_error "Error: Las claves no se generaron correctamente"
+            return 1
+        fi
+    else
+        log_error "Error al generar las claves JWT"
+        return 1
+    fi
+
+    log "✅ Generación de claves JWT completada"
+}
+
 # Ejecutar las funciones principales
 prepare_environment
 copy_config_files
+generate_jwt_keys

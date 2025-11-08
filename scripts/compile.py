@@ -278,6 +278,8 @@ class BuildTaskManager:
         self.deploy_lib_dir = self.deploy_dir / 'lib'
         (self.deploy_dir / 'config').mkdir(parents=True)
         self.deploy_config_dir = self.deploy_dir / 'config'
+        (self.deploy_dir / 'config' / 'keys').mkdir(parents=True)
+        self.deploy_keys_dir = self.deploy_dir / 'config' / 'keys'
         (self.deploy_dir / 'metadata').mkdir(parents=True)
         self.deploy_metadata_dir = self.deploy_dir / 'metadata'
 
