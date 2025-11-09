@@ -14,34 +14,38 @@
 .DS_Store
 Thumbs.db
 
-# Node
-node_modules
+# Node modules (se instalarán durante el build)
+**/node_modules
 npm-debug.log
 yarn-error.log
 .npm
 
-# Java/Maven
-application/target
+# Java/Maven target (se generará durante el build)
+**/target
 *.class
-*.log
 
-# Build outputs (except TaskManager.zip which is needed for deployment)
+# Build outputs generados
 task-manager/
+TaskManager.zip
 dist/
-build/
 
-# Source code (not needed in deployment image)
-application/
-client/
-scripts/
-!scripts/requirements.txt
+# Logs
+*.log
+logs/
 
-# Environment
+# Environment y databases locales
 .env
 *.db
-jwtKeys/
 
-# Keep these
-!TaskManager.zip
+# Archivos temporales
+tmp/
+temp/
+
+# Documentación (no necesaria en la imagen)
+docs/
+*.md
 !README.md
-!docker/
+
+# Archivos de ejemplo
+*.example
+*-example.*

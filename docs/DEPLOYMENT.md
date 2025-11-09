@@ -1,72 +1,71 @@
 Task Manager - Guía de Despliegue con Docker
 
-Esta guía explica cómo compilar y desplegar la aplicación Task Manager utilizando Docker.
+Esta guía explica cómo desplegar la aplicación Task Manager utilizando Docker con compilación integrada.
 
 ## 📋 Tabla de Contenidos
 
 1. [Requisitos Previos](#requisitos-previos)
-2. [Proceso de Compilación](#proceso-de-compilación)
-3. [Proceso de Despliegue](#proceso-de-despliegue)
-4. [Opciones de Configuración](#opciones-de-configuración)
-5. [Ejemplos de Uso](#ejemplos-de-uso)
-6. [Resolución de Problemas](#resolución-de-problemas)
+2. [Proceso de Despliegue Integrado](#proceso-de-despliegue-integrado)
+3. [Opciones de Configuración](#opciones-de-configuración)
+4. [Ejemplos de Uso](#ejemplos-de-uso)
+5. [Resolución de Problemas](#resolución-de-problemas)
 
 ## 🔧 Requisitos Previos
 
 - Docker instalado y funcionando
-- Al menos 2GB de espacio en disco
+- Al menos 4GB de RAM disponible para el build
+- Al menos 5GB de espacio en disco
 - Puertos disponibles: 8080 (backend) y 3000 (frontend)
 
-## 📦 Proceso de Compilación
+## � Proceso de Despliegue Integrado
 
-La compilación genera un archivo `TaskManager.zip` que contiene toda la aplicación lista para desplegar.
+La nueva imagen de Docker incluye compilación integrada multi-stage. No necesitas compilar el proyecto por separado.
 
-### Paso 1: Construir la imagen de compilación
-
-```bash
-docker build -f docker/Dockerfile.build -t fiopans1/taskmanager-compilation:latest .
-```
-
-### Paso 2: Compilar el proyecto
+### Construcción Básica
 
 ```bash
-docker run -v $(pwd):/output fiopans1/taskmanager-compilation:latest compile
+# Construcción simple para AMD64 (servidores típicos)
+docker build -f docker/Dockerfile.deployment -t fiopans1/taskmanager:latest .
 ```
 
-Esto generará `TaskManager.zip` en el directorio actual con la siguiente estructura:
+### Usando el Script de Ayuda
 
-```
-TaskManager.zip
-└── task-manager/
-    ├── bin/
-    │   ├── start.py
-    │   └── stop.py
-    ├── lib/
-    │   ├── backend/
-    │   │   └── taskmanager.jar
-    │   ├── frontend/
-    │   │   └── [archivos del frontend]
-    │   └── caddy
-    ├── config/
-    │   ├── application.properties
-    │   ├── Caddyfile
-    │   └── log-backend-config.xml
-    └── metadata/
-```
-
-## 🚀 Proceso de Despliegue
-
-### Paso 1: Construir la imagen de despliegue
-
-Asegúrate de que `TaskManager.zip` esté en la raíz del proyecto:
+El proyecto incluye un script `docker/build.sh` que facilita la construcción:
 
 ```bash
-docker build -f docker/Dockerfile.deployment -t fiopans1/taskmanager-deployment:latest .
+# Dar permisos de ejecución
+chmod +x docker/build.sh
+
+# Construcción básica
+./docker/build.sh
+
+# Construcción para arquitectura específica
+./docker/build.sh --platform linux/amd64
+
+# Construcción para ARM64 (Mac M1/M2, Raspberry Pi 4)
+./docker/build.sh --platform linux/arm64
+
+# Construcción multi-plataforma
+./docker/build.sh --multi
+
+# Construcción y push a Docker Hub
+./docker/build.sh --platform linux/amd64 --push --tag miusuario/taskmanager:v1.0
+
+# Ver todas las opciones
+./docker/build.sh --help
 ```
 
-### Paso 2: Ejecutar el contenedor
+### Arquitecturas Soportadas
 
-#### Opción 1: Iniciar todo (backend + frontend)
+| Plataforma     | Descripción  | Uso Típico                              |
+| -------------- | ------------ | --------------------------------------- |
+| `linux/amd64`  | x86_64/AMD64 | Servidores, VPS, PC                     |
+| `linux/arm64`  | ARM 64-bit   | Mac M1/M2, Raspberry Pi 4, AWS Graviton |
+| `linux/arm/v7` | ARM 32-bit   | Raspberry Pi 3 y anteriores             |
+
+## 🎯 Ejecutar el Contenedor
+
+### Opción 1: Iniciar todo (backend + frontend)
 
 ```bash
 docker run -d \

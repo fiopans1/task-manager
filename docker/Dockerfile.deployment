@@ -1,14 +1,19 @@
-FROM eclipse-temurin:23-jdk
+# ============================================================================
+# STAGE 1: Compilación
+# ============================================================================
+# Esta etapa:
+# 1. Clona el repositorio desde GitHub (configurable con build args)
+# 2. Compila el backend (Maven + Java)
+# 3. Compila el frontend (npm + React)
+# 4. Genera el archivo TaskManager.zip listo para desplegar
+# ============================================================================
+FROM eclipse-temurin:23-jdk AS builder
 
-# METADATA:
-LABEL maintainer="fiopans1"
-LABEL description="Dockerfile de despliegue de Task Manager (base Debian/Ubuntu)"
-LABEL version="1.0"
+# Metadata de la etapa de compilación
+LABEL stage="builder"
+LABEL description="Etapa de compilación de Task Manager"
 
-# 1. Instalar dependencias con apt-get
-#    - Se usa noninteractive para evitar que las instalaciones pidan confirmación.
-#    - --no-install-recommends hace la instalación más ligera.
-#    - OpenJDK 23 ya está en la imagen, así que no se necesita instalar.
+# Instalar dependencias necesarias para la compilación
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
@@ -18,34 +23,76 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nano \
     nodejs \
     npm \
+    maven \
     git \
-    unzip \
-    lsof \
     && rm -rf /var/lib/apt/lists/*
 
+# Argumentos de build para configuración del repositorio
+ARG GIT_REPO=https://github.com/fiopans1/task-manager.git
+ARG GIT_BRANCH=main
 
-#Set work directory
+# Directorio de trabajo para la compilación
+WORKDIR /build
+
+# Clonar el repositorio
+RUN git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPO} /build
+
+# Instalar dependencias de Python para el script de compilación
+RUN pip3 install --break-system-packages -r /build/scripts/requirements.txt
+
+# Ejecutar la compilación
+RUN cd /build/scripts && \
+    python3 compile.py --action deploy --name-final-file TaskManager
+
+# Verificar que se generó el archivo ZIP
+RUN ls -lh /build/TaskManager.zip
+
+# ============================================================================
+# STAGE 2: Despliegue
+# ============================================================================
+FROM eclipse-temurin:23-jdk
+
+# METADATA de la imagen final
+LABEL maintainer="fiopans1"
+LABEL description="Dockerfile de despliegue de Task Manager"
+LABEL version="2.0"
+
+# Instalar dependencias necesarias para la ejecución
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    bash \
+    unzip \
+    lsof \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Directorio de trabajo
 WORKDIR /app
 
-#Create bd directory
+# Crear directorios necesarios
 RUN mkdir -p /app/metadata
 RUN mkdir -p /files_to_copy
 
-# Copiar archivos necesarios para la ejecución
+# Copiar archivos necesarios para la ejecución desde el proyecto original
 COPY scripts/requirements.txt /app/requirements.txt
 COPY docker/scripts_deployment/entrypoint.sh /app/entrypoint.sh
 COPY docker/scripts_deployment/env-setup.sh /app/env-setup.sh
 COPY docker/scripts_deployment/prepare_environment.sh /app/prepare_environment.sh
-COPY TaskManager.zip /app/TaskManager.zip
 
+# Copiar el archivo ZIP compilado desde la etapa de builder
+COPY --from=builder /build/TaskManager.zip /app/TaskManager.zip
 
-# 2. Instalar dependencias de Python
+# Instalar dependencias de Python para la ejecución
 RUN pip3 install --break-system-packages -r /app/requirements.txt
 
-#Define volume
+# Definir volúmenes
 VOLUME /app/metadata
 VOLUME /files_to_copy
 
+# Dar permisos de ejecución a los scripts
 RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
+
+# Punto de entrada
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["--start-all"]
