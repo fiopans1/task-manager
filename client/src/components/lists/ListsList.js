@@ -93,6 +93,7 @@ const ListsList = ({
                       e.stopPropagation();
                       handleEditList(card);
                     }}
+                    style={{ minWidth: "44px", minHeight: "44px" }}
                   >
                     <i className="bi bi-pencil"></i>
                   </Button>
@@ -103,6 +104,7 @@ const ListsList = ({
                       e.stopPropagation();
                       confirmDeleteList(card.id);
                     }}
+                    style={{ minWidth: "44px", minHeight: "44px" }}
                   >
                     <i className="bi bi-trash"></i>
                   </Button>

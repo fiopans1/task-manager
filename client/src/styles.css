@@ -65,6 +65,11 @@
 
 /* Estilos para el SidebarMenu */
 
+/* Mobile Top Bar */
+.mobile-top-bar {
+  transition: all 0.3s ease;
+}
+
 /* Animación para el botón de toggle */
 .toggle-button {
   transition: all 0.3s ease;
@@ -78,13 +83,15 @@
 /* Botón flotante para móvil */
 .mobile-menu-button {
   transition: all 0.3s ease;
-  opacity: 0.85;
 }
 
 .mobile-menu-button:hover,
 .mobile-menu-button:focus {
-  opacity: 1;
-  transform: scale(1.05);
+  background-color: #495057 !important;
+}
+
+.mobile-menu-button:active {
+  transform: scale(0.95);
 }
 
 /* Estilos para el menú lateral */
@@ -137,7 +144,11 @@
 
 @media (max-width: 767.98px) {
   .nav-pills .nav-link {
-    padding: 10px 15px;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
   }
 
   /* Mostrar textos en el menú móvil */
@@ -148,8 +159,24 @@
 
   /* Asegurar que los íconos estén alineados */
   .offcanvas .nav-link i {
-    width: 20px;
+    width: 24px;
     text-align: center;
+    font-size: 1.2rem;
+  }
+  
+  /* Ensure content doesn't get hidden under mobile top bar */
+  .container-fluid {
+    padding-top: 0 !important;
+  }
+  
+  /* Better button sizing for mobile */
+  .btn-lg {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+  
+  .btn {
+    min-height: 44px;
   }
 }
 
@@ -592,9 +619,27 @@
   font-size: 1.5rem;
 }
 
+.feature-icon-simple {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4a90e2, #2c3e50);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.feature-icon-simple:hover {
+  transform: translateY(-2px);
+}
+
 .feature-text {
   color: #6c757d;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /*RegisterPage*/
@@ -732,5 +777,69 @@
   .oauth2-btn svg {
     width: 18px;
     height: 18px;
+  }
+}
+
+/* Mobile improvements for auth pages */
+@media (max-width: 767.98px) {
+  .task-manager-bg {
+    min-height: 100vh;
+    /* Fix for iOS Safari address bar */
+    min-height: -webkit-fill-available;
+  }
+  
+  .modern-card {
+    margin: 1rem;
+  }
+  
+  .brand-title {
+    font-size: 1.75rem !important;
+  }
+  
+  .welcome-subtitle {
+    font-size: 1rem;
+  }
+  
+  .feature-icon-simple {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .feature-icon-simple i {
+    font-size: 1.25rem;
+  }
+  
+  .feature-text {
+    font-size: 0.85rem;
+  }
+  
+  /* Better form spacing on mobile */
+  .modern-input,
+  .form-control {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  .modern-btn {
+    font-size: 1rem;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 767.98px) and (orientation: landscape) {
+  .task-manager-bg {
+    padding: 0.5rem 0;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  .modern-card {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Desktop - ensure proper fallback */
+@media (min-width: 768px) {
+  .task-manager-bg {
+    min-height: 100vh;
   }
 }

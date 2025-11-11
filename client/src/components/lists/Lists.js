@@ -81,8 +81,8 @@ const List = () => {
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Form onSubmit={handleSearch}>
-            <Row className={isMobile ? "gy-2" : "align-items-center"}>
-              <Col md={8}>
+            <Row className="g-2">
+              <Col xs={12} md={8}>
                 <InputGroup>
                   <Form.Control
                     className="border-end-0"
@@ -95,26 +95,21 @@ const List = () => {
                   </Button>
                 </InputGroup>
               </Col>
-              <Col
-                md={4}
-                className={`d-flex ${
-                  isMobile ? "mt-2" : "justify-content-end"
-                }`}
-              >
+              <Col xs={12} md={4} className="d-flex justify-content-md-end flex-wrap gap-2">
                 <Button
                   variant="outline-secondary"
                   onClick={() => {
                     setSearchTerm("");
                     refreshLists();
                   }}
-                  className="me-2"
+                  className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
                   Clear Filter
                 </Button>
                 <Button
                   variant="outline-info"
-                  className="me-2"
+                  className="flex-fill flex-md-grow-0"
                   onClick={refreshLists}
                   size={isMobile ? "sm" : ""}
                 >
@@ -123,7 +118,7 @@ const List = () => {
                 <Button
                   variant="outline-primary"
                   onClick={handleshowNewList}
-                  className="me-2"
+                  className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
                   <span className="me-1">+</span> New List

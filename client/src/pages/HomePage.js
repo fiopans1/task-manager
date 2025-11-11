@@ -26,18 +26,24 @@ const HomePage = () => {
                 Organize your tasks, boost your productivity
               </p>
 
-              {/* Mini features showcase */}
-              <Row className="mb-4">
+              {/* Features showcase - simplified */}
+              <Row className="mb-4 text-center">
                 <Col xs={4}>
-                  <div className="feature-icon">📋</div>
+                  <div className="feature-icon-simple">
+                    <i className="bi bi-list-check fs-3"></i>
+                  </div>
                   <div className="feature-text">Organize</div>
                 </Col>
                 <Col xs={4}>
-                  <div className="feature-icon">⚡</div>
+                  <div className="feature-icon-simple">
+                    <i className="bi bi-lightning-charge fs-3"></i>
+                  </div>
                   <div className="feature-text">Fast</div>
                 </Col>
                 <Col xs={4}>
-                  <div className="feature-icon">🎯</div>
+                  <div className="feature-icon-simple">
+                    <i className="bi bi-bullseye fs-3"></i>
+                  </div>
                   <div className="feature-text">Focus</div>
                 </Col>
               </Row>
@@ -45,17 +51,12 @@ const HomePage = () => {
 
             {/* Botones de Acción Tradicionales */}
             <div className="d-grid gap-3">
-              <div className="text-center mb-3">
-                <small className="text-muted fw-semibold">
-                  🚀 Quick Access
-                </small>
-              </div>
               <Button
                 className="modern-btn-primary modern-btn py-3 rounded-3"
                 size="lg"
                 onClick={() => navigateTo("/login")}
               >
-                <span className="me-2">🔐</span>
+                <i className="bi bi-box-arrow-in-right me-2"></i>
                 Sign In to Your Account
               </Button>
 
@@ -64,7 +65,7 @@ const HomePage = () => {
                 size="lg"
                 onClick={() => navigateTo("/register")}
               >
-                <span className="me-2">✨</span>
+                <i className="bi bi-person-plus me-2"></i>
                 Create New Account
               </Button>
             </div>
@@ -73,25 +74,17 @@ const HomePage = () => {
                 {/* Separador */}
                 <div className="text-center mb-4">
                   <hr className="my-3" />
+                  <small className="text-muted">Or continue with</small>
                 </div>
 
                 <div className="mb-4">
-                  <div className="text-center mb-3">
-                    <small className="text-muted fw-semibold">
-                      🚀 Quick Access
-                    </small>
-                  </div>
-
                   <Button
-                    className="modern-btn-success modern-btn py-3 rounded-3 w-100 mb-3"
+                    className="modern-btn-success modern-btn py-3 rounded-3 w-100"
                     size="lg"
                     onClick={() => navigateTo("/oauth2-login")}
                   >
-                    <span className="me-2">⚡</span>
+                    <i className="bi bi-shield-lock me-2"></i>
                     Continue with SSO
-                    <small className="d-block mt-1 opacity-75">
-                      Fast & secure login
-                    </small>
                   </Button>
                 </div>
               </div>

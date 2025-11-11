@@ -48,7 +48,7 @@ function OAuth2Login({ onLogin }) {
       className="task-manager-bg vh-100 d-flex justify-content-center align-items-center p-3"
     >
       <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={8} md={6} lg={4} xl={3}>
+        <Col xs={12} sm={10} md={8} lg={6} xl={5}>
           <Card className="modern-card p-4 p-md-5 rounded-4">
             {/* Header */}
             <div className="text-center mb-5">
