@@ -12,9 +12,11 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.taskmanager.application.model.entities.AuthProvider;
@@ -23,6 +25,9 @@ import com.taskmanager.application.model.entities.AuthProvider;
 public class DataLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+
+    @Autowired
+    private Environment environment;
 
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepository, RoleRepository roleRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
@@ -37,20 +42,6 @@ public class DataLoader {
                         role.setName("ADMIN");
                         return roleRepository.save(role);
                     });
-
-            // Crea el usuario ADMIN si no existe
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                logger.info("Creating default admin user");
-                User admin = new User();
-                admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin")); // Encripta la contraseña
-                admin.setEmail("admin@example.com");
-                admin.setRoles(Collections.singleton(adminRole)); // Asigna el rol ADMIN
-                admin.addAuthProvider(AuthProvider.LOCAL);
-                userRepository.save(admin);
-                logger.info("Default admin user created successfully");
-            }
-
             RoleOfUser basicRole = roleRepository.findByName("BASIC")
                     .orElseGet(() -> {
                         RoleOfUser role = new RoleOfUser();
@@ -66,7 +57,20 @@ public class DataLoader {
                     });
 
             // Crea el usuario ADMIN si no existe
-            if (userRepository.findByUsername("basic").isEmpty()) {
+            if (userRepository.findByUsername("admin").isEmpty() && environment.getProperty("taskmanager.create-admin-user", Boolean.class, false)) {
+                logger.info("Creating default admin user");
+                User admin = new User();
+                admin.setUsername(environment.getProperty("taskmanager.default-admin-username", "admin"));
+                admin.setPassword(passwordEncoder.encode(environment.getProperty("taskmanager.default-admin-password", "admin"))); // Encripta la contraseña
+                admin.setEmail(environment.getProperty("taskmanager.default-admin-email", "admin@example.com"));
+                admin.setRoles(Collections.singleton(adminRole)); // Asigna el rol ADMIN
+                admin.addAuthProvider(AuthProvider.LOCAL);
+                userRepository.save(admin);
+                logger.info("Default admin user created successfully");
+            }
+
+            // Crea el usuario ADMIN si no existe
+            if (userRepository.findByUsername("basic").isEmpty() && environment.getProperty("taskmanager.create-basic-user", Boolean.class, false)) {
                 User user = new User();
                 user.setUsername("basic");
                 user.setPassword(passwordEncoder.encode("basic")); // Encripta la contraseña
