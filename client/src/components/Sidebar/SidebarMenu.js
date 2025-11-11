@@ -250,8 +250,17 @@ function SidebarMenu({ onLogOut }) {
           className="bg-dark text-white w-75"
         >
           <Offcanvas.Header closeButton closeVariant="white">
-            <Offcanvas.Title className="text-white">
-              <i className="fs-4 bi bi-speedometer"></i> Task Manager
+            <Offcanvas.Title
+              as={Link}
+              to="/home"
+              className="text-white text-decoration-none"
+            >
+              <i className="fs-4 bi bi-speedometer"></i>{" "}
+              <span
+                className={`fs-5 ms-3 ${isMobile ? "" : "d-none d-sm-inline"}`}
+              >
+                Task Manager
+              </span>
             </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="d-flex flex-column justify-content-between p-0">
