@@ -152,6 +152,7 @@ const TasksList = ({
                       size="sm"
                       className="me-2"
                       onClick={() => handleOpenTask(task.id)}
+                      style={{ minWidth: "44px", minHeight: "44px" }}
                     >
                       <i className="bi bi-eye"></i>
                     </Button>
@@ -160,6 +161,7 @@ const TasksList = ({
                       size="sm"
                       className="me-2"
                       onClick={() => handleEditTask(task)}
+                      style={{ minWidth: "44px", minHeight: "44px" }}
                     >
                       <i className="bi bi-pencil"></i>
                     </Button>
@@ -167,6 +169,7 @@ const TasksList = ({
                       variant="outline-danger"
                       size="sm"
                       onClick={() => confirmDeleteTask(task.id)}
+                      style={{ minWidth: "44px", minHeight: "44px" }}
                     >
                       <i className="bi bi-trash"></i>
                     </Button>
