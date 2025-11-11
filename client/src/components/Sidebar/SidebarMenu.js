@@ -203,24 +203,40 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        {/* Botón flotante en esquina para móvil */}
-        <Button
-          variant="dark"
-          className="position-fixed d-flex align-items-center justify-content-center mobile-menu-button"
-          onClick={toggleMobileMenu}
-          aria-controls="sidebar-menu"
+        {/* Botón flotante en esquina para móvil - Top bar layout */}
+        <div 
+          className="mobile-top-bar bg-dark position-fixed w-100 d-flex align-items-center justify-content-between px-3 py-2"
           style={{
-            width: "48px",
-            height: "48px",
-            left: "15px",
-            top: "15px",
-            zIndex: 1030,
-            borderRadius: "50%",
+            top: 0,
+            left: 0,
+            zIndex: 1000,
+            height: "60px",
             boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
           }}
         >
-          <i className="bi bi-list fs-4"></i>
-        </Button>
+          <Button
+            variant="dark"
+            className="d-flex align-items-center justify-content-center mobile-menu-button p-0"
+            onClick={toggleMobileMenu}
+            aria-controls="sidebar-menu"
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "8px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <i className="bi bi-list fs-4"></i>
+          </Button>
+          
+          <span className="text-white fw-bold">Task Manager</span>
+          
+          {/* Spacer for balance */}
+          <div style={{ width: "44px" }}></div>
+        </div>
+
+        {/* Spacer to push content below the fixed top bar */}
+        <div style={{ height: "60px", width: "100%" }}></div>
 
         {/* Menú lateral como Offcanvas en móvil */}
         <Offcanvas
