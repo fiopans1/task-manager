@@ -30,7 +30,7 @@ function OAuth2Login({ onLogin }) {
     checkOAuth2Token();
   }, [onLogin]);
 
-  // 🚀 INICIAR LOGIN OAUTH2
+  // INICIAR LOGIN OAUTH2
   const handleOAuth2Login = (provider) => {
     setOauth2Loading(provider);
     try {
