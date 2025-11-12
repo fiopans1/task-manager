@@ -118,10 +118,10 @@ const TasksList = ({
             <Row className="align-items-center">
               <Col md={8}>
                 <div className="d-flex align-items-center mb-2">
-                  <h5 className="mb-0 me-2">{task.nameOfTask}</h5>
+                  <h5 className="mb-0 me-2 task-title flex-grow-1">{task.nameOfTask}</h5>
                   <Badge
                     bg={getStatusBadgeVariant(task.state)}
-                    className="ms-auto ms-md-2"
+                    className="ms-auto ms-md-2 flex-shrink-0"
                     pill
                   >
                     {task.state}

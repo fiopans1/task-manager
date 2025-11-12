@@ -465,6 +465,28 @@
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* Prevent text overflow in task and list cards */
+.task-card .card-body,
+.list-list .card-body {
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-title {
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.list-title {
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 .action-history-list {
   max-height: 70vh;
   overflow-y: auto;

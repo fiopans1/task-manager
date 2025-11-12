@@ -79,8 +79,8 @@ const ListsList = ({
           >
             <Card.Body>
               <div className="d-flex">
-                <div className="flex-grow-1">
-                  <Card.Subtitle className="mt-0 mb-0 fw-bold">
+                <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                  <Card.Subtitle className="mt-0 mb-0 fw-bold list-title">
                     {card.nameOfList}
                   </Card.Subtitle>
                 </div>
@@ -111,7 +111,7 @@ const ListsList = ({
                 </div>
               </div>
               <Row>
-                <Card.Text className="mt-2 mb-0" style={{ fontSize: "13px" }}>
+                <Card.Text className="mt-2 mb-0 list-title" style={{ fontSize: "13px" }}>
                   {card.descriptionOfList}
                 </Card.Text>
                 <Card.Text
