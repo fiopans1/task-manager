@@ -118,21 +118,23 @@ const TasksList = ({
             <Row className="align-items-center">
               <Col md={8}>
                 <div className="d-flex align-items-center mb-2">
-                  <h5 className="mb-0 me-2">{task.nameOfTask}</h5>
+                  <h5
+                    className="mb-0 me-2 text-truncate"
+                    style={{ maxWidth: "calc(100% - 100px)" }}
+                  >
+                    {task.nameOfTask}
+                  </h5>
                   <Badge
                     bg={getStatusBadgeVariant(task.state)}
-                    className="ms-auto ms-md-2"
+                    className="ms-auto ms-md-2 flex-shrink-0"
                     pill
                   >
                     {task.state}
                   </Badge>
                 </div>
-                <Card.Text className="text-muted mb-3">
+                <Card.Text className="text-muted mb-3 text-truncate">
                   {task.descriptionOfTask ? (
-                    <>
-                      {task.descriptionOfTask.substring(0, 100)}
-                      {task.descriptionOfTask.length > 100 && "..."}
-                    </>
+                    task.descriptionOfTask
                   ) : (
                     <span className="text-muted fst-italic">
                       No description

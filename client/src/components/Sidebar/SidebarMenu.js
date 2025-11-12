@@ -283,7 +283,9 @@ function SidebarMenu({ onLogOut }) {
         style={{
           transition: "all 0.3s ease",
           minWidth: collapsed ? "60px" : "200px",
+          maxWidth: collapsed ? "60px" : "250px",
           position: "relative",
+          flexShrink: 0,
         }}
       >
         {/* Botón flotante para colapsar/expandir */}

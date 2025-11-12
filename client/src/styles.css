@@ -30,6 +30,23 @@
   text-overflow: ellipsis;
 }
 
+/* Overflow fixes for task and list cards */
+.task-card h5,
+.list-list .card-subtitle {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-card,
+.list-list .card {
+  overflow: hidden;
+}
+
+.task-card .card-body,
+.list-list .card-body {
+  overflow: hidden;
+}
+
 .tittle-tab-container {
   justify-content: center;
   align-items: center;
@@ -142,6 +159,32 @@
   filter: invert(1) grayscale(100%) brightness(200%);
 }
 
+/* Main App Layout Fixes */
+/* Desktop: prevent Outlet from going below Sidebar */
+@media (min-width: 768px) {
+  .main-app-row {
+    flex-wrap: nowrap !important;
+  }
+
+  .outlet-col {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Mobile: allow normal wrapping and full width for Outlet */
+@media (max-width: 767.98px) {
+  .main-app-row {
+    flex-wrap: wrap !important;
+  }
+
+  .outlet-col {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    padding-top: 60px !important; /* Space for mobile top bar */
+  }
+}
+
 @media (max-width: 767.98px) {
   .nav-pills .nav-link {
     padding: 12px 15px;
@@ -163,20 +206,32 @@
     text-align: center;
     font-size: 1.2rem;
   }
-  
+
   /* Ensure content doesn't get hidden under mobile top bar */
   .container-fluid {
     padding-top: 0 !important;
   }
-  
+
   /* Better button sizing for mobile */
   .btn-lg {
     min-height: 48px;
     font-size: 1rem;
   }
-  
+
   .btn {
     min-height: 44px;
+  }
+
+  /* Fix task and list card overflow on mobile */
+  .task-card h5,
+  .list-list .card-subtitle {
+    font-size: 1rem;
+    max-width: calc(100vw - 180px);
+  }
+
+  .task-card .card-body,
+  .list-list .card-body {
+    padding: 1rem;
   }
 }
 
@@ -787,38 +842,38 @@
     /* Fix for iOS Safari address bar */
     min-height: -webkit-fill-available;
   }
-  
+
   .modern-card {
     margin: 1rem;
   }
-  
+
   .brand-title {
     font-size: 1.75rem !important;
   }
-  
+
   .welcome-subtitle {
     font-size: 1rem;
   }
-  
+
   .feature-icon-simple {
     width: 50px;
     height: 50px;
   }
-  
+
   .feature-icon-simple i {
     font-size: 1.25rem;
   }
-  
+
   .feature-text {
     font-size: 0.85rem;
   }
-  
+
   /* Better form spacing on mobile */
   .modern-input,
   .form-control {
     font-size: 16px !important; /* Prevents zoom on iOS */
   }
-  
+
   .modern-btn {
     font-size: 1rem;
   }
@@ -831,7 +886,7 @@
     min-height: 100vh;
     min-height: -webkit-fill-available;
   }
-  
+
   .modern-card {
     padding: 1.5rem !important;
   }

@@ -38,6 +38,7 @@ const ListDetails = ({ listId }) => {
     user: "<None>",
     listElements: [],
   });
+  const [showMore, setShowMore] = useState(false);
   const [todos, setTodos] = useState([]);
   const [newTodoTitle, setNewTodoTitle] = useState("");
   const [newTodoDescription, setNewTodoDescription] = useState("");
@@ -150,43 +151,57 @@ const ListDetails = ({ listId }) => {
               size="lg"
               onClick={handleBack}
               className="rounded-circle p-2 shadow-sm"
-              style={{ 
-                backgroundColor: "#f8f9fa", 
+              style={{
+                backgroundColor: "#f8f9fa",
                 border: "2px solid #e9ecef",
-                color: "#6c757d"
+                color: "#6c757d",
               }}
             >
               <ArrowLeft size={20} />
             </Button>
             <div>
-              <h1 className="mb-1" style={{ 
-                fontWeight: "700", 
-                color: "#2c3e50",
-                fontSize: "2rem"
-              }}>
+              <h1
+                className="mb-1"
+                style={{
+                  fontWeight: "700",
+                  color: "#2c3e50",
+                  fontSize: "2rem",
+                }}
+              >
                 List Management
               </h1>
-              <p className="text-muted mb-0">Track and manage your tasks efficiently</p>
+              <p className="text-muted mb-0">
+                Track and manage your tasks efficiently
+              </p>
             </div>
           </Stack>
         </Col>
       </Row>
 
       {/* Main Card with Modern Design */}
-      <Card className="border-0 shadow-lg" style={{ borderRadius: "20px", overflow: "hidden" }}>
+      <Card
+        className="border-0 shadow-lg"
+        style={{ borderRadius: "20px", overflow: "hidden" }}
+      >
         {/* Header del card con gradiente */}
-        <Card.Header 
+        <Card.Header
           className="border-0 text-white p-4"
           style={{
             background: `linear-gradient(135deg, ${
-              progressPercentage === 100 ? '#28a745, #20c997' :
-              progressPercentage > 60 ? '#007bff, #6f42c1' :
-              progressPercentage > 30 ? '#ffc107, #fd7e14' :
-              '#6c757d, #495057'
+              progressPercentage === 100
+                ? "#28a745, #20c997"
+                : progressPercentage > 60
+                ? "#007bff, #6f42c1"
+                : progressPercentage > 30
+                ? "#ffc107, #fd7e14"
+                : "#6c757d, #495057"
             })`,
           }}
         >
-          <Stack direction="horizontal" className="justify-content-between align-items-center">
+          <Stack
+            direction="horizontal"
+            className="justify-content-between align-items-center"
+          >
             <div>
               <h3 className="mb-1" style={{ fontWeight: "600" }}>
                 {list.nameOfList || "Untitled List"}
@@ -196,8 +211,8 @@ const ListDetails = ({ listId }) => {
                 <small>List ID: #{list.id}</small>
               </Stack>
             </div>
-            <Badge 
-              bg="light" 
+            <Badge
+              bg="light"
               text="dark"
               className="px-4 py-2 rounded-pill d-flex align-items-center gap-1"
               style={{ fontSize: "0.9rem", fontWeight: "600" }}
@@ -206,12 +221,12 @@ const ListDetails = ({ listId }) => {
               {completedTodos}/{totalTodos} Done
             </Badge>
           </Stack>
-          
+
           {/* Progress Bar */}
           <div className="mt-3">
             <small className="text-white-50">Overall Progress</small>
-            <ProgressBar 
-              now={progressPercentage} 
+            <ProgressBar
+              now={progressPercentage}
               className="mt-1"
               style={{ height: "8px", borderRadius: "4px" }}
               variant={progressPercentage === 100 ? "light" : "warning"}
@@ -223,7 +238,10 @@ const ListDetails = ({ listId }) => {
           {/* Statistics Cards */}
           <Row className="mb-4">
             <Col md={4} className="mb-3">
-              <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+              <Card
+                className="border-0 bg-light h-100"
+                style={{ borderRadius: "15px" }}
+              >
                 <Card.Body className="text-center py-3">
                   <List size={24} className="text-primary mb-2" />
                   <h6 className="mb-1 text-muted">Total Tasks</h6>
@@ -235,7 +253,10 @@ const ListDetails = ({ listId }) => {
             </Col>
 
             <Col md={4} className="mb-3">
-              <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+              <Card
+                className="border-0 bg-light h-100"
+                style={{ borderRadius: "15px" }}
+              >
                 <Card.Body className="text-center py-3">
                   <CheckCircle size={24} className="text-success mb-2" />
                   <h6 className="mb-1 text-muted">Completed</h6>
@@ -247,7 +268,10 @@ const ListDetails = ({ listId }) => {
             </Col>
 
             <Col md={4} className="mb-3">
-              <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+              <Card
+                className="border-0 bg-light h-100"
+                style={{ borderRadius: "15px" }}
+              >
                 <Card.Body className="text-center py-3">
                   <Trophy size={24} className="text-warning mb-2" />
                   <h6 className="mb-1 text-muted">Progress</h6>
@@ -259,13 +283,70 @@ const ListDetails = ({ listId }) => {
             </Col>
           </Row>
 
-          {/* Add Task Section */}
-          <Card 
-            className="border-0 shadow-sm mb-4" 
-            style={{ 
+          {/* Descripción mejorada */}
+          <Card
+            className="border-0 shadow-sm mb-4"
+            style={{
               borderRadius: "15px",
               backgroundColor: "#f8f9fa",
-              border: "1px solid #e9ecef"
+              border: "1px solid #e9ecef",
+            }}
+          >
+            <Card.Body className="p-4">
+              <Stack direction="horizontal" gap={2} className="mb-3">
+                <FileText size={20} className="text-primary" />
+                <h5
+                  className="mb-0"
+                  style={{ fontWeight: "600", color: "#2c3e50" }}
+                >
+                  Description
+                </h5>
+              </Stack>
+
+              {list.descriptionOfList && list.descriptionOfList !== "<None>" ? (
+                list.descriptionOfList.length < 100 ? (
+                  <p
+                    className="mb-0"
+                    style={{ lineHeight: "1.6", color: "#495057" }}
+                  >
+                    {list.descriptionOfList}
+                  </p>
+                ) : (
+                  <>
+                    <p
+                      className="mb-2"
+                      style={{ lineHeight: "1.6", color: "#495057" }}
+                    >
+                      {showMore
+                        ? list.descriptionOfList
+                        : `${list.descriptionOfList.substring(0, 100)}...`}
+                    </p>
+                    <Button
+                      variant="link"
+                      className="p-0 text-decoration-none fw-semibold"
+                      onClick={() => setShowMore(!showMore)}
+                      style={{ color: "#007bff" }}
+                    >
+                      {!showMore ? "Show More ↓" : "Show Less ↑"}
+                    </Button>
+                  </>
+                )
+              ) : (
+                <div className="text-center py-4">
+                  <FileText size={48} className="text-muted mb-2" />
+                  <p className="text-muted mb-0">No description available</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+
+          {/* Add Task Section */}
+          <Card
+            className="border-0 shadow-sm mb-4"
+            style={{
+              borderRadius: "15px",
+              backgroundColor: "#f8f9fa",
+              border: "1px solid #e9ecef",
             }}
           >
             <Card.Body className="p-3">
@@ -273,10 +354,10 @@ const ListDetails = ({ listId }) => {
                 variant="primary"
                 className="w-100 d-flex align-items-center justify-content-center py-3"
                 onClick={() => setShowAddModal(true)}
-                style={{ 
+                style={{
                   borderRadius: "12px",
                   fontWeight: "600",
-                  background: "linear-gradient(135deg, #007bff, #0056b3)"
+                  background: "linear-gradient(135deg, #007bff, #0056b3)",
                 }}
               >
                 <PlusCircle className="me-2" size={20} />
@@ -286,20 +367,23 @@ const ListDetails = ({ listId }) => {
           </Card>
 
           {/* Tasks List */}
-          <Card 
-            className="border-0 shadow-sm" 
-            style={{ 
+          <Card
+            className="border-0 shadow-sm"
+            style={{
               borderRadius: "15px",
               backgroundColor: "#f8f9fa",
               border: "1px solid #e9ecef",
               maxHeight: "60vh",
-              overflow: "auto"
+              overflow: "auto",
             }}
           >
             <Card.Body className="p-4">
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <FileText size={20} className="text-primary" />
-                <h5 className="mb-0" style={{ fontWeight: "600", color: "#2c3e50" }}>
+                <h5
+                  className="mb-0"
+                  style={{ fontWeight: "600", color: "#2c3e50" }}
+                >
                   Task List
                 </h5>
               </Stack>
@@ -308,7 +392,9 @@ const ListDetails = ({ listId }) => {
                 <div className="text-center py-5">
                   <List size={48} className="text-muted mb-3" />
                   <h5 className="text-muted mb-2">No tasks in this list</h5>
-                  <p className="text-muted mb-3">Create your first task to get started</p>
+                  <p className="text-muted mb-3">
+                    Create your first task to get started
+                  </p>
                   <Button
                     variant="outline-primary"
                     onClick={() => setShowAddModal(true)}
@@ -321,24 +407,36 @@ const ListDetails = ({ listId }) => {
               ) : (
                 <div className="task-list">
                   {todos.map((todo, index) => (
-                    <Card 
-                      key={todo.id} 
-                      className={`border-0 shadow-sm mb-3 ${todo.completed ? 'bg-light' : 'bg-white'}`}
-                      style={{ 
+                    <Card
+                      key={todo.id}
+                      className={`border-0 shadow-sm mb-3 ${
+                        todo.completed ? "bg-light" : "bg-white"
+                      }`}
+                      style={{
                         borderRadius: "12px",
-                        border: todo.completed ? "1px solid #dee2e6" : "1px solid #e9ecef"
+                        border: todo.completed
+                          ? "1px solid #dee2e6"
+                          : "1px solid #e9ecef",
                       }}
                     >
                       <Card.Body className="p-3">
-                        <Stack direction="horizontal" className="justify-content-between align-items-start">
-                          <Stack direction="horizontal" gap={3} className="align-items-start" style={{ width: "80%" }}>
+                        <Stack
+                          direction="horizontal"
+                          className="justify-content-between align-items-start"
+                        >
+                          <Stack
+                            direction="horizontal"
+                            gap={3}
+                            className="align-items-start"
+                            style={{ width: "80%" }}
+                          >
                             <Button
                               variant="link"
                               className="p-0"
                               onClick={() => handleTodoStatus(todo)}
-                              style={{ 
+                              style={{
                                 color: todo.completed ? "#28a745" : "#6c757d",
-                                minWidth: "24px"
+                                minWidth: "24px",
                               }}
                             >
                               {todo.completed ? (
@@ -354,9 +452,9 @@ const ListDetails = ({ listId }) => {
                                     ? "text-decoration-line-through text-muted"
                                     : ""
                                 }`}
-                                style={{ 
+                                style={{
                                   fontWeight: todo.completed ? "400" : "600",
-                                  color: todo.completed ? "#6c757d" : "#2c3e50"
+                                  color: todo.completed ? "#6c757d" : "#2c3e50",
                                 }}
                               >
                                 {todo.name}
@@ -364,7 +462,9 @@ const ListDetails = ({ listId }) => {
                               {todo.description && (
                                 <p
                                   className={`mb-0 small ${
-                                    todo.completed ? "text-muted" : "text-secondary"
+                                    todo.completed
+                                      ? "text-muted"
+                                      : "text-secondary"
                                   }`}
                                   style={{ lineHeight: "1.4" }}
                                 >
@@ -442,20 +542,20 @@ const ListDetails = ({ listId }) => {
           </Form>
         </Modal.Body>
         <Modal.Footer style={{ borderRadius: "0 0 15px 15px" }}>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => setShowAddModal(false)}
             style={{ borderRadius: "8px" }}
           >
             Cancel
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={handleSubmitAddTodo}
-            style={{ 
+            style={{
               borderRadius: "8px",
               fontWeight: "600",
-              background: "linear-gradient(135deg, #007bff, #0056b3)"
+              background: "linear-gradient(135deg, #007bff, #0056b3)",
             }}
           >
             Add Task
@@ -464,7 +564,11 @@ const ListDetails = ({ listId }) => {
       </Modal>
 
       {/* Modal para editar tarea */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        centered
+      >
         <Modal.Header closeButton style={{ borderRadius: "15px 15px 0 0" }}>
           <Modal.Title style={{ fontWeight: "600", color: "#2c3e50" }}>
             <PencilSquare className="me-2" size={20} />
@@ -506,20 +610,20 @@ const ListDetails = ({ listId }) => {
           )}
         </Modal.Body>
         <Modal.Footer style={{ borderRadius: "0 0 15px 15px" }}>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => setShowEditModal(false)}
             style={{ borderRadius: "8px" }}
           >
             Cancel
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={handleUpdateTodo}
-            style={{ 
+            style={{
               borderRadius: "8px",
               fontWeight: "600",
-              background: "linear-gradient(135deg, #007bff, #0056b3)"
+              background: "linear-gradient(135deg, #007bff, #0056b3)",
             }}
           >
             Save Changes
