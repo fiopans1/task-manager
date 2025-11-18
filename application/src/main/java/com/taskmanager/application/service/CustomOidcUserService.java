@@ -35,11 +35,11 @@ public class CustomOidcUserService extends OidcUserService {
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         logger.info("Loading OIDC user from provider: {}", userRequest.getClientRegistration().getRegistrationId());
 
-        // 1. Cargar información del proveedor OIDC
+        // 1. Load OIDC provider information
         OidcUser oidcUser = super.loadUser(userRequest);
 
         try {
-            // 2. Procesar y guardar/actualizar usuario en BD
+            // 2. Process and save/update user in DB
             OidcUser processedUser = processOidcUser(userRequest, oidcUser);
             logger.info("OIDC user processed successfully: {}", oidcUser.getEmail());
             return processedUser;
@@ -54,7 +54,7 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Procesa la información del usuario OIDC y lo guarda/actualiza en la BD
+     * Processes OIDC user information and saves/updates it in the DB
      */
     private OidcUser processOidcUser(OidcUserRequest userRequest, OidcUser oidcUser) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -62,7 +62,7 @@ public class CustomOidcUserService extends OidcUserService {
 
         AuthProvider authProvider = AuthProvider.fromString(provider);
 
-        // Validar proveedor
+        // Validate provider
         if (authProvider == null || !authProvider.isOAuth2Provider()) {
             logger.error("OIDC provider not supported: {}", provider);
             throw new OAuth2AuthenticationProcessingException("Provider OIDC not supported: " + provider);
@@ -74,17 +74,17 @@ public class CustomOidcUserService extends OidcUserService {
 
         logger.debug("OIDC provider validated: {}", provider);
 
-        // Buscar o crear usuario
+        // Find or create user
         User user = findOrCreateUser(oidcUser, authProvider, userRequest);
         logger.info("OIDC user processed for provider {}: {}", provider, user.getEmail());
 
-        // Crear y retornar UserPrincipal con los datos del usuario OIDC
-        // Nota: Los atributos OIDC incluyen tanto claims estándar como atributos adicionales
+        // Create and return UserPrincipal with OIDC user data
+        // Note: OIDC attributes include both standard claims and additional attributes
         return UserPrincipal.createOidc(user, oidcUser.getAttributes(), oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 
     /**
-     * Busca o crea un usuario basado en la información de OIDC
+     * Finds or creates a user based on OIDC information
      */
     private User findOrCreateUser(OidcUser oidcUser, AuthProvider provider, OidcUserRequest userRequest) {
         String email = provider.extractEmail(oidcUser, userRequest);
@@ -92,7 +92,7 @@ public class CustomOidcUserService extends OidcUserService {
 
         if (email == null || email.isEmpty()) {
             logger.error("Email not found in OIDC user from provider: {}", provider);
-            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el usuario OIDC");
+            throw new OAuth2AuthenticationProcessingException("Email not found in OIDC user");
         }
 
         return userRepository.findByEmail(email)
@@ -107,12 +107,12 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Actualiza un usuario existente con información de OIDC
+     * Updates an existing user with OIDC information
      */
     private User updateExistingUser(User existingUser, OidcUser oidcUser, AuthProvider provider) {
         logger.debug("Updating existing user: {} with provider: {}", existingUser.getEmail(), provider);
 
-        // Agregar el nuevo proveedor si no lo tiene
+        // Add the new provider if not already present
         if (!existingUser.getAuthProviders().contains(provider)) {
             logger.debug("Adding new auth provider {} to user: {}", provider, existingUser.getEmail());
             existingUser.addAuthProvider(provider);
@@ -142,7 +142,7 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Crea un nuevo usuario basado en información de OIDC
+     * Creates a new user based on OIDC information
      */
     private User createNewUser(OidcUser oidcUser, AuthProvider provider, String email) {
         logger.debug("Creating new user with email: {} and provider: {}", email, provider);
@@ -165,20 +165,18 @@ public class CustomOidcUserService extends OidcUserService {
         }
         newUser.setName(fullName);
 
-        // Establecer imagen de perfil usando el método específico de OIDC
+        // Set profile picture using OIDC specific method
         // String picture = provider.extractProfilePicture(oidcUser);
         // if (picture != null && !picture.isEmpty()) {
         //     newUser.setProfilePicture(picture);
         // }
-        // Asignar rol básico si existe
+        // Assign basic role if exists
         if (roleService.existsBasicRole()) {
             newUser.addRole(roleService.getBasicRole());
             logger.debug("Assigned basic role to new user: {}", email);
         }
 
-        newUser.setAge(-1);
-
-        // Establecer timestamps
+        // Set timestamps
         newUser.setCreationDate(new Date());
 
         User savedUser = userRepository.save(newUser);
@@ -187,7 +185,7 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Genera un username único basado en el email
+     * Generates a unique username based on email
      */
     private String generateUniqueUsername(String email) {
         String baseUsername = email.substring(0, email.indexOf('@'));
@@ -196,7 +194,7 @@ public class CustomOidcUserService extends OidcUserService {
 
         logger.debug("Generating unique username for email: {}", email);
 
-        // Verificar si el username ya existe y generar uno único
+        // Check if username already exists and generate a unique one
         while (userRepository.existsByUsername(username)) {
             username = baseUsername + counter;
             counter++;

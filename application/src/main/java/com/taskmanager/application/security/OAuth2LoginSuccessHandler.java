@@ -35,25 +35,25 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
-        
+
         try {
-            // En este punto, el usuario ya fue procesado y guardado por CustomOAuth2UserService
+            // At this point, the user was already processed and saved by CustomOAuth2UserService
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            
-            logger.info("Procesando login OAuth2 exitoso para usuario: {} (ID: {})", 
-                       userPrincipal.getEmail(), userPrincipal.getId());
 
-            // Crear User object para el JWT
+            logger.info("Processing successful OAuth2 login for user: {} (ID: {})",
+                    userPrincipal.getEmail(), userPrincipal.getId());
+
+            // Create User object for JWT
             User user = userRepository.findById(userPrincipal.getId())
-                    .orElseThrow(() -> new Exception("Usuario no encontrado: " + userPrincipal.getId()));
+                    .orElseThrow(() -> new Exception("User not found: " + userPrincipal.getId()));
 
-            // Generar JWT token
+            // Generate JWT token
             String token = jwtUtilityService.generateJWT(user);
 
-            // Redirigir al frontend con el token
+            // Redirect to frontend with token
             String redirectUrl = buildRedirectUrl(token);
-            
-            logger.info("Redirigiendo a: {}", redirectUrl);
+
+            logger.info("Redirecting to: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
 
         } catch (Exception e) {
@@ -83,15 +83,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     /**
-     * Maneja errores durante la generación del token
+     * Handles errors during token generation
      */
     private void handleAuthenticationError(HttpServletResponse response, Exception e) throws IOException {
-        logger.error("Error en generación de token: {}", e.getMessage());
-        
-        // Redirigir al frontend con información del error
-        String errorUrl = authorizedRedirectUri + "?error=token_generation_failed&message=" + 
-                         java.net.URLEncoder.encode(e.getMessage(), "UTF-8");
-        
+        logger.error("Error in token generation: {}", e.getMessage());
+
+        // Redirect to frontend with error information
+        String errorUrl = authorizedRedirectUri + "?error=token_generation_failed&message="
+                + java.net.URLEncoder.encode(e.getMessage(), "UTF-8");
+
         response.sendRedirect(errorUrl);
     }
 }

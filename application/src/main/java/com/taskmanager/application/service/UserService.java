@@ -14,10 +14,10 @@ public class UserService {
 
     // @Autowired
     // UserRepository userRepository;
-    // public User newUser(User user){ /*Esto solo un administrador */
+    // public User newUser(User user){ /*This only for an administrator */
     //     return userRepository.save(user);  
     // }
-    // public void deleteUser(User user){ /*Esto solo un administrador */
+    // public void deleteUser(User user){ /*This only for an administrator */
     //     userRepository.delete(user);
     // }
     // public void deleteUserById(Long id) {

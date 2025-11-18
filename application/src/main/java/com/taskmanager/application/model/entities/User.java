@@ -46,8 +46,6 @@ public class User implements UserDetails {
 
     private String password;
 
-    private int age;
-
     private Date creationDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -74,10 +72,6 @@ public class User implements UserDetails {
     private FullName name;
 
     public User() {
-    }
-
-    public int getAge() {
-        return age;
     }
 
     public Date getCreationDate() {
@@ -112,10 +106,6 @@ public class User implements UserDetails {
 
     public void setName(FullName name) {
         this.name = name;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 
     public void setCreationDate(Date creationDate) {

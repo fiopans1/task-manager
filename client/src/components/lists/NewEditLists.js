@@ -1,9 +1,4 @@
-import {
-  Container,
-  Form,
-  Modal,
-  Button,
-} from "react-bootstrap";
+import { Container, Form, Modal, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import listService from "../../services/listService";
 import { successToast, errorToast } from "../common/Noty";
@@ -58,14 +53,12 @@ const NewEditLists = ({
     <Container>
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {editOrNew ? "Edit List" : "New List"}
-          </Modal.Title>
+          <Modal.Title>{editOrNew ? "Edit List" : "New List"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Título</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
                 name="nameOfList"
@@ -76,7 +69,7 @@ const NewEditLists = ({
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 name="descriptionOfList"
@@ -107,7 +100,7 @@ const NewEditLists = ({
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Cancelar
+            Cancel
           </Button>
           <Button
             variant="primary"

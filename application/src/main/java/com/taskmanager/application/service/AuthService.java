@@ -45,7 +45,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public HashMap<String, String> login(LoginDTO login) throws Exception {
         logger.info("Attempting login for username: {}", login.getUsername());
-        
+
         try {
             HashMap<String, String> response = new HashMap<>();
             Optional<User> user = userRepository.findByUsername(login.getUsername());
@@ -62,7 +62,7 @@ public class AuthService {
                 return response;
             } else {
                 logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
-                response.put("error", "Authentication failed!");
+                response.put("error", "Username or password is incorrect!");
                 return response;
             }
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class AuthService {
     @Transactional
     public ResponseDTO register(User user) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
         logger.info("Attempting to register user: {}", user.getUsername());
-        
+
         try {
             user.setCreationDate(new Date());
             ResponseDTO response;
@@ -126,7 +126,7 @@ public class AuthService {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.debug("No authenticated user found");
-            return null; // No hay usuario autenticado
+            return null; // No authenticated user
         }
 
         Object principal = authentication.getPrincipal();
@@ -134,10 +134,13 @@ public class AuthService {
             String username = ((UserDetails) principal).getUsername();
             logger.debug("Current authenticated username: {}", username);
             return username;
+        } else if (principal != null) {
+            String principalStr = principal.toString();
+            logger.debug("Current authenticated principal: {}", principalStr);
+            return principalStr; // This occurs when not using UserDetails
         } else {
-            String username = principal.toString();
-            logger.debug("Current authenticated principal: {}", username);
-            return username; // Esto ocurre si no estás usando UserDetails
+            logger.debug("Principal is null");
+            return null;
         }
     }
 
@@ -159,14 +162,14 @@ public class AuthService {
         }
     }
 
-    // Obtener los roles del usuario autenticado
+    // Get the roles of the authenticated user
     public Collection<? extends GrantedAuthority> getCurrentUserRoles() {
         logger.debug("Getting current user roles");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.debug("No authenticated user found for roles");
-            return Collections.emptyList(); // No hay roles disponibles
+            return Collections.emptyList(); // No roles available
         }
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

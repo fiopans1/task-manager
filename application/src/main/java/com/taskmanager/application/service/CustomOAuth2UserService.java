@@ -36,12 +36,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         logger.info("Loading OAuth2 user from provider: {}", provider);
 
-        // 1. Cargar información del proveedor OAuth2
+        // 1. Load OAuth2 provider information
         OAuth2User oauth2User = super.loadUser(userRequest);
         logger.debug("Successfully loaded OAuth2 user information");
 
         try {
-            // 2. Procesar y guardar/actualizar usuario en BD
+            // 2. Process and save/update user in DB
             OAuth2User result = processOAuth2User(userRequest, oauth2User);
             logger.info("Successfully processed OAuth2 user for provider: {}", provider);
             return result;
@@ -56,7 +56,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * Procesa la información del usuario OAuth2 y lo guarda/actualiza en la BD
+     * Processes OAuth2 user information and saves/updates it in the DB
      */
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -64,27 +64,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         AuthProvider authProvider = AuthProvider.fromString(provider);
 
-        // Validar proveedor
+        // Validate provider
         if (authProvider == null || !authProvider.isOAuth2Provider()) {
             logger.error("Unsupported OAuth2 provider: {}", provider);
-            throw new OAuth2AuthenticationProcessingException("Proveedor OAuth2 no soportado: " + provider);
+            throw new OAuth2AuthenticationProcessingException("Unsupported OAuth2 provider: " + provider);
         }
 
         if (!authProvider.isProviderActive()) {
             logger.warn("Inactive OAuth2 provider attempted: {}", provider);
-            throw new OAuth2AuthenticationProcessingException("Provider OAuth2 inactive: " + provider);
+            throw new OAuth2AuthenticationProcessingException("Inactive OAuth2 provider: " + provider);
         }
 
-        // Buscar o crear usuario
+        // Find or create user
         User user = findOrCreateUser(oauth2User, authProvider, userRequest);
         logger.debug("User found/created for OAuth2 authentication");
 
-        // Crear y retornar UserPrincipal con los datos del usuario
+        // Create and return UserPrincipal with user data
         return UserPrincipal.create(user, oauth2User.getAttributes());
     }
 
     /**
-     * Busca o crea un usuario basado en la información de OAuth2
+     * Finds or creates a user based on OAuth2 information
      */
     private User findOrCreateUser(OAuth2User oAuth2User, AuthProvider provider, OAuth2UserRequest userRequest) {
         String email = provider.extractEmail(oAuth2User, userRequest);
@@ -92,7 +92,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (email == null || email.isEmpty()) {
             logger.error("Email not found in OAuth2 user for provider: {}", provider);
-            throw new OAuth2AuthenticationProcessingException("Email no encontrado en el usuario OAuth2");
+            throw new OAuth2AuthenticationProcessingException("Email not found in OAuth2 user");
         }
 
         return userRepository.findByEmail(email)
@@ -107,18 +107,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * Actualiza un usuario existente con información de OAuth2
+     * Updates an existing user with OAuth2 information
      */
     private User updateExistingUser(User existingUser, OAuth2User oAuth2User, AuthProvider provider) {
         logger.debug("Updating existing user with OAuth2 information");
 
-        // Agregar el nuevo proveedor si no lo tiene
+        // Add the new provider if not already present
         if (!existingUser.getAuthProviders().contains(provider)) {
             existingUser.addAuthProvider(provider);
             logger.debug("Added new auth provider: {} to existing user", provider);
         }
 
-        // Actualizar información del usuario si es necesario
+        // Update user information if necessary
         FullName fullName = provider.extractFullName(oAuth2User);
         if (fullName != null && !fullName.getFullName().isEmpty() && existingUser.getName() == null) {
             existingUser.setName(fullName);
@@ -140,7 +140,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * Crea un nuevo usuario basado en información de OAuth2
+     * Creates a new user based on OAuth2 information
      */
     private User createNewUser(OAuth2User oAuth2User, AuthProvider provider, String email) {
         logger.info("Creating new user from OAuth2 authentication for provider: {}", provider);
@@ -164,12 +164,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         newUser.setName(fullName);
 
-        // Establecer imagen de perfil
+        // Set profile picture
         // String picture = getProfilePicture(oAuth2User, provider);
         // if (picture != null && !picture.isEmpty()) {
         //     newUser.setProfilePicture(picture);
         // }
-        // Asignar rol básico si existe
+        // Assign basic role if exists
         if (roleService.existsBasicRole()) {
             newUser.addRole(roleService.getBasicRole());
             logger.debug("Assigned BASIC role to new user");
@@ -177,9 +177,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             logger.warn("BASIC role not found when creating new OAuth2 user");
         }
 
-        newUser.setAge(-1);
-
-        // Establecer timestamps
+        // Set timestamps
         newUser.setCreationDate(new Date());
 
         User savedUser = userRepository.save(newUser);
@@ -188,7 +186,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * Genera un username único basado en el email
+     * Generates a unique username based on email
      */
     private String generateUniqueUsername(String email) {
         logger.debug("Generating unique username from email");
@@ -197,7 +195,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String username = baseUsername;
         int counter = 1;
 
-        // Verificar si el username ya existe y generar uno único
+        // Check if username already exists and generate a unique one
         while (userRepository.existsByUsername(username)) {
             username = baseUsername + counter;
             counter++;
@@ -208,7 +206,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * Obtiene la imagen de perfil según el proveedor OAuth2
+     * Gets the profile picture according to the OAuth2 provider
      */
     // private String getProfilePicture(OAuth2User oAuth2User, String provider) {
     //     return switch (provider.toLowerCase()) {

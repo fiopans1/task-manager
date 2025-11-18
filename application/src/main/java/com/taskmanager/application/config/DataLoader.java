@@ -31,10 +31,10 @@ public class DataLoader {
 
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepository, RoleRepository roleRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
-        return args -> { //TO-DO: Check if the role exists in DB y borrar todo esto, y que se controle la creacion de usuario con una propiedad
+        return args -> { //TO-DO: Check if the role exists in DB and delete all this, and control user creation with a property
             logger.info("Initializing database with default data...");
 
-            // Crea el rol ADMIN si no existe
+            // Create ADMIN role if it doesn't exist
             RoleOfUser adminRole = roleRepository.findByName("ADMIN")
                     .orElseGet(() -> {
                         logger.info("Creating ADMIN role");
@@ -56,27 +56,27 @@ public class DataLoader {
                         return roleRepository.save(role);
                     });
 
-            // Crea el usuario ADMIN si no existe
+            // Create ADMIN user if it doesn't exist
             if (userRepository.findByUsername("admin").isEmpty() && environment.getProperty("taskmanager.create-admin-user", Boolean.class, false)) {
                 logger.info("Creating default admin user");
                 User admin = new User();
                 admin.setUsername(environment.getProperty("taskmanager.default-admin-username", "admin"));
-                admin.setPassword(passwordEncoder.encode(environment.getProperty("taskmanager.default-admin-password", "admin"))); // Encripta la contraseña
+                admin.setPassword(passwordEncoder.encode(environment.getProperty("taskmanager.default-admin-password", "admin"))); // Encrypt password
                 admin.setEmail(environment.getProperty("taskmanager.default-admin-email", "admin@example.com"));
-                admin.setRoles(Collections.singleton(adminRole)); // Asigna el rol ADMIN
+                admin.setRoles(Collections.singleton(adminRole)); // Assign ADMIN role
                 admin.addAuthProvider(AuthProvider.LOCAL);
                 userRepository.save(admin);
                 logger.info("Default admin user created successfully");
             }
 
-            // Crea el usuario ADMIN si no existe
+            // Create BASIC user if it doesn't exist
             if (userRepository.findByUsername("basic").isEmpty() && environment.getProperty("taskmanager.create-basic-user", Boolean.class, false)) {
                 User user = new User();
                 user.setUsername("basic");
-                user.setPassword(passwordEncoder.encode("basic")); // Encripta la contraseña
+                user.setPassword(passwordEncoder.encode("basic")); // Encrypt password
                 user.setEmail("basic@example.com");
                 user.addAuthProvider(AuthProvider.LOCAL);
-                user.setRoles(Collections.singleton(basicRole)); // Asigna el rol ADMIN
+                user.setRoles(Collections.singleton(basicRole)); // Assign BASIC role
                 userRepository.save(user);
             }
         };

@@ -36,16 +36,16 @@ public class TaskService {
 
     @Autowired
     private AuthService authService;
-    
+
     @Autowired
     private ActionTaskRepository actionTaskRepository;
 
     @Autowired
     private EventTaskRepository eventTaskRepository;
 
-    /*Este metodo cuando esté el front bien implementado lo que tiene que hacer es comprobar quien esta
-     * logueada, y ver si es admin o no, si no es admin solo ponemos la tarea con el usuario que la creó,
-     * si es admin podemos poner la tarea con el usuario que asigna el admin (en este caso mandar el username).
+    /*This method, when the frontend is properly implemented, should check who is
+     * logged in, and see if they are admin or not. If not admin, we only put the task with the user who created it,
+     * if admin, we can put the task with the user assigned by the admin (in this case send the username).
      */
     @Transactional
     public Task createTask(TaskDTO taskDto) {
@@ -78,7 +78,7 @@ public class TaskService {
                     logger.error("Task not found with ID: {}", id);
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
-        
+
         if (authService.hasRole("ADMIN") || taskToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for updating task ID: {}", id);
 
@@ -86,7 +86,7 @@ public class TaskService {
             taskToUpdate.setDescriptionOfTask(task.getDescriptionOfTask());
             taskToUpdate.setPriority(task.getPriority());
             taskToUpdate.setState(task.getState());
-            
+
             if (task.isEvent()) {
                 logger.debug("Task ID: {} is being updated as an event", id);
                 if (taskToUpdate.getEventTask() != null) {
@@ -115,33 +115,33 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<TaskDTO> findAllTasksForLoggedUser() {
         logger.info("Finding all tasks for logged user");
-        
+
         User user = authService.getCurrentUser();
         logger.debug("Current user: {}", user.getUsername());
-        
+
         List<Task> list = tasksRepository.findAllByUser(user);
         logger.debug("Found {} tasks for user: {}", list.size(), user.getUsername());
-        
+
         List<TaskDTO> result = list.stream().map(task -> TaskDTO.fromEntity(task)).toList();
         logger.info("Successfully retrieved {} tasks for user: {}", result.size(), user.getUsername());
-        
+
         return result;
     }
 
     @Transactional(readOnly = true)
     public List<Task> findAllTasksByUser(User user) {
         logger.info("Finding all tasks for user: {}", user.getUsername());
-        
+
         List<Task> tasks = tasksRepository.findAllByUser(user);
         logger.debug("Found {} tasks for user: {}", tasks.size(), user.getUsername());
-        
+
         return tasks;
     }
 
     @Transactional
     public void deleteTask(Task task) {
         logger.info("Attempting to delete task with ID: {}", task.getId());
-        
+
         if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for deleting task ID: {}", task.getId());
             tasksRepository.delete(task);
@@ -154,13 +154,13 @@ public class TaskService {
     @Transactional
     public void deleteTaskById(Long id) throws NotPermissionException, ResourceNotFoundException {
         logger.info("Attempting to delete task with ID: {}", id);
-        
+
         Task task = tasksRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Task not found with ID: {}", id);
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
-        
+
         if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for deleting task ID: {}", id);
             tasksRepository.deleteById(id);
@@ -174,13 +174,13 @@ public class TaskService {
     @Transactional(readOnly = true)
     public Task getTaskById(Long id) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Retrieving task with ID: {}", id);
-        
+
         Task task = tasksRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Task not found with ID: {}", id);
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
-        
+
         if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for accessing task ID: {}", id);
             logger.info("Successfully retrieved task with ID: {}", id);
@@ -194,28 +194,27 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<EventTaskDTO> getAllEventsForCurrentUser() {
         logger.info("Retrieving all events for current user");
-        
+
         User user = authService.getCurrentUser();
         logger.debug("Current user: {}", user.getUsername());
-        
+
         List<EventTaskDTO> events = eventTaskRepository.findAllEventsByUserId(user.getId());
         logger.debug("Found {} events for user: {}", events.size(), user.getUsername());
         logger.info("Successfully retrieved {} events for user: {}", events.size(), user.getUsername());
-        
+
         return events;
     }
-
 
     @Transactional
     public ActionTask addActionToTask(Long taskId, ActionTaskDTO actionTask) throws ResourceNotFoundException, NotPermissionException {
 
         logger.info("Adding action to task with ID: {}", taskId);
-        
+
         Task task = tasksRepository.findById(taskId)
-            .orElseThrow(() -> {
-                logger.error("Task not found with ID: {}", taskId);
-                return new ResourceNotFoundException("Task not found with id " + taskId);
-            });
+                .orElseThrow(() -> {
+                    logger.error("Task not found with ID: {}", taskId);
+                    return new ResourceNotFoundException("Task not found with id " + taskId);
+                });
 
         if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.warn("Permission denied adding action to task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
@@ -283,6 +282,7 @@ public class TaskService {
         actionTaskRepository.delete(action);
         logger.info("Successfully deleted action with ID: {} from task with ID: {}", actionId, taskId);
     }
+
     @Transactional
     public ActionTask updateActionTask(Long taskId, Long actionId, ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating action with ID: {} from task with ID: {}", actionId, taskId);
@@ -312,7 +312,7 @@ public class TaskService {
 
         action.setActionName(actionTaskDTO.getActionName());
         action.setActionDescription(actionTaskDTO.getActionDescription());
-        
+
         ActionTask updatedAction = actionTaskRepository.save(action);
         logger.info("Successfully updated action with ID: {} from task with ID: {}", actionId, taskId);
         return updatedAction;

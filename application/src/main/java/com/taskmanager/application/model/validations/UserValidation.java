@@ -17,9 +17,6 @@ public class UserValidation {
         if(user.getPassword() == null || !(user.getPassword().length() >= 8 && user.getPassword().matches(".*[A-Z].*") && user.getPassword().matches(".*[a-z].*") && user.getPassword().matches(".*\\d.*") && user.getPassword().matches(".*[!@#$%^&*()].*"))){
             response.addErrorMessage("Password is required and must have at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character");
         }
-        if(user.getAge() < 13){
-            response.addErrorMessage("Age is required and must be greater than 13");
-        }
 
         return response;
     }

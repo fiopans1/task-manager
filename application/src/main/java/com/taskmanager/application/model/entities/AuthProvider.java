@@ -13,7 +13,7 @@ public enum AuthProvider {
 
     GITHUB("github", GithubOAuth2ProviderServiceImpl.class),
     GOOGLE("google", GoogleOAuth2ProviderServiceImpl.class),
-    LOCAL("local", null); // Para usuarios registrados localmente
+    LOCAL("local", null); // For locally registered users
 
     private final String value;
 
@@ -34,20 +34,20 @@ public enum AuthProvider {
     }
 
     /**
-     * Obtiene el servicio específico para este proveedor
+     * Gets the specific service for this provider
      */
     private OAuth2ProviderService getService() {
         if (serviceClass == null) {
             throw new UnsupportedOperationException("No service available for LOCAL provider");
         }
         if (applicationContext == null) {
-            throw new IllegalStateException("ApplicationContext no ha sido configurado");
+            throw new IllegalStateException("ApplicationContext has not been configured");
         }
         return applicationContext.getBean(serviceClass);
     }
 
     /**
-     * Métodos predefinidos que delegan en el servicio específico
+     * Predefined methods that delegate to the specific service
      */
     public String extractEmail(OAuth2User oauthUser, OAuth2UserRequest userRequest) {
         return getService().extractEmail(oauthUser, userRequest);
@@ -76,7 +76,7 @@ public enum AuthProvider {
     }
 
     /**
-     * Método estático para crear desde string
+     * Static method to create from string
      */
     public static AuthProvider fromString(String value) {
         for (AuthProvider provider : values()) {

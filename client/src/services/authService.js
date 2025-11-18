@@ -39,7 +39,6 @@ const register = async (formData) => {
       username: formData.username,
       email: formData.email,
       password: formData.password,
-      age: formData.age,
       name: {
         name: formData.name,
         surname1: formData.surname1,

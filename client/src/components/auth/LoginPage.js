@@ -27,7 +27,7 @@ function LoginPage({ onLogin }) {
       onLogin(token); // Notificar al padre
     } catch (error) {
       setLoading(false);
-      errorToast("Error al iniciar sesión: " + error.message);
+      errorToast("Login Error: " + error.message);
     }
   };
 

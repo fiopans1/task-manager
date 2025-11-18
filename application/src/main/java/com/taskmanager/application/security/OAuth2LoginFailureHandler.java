@@ -44,7 +44,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 
             logger.error("OAuth2 Error Code: {}, Description: {}", errorCode, errorMessage);
 
-            // Personalizar mensajes según el tipo de error
+            // Customize messages according to error type
             switch (errorCode) {
                 case "access_denied":
                     errorMessage = "User cancelled authorization";
@@ -71,24 +71,23 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
                     errorMessage = "OAuth2 authentication error";
                     break;
             }
-        }else{
+        } else {
             errorMessage = exception.getMessage() != null ? exception.getMessage() : errorMessage;
         }
-        
 
-        // Agregar información adicional al log
+        // Add additional information to log
         logger.info("Failed OAuth2 login attempt from IP: {}, User-Agent: {}",
                 getClientIpAddress(request),
                 request.getHeader("User-Agent"));
-        // Construir URL de redirección con parámetros de error
+        // Build redirect URL with error parameters
         String redirectUrl = buildRedirectUrl(errorCode, errorMessage);
 
-        // Limpiar la sesión si existe
+        // Clear session if exists
         if (request.getSession(false) != null) {
             request.getSession().invalidate();
         }
 
-        // Redirigir al usuario
+        // Redirect user
         response.sendRedirect(redirectUrl);
     }
 
@@ -115,11 +114,10 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
             return "";
         }
     }
-    
+
     // Getter y setter para configurar la URL de fallo
     public String getDefaultFailureUrl() {
         return defaultFailureUrl;
     }
-
 
 }

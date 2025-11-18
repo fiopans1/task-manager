@@ -8,32 +8,31 @@ import com.taskmanager.application.model.entities.FullName;
 public interface OAuth2ProviderService {
 
     /**
-     * Extrae el email del usuario OAuth2
+     * Extracts the OAuth2 user's email
      */
     String extractEmail(OAuth2User user, OAuth2UserRequest userRequest);
 
     /**
-     * Extrae el nombre completo del usuario
+     * Extracts the user's full name
      */
     FullName extractFullName(OAuth2User user);
 
     /**
-     * Extrae el username preferido
+     * Extracts the preferred username
      */
     String extractUsername(OAuth2User user);
 
     // /**
-    //  * Extrae la URL de la imagen de perfil
+    //  * Extracts the profile picture URL
     //  */
     // String extractProfilePicture(OAuth2User user);
-
     /**
-     * Obtiene el identificador único del proveedor
+     * Gets the provider's unique identifier
      */
     String extractProviderId(OAuth2User user);
 
     /**
-     * Extrae si dicho provider está activo o no
+     * Extracts whether the provider is active or not
      */
     boolean isProviderActive();
 }
