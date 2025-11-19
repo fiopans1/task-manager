@@ -181,9 +181,7 @@ function SidebarMenu({ onLogOut }) {
                   style={{ cursor: "pointer" }}
                 >
                   <div
-                    className={`nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center ${
-                      showAbout ? "active" : ""
-                    }`}
+                    className="nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center"
                   >
                     <div className="d-flex align-items-center position-relative w-100">
                       <i
