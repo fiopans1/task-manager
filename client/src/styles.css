@@ -898,3 +898,11 @@
     min-height: 100vh;
   }
 }
+
+.no-caret::after {
+  display: none !important;
+}
+
+.z-index-high {
+  z-index: 1060 !important;
+}

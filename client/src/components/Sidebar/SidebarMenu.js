@@ -11,6 +11,7 @@ import {
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation } from "react-router-dom";
 import authService from "../../services/authService";
+import About from "./About";
 
 // Constante para las rutas de navegación
 const NAVIGATION_ITEMS = [
@@ -39,6 +40,7 @@ const NAVIGATION_ITEMS = [
 ];
 
 function SidebarMenu({ onLogOut }) {
+  const [showAbout, setShowAbout] = useState(false);
   const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -93,94 +95,159 @@ function SidebarMenu({ onLogOut }) {
   );
 
   // Contenido principal del sidebar
-  const renderSidebarContent = () => (
-    <>
-      <div>
-        {!isMobile && (
-          <div className="d-flex align-items-center px-3 pt-3">
-            <NavLink
-              as={Link}
-              to="/home"
-              className="text-decoration-none text-white d-flex align-items-center"
-            >
-              <i className="fs-4 bi bi-speedometer"></i>
-              {!collapsed && (
-                <span className="ms-2 fs-4 d-none d-sm-inline">
-                  Task Manager
-                </span>
-              )}
-            </NavLink>
-          </div>
-        )}
-        <hr className="text-secondary mt-3" />
-        {/* Sidebar Menu */}
-        <Nav className="nav-pills flex-column">
-          {filteredNavItems.map((item, index) => (
-            <Nav.Item key={index} className="my-1">
+  const renderSidebarContent = () => {
+    // En móvil siempre queremos que se vea expandido, independientemente del estado collapsed
+    const effectiveCollapsed = isMobile ? false : collapsed;
+
+    return (
+      <>
+        <div>
+          {!isMobile && (
+            <div className="d-flex align-items-center px-3 pt-3">
               <NavLink
                 as={Link}
-                to={item.path}
-                className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
-                  location.pathname === item.path ? "active" : ""
-                }`}
-                onClick={isMobile ? toggleMobileMenu : undefined}
+                to="/home"
+                className="text-decoration-none text-white d-flex align-items-center"
               >
-                <div className="d-flex align-items-center position-relative w-100">
-                  <i
-                    className={`${item.icon} ${collapsed ? "fs-4 ps-2" : ""}`}
-                  ></i>
-                  {(!collapsed || isMobile) && (
-                    <>
-                      <span
-                        className={`fs-5 ms-3 ${
-                          isMobile ? "" : "d-none d-sm-inline"
-                        }`}
-                      >
-                        {""}
-                        {item.label}
-                      </span>
-                      {item.badge && (
-                        <Badge
-                          bg="danger"
-                          pill
-                          className="ms-auto position-absolute end-0"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </>
-                  )}
-                </div>
+                <i className="fs-4 bi bi-speedometer"></i>
+                {!effectiveCollapsed && (
+                  <span className="ms-2 fs-4 d-none d-sm-inline">
+                    Task Manager
+                  </span>
+                )}
               </NavLink>
-            </Nav.Item>
-          ))}
-        </Nav>
-      </div>
-
-      {/* Dropdown Menu */}
-      <div className={`${!collapsed ? "p-3" : ""}`}>
-        <Dropdown drop="up" align="end">
-          <Dropdown.Toggle
-            variant="dark"
-            id="dropdown-basic"
-            className="text-white text-decoration-none d-flex align-items-center"
-          >
-            <i
-              className={`${
-                !collapsed ? "bi bi-person-circle fs-4" : "bi bi-person-circle"
-              }`}
-            ></i>
-            {!collapsed && (
-              <span
-                className="ms-2 d-none d-sm-inline text-truncate"
-                style={{ maxWidth: "150px" }}
+            </div>
+          )}
+          <hr className="text-secondary mt-3" />
+          {/* Sidebar Menu */}
+          <Nav className="nav-pills flex-column">
+            {filteredNavItems.map((item, index) => (
+              <Nav.Item key={index} className="my-1">
+                <NavLink
+                  as={Link}
+                  to={item.path}
+                  className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
+                    location.pathname === item.path ? "active" : ""
+                  }`}
+                  onClick={isMobile ? toggleMobileMenu : undefined}
+                >
+                  <div className="d-flex align-items-center position-relative w-100">
+                    <i
+                      className={`${item.icon} ${
+                        effectiveCollapsed ? "fs-4 ps-2" : ""
+                      }`}
+                    ></i>
+                    {!effectiveCollapsed && (
+                      <>
+                        <span
+                          className={`fs-5 ms-3 ${
+                            isMobile ? "" : "d-none d-sm-inline"
+                          }`}
+                        >
+                          {""}
+                          {item.label}
+                        </span>
+                        {item.badge && (
+                          <Badge
+                            bg="danger"
+                            pill
+                            className="ms-auto position-absolute end-0"
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </NavLink>
+              </Nav.Item>
+            ))}
+            <Nav.Item className="my-1">
+              <Dropdown
+                drop={effectiveCollapsed ? "end" : "down"}
+                container="body"
               >
-                {authService.getUsername()}
-              </span>
-            )}
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="shadow">
-            {/* <Dropdown.Item as={Link} to="/profile" className="py-2">
+                <Dropdown.Toggle
+                  as="div"
+                  bsPrefix="custom-toggle"
+                  id="dropdown-basic"
+                  className="cursor-pointer"
+                  style={{ cursor: "pointer" }}
+                >
+                  <div
+                    className={`nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center ${
+                      showAbout ? "active" : ""
+                    }`}
+                  >
+                    <div className="d-flex align-items-center position-relative w-100">
+                      <i
+                        className={`bi bi-question-circle ${
+                          effectiveCollapsed ? "fs-4 ps-2" : ""
+                        }`}
+                      ></i>
+                      {!effectiveCollapsed && (
+                        <>
+                          <span
+                            className={`fs-5 ms-3 ${
+                              isMobile ? "" : "d-none d-sm-inline"
+                            }`}
+                          >
+                            Help
+                          </span>
+                          <i className="bi bi-chevron-down ms-auto fs-6"></i>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="shadow z-index-high">
+                  <Dropdown.Item onClick={() => setShowAbout(true)}>
+                    <i className="bi bi-box-info me-2"></i>
+                    About
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Nav.Item>
+          </Nav>
+        </div>
+
+        {/* Dropdown Menu */}
+        <div className={`${!effectiveCollapsed ? "px-3 py-2" : ""}`}>
+          <Dropdown
+            drop={effectiveCollapsed ? "end" : "up"}
+            align={effectiveCollapsed ? "start" : "end"}
+            container="body"
+          >
+            <Dropdown.Toggle
+              variant="dark"
+              id="dropdown-basic"
+              className={`no-caret text-white text-decoration-none d-flex align-items-center ${
+                effectiveCollapsed ? "justify-content-center w-100 px-0" : ""
+              }`}
+            >
+              <i
+                className={`${
+                  !effectiveCollapsed
+                    ? "bi bi-person-circle fs-4"
+                    : "bi bi-person-circle fs-4"
+                }`}
+              ></i>
+              {!effectiveCollapsed && (
+                <>
+                  <span
+                    className={`ms-2 text-truncate ${
+                      isMobile ? "" : "d-none d-sm-inline"
+                    }`}
+                    style={{ maxWidth: "150px" }}
+                  >
+                    {authService.getUsername()}
+                  </span>
+                  <i className="bi bi-chevron-up ms-2 fs-6"></i>
+                </>
+              )}
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="shadow z-index-high">
+              {/* <Dropdown.Item as={Link} to="/profile" className="py-2">
               <i className="bi bi-person me-2"></i>
               Profile
             </Dropdown.Item>
@@ -189,15 +256,16 @@ function SidebarMenu({ onLogOut }) {
               Settings
             </Dropdown.Item>
             <Dropdown.Divider /> */}
-            <Dropdown.Item onClick={onLogOut} className="text-danger py-2">
-              <i className="bi bi-box-arrow-right me-2"></i>
-              Log Out
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-    </>
-  );
+              <Dropdown.Item onClick={onLogOut} className="text-danger py-2">
+                <i className="bi bi-box-arrow-right me-2"></i>
+                Log Out
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+      </>
+    );
+  };
 
   // Renderizado condicional basado en si es móvil o no
   if (isMobile) {
@@ -317,6 +385,7 @@ function SidebarMenu({ onLogOut }) {
         )}
         {renderSidebarContent()}
       </Col>
+      <About show={showAbout} handleClose={() => setShowAbout(false)} />
     </>
   );
 }
