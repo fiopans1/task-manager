@@ -103,11 +103,17 @@ function SidebarMenu({ onLogOut }) {
       <>
         <div>
           {!isMobile && (
-            <div className="d-flex align-items-center px-3 pt-3">
+            <div
+              className={`d-flex align-items-center pt-3 ${
+                effectiveCollapsed ? "justify-content-center px-0" : "px-3"
+              }`}
+            >
               <NavLink
                 as={Link}
                 to="/home"
-                className="text-decoration-none text-white d-flex align-items-center"
+                className={`text-decoration-none text-white d-flex align-items-center ${
+                  effectiveCollapsed ? "justify-content-center w-100" : ""
+                }`}
               >
                 <i className="fs-4 bi bi-speedometer"></i>
                 {!effectiveCollapsed && (
