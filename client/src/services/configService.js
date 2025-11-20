@@ -16,44 +16,7 @@ class ConfigService {
    * Loads config from window.APP_CONFIG or falls back to defaults
    */
   init() {
-    this.config = window.APP_CONFIG || this.getDefaultConfig();
-  }
-
-  /**
-   * Get default configuration
-   * Used as fallback if config.js is not loaded
-   */
-  getDefaultConfig() {
-    return {
-      api: {
-        baseUrl: process.env.REACT_APP_BACKEND_URL || "http://localhost:8080",
-      },
-      oauth2: {
-        enabled: process.env.REACT_APP_OAUTH2_ENABLED === "true" || false,
-        google: {
-          enabled:
-            process.env.REACT_APP_OAUTH2_GOOGLE_ENABLED === "true" || false,
-        },
-        github: {
-          enabled:
-            process.env.REACT_APP_OAUTH2_GITHUB_ENABLED === "true" || false,
-        },
-        authentik: {
-          enabled:
-            process.env.REACT_APP_OAUTH2_AUTHENTIK_ENABLED === "true" || false,
-        },
-      },
-      app: {
-        name: "Task Manager",
-        version: "1.0.0",
-        debug: false,
-      },
-      features: {
-        calendar: true,
-        lists: true,
-        timeTracking: true,
-      },
-    };
+    this.config = window.APP_CONFIG;
   }
 
   /**
@@ -95,6 +58,14 @@ class ConfigService {
   getAppVersion() {
     if (!this.config) this.init();
     return this.config.app.version;
+  }
+
+    /**
+   * Get application license
+   */
+  getAppLicense() {
+    if (!this.config) this.init();
+    return this.config.app.license;
   }
 
   /**

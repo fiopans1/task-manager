@@ -12,6 +12,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation } from "react-router-dom";
 import authService from "../../services/authService";
 import About from "./About";
+import configService from "../../services/configService";
 
 // Constante para las rutas de navegación
 const NAVIGATION_ITEMS = [
@@ -118,7 +119,7 @@ function SidebarMenu({ onLogOut }) {
                 <i className="fs-4 bi bi-speedometer"></i>
                 {!effectiveCollapsed && (
                   <span className="ms-2 fs-4 d-none d-sm-inline">
-                    Task Manager
+                    {configService.getAppName()}
                   </span>
                 )}
               </NavLink>
@@ -180,9 +181,7 @@ function SidebarMenu({ onLogOut }) {
                   className="cursor-pointer"
                   style={{ cursor: "pointer" }}
                 >
-                  <div
-                    className="nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center"
-                  >
+                  <div className="nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center">
                     <div className="d-flex align-items-center position-relative w-100">
                       <i
                         className={`bi bi-question-circle ${
@@ -303,7 +302,7 @@ function SidebarMenu({ onLogOut }) {
             <i className="bi bi-list fs-4"></i>
           </Button>
 
-          <span className="text-white fw-bold">Task Manager</span>
+          <span className="text-white fw-bold">{configService.getAppName()}</span>
 
           {/* Spacer for balance */}
           <div style={{ width: "44px" }}></div>
@@ -331,7 +330,7 @@ function SidebarMenu({ onLogOut }) {
               <span
                 className={`fs-5 ms-3 ${isMobile ? "" : "d-none d-sm-inline"}`}
               >
-                Task Manager
+                {configService.getAppName()}
               </span>
             </Offcanvas.Title>
           </Offcanvas.Header>
@@ -339,6 +338,7 @@ function SidebarMenu({ onLogOut }) {
             {renderSidebarContent()}
           </Offcanvas.Body>
         </Offcanvas>
+        <About show={showAbout} handleClose={() => setShowAbout(false)} />
       </>
     );
   }

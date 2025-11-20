@@ -21,7 +21,7 @@ const HomePage = () => {
           <Card className="modern-card p-4 p-md-5 rounded-4">
             {/* Header Principal */}
             <div className="text-center mb-5">
-              <h1 className="brand-title display-4 mb-3">Task Manager</h1>
+              <h1 className="brand-title display-4 mb-3">{configService.getAppName()}</h1>
               <p className="welcome-subtitle mb-4">
                 Organize your tasks, boost your productivity
               </p>

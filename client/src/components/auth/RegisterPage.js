@@ -12,6 +12,7 @@ import { useState } from "react";
 import authService from "../../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
+import configService from "../../services/configService";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ function RegisterPage() {
           <Card className="modern-card p-4 p-md-5 rounded-4">
             {/* Header del Task Manager */}
             <div className="text-center mb-4">
-              <h2 className="brand-title display-6">Join Task Manager</h2>
+              <h2 className="brand-title display-6">Join {configService.getAppName()}</h2>
               <p className="text-muted mb-0">
                 Create your account to get started
               </p>

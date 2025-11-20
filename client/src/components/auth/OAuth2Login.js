@@ -52,7 +52,7 @@ function OAuth2Login({ onLogin }) {
           <Card className="modern-card p-4 p-md-5 rounded-4">
             {/* Header */}
             <div className="text-center mb-5">
-              <h2 className="brand-title display-6">Task Manager</h2>
+              <h2 className="brand-title display-6">{configService.getAppName()}</h2>
               <p className="text-muted mb-0">
                 Continue with your preferred account
               </p>
@@ -194,7 +194,7 @@ function OAuth2Login({ onLogin }) {
               </small>
               <br />
               <small className="text-muted mt-2 d-block">
-                New to Task Manager?{" "}
+                New to {configService.getAppName()}?{" "}
                 <Link to="/register" className="modern-link">
                   Create account
                 </Link>

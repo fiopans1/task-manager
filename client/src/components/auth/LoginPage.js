@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
+import configService from "../../services/configService";
 
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
@@ -41,7 +42,7 @@ function LoginPage({ onLogin }) {
           <Card className="modern-card p-4 p-md-5 rounded-4">
             {/* Header del Task Manager */}
             <div className="text-center mb-4">
-              <h2 className="brand-title display-6">Task Manager</h2>
+              <h2 className="brand-title display-6">{configService.getAppName()}</h2>
               <p className="text-muted mb-0">Manage your tasks efficiently</p>
             </div>
 
@@ -97,7 +98,7 @@ function LoginPage({ onLogin }) {
             <hr className="mb-3" />
             <div className="text-center">
               <small className="text-muted">
-                New to Task Manager?{" "}
+                New to {configService.getAppName()}?{" "}
                 <Link to="/register" className="modern-link">
                   Create account
                 </Link>
