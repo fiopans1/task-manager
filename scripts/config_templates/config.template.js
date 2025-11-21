@@ -1,9 +1,9 @@
 /**
  * Task Manager Frontend Configuration
- * 
+ *
  * This file contains all configuration settings for the frontend application.
  * Update these values according to your deployment environment.
- * 
+ *
  * NOTE: This file is loaded at runtime from the public directory.
  * Any changes require rebuilding or redeploying the application.
  */
@@ -17,7 +17,7 @@ window.APP_CONFIG = {
     // Examples:
     // - Development: 'http://localhost:8080'
     // - Production: 'https://api.yourdomain.com'
-    baseUrl: 'http://localhost:8080'
+    baseUrl: "http://localhost:8080",
   },
 
   /**
@@ -30,18 +30,18 @@ window.APP_CONFIG = {
 
     // Google OAuth2 Provider
     google: {
-      enabled: false
+      enabled: false,
     },
 
     // GitHub OAuth2 Provider
     github: {
-      enabled: false
+      enabled: false,
     },
 
     // Authentik OAuth2 Provider
     authentik: {
-      enabled: false
-    }
+      enabled: false,
+    },
   },
 
   /**
@@ -49,13 +49,15 @@ window.APP_CONFIG = {
    */
   app: {
     // Application name displayed in the UI
-    name: 'Task Manager',
+    name: "Task Manager",
 
     // Application version
-    version: '1.0.0',
+    version: "0.0.1",
 
     // Enable debug mode (shows additional logging)
-    debug: false
+    debug: false,
+
+    license: "Community Edition",
   },
 
   /**
@@ -70,6 +72,6 @@ window.APP_CONFIG = {
     lists: true,
 
     // Enable task time tracking
-    timeTracking: true
-  }
+    timeTracking: true,
+  },
 };
