@@ -8,12 +8,25 @@ body {
 }
 /* Fix for iOS Safari viewport height issues */
 html {
+  height: 100%;
   height: -webkit-fill-available;
 }
 
 body {
   min-height: 100vh;
   min-height: -webkit-fill-available;
+  /* Prevenir espacios blancos en Safari iOS */
+  position: relative;
+  overflow-x: hidden;
+  /* Evitar bounce en iOS */
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Prevent zoom on input focus for iOS */

@@ -56,7 +56,7 @@ function RegisterPage() {
   return (
     <Container
       fluid
-      className="task-manager-bg d-flex justify-content-center align-items-center py-4"
+      className="task-manager-bg d-flex justify-content-center align-items-center p-3"
     >
       <Row className="w-100 justify-content-center">
         <Col xs={12} sm={10} md={8} lg={6} xl={5}>
