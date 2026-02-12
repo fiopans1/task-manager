@@ -119,13 +119,13 @@ const ListDetails = ({ listId }) => {
     }
   };
 
-  // Abrir modal de edición
+  // Open edit modal
   const openEditModal = (todo) => {
     setEditTodo(todo);
     setShowEditModal(true);
   };
 
-  // Guardar cambios de edición
+  // Save edit changes
   const handleUpdateTodo = async () => {
     try {
       if (editTodo) {

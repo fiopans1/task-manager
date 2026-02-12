@@ -179,7 +179,7 @@ const authService = {
   getUserEmail,
   isTokenValid,
 
-  // Métodos OAuth2
+  // OAuth2 methods
   loginWithOAuth2,
   processOAuth2Token,
   checkForOAuth2Token,

@@ -63,8 +63,8 @@ const List = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implementar la búsqueda si el servicio lo soporta
-    // Por ahora, simplemente actualiza las tareas
+    // Implement search if the service supports it
+    // For now, simply refresh the lists
     refreshLists();
   };
 

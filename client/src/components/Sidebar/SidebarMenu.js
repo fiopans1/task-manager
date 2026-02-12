@@ -14,7 +14,7 @@ import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
 
-// Constante para las rutas de navegación
+// Constant for navigation routes
 const NAVIGATION_ITEMS = [
   {
     path: "/home/tasks",
