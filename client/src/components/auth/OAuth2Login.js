@@ -35,7 +35,7 @@ function OAuth2Login({ onLogin }) {
     setOauth2Loading(provider);
     try {
       authService.loginWithOAuth2(provider);
-      // El usuario será redirigido automáticamente al proveedor
+      // The user will be automatically redirected to the provider
     } catch (error) {
       setOauth2Loading("");
       errorToast("Error OAuth2: " + error.message);

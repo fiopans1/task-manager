@@ -54,7 +54,7 @@ const TaskDetailsTask = ({ taskId }) => {
     fetchTask();
   }, [taskId]);
 
-  // Función para determinar el color de la prioridad
+  // Function to determine the priority color
   const getPriorityBadgeVariant = (priority) => {
     if (!priority || priority === "<None>") return "secondary";
     switch (priority.toLowerCase()) {
@@ -73,7 +73,7 @@ const TaskDetailsTask = ({ taskId }) => {
     }
   };
 
-  // Función para obtener el progreso basado en el estado
+  // Function to get progress based on status
   const getProgressPercentage = (status) => {
     if (!status || status === "<None>") return 0;
     switch (status.toLowerCase()) {

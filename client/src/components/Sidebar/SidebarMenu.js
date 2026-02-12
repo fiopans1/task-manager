@@ -14,7 +14,7 @@ import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
 
-// Constante para las rutas de navegación
+// Constant for navigation routes
 const NAVIGATION_ITEMS = [
   {
     path: "/home/tasks",
@@ -53,18 +53,18 @@ function SidebarMenu({ onLogOut }) {
     setCollapsed(!collapsed);
   };
 
-  // Manejador para alternar el menú móvil
+  // Handler to toggle mobile menu
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);
   };
 
-  // Detectar cambios en el tamaño de la ventana
+  // Detect window size changes
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
 
-      // Si pasamos de móvil a desktop, cerrar el menú móvil
+      // If switching from mobile to desktop, close mobile menu
       if (!mobile && showMobileMenu) {
         setShowMobileMenu(false);
       }
@@ -90,14 +90,14 @@ function SidebarMenu({ onLogOut }) {
     checkAdminStatus();
   }, []);
 
-  // Filtrar elementos de navegación según el rol del usuario
+  // Filter navigation items based on user role
   const filteredNavItems = NAVIGATION_ITEMS.filter(
     (item) => !item.adminOnly || (item.adminOnly && isAdmin)
   );
 
-  // Contenido principal del sidebar
+  // Main sidebar content
   const renderSidebarContent = () => {
-    // En móvil siempre queremos que se vea expandido, independientemente del estado collapsed
+    // On mobile, always show expanded, regardless of collapsed state
     const effectiveCollapsed = isMobile ? false : collapsed;
 
     return (
@@ -270,7 +270,7 @@ function SidebarMenu({ onLogOut }) {
     );
   };
 
-  // Renderizado condicional basado en si es móvil o no
+  // Conditional rendering based on mobile or desktop
   if (isMobile) {
     return (
       <>
@@ -343,7 +343,7 @@ function SidebarMenu({ onLogOut }) {
     );
   }
 
-  // Versión desktop con sidebar plegable
+  // Desktop version with collapsible sidebar
   return (
     <>
       <Col

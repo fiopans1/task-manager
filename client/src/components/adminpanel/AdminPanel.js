@@ -65,7 +65,7 @@ const AdminPanel = () => {
   const handleCloseListModal = () => setShowListModal(false);
   const handleShowListModal = () => setShowListModal(true);
 
-  // Componente de estadísticas
+  // Statistics component
   const StatsCards = () => (
     <Row className="mb-4">
       <Col md={3}>
@@ -135,7 +135,7 @@ const AdminPanel = () => {
     </Row>
   );
 
-  // Página de Dashboard
+  // Dashboard Page
   const DashboardTab = () => (
     <>
       <StatsCards />
@@ -236,7 +236,7 @@ const AdminPanel = () => {
     </>
   );
 
-  // Página de Tareas
+  // Tasks Page
   const TasksTab = () => (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -404,7 +404,7 @@ const AdminPanel = () => {
     </>
   );
 
-  // Página de Usuarios
+  // Users Page
   const UsersTab = () => (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -511,7 +511,7 @@ const AdminPanel = () => {
     </>
   );
 
-  // Página de Listas
+  // Lists Page
   const ListsTab = () => (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">

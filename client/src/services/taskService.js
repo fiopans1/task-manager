@@ -16,7 +16,7 @@ const createTask = async (task) => {
     invalidateTasksCache();
     return response.data;
   } catch (error) {
-    throw new Error("Error al conectar con el servidor:" + error.message);
+    throw new Error("Error connecting to server:" + error.message);
   }
 };
 const editTask = async (task) => {
@@ -32,7 +32,7 @@ const editTask = async (task) => {
     invalidateTasksCache();
     return response.data;
   } catch (error) {
-    throw new Error("Error al conectar con el servidor:" + error.message);
+    throw new Error("Error connecting to server:" + error.message);
   }
 };
 
@@ -67,19 +67,19 @@ const invalidateTasksCache = (key = "tasks") => {
 };
 
 const getTasks = () => {
-  const cacheKey = "tasks"; // Puedes usar una clave más específica si es necesario
+  const cacheKey = "tasks";
 
-  // Si ya existe en caché, devuelve el recurso en caché
+  // If already in cache, return cached resource
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
   const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
   if (!serverUrl || !token) {
-    console.error("No se encontró serverUrl o token", { serverUrl, token });
+    console.error("Server URL or token not found", { serverUrl, token });
     return getSuspender(
       Promise.reject(
-        new Error("Falta configuración de servidor o autenticación")
+        new Error("Missing server configuration or authentication")
       )
     );
   }
@@ -92,8 +92,7 @@ const getTasks = () => {
     })
     .then((response) => response.data)
     .catch((error) => {
-      //console.error("Error en la llamada a la API:", error);
-      // 6. En caso de error, invalidar la caché para permitir reintentos
+      // In case of error, invalidate cache to allow retries
       invalidateTasksCache();
       throw error;
     });
