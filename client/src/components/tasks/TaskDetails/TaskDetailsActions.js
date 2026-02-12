@@ -19,27 +19,27 @@ import taskService from "../../../services/taskService";
 import { successToast, errorToast } from "../../common/Noty";
 
 const TaskDetailsActions = ({ taskId }) => {
-  // Estados para el manejo de acciones
+  // States for action handling
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Estados para el modal
+  // States for the modal
   const [showModal, setShowModal] = useState(false);
   const [newAction, setNewAction] = useState({
     actionName: "",
     actionDescription: "",
     user: "CurrentUser",
     actionDate: new Date(),
-    actionType: "COMMENT", // Valor por defecto
+    actionType: "COMMENT", // Default value
   });
 
-  // Estados para filtros y búsqueda
+  // States for filters and search
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
   const [filteredActions, setFilteredActions] = useState([]);
 
-  // Función para cargar datos (SIN useCallback para evitar dependencia circular)
+  // Function to load data (WITHOUT useCallback to avoid circular dependency)
   const fetchData = async () => {
     if (!taskId) return;
 
@@ -57,23 +57,23 @@ const TaskDetailsActions = ({ taskId }) => {
     }
   };
 
-  // Función pública para refrescar (esta sí puede usar useCallback)
+  // Public function to refresh (this one can use useCallback)
   const refreshActions = useCallback(() => {
     fetchData();
   }, [taskId]);
 
-  // Efecto para cargar datos iniciales - SOLO depende de taskId
+  // Effect to load initial data - ONLY depends on taskId
   useEffect(() => {
     if (taskId) {
       fetchData();
     }
-  }, [taskId]); // Solo taskId como dependencia
+  }, [taskId]); // Only taskId as dependency
 
-  // Efecto separado para filtros (sin llamadas al backend)
+  // Separate effect for filters (without backend calls)
   useEffect(() => {
     let result = [...actions];
 
-    // Aplicar búsqueda
+    // Apply search
     if (searchTerm) {
       result = result.filter(
         (item) =>
@@ -85,7 +85,7 @@ const TaskDetailsActions = ({ taskId }) => {
       );
     }
 
-    // Aplicar ordenamiento
+    // Apply sorting
     result.sort((a, b) => {
       const dateA = new Date(a.actionDate);
       const dateB = new Date(b.actionDate);
@@ -98,14 +98,14 @@ const TaskDetailsActions = ({ taskId }) => {
     });
 
     setFilteredActions(result);
-  }, [actions, searchTerm, sortOrder]); // Solo depende de actions, searchTerm y sortOrder
+  }, [actions, searchTerm, sortOrder]); // Only depends on actions, searchTerm and sortOrder
 
-  // Abrir modal para nueva acción
+  // Open modal for new action
   const handleAddAction = () => {
     setShowModal(true);
   };
 
-  // Cerrar modal
+  // Close modal
   const handleCloseModal = () => {
     setShowModal(false);
     setNewAction({
@@ -117,13 +117,13 @@ const TaskDetailsActions = ({ taskId }) => {
     });
   };
 
-  // Manejar cambios en el formulario
+  // Handle form changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewAction((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Guardar nueva acción
+  // Save new action
   const handleSaveAction = async () => {
     try {
       if (!newAction.actionName || !newAction.actionDescription) {
@@ -138,7 +138,7 @@ const TaskDetailsActions = ({ taskId }) => {
 
       await taskService.createActionTask(taskId, actionToAdd);
 
-      // Refrescar los datos después de crear
+      // Refresh data after creating
       await fetchData();
 
       successToast("Action saved successfully");
@@ -149,7 +149,7 @@ const TaskDetailsActions = ({ taskId }) => {
     }
   };
 
-  // Función para formatear fechas
+  // Function to format dates
   const formatDate = (actionDate) => {
     if (!actionDate) return "Date not available";
 
@@ -166,7 +166,7 @@ const TaskDetailsActions = ({ taskId }) => {
     }
   };
 
-  // Obtener estilo según el tipo de acción
+  // Get style based on action type
   const getActionStyle = (actionType) => {
     switch (actionType?.toLowerCase()) {
       case "create":
@@ -429,5 +429,5 @@ const TaskDetailsActions = ({ taskId }) => {
   );
 };
 
-// Exportar también la función de refresh si necesitas acceso externo
+// Also export the refresh function if you need external access
 export default TaskDetailsActions;

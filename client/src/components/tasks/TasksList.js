@@ -53,7 +53,7 @@ const TasksList = ({
     setShowDelete(true);
   };
 
-  // Función para obtener el color de la insignia de prioridad
+  // Function to get the priority badge color
   const getPriorityBadgeVariant = (priority) => {
     if (!priority || priority === "<None>") return "secondary";
     switch (priority.toLowerCase()) {
@@ -72,7 +72,7 @@ const TasksList = ({
     }
   };
 
-  // Función para obtener el color de la insignia de estado
+  // Function to get the status badge color
   const getStatusBadgeVariant = (status) => {
     if (!status) return "secondary";
 
@@ -92,7 +92,7 @@ const TasksList = ({
     }
   };
 
-  // Componente para estado vacío
+  // Component for empty state
   const EmptyState = () => (
     <Card className="text-center shadow-sm py-5">
       <Card.Body>

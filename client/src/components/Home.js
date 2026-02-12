@@ -63,7 +63,7 @@ const Home = () => {
     },
   ];
 
-  // Enlaces a documentación
+  // Documentation links
   const documentation = [
     { title: "Guía de inicio rápido", link: "#" },
     { title: "Manual del usuario", link: "#" },
