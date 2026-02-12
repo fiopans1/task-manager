@@ -84,7 +84,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     }
   };
 
-  // Añadir estas variables para controlar los campos de fecha y hora
+  // Add these variables to control date and time fields
   const [startDateField, setStartDateField] = useState("");
   const [startTimeField, setStartTimeField] = useState("");
   const [endDateField, setEndDateField] = useState("");

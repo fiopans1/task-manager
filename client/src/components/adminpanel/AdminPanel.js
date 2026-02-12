@@ -65,7 +65,7 @@ const AdminPanel = () => {
   const handleCloseListModal = () => setShowListModal(false);
   const handleShowListModal = () => setShowListModal(true);
 
-  // Componente de estadísticas
+  // Statistics component
   const StatsCards = () => (
     <Row className="mb-4">
       <Col md={3}>
