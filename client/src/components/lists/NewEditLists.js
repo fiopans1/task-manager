@@ -33,8 +33,7 @@ const NewEditLists = ({
   }, [initialData, editOrNew]);
 
   const handleSubmit = async (e) => {
-    //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
-    //e.preventDefault();
+    // TODO: Add date validation to ensure start date is before end date
     try {
       if (editOrNew && formData.id) {
         await listService.updateList(formData);

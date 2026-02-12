@@ -24,7 +24,7 @@ function App() {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // 1. Verificar si hay un token OAuth2 en la URL
+        // 1. Check for OAuth2 token in URL
         const oauth2Token = authService.checkForOAuth2Token();
         if (oauth2Token) {
           setIsAuthenticated(true);
@@ -33,7 +33,7 @@ function App() {
           return;
         }
 
-        // 2. Verificar token existente
+        // 2. Check existing token
         const existingToken = authService.getToken();
         if (existingToken) {
           setIsAuthenticated(true);
@@ -53,12 +53,12 @@ function App() {
   }, [navigate]);
 
   const handleLogin = (token) => {
-    setIsAuthenticated(true); // Cambiar estado de autenticación
-    navigate("/home"); // Redirigir a la página de inicio
+    setIsAuthenticated(true);
+    navigate("/home");
   };
 
   const handleLogout = () => {
-    authService.logout(); // Eliminar el token
+    authService.logout();
     infoToast("Logged out");
     setIsAuthenticated(false);
   };
@@ -68,7 +68,7 @@ function App() {
       <div className="app-loading">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Verificando autenticación...</p>
+          <p>Verifying authentication...</p>
         </div>
       </div>
     );

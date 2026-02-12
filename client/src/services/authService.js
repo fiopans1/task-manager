@@ -4,7 +4,7 @@ import { setToken, clearToken } from "../redux/slices/authSlice";
 import { decodeJwt } from "jose";
 import configService from "./configService";
 
-// Método para iniciar sesión y almacenar el token en localStorage
+// Login method: authenticate user and store token in localStorage
 const login = async (username, password) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
@@ -20,16 +20,16 @@ const login = async (username, password) => {
         },
       }
     );
-    const token = response.data.token; // Suponiendo que el backend retorna { token: "JWT_TOKEN" }
+    const token = response.data.token;
 
-    // Guardar el token en localStorage
+    // Save token in localStorage
     store.dispatch(setToken(token));
     return token;
   } catch (error) {
     if (error.response && error.response.data) {
       throw new Error(error.response.data.error);
     }
-    throw new Error("Error al conectar con el servidor");
+    throw new Error("Error connecting to server");
   }
 };
 
@@ -47,7 +47,7 @@ const register = async (formData) => {
     };
     const serverUrl = configService.getApiBaseUrl();
     const response = await axios.post(serverUrl + "/auth/register", userData);
-    return response.data; // Puedes devolver los datos de respuesta, como el token, si es necesario
+    return response.data;
   } catch (error) {
     if (
       error.response &&
@@ -56,12 +56,11 @@ const register = async (formData) => {
     ) {
       throw new Error(error.response.data.errorMessages.join(", "));
     }
-    // Puedes manejar los errores aquí (por ejemplo, mostrar un mensaje de error)
-    throw new Error("Error al conectar con el servidor");
+    throw new Error("Error connecting to server");
   }
 };
 
-// Método para obtener el token desde localStorage
+// Get token from localStorage
 const getToken = () => {
   return store.getState().auth.token;
 };
@@ -81,7 +80,7 @@ const getRoles = () => {
   }
 };
 
-// Verificar si el token es válido (no expirado)
+// Verify if token is valid (not expired)
 const isTokenValid = () => {
   const token = getToken();
   if (!token) return false;
@@ -96,10 +95,9 @@ const isTokenValid = () => {
   }
 };
 
-// ============== NUEVOS MÉTODOS OAUTH2 ==============
+// OAuth2 Methods
 
-
-// Iniciar login con OAuth2 (redirige al backend)
+// Start OAuth2 login (redirects to backend)
 const loginWithOAuth2 = (provider) => {
   const serverUrl = configService.getApiBaseUrl();
   const oauth2Url = `${serverUrl}/oauth2/authorization/${provider}`;
@@ -107,7 +105,7 @@ const loginWithOAuth2 = (provider) => {
   window.location.href = oauth2Url;
 };
 
-// Procesar token OAuth2 después del redirect
+// Process OAuth2 token after redirect
 const processOAuth2Token = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
@@ -115,14 +113,14 @@ const processOAuth2Token = () => {
   
   
   if (error) {
-    const message = urlParams.get('message') || 'Error de autenticación OAuth2';
+    const message = urlParams.get('message') || 'OAuth2 authentication error';
     throw new Error(decodeURIComponent(message));
   }
   
   if (token) {
     store.dispatch(setToken(token));
     
-    // Limpiar parámetros de la URL
+    // Clean URL parameters
     const newUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
     
@@ -132,9 +130,9 @@ const processOAuth2Token = () => {
   return null;
 };
 
-// Verificar si hay un token OAuth2 pendiente al cargar la página
+// Check for pending OAuth2 token when page loads
 const checkForOAuth2Token = () => {
-  // Solo procesar si hay parámetros en la URL
+  // Only process if URL has parameters
   const urlParams = new URLSearchParams(window.location.search);
   if (!urlParams.has('token') && !urlParams.has('error')) {
     return null;
@@ -143,15 +141,15 @@ const checkForOAuth2Token = () => {
   try {
     return processOAuth2Token();
   } catch (error) {
-    console.error('Error procesando token OAuth2:', error);
-    // Limpiar URL en caso de error
+    console.error('Error processing OAuth2 token:', error);
+    // Clean URL on error
     const newUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
     throw error;
   }
 };
 
-// Obtener email del token (útil para OAuth2)
+// Get email from token (useful for OAuth2)
 const getUserEmail = () => {
   const token = store.getState().auth.token;
   if (token) {
@@ -167,7 +165,7 @@ const getUserEmail = () => {
 };
 
 
-// Método para cerrar sesión y eliminar el token de localStorage
+// Logout: clear token from localStorage
 const logout = () => {
   store.dispatch(clearToken());
 };

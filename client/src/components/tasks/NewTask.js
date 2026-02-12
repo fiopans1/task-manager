@@ -55,13 +55,12 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     setFormData({ ...formData, [name]: value });
   };
   const handleSubmit = async (e) => {
-    //TO-DO: Necesitamos comprobar las fechas son correctas, es decir que la fecha de inicio sea menor que la de fin
-    //e.preventDefault();
+    // TODO: Add date validation to ensure start date is before end date
     try {
-      // Crear una copia de formData para modificar
+      // Create a copy of formData to modify
       const taskData = { ...formData };
 
-      // Si es un evento, combinar fecha y hora
+      // If it's an event, combine date and time
       if (taskData.isEvent) {
         // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
