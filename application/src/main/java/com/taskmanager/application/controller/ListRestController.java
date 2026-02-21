@@ -14,7 +14,6 @@ import com.taskmanager.application.service.ListService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.taskmanager.application.model.dto.ListElementDTO;
 import com.taskmanager.application.model.dto.ListTMDTO;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
@@ -121,34 +120,34 @@ public class ListRestController {
     }
 
     //The id is the List ID, not the element ID
-    @PostMapping("/addElement/{id}")
-    public ResponseEntity<String> addElementToList(@PathVariable Long id, @RequestBody ListElementDTO elementDTO) throws ResourceNotFoundException, NotPermissionException {
-        logger.info("Adding element to list with ID: {}", id);
+    @PostMapping("/addTasksToList/{id}")
+    public ResponseEntity<String> addTasksToList(@PathVariable Long id, @RequestBody List<Long> tasksListId) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Adding tasks to list with ID: {}", id);
 
         try {
-            listService.addElementToList(id, elementDTO);
-            logger.info("Successfully added element to list with ID: {}", id);
-            return ResponseEntity.ok().body("Element added successfully");
+            listService.addTasksToList(id, tasksListId);
+            logger.info("Successfully added tasks to list with ID: {}", id);
+            return ResponseEntity.ok().body("Tasks added successfully");
         } catch (ResourceNotFoundException e) {
-            logger.warn("List not found when adding element to list ID: {}", id);
+            logger.warn("List not found when adding tasks to list ID: {}", id);
             throw e;
         } catch (NotPermissionException e) {
-            logger.warn("Permission denied adding element to list ID: {}", id);
+            logger.warn("Permission denied adding tasks to list ID: {}", id);
             throw e;
         } catch (Exception e) {
-            logger.error("Error adding element to list ID: {}", id, e);
+            logger.error("Error adding tasks to list ID: {}", id, e);
             throw e;
         }
     }
 
-    @DeleteMapping("/deleteElement/{id}")
-    public ResponseEntity<String> deleteElementFromList(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException {
-        logger.info("Deleting element with ID: {}", id);
+    @DeleteMapping("/deleteTaskFromList/{id}")
+    public ResponseEntity<String> deleteTaskFromList(@PathVariable Long id) throws NotPermissionException, ResourceNotFoundException {
+        logger.info("Deleting task with ID: {}", id);
 
         try {
-            listService.deleteElement(id);
-            logger.info("Successfully deleted element with ID: {}", id);
-            return ResponseEntity.ok().body("Element deleted successfully");
+            listService.deleteTaskFromList(id);
+            logger.info("Successfully deleted task with ID: {}", id);
+            return ResponseEntity.ok().body("Task deleted successfully");
         } catch (ResourceNotFoundException e) {
             logger.warn("Element not found for deletion with ID: {}", id);
             throw e;
@@ -157,26 +156,6 @@ public class ListRestController {
             throw e;
         } catch (Exception e) {
             logger.error("Error deleting element with ID: {}", id, e);
-            throw e;
-        }
-    }
-
-    @PostMapping("/updateElement/{id}")
-    public ResponseEntity<ListElementDTO> updateElement(@PathVariable Long id, @RequestBody ListElementDTO elementDTO) throws ResourceNotFoundException, NotPermissionException {
-        logger.info("Updating element with ID: {}", id);
-
-        try {
-            ListElementDTO updatedElement = ListElementDTO.fromEntity(listService.updateElement(id, elementDTO));
-            logger.info("Successfully updated element with ID: {}", id);
-            return ResponseEntity.ok().body(updatedElement);
-        } catch (ResourceNotFoundException e) {
-            logger.warn("Element not found for update with ID: {}", id);
-            throw e;
-        } catch (NotPermissionException e) {
-            logger.warn("Permission denied updating element with ID: {}", id);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Error updating element with ID: {}", id, e);
             throw e;
         }
     }

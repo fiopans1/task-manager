@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.taskmanager.application.model.entities.ListElement;
 import com.taskmanager.application.model.entities.ListTM;
+import com.taskmanager.application.model.entities.Task;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ListTMDTO {
@@ -15,7 +15,7 @@ public class ListTMDTO {
     private String descriptionOfList;
     private String color;
     private String user;
-    private List<ListElementDTO> listElements;
+    private List<TaskDTO> tasks;
     private int totalElements = 0;
     private int completedElements = 0;
 
@@ -59,12 +59,12 @@ public class ListTMDTO {
         this.user = user;
     }
 
-    public List<ListElementDTO> getListElements() {
-        return listElements;
+    public List<TaskDTO> getTasks() {
+        return tasks;
     }
 
-    public void setListElements(List<ListElementDTO> listElements) {
-        this.listElements = listElements;
+    public void setTasks(List<TaskDTO> tasks) {
+        this.tasks = tasks;
     }
 
     public int getTotalElements() {
@@ -90,10 +90,10 @@ public class ListTMDTO {
         dto.setDescriptionOfList(list.getDescriptionOfList());
         dto.setColor(list.getColor());
         dto.setUser(list.getUser().getUsername());
-        dto.setTotalElements(list.getListElements().size());
-        dto.setCompletedElements((int) list.getListElements().stream().filter(ListElement::isCompleted).count());
+        dto.setTotalElements(list.getListTasks().size());
+        dto.setCompletedElements((int) list.getListTasks().stream().filter(Task::isCompleted).count());
         if (includeElements) {
-            dto.setListElements(list.getListElements().stream().map(element -> ListElementDTO.fromEntity(element)).toList());
+            dto.setTasks(list.getListTasks().stream().map(task -> TaskDTO.fromEntity(task)).toList());
         }
         return dto;
     }
@@ -106,8 +106,8 @@ public class ListTMDTO {
         entity.setNameOfList(listDTO.getNameOfList());
         entity.setDescriptionOfList(listDTO.getDescriptionOfList());
         entity.setColor(listDTO.getColor());
-        if (includeElements && listDTO.getListElements() != null) {
-            entity.setListElements(listDTO.getListElements().stream().map(ListElementDTO::toEntity).toList());
+        if (includeElements && listDTO.getTasks() != null) {
+            entity.setListTasks(listDTO.getTasks().stream().map(TaskDTO::toEntity).toList());
         }
         return entity;
     }
