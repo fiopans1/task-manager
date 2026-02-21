@@ -25,6 +25,7 @@ public class TaskDTO {
     private Date startDate;
     private Date endDate;
     private Date creationDate;
+    private Long listId;
 
     public TaskDTO() {
     }
@@ -91,6 +92,12 @@ public class TaskDTO {
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
+    public Long getListId() {
+        return listId;
+    }
+    public void setListId(Long listId) {
+        this.listId = listId;
+    }
     public static TaskDTO fromEntity(Task task) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
@@ -106,6 +113,9 @@ public class TaskDTO {
             taskDTO.setEndDate(task.getEventTask().getEndTime());
         } else {
             taskDTO.setIsEvent(false);
+        }
+        if(task.getList() != null) {
+            taskDTO.setListId(task.getList().getId());
         }
         return taskDTO;
     }

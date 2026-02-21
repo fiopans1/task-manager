@@ -1,18 +1,11 @@
 package com.taskmanager.application.model.entities;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import org.hibernate.annotations.ManyToAny;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,8 +30,8 @@ public class ListTM {
     @Column(nullable = false)
     private String color;
 
-    @OneToMany(mappedBy = "listTM", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ListElement> listElements = new ArrayList<>();
+    @OneToMany(mappedBy = "list", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Task> listTasks = new ArrayList<>();
 
     @ManyToOne
     private User user;
@@ -78,12 +71,12 @@ public class ListTM {
         this.color = color;
     }
 
-    public List<ListElement> getListElements() {
-        return listElements;
+    public List<Task> getListTasks() {
+        return listTasks;
     }
 
-    public void setListElements(List<ListElement> listElements) {
-        this.listElements = listElements;
+    public void setListTasks(List<Task> listTasks) {
+        this.listTasks = listTasks;
     }
 
     public User getUser() {
@@ -92,5 +85,10 @@ public class ListTM {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void addListTask(Task task) {
+        listTasks.add(task);
+        task.setList(this);
     }
 }

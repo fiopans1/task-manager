@@ -1,5 +1,6 @@
 package com.taskmanager.application.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -7,17 +8,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.taskmanager.application.model.dto.ListElementDTO;
 import com.taskmanager.application.model.dto.ListTMDTO;
-import com.taskmanager.application.model.entities.ListElement;
 import com.taskmanager.application.model.entities.ListTM;
+import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
-import com.taskmanager.application.respository.ListElementRepository;
 import com.taskmanager.application.respository.ListRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import com.taskmanager.application.model.dto.TaskDTO;
+import com.taskmanager.application.respository.TaskRepository;
 
 @Service
 public class ListService {
@@ -28,10 +30,10 @@ public class ListService {
     private ListRepository listRepository;
 
     @Autowired
-    private ListElementRepository listElementRepository;
+    private AuthService authService;
 
     @Autowired
-    private AuthService authService;
+    private TaskRepository taskRepository;
 
     @Transactional
     public ListTM createList(ListTMDTO listDTO) {
@@ -117,62 +119,49 @@ public class ListService {
     }
 
     @Transactional
-    public ListElement addElementToList(Long listId, ListElementDTO elementDTO) throws ResourceNotFoundException, NotPermissionException {
-        logger.info("Adding element to list with ID: {}", listId);
+    public List<TaskDTO> addTasksToList(Long listId, List<Long> tasksListId) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Adding tasks to list with ID: {}", listId);
 
         ListTM list = listRepository.findById(listId)
                 .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + listId));
-
+        
         if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
-            logger.debug("User authorized to add element to list ID: {}", listId);
-            ListElement element = ListElementDTO.toEntity(elementDTO);
-            element.setListTM(list);
-            ListElement savedElement = listElementRepository.save(element);
-            logger.info("Successfully added element to list ID: {}", listId);
-            return savedElement;
+            logger.debug("User authorized to add tasks to list ID: {}", listId);
+
+            List<TaskDTO> addedTasks = new ArrayList<>();
+            for (Long taskId : tasksListId) {
+                Task task = taskRepository.findById(taskId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+                list.addListTask(task);
+                addedTasks.add(TaskDTO.fromEntity(task));
+            }
+            listRepository.save(list);
+            logger.info("Successfully added tasks to list ID: {}", listId);
+            return addedTasks;
         } else {
-            logger.warn("Permission denied adding element to list ID: {} for user: {}", listId, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to add elements to this list");
+            logger.warn("Permission denied adding tasks to list ID: {} for user: {}", listId, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to add tasks to this list");
         }
     }
 
     @Transactional
-    public ListElement updateElement(Long id, ListElementDTO elementDTO) throws ResourceNotFoundException, NotPermissionException {
-        logger.info("Updating element with ID: {}", id);
+    public void deleteTaskFromList(Long id) throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Deleting task with ID: {}", id);
 
-        ListElement element = listElementRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Element not found with id " + id));
-        ListTM list = element.getListTM();
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        ListTM list = task.getList();
 
-        if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
-            logger.debug("User authorized to update element ID: {}", id);
-            element.setNameOfElement(elementDTO.getName());
-            element.setDescriptionOfElement(elementDTO.getDescription());
-            element.setCompleted(elementDTO.isCompleted());
-            ListElement updatedElement = listElementRepository.save(element);
-            logger.info("Successfully updated element with ID: {}", id);
-            return updatedElement;
+        if (authService.hasRole("ADMIN") || (list.getUser().getUsername().equals(authService.getCurrentUsername()) && task.getUser().getUsername().equals(authService.getCurrentUsername()))) {
+            logger.debug("User authorized to delete task ID: {}", id);
+            task.setList(null);
+            taskRepository.save(task);
+            list.getListTasks().remove(task);
+            listRepository.save(list);
+            logger.info("Successfully deleted task with ID: {}", id);
         } else {
-            logger.warn("Permission denied updating element with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to update this element");
-        }
-    }
-
-    @Transactional
-    public void deleteElement(Long id) throws ResourceNotFoundException, NotPermissionException {
-        logger.info("Deleting element with ID: {}", id);
-
-        ListElement element = listElementRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Element not found with id " + id));
-        ListTM list = element.getListTM();
-
-        if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
-            logger.debug("User authorized to delete element ID: {}", id);
-            listElementRepository.deleteById(id);
-            logger.info("Successfully deleted element with ID: {}", id);
-        } else {
-            logger.warn("Permission denied deleting element with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to delete this element");
+            logger.warn("Permission denied deleting task with ID: {} for user: {}", id, authService.getCurrentUsername());
+            throw new NotPermissionException("You don't have permission to delete this task from the list");
         }
     }
 }
