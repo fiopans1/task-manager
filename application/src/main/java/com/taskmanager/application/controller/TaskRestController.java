@@ -7,7 +7,9 @@ import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.TaskService;
+
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.taskmanager.application.model.dto.TaskResumeDTO;
+
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -198,5 +204,20 @@ public class TaskRestController {
             throw e;
         }
     }
+
+    @GetMapping("/getTasksResumeWithoutList")
+    public ResponseEntity<List<TaskResumeDTO>> getTasksResumeWithoutList() {
+        logger.debug("Retrieving tasks resume without list");
+
+        try {
+            List<TaskResumeDTO> tasksResume = taskService.getTasksResumeWithoutList();
+            logger.debug("Retrieved {} tasks resume without list", tasksResume.size());
+            return ResponseEntity.ok().body(tasksResume);
+        } catch (Exception e) {
+            logger.error("Error retrieving tasks resume without list", e);
+            throw e;
+        }
+    }
+    
 
 }

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ActionTaskDTO;
+import com.taskmanager.application.model.dto.TaskResumeDTO;
 
 @Service
 public class TaskService {
@@ -316,6 +317,19 @@ public class TaskService {
         ActionTask updatedAction = actionTaskRepository.save(action);
         logger.info("Successfully updated action with ID: {} from task with ID: {}", actionId, taskId);
         return updatedAction;
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResumeDTO> getTasksResumeWithoutList(){
+        logger.info("Retrieving task resumes without list for current user");
+
+        User user = authService.getCurrentUser();
+        logger.debug("Current user: {}", user.getUsername());
+
+        List<TaskResumeDTO> tasksResume = tasksRepository.findTasksResumeWithoutListByUserId(user.getId());
+        logger.info("Successfully retrieved {} task resumes without list for user: {}", tasksResume.size(), user.getUsername());
+
+        return tasksResume;
     }
 
 }
