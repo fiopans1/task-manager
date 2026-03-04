@@ -924,141 +924,66 @@
 }
 
 /* ===== Dark Mode Overrides ===== */
+/* Only for elements that can't use Bootstrap's adaptive utility classes */
 
-/* Calendar container */
-[data-bs-theme="dark"] .calendar-container {
-  background-color: #1a1d21;
-}
-
-[data-bs-theme="dark"] .calendar-header h2 {
-  color: #e9ecef;
-}
-
-[data-bs-theme="dark"] .calendar-header {
-  border-bottom-color: #495057;
-}
-
-[data-bs-theme="dark"] .calendar-wrapper {
-  background-color: #212529;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-[data-bs-theme="dark"] .legend-item {
-  color: #adb5bd;
-}
-
-/* Calendar toolbar */
-[data-bs-theme="dark"] .custom-toolbar {
-  background-color: #212529;
-  border-bottom-color: #495057;
-}
-
-[data-bs-theme="dark"] .toolbar-title h3 {
-  color: #e9ecef;
-}
-
-[data-bs-theme="dark"] .nav-button,
-[data-bs-theme="dark"] .view-button,
-[data-bs-theme="dark"] .today-button {
-  border-color: #495057;
-  color: #adb5bd;
-}
-
-[data-bs-theme="dark"] .today-button {
-  background-color: #343a40;
-}
-
-[data-bs-theme="dark"] .nav-button:hover,
-[data-bs-theme="dark"] .view-button:hover,
-[data-bs-theme="dark"] .today-button:hover {
-  background-color: #495057;
-  border-color: #6c757d;
-}
-
-/* Calendar cells */
+/* react-big-calendar overrides */
 [data-bs-theme="dark"] .rbc-header {
-  background-color: #343a40;
-  color: #adb5bd;
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
 }
 
 [data-bs-theme="dark"] .rbc-off-range {
-  color: #6c757d;
+  color: var(--bs-secondary-color);
 }
 
 [data-bs-theme="dark"] .rbc-today {
   background-color: rgba(67, 97, 238, 0.15);
 }
 
-/* Title tab containers */
-[data-bs-theme="dark"] .tittle-tab-container,
-[data-bs-theme="dark"] .tittle-tab-container-calendar {
-  border-bottom-color: #495057;
-  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
-}
-
-/* Task card hover in dark mode */
-[data-bs-theme="dark"] .task-card:hover {
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Hover shadow */
-[data-bs-theme="dark"] .hover-shadow:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Scrollbar for dark mode */
-[data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-thumb {
-  background-color: #495057;
-}
-
-[data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-track {
-  background-color: #212529;
-}
-
-[data-bs-theme="dark"] .action-history-list::-webkit-scrollbar-thumb {
-  background-color: #495057;
-}
-
-/* Card headers with bg-white class override */
-[data-bs-theme="dark"] .card-header.bg-white {
-  background-color: var(--bs-card-bg) !important;
-}
-
-[data-bs-theme="dark"] .card-footer.bg-white {
-  background-color: var(--bs-card-bg) !important;
-}
-
-/* Calendar global styles dark overrides */
 [data-bs-theme="dark"] :global(.rbc-toolbar) {
-  background: #212529;
-  border-bottom-color: #495057;
+  background: var(--bs-body-bg);
+  border-bottom-color: var(--bs-border-color);
 }
 
 [data-bs-theme="dark"] :global(.rbc-header) {
-  background: #343a40;
-  border-bottom-color: #495057;
+  background: var(--bs-tertiary-bg);
+  border-bottom-color: var(--bs-border-color);
 }
 
-/* Modern card on auth pages - keep light in dark mode */
+/* Title tab containers (custom class with hardcoded border) */
+[data-bs-theme="dark"] .tittle-tab-container,
+[data-bs-theme="dark"] .tittle-tab-container-calendar {
+  border-bottom-color: var(--bs-border-color);
+}
+
+/* Scrollbar styling for dark mode */
+[data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-thumb {
+  background-color: var(--bs-secondary-bg);
+}
+
+[data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-track {
+  background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme="dark"] .action-history-list::-webkit-scrollbar-thumb {
+  background-color: var(--bs-secondary-bg);
+}
+
+/* Auth pages: modern-card background for dark mode */
 [data-bs-theme="dark"] .modern-card {
   background: rgba(33, 37, 41, 0.95);
 }
 
-/* Sidebar toggle button */
-[data-bs-theme="dark"] .toggle-button:hover {
-  background-color: #6c757d !important;
-}
-
-/* Spinner in dark mode */
+/* Spinner animation in dark mode */
 [data-bs-theme="dark"] .spinner {
   border-color: rgba(255, 255, 255, 0.1);
   border-top-color: #4361ee;
 }
 
-/* Homepage text visibility */
+/* Homepage text (custom classes) */
 [data-bs-theme="dark"] .welcome-subtitle,
 [data-bs-theme="dark"] .feature-text {
-  color: #adb5bd;
+  color: var(--bs-secondary-color);
 }
 
 /* Brand title gradient for dark mode */

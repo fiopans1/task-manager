@@ -48,7 +48,7 @@ function LoginPage({ onLogin }) {
 
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-4" controlId="formBasicUsername">
-                <Form.Label className="fw-semibold text-dark mb-2">
+                <Form.Label className="fw-semibold text-body mb-2">
                   Username
                 </Form.Label>
                 <Form.Control
@@ -63,7 +63,7 @@ function LoginPage({ onLogin }) {
               </Form.Group>
 
               <Form.Group className="mb-4" controlId="formBasicPassword">
-                <Form.Label className="fw-semibold text-dark mb-2">
+                <Form.Label className="fw-semibold text-body mb-2">
                   Password
                 </Form.Label>
                 <Form.Control

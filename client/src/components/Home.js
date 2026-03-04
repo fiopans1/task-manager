@@ -114,7 +114,7 @@ const Home = () => {
             <Card className="h-100 shadow-sm">
               <Card.Body>
                 <div className="d-flex align-items-center mb-3">
-                  <div className="me-3 p-2 rounded-circle bg-light">
+                  <div className="me-3 p-2 rounded-circle bg-body-tertiary">
                     {feature.icon}
                   </div>
                   <h4 className="mb-0">{feature.title}</h4>
@@ -131,7 +131,7 @@ const Home = () => {
         {/* Nuevas funcionalidades */}
         <Col md={6} className="mb-4 mb-md-0">
           <Card className="shadow-sm h-100">
-            <Card.Header className="bg-white">
+            <Card.Header className="bg-body">
               <h3 className="h5 mb-0">
                 <StarFill className="text-warning me-2" />
                 Novedades versión 1.0
@@ -148,7 +148,7 @@ const Home = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
-            <Card.Footer className="bg-white">
+            <Card.Footer className="bg-body">
               <Button variant="outline-primary" size="sm">
                 Ver todas las novedades
               </Button>
@@ -159,7 +159,7 @@ const Home = () => {
         {/* Documentación */}
         <Col md={6}>
           <Card className="shadow-sm h-100">
-            <Card.Header className="bg-white">
+            <Card.Header className="bg-body">
               <h3 className="h5 mb-0">
                 <JournalBookmark className="text-primary me-2" />
                 Documentación
@@ -183,7 +183,7 @@ const Home = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
-            <Card.Footer className="bg-white">
+            <Card.Footer className="bg-body">
               <Button variant="outline-primary" size="sm">
                 Centro de ayuda
               </Button>
@@ -196,7 +196,7 @@ const Home = () => {
       <Row className="mb-4">
         <Col>
           <Card className="shadow-sm">
-            <Card.Header className="bg-white">
+            <Card.Header className="bg-body">
               <h3 className="h5 mb-0">
                 <InfoCircle className="text-primary me-2" />
                 Acerca de TaskManager

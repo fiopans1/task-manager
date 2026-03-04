@@ -116,22 +116,15 @@ const TaskDetailsTask = ({ taskId }) => {
         <Col>
           <Stack direction="horizontal" gap={3} className="align-items-center">
             <Button
-              variant="outline-light"
+              variant="outline-secondary"
               size="lg"
               onClick={handleBack}
               className="rounded-circle p-2 shadow-sm"
-              style={{ 
-                backgroundColor: "#f8f9fa", 
-                border: "2px solid #e9ecef",
-                color: "#6c757d"
-              }}
             >
               <ArrowLeft size={20} />
             </Button>
             <div>
-              <h1 className="mb-1" style={{ 
-                fontWeight: "700", 
-                color: "#2c3e50",
+              <h1 className="mb-1 fw-bold text-body" style={{ 
                 fontSize: "2rem"
               }}>
                 Task Overview
@@ -230,11 +223,11 @@ const TaskDetailsTask = ({ taskId }) => {
           {/* Información de fechas con cards */}
           <Row className="mb-4">
             <Col md={4} className="mb-3">
-              <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+              <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                 <Card.Body className="text-center py-3">
                   <Calendar3 size={24} className="text-primary mb-2" />
                   <h6 className="mb-1 text-muted">Created</h6>
-                  <small style={{ fontWeight: "600" }}>
+                  <small className="fw-semibold">
                     {formatDate(task.creationDate)}
                   </small>
                 </Card.Body>
@@ -244,11 +237,11 @@ const TaskDetailsTask = ({ taskId }) => {
             {task.isEvent && (
               <>
                 <Col md={4} className="mb-3">
-                  <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+                  <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                     <Card.Body className="text-center py-3">
                       <Clock size={24} className="text-success mb-2" />
                       <h6 className="mb-1 text-muted">Start Date</h6>
-                      <small style={{ fontWeight: "600" }}>
+                      <small className="fw-semibold">
                         {formatDate(task.startDate)}
                       </small>
                     </Card.Body>
@@ -256,11 +249,11 @@ const TaskDetailsTask = ({ taskId }) => {
                 </Col>
 
                 <Col md={4} className="mb-3">
-                  <Card className="border-0 bg-light h-100" style={{ borderRadius: "15px" }}>
+                  <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                     <Card.Body className="text-center py-3">
                       <Clock size={24} className="text-danger mb-2" />
                       <h6 className="mb-1 text-muted">End Date</h6>
-                      <small style={{ fontWeight: "600" }}>
+                      <small className="fw-semibold">
                         {formatDate(task.endDate)}
                       </small>
                     </Card.Body>
@@ -272,29 +265,27 @@ const TaskDetailsTask = ({ taskId }) => {
 
           {/* Descripción mejorada */}
           <Card 
-            className="border-0 shadow-sm" 
+            className="border-0 shadow-sm bg-body-tertiary" 
             style={{ 
-              borderRadius: "15px", 
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #e9ecef"
+              borderRadius: "15px",
             }}
           >
             <Card.Body className="p-4">
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <FileText size={20} className="text-primary" />
-                <h5 className="mb-0" style={{ fontWeight: "600", color: "#2c3e50" }}>
+                <h5 className="mb-0 fw-semibold text-body">
                   Description
                 </h5>
               </Stack>
               
               {task.descriptionOfTask && task.descriptionOfTask !== "<None>" ? (
                 task.descriptionOfTask.length < 100 ? (
-                  <p className="mb-0" style={{ lineHeight: "1.6", color: "#495057" }}>
+                  <p className="mb-0 text-body-secondary" style={{ lineHeight: "1.6" }}>
                     {task.descriptionOfTask}
                   </p>
                 ) : (
                   <>
-                    <p className="mb-2" style={{ lineHeight: "1.6", color: "#495057" }}>
+                    <p className="mb-2 text-body-secondary" style={{ lineHeight: "1.6" }}>
                       {showMore
                         ? task.descriptionOfTask
                         : `${task.descriptionOfTask.substring(0, 100)}...`}
@@ -303,7 +294,6 @@ const TaskDetailsTask = ({ taskId }) => {
                       variant="link"
                       className="p-0 text-decoration-none fw-semibold"
                       onClick={() => setShowMore(!showMore)}
-                      style={{ color: "#007bff" }}
                     >
                       {!showMore ? "Show More ↓" : "Show Less ↑"}
                     </Button>

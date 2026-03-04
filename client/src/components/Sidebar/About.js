@@ -27,8 +27,8 @@ const About = ({ show, handleClose }) => {
             Simplify your workflow, organize your life.
           </p>
           <Badge
-            bg="light"
-            text="dark"
+            bg="body-tertiary"
+            text="body"
             className="border px-3 py-2 rounded-pill"
           >
             Version {configService.getAppVersion()}
@@ -37,7 +37,7 @@ const About = ({ show, handleClose }) => {
 
         <Row className="g-4 mb-4">
           <Col md={4}>
-            <Card className="h-100 border-0 shadow-sm bg-light">
+            <Card className="h-100 border-0 shadow-sm bg-body-tertiary">
               <Card.Body className="text-center">
                 <i className="bi bi-check-circle-fill fs-1 text-success mb-3"></i>
                 <h6 className="fw-bold">Task Tracking</h6>
@@ -49,7 +49,7 @@ const About = ({ show, handleClose }) => {
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="h-100 border-0 shadow-sm bg-light">
+            <Card className="h-100 border-0 shadow-sm bg-body-tertiary">
               <Card.Body className="text-center">
                 <i className="bi bi-calendar-check-fill fs-1 text-warning mb-3"></i>
                 <h6 className="fw-bold">Calendar View</h6>
@@ -60,7 +60,7 @@ const About = ({ show, handleClose }) => {
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="h-100 border-0 shadow-sm bg-light">
+            <Card className="h-100 border-0 shadow-sm bg-body-tertiary">
               <Card.Body className="text-center">
                 <i className="bi bi-shield-lock-fill fs-1 text-info mb-3"></i>
                 <h6 className="fw-bold">Secure & Private</h6>
@@ -75,7 +75,7 @@ const About = ({ show, handleClose }) => {
         <div className="text-center pt-3 border-top">
           <p className="small text-muted mb-1">
             Designed & Developed by{" "}
-            <span className="fw-bold text-dark">fiopans1</span>
+            <span className="fw-bold text-body">fiopans1</span>
           </p>
           <p className="small text-muted">
             &copy; {new Date().getFullYear()} All rights reserved.
