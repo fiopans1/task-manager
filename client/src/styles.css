@@ -1003,10 +1003,15 @@
 [data-bs-theme="dark"] .rbc-agenda-view {
   border-color: #2a2a32;
 }
-/* Catch-all: any rbc border defaults to subtle dark line */
-[data-bs-theme="dark"] .rbc-month-view *,
-[data-bs-theme="dark"] .rbc-time-view *,
-[data-bs-theme="dark"] .rbc-agenda-view * {
+/* Additional rbc elements that need dark border */
+[data-bs-theme="dark"] .rbc-day-bg,
+[data-bs-theme="dark"] .rbc-time-slot,
+[data-bs-theme="dark"] .rbc-time-header-content,
+[data-bs-theme="dark"] .rbc-time-content,
+[data-bs-theme="dark"] .rbc-agenda-table,
+[data-bs-theme="dark"] .rbc-agenda-date-cell,
+[data-bs-theme="dark"] .rbc-agenda-time-cell,
+[data-bs-theme="dark"] .rbc-agenda-event-cell {
   border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-month-row,
