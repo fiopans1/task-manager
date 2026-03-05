@@ -931,7 +931,7 @@
   --bs-body-color: #d4d4d8;
   --bs-secondary-bg: #1e1e24;
   --bs-tertiary-bg: #24242b;
-  --bs-border-color: #35353e;
+  --bs-border-color: #4a4a56;
   --bs-card-bg: #1c1c22;
   --bs-emphasis-color: #f4f4f5;
   /* Warm-red accent for primary in dark mode */
@@ -961,26 +961,27 @@
 
 /* Cards: force visible border even on border-0 cards */
 [data-bs-theme="dark"] .card {
-  border: 1px solid #35353e !important;
+  border: 1px solid #4a4a56 !important;
 }
 
 /* Card headers / footers */
 [data-bs-theme="dark"] .card-header,
 [data-bs-theme="dark"] .card-footer {
   background-color: #1f1f26;
-  border-color: #35353e;
+  border-color: #4a4a56;
 }
 
-/* User dropdown toggle in sidebar — transparent bg, no visible box */
-[data-bs-theme="dark"] .sidebar-menu .dropdown > .btn-dark,
-[data-bs-theme="dark"] .offcanvas .dropdown > .btn-dark {
-  background-color: transparent !important;
-  border-color: transparent !important;
-}
-[data-bs-theme="dark"] .sidebar-menu .dropdown > .btn-dark:hover,
-[data-bs-theme="dark"] .offcanvas .dropdown > .btn-dark:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-color: transparent !important;
+/* User dropdown toggle in sidebar — transparent bg via Bootstrap CSS vars */
+[data-bs-theme="dark"] .sidebar-menu .dropdown-toggle.btn-dark,
+[data-bs-theme="dark"] .offcanvas .dropdown-toggle.btn-dark {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.12);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: transparent;
 }
 
 /* react-big-calendar — full dark treatment */
@@ -1043,7 +1044,7 @@
 }
 [data-bs-theme="dark"] .rbc-btn-group button {
   color: #a1a1aa;
-  border-color: #35353e;
+  border-color: #4a4a56;
 }
 [data-bs-theme="dark"] .rbc-btn-group button:hover {
   background-color: #2a2a32;
@@ -1060,7 +1061,7 @@
   border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-time-content {
-  border-top-color: #35353e;
+  border-top-color: #4a4a56;
 }
 [data-bs-theme="dark"] .rbc-time-slot {
   border-top-color: #22222a;
@@ -1083,7 +1084,7 @@
   background-color: #1c1c22;
 }
 [data-bs-theme="dark"] .calendar-header {
-  border-bottom-color: #35353e;
+  border-bottom-color: #4a4a56;
 }
 [data-bs-theme="dark"] .calendar-header h2 {
   color: #e4e4e7;
@@ -1094,7 +1095,7 @@
 }
 [data-bs-theme="dark"] .custom-toolbar {
   background-color: #1c1c22;
-  border-bottom-color: #35353e;
+  border-bottom-color: #4a4a56;
 }
 [data-bs-theme="dark"] .toolbar-title h3 {
   color: #e4e4e7;
@@ -1105,7 +1106,7 @@
 [data-bs-theme="dark"] .nav-button,
 [data-bs-theme="dark"] .view-button,
 [data-bs-theme="dark"] .today-button {
-  border-color: #35353e;
+  border-color: #4a4a56;
   color: #a1a1aa;
 }
 [data-bs-theme="dark"] .today-button {
@@ -1126,7 +1127,7 @@
 /* Title tab containers */
 [data-bs-theme="dark"] .tittle-tab-container,
 [data-bs-theme="dark"] .tittle-tab-container-calendar {
-  border-bottom-color: #35353e;
+  border-bottom-color: #4a4a56;
 }
 
 /* Scrollbar */
@@ -1143,7 +1144,7 @@
 /* Auth pages: modern-card */
 [data-bs-theme="dark"] .modern-card {
   background: rgba(28, 28, 34, 0.97);
-  border: 1px solid #35353e;
+  border: 1px solid #4a4a56;
 }
 
 /* Auth page background gradient → dark warm */
@@ -1159,12 +1160,12 @@
 
 /* Modals: visible border in dark mode */
 [data-bs-theme="dark"] .modal-content {
-  border: 1px solid #35353e !important;
+  border: 1px solid #4a4a56 !important;
   background-color: #1c1c22;
 }
 [data-bs-theme="dark"] .modal-header,
 [data-bs-theme="dark"] .modal-footer {
-  border-color: #2a2a32;
+  border-color: #4a4a56;
 }
 
 /* Homepage text */
