@@ -501,7 +501,7 @@ const ListDetails = ({ listId }) => {
                 value={newTodoTitle}
                 onChange={(e) => setNewTodoTitle(e.target.value)}
                 autoFocus
-                style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                className="rounded-3"
               />
             </Form.Group>
             <Form.Group>
@@ -514,7 +514,7 @@ const ListDetails = ({ listId }) => {
                 placeholder="Enter task description"
                 value={newTodoDescription}
                 onChange={(e) => setNewTodoDescription(e.target.value)}
-                style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                className="rounded-3"
               />
             </Form.Group>
           </Form>
@@ -566,7 +566,7 @@ const ListDetails = ({ listId }) => {
                     setEditTodo({ ...editTodo, name: e.target.value })
                   }
                   autoFocus
-                  style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                  className="rounded-3"
                 />
               </Form.Group>
               <Form.Group>
@@ -580,7 +580,7 @@ const ListDetails = ({ listId }) => {
                   onChange={(e) =>
                     setEditTodo({ ...editTodo, description: e.target.value })
                   }
-                  style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                  className="rounded-3"
                 />
               </Form.Group>
             </Form>

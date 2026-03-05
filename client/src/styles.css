@@ -959,9 +959,9 @@
   border-right-color: #be3c3c;
 }
 
-/* Cards: subtle visible border */
+/* Cards: force visible border even on border-0 cards */
 [data-bs-theme="dark"] .card {
-  border-color: #35353e;
+  border: 1px solid #35353e !important;
 }
 
 /* Card headers / footers */
@@ -971,23 +971,43 @@
   border-color: #35353e;
 }
 
+/* User dropdown toggle in sidebar — transparent bg, no visible box */
+[data-bs-theme="dark"] .sidebar-menu .dropdown > .btn-dark,
+[data-bs-theme="dark"] .offcanvas .dropdown > .btn-dark {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+[data-bs-theme="dark"] .sidebar-menu .dropdown > .btn-dark:hover,
+[data-bs-theme="dark"] .offcanvas .dropdown > .btn-dark:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: transparent !important;
+}
+
 /* react-big-calendar — full dark treatment */
 [data-bs-theme="dark"] .rbc-calendar {
   background: #1c1c22;
   color: #d4d4d8;
+  border: none;
 }
 [data-bs-theme="dark"] .rbc-toolbar {
   background: #1c1c22;
-  border-bottom: 1px solid #35353e;
+  border-bottom: 1px solid #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-header {
   background-color: #24242b;
   color: #a1a1aa;
-  border-bottom-color: #35353e;
+  border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-month-view,
-[data-bs-theme="dark"] .rbc-time-view {
-  border-color: #35353e;
+[data-bs-theme="dark"] .rbc-time-view,
+[data-bs-theme="dark"] .rbc-agenda-view {
+  border-color: #2a2a32;
+}
+/* Catch-all: any rbc border defaults to subtle dark line */
+[data-bs-theme="dark"] .rbc-month-view *,
+[data-bs-theme="dark"] .rbc-time-view *,
+[data-bs-theme="dark"] .rbc-agenda-view * {
+  border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-month-row,
 [data-bs-theme="dark"] .rbc-day-bg {
@@ -1046,11 +1066,11 @@
 /* Calendar global overrides */
 [data-bs-theme="dark"] :global(.rbc-toolbar) {
   background: #1c1c22;
-  border-bottom-color: #35353e;
+  border-bottom-color: #2a2a32;
 }
 [data-bs-theme="dark"] :global(.rbc-header) {
   background: #24242b;
-  border-bottom-color: #35353e;
+  border-bottom-color: #2a2a32;
 }
 
 /* Calendar custom classes (hardcoded light colors) */
@@ -1130,6 +1150,16 @@
 [data-bs-theme="dark"] .spinner {
   border-color: rgba(255, 255, 255, 0.08);
   border-top-color: #be3c3c;
+}
+
+/* Modals: visible border in dark mode */
+[data-bs-theme="dark"] .modal-content {
+  border: 1px solid #35353e !important;
+  background-color: #1c1c22;
+}
+[data-bs-theme="dark"] .modal-header,
+[data-bs-theme="dark"] .modal-footer {
+  border-color: #2a2a32;
 }
 
 /* Homepage text */
