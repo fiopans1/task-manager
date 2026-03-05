@@ -923,72 +923,267 @@
   z-index: 1060 !important;
 }
 
-/* ===== Dark Mode Overrides ===== */
-/* Only for elements that can't use Bootstrap's adaptive utility classes */
+/* ===== Dark Mode — Custom Theme ===== */
+/* Bootstrap override: richer dark palette with warm accent */
 
-/* react-big-calendar overrides */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #151519;
+  --bs-body-color: #d4d4d8;
+  --bs-secondary-bg: #1e1e24;
+  --bs-tertiary-bg: #24242b;
+  --bs-border-color: #35353e;
+  --bs-card-bg: #1c1c22;
+  --bs-emphasis-color: #f4f4f5;
+  /* Warm-red accent for primary in dark mode */
+  --bs-primary-rgb: 190, 60, 60;
+  --bs-primary: #be3c3c;
+  --bs-link-color-rgb: 220, 100, 100;
+}
+
+/* Sidebar: deeper black, distinct from body */
+[data-bs-theme="dark"] .bg-dark,
+[data-bs-theme="dark"] .offcanvas.bg-dark {
+  background-color: #0e0e12 !important;
+}
+
+/* Sidebar active/hover accents → warm red */
+[data-bs-theme="dark"] .nav-pills .nav-link:hover {
+  background-color: rgba(190, 60, 60, 0.15);
+  border-left-color: #be3c3c;
+}
+[data-bs-theme="dark"] .nav-pills .nav-link.active {
+  background-color: rgba(190, 60, 60, 0.25);
+  border-left-color: #be3c3c;
+}
+[data-bs-theme="dark"] .sidebar-menu.collapsed .nav-link.active {
+  border-right-color: #be3c3c;
+}
+
+/* Cards: subtle visible border */
+[data-bs-theme="dark"] .card {
+  border-color: #35353e;
+}
+
+/* Card headers / footers */
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+  background-color: #1f1f26;
+  border-color: #35353e;
+}
+
+/* react-big-calendar — full dark treatment */
+[data-bs-theme="dark"] .rbc-calendar {
+  background: #1c1c22;
+  color: #d4d4d8;
+}
+[data-bs-theme="dark"] .rbc-toolbar {
+  background: #1c1c22;
+  border-bottom: 1px solid #35353e;
+}
 [data-bs-theme="dark"] .rbc-header {
-  background-color: var(--bs-tertiary-bg);
-  color: var(--bs-body-color);
+  background-color: #24242b;
+  color: #a1a1aa;
+  border-bottom-color: #35353e;
 }
-
+[data-bs-theme="dark"] .rbc-month-view,
+[data-bs-theme="dark"] .rbc-time-view {
+  border-color: #35353e;
+}
+[data-bs-theme="dark"] .rbc-month-row,
+[data-bs-theme="dark"] .rbc-day-bg {
+  border-color: #2a2a32;
+}
+[data-bs-theme="dark"] .rbc-day-bg + .rbc-day-bg,
+[data-bs-theme="dark"] .rbc-month-row + .rbc-month-row {
+  border-top-color: #2a2a32;
+}
 [data-bs-theme="dark"] .rbc-off-range {
-  color: var(--bs-secondary-color);
+  color: #52525b;
 }
-
+[data-bs-theme="dark"] .rbc-off-range-bg {
+  background: #18181d;
+}
 [data-bs-theme="dark"] .rbc-today {
-  background-color: rgba(67, 97, 238, 0.15);
+  background-color: rgba(190, 60, 60, 0.10);
 }
-
+[data-bs-theme="dark"] .rbc-date-cell {
+  color: #a1a1aa;
+}
+[data-bs-theme="dark"] .rbc-date-cell.rbc-now {
+  color: #f87171;
+  font-weight: 700;
+}
+[data-bs-theme="dark"] .rbc-toolbar-label {
+  color: #e4e4e7;
+}
+[data-bs-theme="dark"] .rbc-btn-group button {
+  color: #a1a1aa;
+  border-color: #35353e;
+}
+[data-bs-theme="dark"] .rbc-btn-group button:hover {
+  background-color: #2a2a32;
+  color: #e4e4e7;
+}
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active {
+  background-color: #be3c3c;
+  color: #fff;
+  border-color: #be3c3c;
+}
+[data-bs-theme="dark"] .rbc-time-header-gutter,
+[data-bs-theme="dark"] .rbc-time-gutter,
+[data-bs-theme="dark"] .rbc-timeslot-group {
+  border-color: #2a2a32;
+}
+[data-bs-theme="dark"] .rbc-time-content {
+  border-top-color: #35353e;
+}
+[data-bs-theme="dark"] .rbc-time-slot {
+  border-top-color: #22222a;
+}
+[data-bs-theme="dark"] .rbc-current-time-indicator {
+  background-color: #f87171;
+}
+/* Calendar global overrides */
 [data-bs-theme="dark"] :global(.rbc-toolbar) {
-  background: var(--bs-body-bg);
-  border-bottom-color: var(--bs-border-color);
+  background: #1c1c22;
+  border-bottom-color: #35353e;
 }
-
 [data-bs-theme="dark"] :global(.rbc-header) {
-  background: var(--bs-tertiary-bg);
-  border-bottom-color: var(--bs-border-color);
+  background: #24242b;
+  border-bottom-color: #35353e;
 }
 
-/* Title tab containers (custom class with hardcoded border) */
+/* Calendar custom classes (hardcoded light colors) */
+[data-bs-theme="dark"] .calendar-container {
+  background-color: #1c1c22;
+}
+[data-bs-theme="dark"] .calendar-header {
+  border-bottom-color: #35353e;
+}
+[data-bs-theme="dark"] .calendar-header h2 {
+  color: #e4e4e7;
+}
+[data-bs-theme="dark"] .calendar-wrapper {
+  background-color: #1c1c22;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+[data-bs-theme="dark"] .custom-toolbar {
+  background-color: #1c1c22;
+  border-bottom-color: #35353e;
+}
+[data-bs-theme="dark"] .toolbar-title h3 {
+  color: #e4e4e7;
+}
+[data-bs-theme="dark"] .legend-item {
+  color: #a1a1aa;
+}
+[data-bs-theme="dark"] .nav-button,
+[data-bs-theme="dark"] .view-button,
+[data-bs-theme="dark"] .today-button {
+  border-color: #35353e;
+  color: #a1a1aa;
+}
+[data-bs-theme="dark"] .today-button {
+  background-color: #24242b;
+}
+[data-bs-theme="dark"] .nav-button:hover,
+[data-bs-theme="dark"] .view-button:hover,
+[data-bs-theme="dark"] .today-button:hover {
+  background-color: #2a2a32;
+  border-color: #45454f;
+}
+[data-bs-theme="dark"] .view-button.active {
+  background-color: #be3c3c;
+  color: #fff;
+  border-color: #be3c3c;
+}
+
+/* Title tab containers */
 [data-bs-theme="dark"] .tittle-tab-container,
 [data-bs-theme="dark"] .tittle-tab-container-calendar {
-  border-bottom-color: var(--bs-border-color);
+  border-bottom-color: #35353e;
 }
 
-/* Scrollbar styling for dark mode */
+/* Scrollbar */
 [data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-thumb {
-  background-color: var(--bs-secondary-bg);
+  background-color: #35353e;
 }
-
 [data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-track {
-  background-color: var(--bs-body-bg);
+  background-color: #151519;
 }
-
 [data-bs-theme="dark"] .action-history-list::-webkit-scrollbar-thumb {
-  background-color: var(--bs-secondary-bg);
+  background-color: #35353e;
 }
 
-/* Auth pages: modern-card background for dark mode */
+/* Auth pages: modern-card */
 [data-bs-theme="dark"] .modern-card {
-  background: rgba(33, 37, 41, 0.95);
+  background: rgba(28, 28, 34, 0.97);
+  border: 1px solid #35353e;
 }
 
-/* Spinner animation in dark mode */
+/* Auth page background gradient → dark warm */
+[data-bs-theme="dark"] .task-manager-bg {
+  background: linear-gradient(135deg, #1a1014, #15151b, #1a1218) !important;
+}
+
+/* Spinner */
 [data-bs-theme="dark"] .spinner {
-  border-color: rgba(255, 255, 255, 0.1);
-  border-top-color: #4361ee;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-top-color: #be3c3c;
 }
 
-/* Homepage text (custom classes) */
+/* Homepage text */
 [data-bs-theme="dark"] .welcome-subtitle,
 [data-bs-theme="dark"] .feature-text {
-  color: var(--bs-secondary-color);
+  color: #a1a1aa;
 }
 
-/* Brand title gradient for dark mode */
+/* Brand title gradient → warm dark accent */
 [data-bs-theme="dark"] .brand-title {
-  background: linear-gradient(135deg, #6eaaff, #8ecae6);
+  background: linear-gradient(135deg, #f87171, #fbbf24);
   -webkit-background-clip: text;
   background-clip: text;
+}
+
+/* Buttons: primary variant uses warm red accent */
+[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-bg: #be3c3c;
+  --bs-btn-border-color: #be3c3c;
+  --bs-btn-hover-bg: #a63434;
+  --bs-btn-hover-border-color: #a63434;
+  --bs-btn-active-bg: #922d2d;
+  --bs-btn-active-border-color: #922d2d;
+}
+[data-bs-theme="dark"] .btn-outline-primary {
+  --bs-btn-color: #e57373;
+  --bs-btn-border-color: #e57373;
+  --bs-btn-hover-bg: #be3c3c;
+  --bs-btn-hover-border-color: #be3c3c;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #a63434;
+  --bs-btn-active-border-color: #a63434;
+}
+[data-bs-theme="dark"] .text-primary {
+  color: #e57373 !important;
+}
+[data-bs-theme="dark"] .badge.bg-primary {
+  background-color: #be3c3c !important;
+}
+
+/* Mobile top bar */
+[data-bs-theme="dark"] .mobile-top-bar {
+  background-color: #0e0e12 !important;
+}
+
+/* Hover-custom on sidebar in dark mode */
+[data-bs-theme="dark"] .hover-custom:hover {
+  background-color: rgba(190, 60, 60, 0.20);
+}
+
+/* Toggle sidebar button */
+[data-bs-theme="dark"] .toggle-button {
+  border-color: #45454f !important;
+}
+[data-bs-theme="dark"] .toggle-button:hover {
+  background-color: #2a2a32 !important;
 }
