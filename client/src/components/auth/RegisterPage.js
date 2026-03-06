@@ -13,6 +13,7 @@ import authService from "../../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
+import ThemeToggleButton from "../common/ThemeToggleButton";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -224,6 +225,7 @@ function RegisterPage() {
           </Card>
         </Col>
       </Row>
+      <ThemeToggleButton />
     </Container>
   );
 }

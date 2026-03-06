@@ -7,6 +7,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import configService from "../services/configService";
+import ThemeToggleButton from "../components/common/ThemeToggleButton";
 
 const HomePage = () => {
   const navigateTo = useNavigate();
@@ -79,7 +80,8 @@ const HomePage = () => {
 
                 <div className="mb-4">
                   <Button
-                    className="modern-btn-success modern-btn py-3 rounded-3 w-100"
+                    variant="success"
+                    className="py-3 rounded-3 w-100 fw-semibold"
                     size="lg"
                     onClick={() => navigateTo("/oauth2-login")}
                   >
@@ -99,6 +101,7 @@ const HomePage = () => {
           </Card>
         </Col>
       </Row>
+      <ThemeToggleButton />
     </Container>
   );
 };
