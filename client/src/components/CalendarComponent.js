@@ -183,7 +183,7 @@ const CalendarComponent = () => {
       </div>
       
       <Card className="shadow-sm overflow-hidden">
-        <Card.Body className="p-0">
+        <Card.Body className="p-3">
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
