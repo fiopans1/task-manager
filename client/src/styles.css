@@ -931,7 +931,7 @@
   --bs-body-color: #d4d4d8;
   --bs-secondary-bg: #1e1e24;
   --bs-tertiary-bg: #24242b;
-  --bs-border-color: #4a4a56;
+  --bs-border-color: #6b6b7b;
   --bs-card-bg: #1c1c22;
   --bs-emphasis-color: #f4f4f5;
   /* Warm-red accent for primary in dark mode */
@@ -961,14 +961,7 @@
 
 /* Cards: force visible border even on border-0 cards */
 [data-bs-theme="dark"] .card {
-  border: 1px solid #4a4a56 !important;
-}
-
-/* Card headers / footers */
-[data-bs-theme="dark"] .card-header,
-[data-bs-theme="dark"] .card-footer {
-  background-color: #1f1f26;
-  border-color: #4a4a56;
+  border: 1px solid #6b6b7b !important;
 }
 
 /* User dropdown toggle in sidebar — transparent bg via Bootstrap CSS vars */
@@ -986,25 +979,21 @@
 
 /* react-big-calendar — full dark treatment */
 [data-bs-theme="dark"] .rbc-calendar {
-  background: #1c1c22;
-  color: #d4d4d8;
-  border: none;
+  background: var(--bs-card-bg);
+  color: var(--bs-body-color);
 }
 [data-bs-theme="dark"] .rbc-toolbar {
-  background: #1c1c22;
+  background: var(--bs-card-bg);
   border-bottom: 1px solid #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-header {
-  background-color: #24242b;
-  color: #a1a1aa;
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color, #a1a1aa);
   border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-month-view,
 [data-bs-theme="dark"] .rbc-time-view,
-[data-bs-theme="dark"] .rbc-agenda-view {
-  border-color: #2a2a32;
-}
-/* Additional rbc elements that need dark border */
+[data-bs-theme="dark"] .rbc-agenda-view,
 [data-bs-theme="dark"] .rbc-day-bg,
 [data-bs-theme="dark"] .rbc-time-slot,
 [data-bs-theme="dark"] .rbc-time-header-content,
@@ -1012,11 +1001,11 @@
 [data-bs-theme="dark"] .rbc-agenda-table,
 [data-bs-theme="dark"] .rbc-agenda-date-cell,
 [data-bs-theme="dark"] .rbc-agenda-time-cell,
-[data-bs-theme="dark"] .rbc-agenda-event-cell {
-  border-color: #2a2a32;
-}
+[data-bs-theme="dark"] .rbc-agenda-event-cell,
 [data-bs-theme="dark"] .rbc-month-row,
-[data-bs-theme="dark"] .rbc-day-bg {
+[data-bs-theme="dark"] .rbc-time-header-gutter,
+[data-bs-theme="dark"] .rbc-time-gutter,
+[data-bs-theme="dark"] .rbc-timeslot-group {
   border-color: #2a2a32;
 }
 [data-bs-theme="dark"] .rbc-day-bg + .rbc-day-bg,
@@ -1033,35 +1022,30 @@
   background-color: rgba(190, 60, 60, 0.10);
 }
 [data-bs-theme="dark"] .rbc-date-cell {
-  color: #a1a1aa;
+  color: var(--bs-secondary-color, #a1a1aa);
 }
 [data-bs-theme="dark"] .rbc-date-cell.rbc-now {
   color: #f87171;
   font-weight: 700;
 }
 [data-bs-theme="dark"] .rbc-toolbar-label {
-  color: #e4e4e7;
+  color: var(--bs-emphasis-color);
 }
 [data-bs-theme="dark"] .rbc-btn-group button {
-  color: #a1a1aa;
-  border-color: #4a4a56;
+  color: var(--bs-secondary-color, #a1a1aa);
+  border-color: var(--bs-border-color);
 }
 [data-bs-theme="dark"] .rbc-btn-group button:hover {
   background-color: #2a2a32;
-  color: #e4e4e7;
+  color: var(--bs-emphasis-color);
 }
 [data-bs-theme="dark"] .rbc-btn-group button.rbc-active {
-  background-color: #be3c3c;
+  background-color: var(--bs-primary);
   color: #fff;
-  border-color: #be3c3c;
-}
-[data-bs-theme="dark"] .rbc-time-header-gutter,
-[data-bs-theme="dark"] .rbc-time-gutter,
-[data-bs-theme="dark"] .rbc-timeslot-group {
-  border-color: #2a2a32;
+  border-color: var(--bs-primary);
 }
 [data-bs-theme="dark"] .rbc-time-content {
-  border-top-color: #4a4a56;
+  border-top-color: var(--bs-border-color);
 }
 [data-bs-theme="dark"] .rbc-time-slot {
   border-top-color: #22222a;
@@ -1069,65 +1053,11 @@
 [data-bs-theme="dark"] .rbc-current-time-indicator {
   background-color: #f87171;
 }
-/* Calendar global overrides */
-[data-bs-theme="dark"] :global(.rbc-toolbar) {
-  background: #1c1c22;
-  border-bottom-color: #2a2a32;
-}
-[data-bs-theme="dark"] :global(.rbc-header) {
-  background: #24242b;
-  border-bottom-color: #2a2a32;
-}
-
-/* Calendar custom classes (hardcoded light colors) */
-[data-bs-theme="dark"] .calendar-container {
-  background-color: #1c1c22;
-}
-[data-bs-theme="dark"] .calendar-header {
-  border-bottom-color: #4a4a56;
-}
-[data-bs-theme="dark"] .calendar-header h2 {
-  color: #e4e4e7;
-}
-[data-bs-theme="dark"] .calendar-wrapper {
-  background-color: #1c1c22;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-[data-bs-theme="dark"] .custom-toolbar {
-  background-color: #1c1c22;
-  border-bottom-color: #4a4a56;
-}
-[data-bs-theme="dark"] .toolbar-title h3 {
-  color: #e4e4e7;
-}
-[data-bs-theme="dark"] .legend-item {
-  color: #a1a1aa;
-}
-[data-bs-theme="dark"] .nav-button,
-[data-bs-theme="dark"] .view-button,
-[data-bs-theme="dark"] .today-button {
-  border-color: #4a4a56;
-  color: #a1a1aa;
-}
-[data-bs-theme="dark"] .today-button {
-  background-color: #24242b;
-}
-[data-bs-theme="dark"] .nav-button:hover,
-[data-bs-theme="dark"] .view-button:hover,
-[data-bs-theme="dark"] .today-button:hover {
-  background-color: #2a2a32;
-  border-color: #45454f;
-}
-[data-bs-theme="dark"] .view-button.active {
-  background-color: #be3c3c;
-  color: #fff;
-  border-color: #be3c3c;
-}
 
 /* Title tab containers */
 [data-bs-theme="dark"] .tittle-tab-container,
 [data-bs-theme="dark"] .tittle-tab-container-calendar {
-  border-bottom-color: #4a4a56;
+  border-bottom-color: var(--bs-border-color);
 }
 
 /* Scrollbar */
@@ -1135,7 +1065,7 @@
   background-color: #35353e;
 }
 [data-bs-theme="dark"] .tasks-container::-webkit-scrollbar-track {
-  background-color: #151519;
+  background-color: var(--bs-body-bg);
 }
 [data-bs-theme="dark"] .action-history-list::-webkit-scrollbar-thumb {
   background-color: #35353e;
@@ -1144,7 +1074,7 @@
 /* Auth pages: modern-card */
 [data-bs-theme="dark"] .modern-card {
   background: rgba(28, 28, 34, 0.97);
-  border: 1px solid #4a4a56;
+  border: 1px solid var(--bs-border-color);
 }
 
 /* Auth page background gradient → dark warm */
@@ -1155,23 +1085,23 @@
 /* Spinner */
 [data-bs-theme="dark"] .spinner {
   border-color: rgba(255, 255, 255, 0.08);
-  border-top-color: #be3c3c;
+  border-top-color: var(--bs-primary);
 }
 
 /* Modals: visible border in dark mode */
 [data-bs-theme="dark"] .modal-content {
-  border: 1px solid #4a4a56 !important;
-  background-color: #1c1c22;
+  border: 1px solid var(--bs-border-color) !important;
+  background-color: var(--bs-card-bg);
 }
 [data-bs-theme="dark"] .modal-header,
 [data-bs-theme="dark"] .modal-footer {
-  border-color: #4a4a56;
+  border-color: var(--bs-border-color);
 }
 
 /* Homepage text */
 [data-bs-theme="dark"] .welcome-subtitle,
 [data-bs-theme="dark"] .feature-text {
-  color: #a1a1aa;
+  color: var(--bs-secondary-color, #a1a1aa);
 }
 
 /* Brand title gradient → warm dark accent */
