@@ -386,6 +386,11 @@
   background: rgba(59, 130, 246, 0.05);
 }
 
+/* Half-hour time slot lines — more visible in both modes */
+.rbc-time-slot {
+  border-top-color: #d8d8d8 !important;
+}
+
 /* HomePage*/
 
 .welcome-subtitle {
@@ -793,7 +798,7 @@
   border-top-color: var(--bs-border-color);
 }
 [data-bs-theme="dark"] .rbc-time-slot {
-  border-top-color: #22222a;
+  border-top-color: #3a3a44;
 }
 [data-bs-theme="dark"] .rbc-current-time-indicator {
   background-color: var(--bs-primary);
