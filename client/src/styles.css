@@ -391,10 +391,10 @@
   border-top-color: #d8d8d8 !important;
 }
 
-/* Remove white focus flash on calendar toolbar buttons */
+/* Subtle focus indicator on calendar toolbar buttons (replaces white flash) */
 :global(.rbc-btn-group button:focus) {
   outline: none;
-  box-shadow: none;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
 }
 
 /* HomePage*/
