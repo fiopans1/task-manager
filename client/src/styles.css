@@ -391,6 +391,12 @@
   border-top-color: #d8d8d8 !important;
 }
 
+/* Remove white focus flash on calendar toolbar buttons */
+:global(.rbc-btn-group button:focus) {
+  outline: none;
+  box-shadow: none;
+}
+
 /* HomePage*/
 
 .welcome-subtitle {
@@ -785,11 +791,13 @@
   color: var(--bs-secondary-color, #a1a1aa);
   border-color: var(--bs-border-color);
 }
-[data-bs-theme="dark"] .rbc-btn-group button:hover {
+[data-bs-theme="dark"] .rbc-btn-group button:hover,
+[data-bs-theme="dark"] .rbc-btn-group button:focus {
   background-color: #2a2a32;
   color: var(--bs-emphasis-color);
 }
-[data-bs-theme="dark"] .rbc-btn-group button.rbc-active {
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active,
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active:focus {
   background-color: var(--bs-primary);
   color: #fff;
   border-color: var(--bs-primary);
