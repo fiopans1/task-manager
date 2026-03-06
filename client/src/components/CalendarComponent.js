@@ -162,9 +162,9 @@ const CalendarComponent = () => {
         <h2 className="mb-0">Calendario</h2>
         <div className="d-flex gap-4">
           {Object.entries({
-            work: { label: "Trabajo", color: "#4361ee" },
+            work: { label: "Work", color: "#4361ee" },
             personal: { label: "Personal", color: "#4cc9f0" },
-            urgent: { label: "Urgente", color: "#f72585" }
+            urgent: { label: "Urgent", color: "#f72585" }
           }).map(([key, { label, color }]) => (
             <div key={key} className="d-flex align-items-center">
               <div 
@@ -187,7 +187,7 @@ const CalendarComponent = () => {
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <p className="mt-3">Cargando eventos...</p>
+              <p className="mt-3">Loading events...</p>
             </div>
           ) : (
             <div style={{ height: "80vh" }}>
