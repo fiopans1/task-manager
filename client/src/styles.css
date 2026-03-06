@@ -924,7 +924,7 @@
 }
 
 /* ===== Dark Mode — Custom Theme ===== */
-/* Bootstrap override: richer dark palette with warm accent */
+/* Bootstrap override: richer dark palette */
 
 [data-bs-theme="dark"] {
   --bs-body-bg: #151519;
@@ -934,10 +934,6 @@
   --bs-border-color: #6b6b7b;
   --bs-card-bg: #1c1c22;
   --bs-emphasis-color: #f4f4f5;
-  /* Warm-red accent for primary in dark mode */
-  --bs-primary-rgb: 190, 60, 60;
-  --bs-primary: #be3c3c;
-  --bs-link-color-rgb: 220, 100, 100;
 }
 
 /* Sidebar: deeper black, distinct from body */
@@ -946,17 +942,17 @@
   background-color: #0e0e12 !important;
 }
 
-/* Sidebar active/hover accents → warm red */
+/* Sidebar active/hover accents */
 [data-bs-theme="dark"] .nav-pills .nav-link:hover {
-  background-color: rgba(190, 60, 60, 0.15);
-  border-left-color: #be3c3c;
+  background-color: rgba(13, 110, 253, 0.15);
+  border-left-color: var(--bs-primary);
 }
 [data-bs-theme="dark"] .nav-pills .nav-link.active {
-  background-color: rgba(190, 60, 60, 0.25);
-  border-left-color: #be3c3c;
+  background-color: rgba(13, 110, 253, 0.25);
+  border-left-color: var(--bs-primary);
 }
 [data-bs-theme="dark"] .sidebar-menu.collapsed .nav-link.active {
-  border-right-color: #be3c3c;
+  border-right-color: var(--bs-primary);
 }
 
 /* Cards: force visible border even on border-0 cards */
@@ -1019,13 +1015,13 @@
   background: #18181d;
 }
 [data-bs-theme="dark"] .rbc-today {
-  background-color: rgba(190, 60, 60, 0.10);
+  background-color: rgba(13, 110, 253, 0.10);
 }
 [data-bs-theme="dark"] .rbc-date-cell {
   color: var(--bs-secondary-color, #a1a1aa);
 }
 [data-bs-theme="dark"] .rbc-date-cell.rbc-now {
-  color: #f87171;
+  color: var(--bs-primary);
   font-weight: 700;
 }
 [data-bs-theme="dark"] .rbc-toolbar-label {
@@ -1051,7 +1047,7 @@
   border-top-color: #22222a;
 }
 [data-bs-theme="dark"] .rbc-current-time-indicator {
-  background-color: #f87171;
+  background-color: var(--bs-primary);
 }
 
 /* Title tab containers */
@@ -1077,9 +1073,9 @@
   border: 1px solid var(--bs-border-color);
 }
 
-/* Auth page background gradient → dark warm */
+/* Auth page background gradient → dark */
 [data-bs-theme="dark"] .task-manager-bg {
-  background: linear-gradient(135deg, #1a1014, #15151b, #1a1218) !important;
+  background: linear-gradient(135deg, #111118, #15151b, #111118) !important;
 }
 
 /* Spinner */
@@ -1104,36 +1100,11 @@
   color: var(--bs-secondary-color, #a1a1aa);
 }
 
-/* Brand title gradient → warm dark accent */
+/* Brand title gradient → cool accent in dark mode */
 [data-bs-theme="dark"] .brand-title {
-  background: linear-gradient(135deg, #f87171, #fbbf24);
+  background: linear-gradient(135deg, #6ea8fe, #9ec5fe);
   -webkit-background-clip: text;
   background-clip: text;
-}
-
-/* Buttons: primary variant uses warm red accent */
-[data-bs-theme="dark"] .btn-primary {
-  --bs-btn-bg: #be3c3c;
-  --bs-btn-border-color: #be3c3c;
-  --bs-btn-hover-bg: #a63434;
-  --bs-btn-hover-border-color: #a63434;
-  --bs-btn-active-bg: #922d2d;
-  --bs-btn-active-border-color: #922d2d;
-}
-[data-bs-theme="dark"] .btn-outline-primary {
-  --bs-btn-color: #e57373;
-  --bs-btn-border-color: #e57373;
-  --bs-btn-hover-bg: #be3c3c;
-  --bs-btn-hover-border-color: #be3c3c;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-active-bg: #a63434;
-  --bs-btn-active-border-color: #a63434;
-}
-[data-bs-theme="dark"] .text-primary {
-  color: #e57373 !important;
-}
-[data-bs-theme="dark"] .badge.bg-primary {
-  background-color: #be3c3c !important;
 }
 
 /* Mobile top bar */
@@ -1143,7 +1114,7 @@
 
 /* Hover-custom on sidebar in dark mode */
 [data-bs-theme="dark"] .hover-custom:hover {
-  background-color: rgba(190, 60, 60, 0.20);
+  background-color: rgba(13, 110, 253, 0.20);
 }
 
 /* Toggle sidebar button */
