@@ -391,9 +391,12 @@
   border-top-color: #d8d8d8 !important;
 }
 
-/* Subtle focus indicator on calendar toolbar buttons (replaces white flash) */
+/* Remove default focus outline on calendar toolbar buttons; show ring only for keyboard nav */
 :global(.rbc-btn-group button:focus) {
   outline: none;
+  box-shadow: none;
+}
+:global(.rbc-btn-group button:focus-visible) {
   box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
 }
 
@@ -791,13 +794,11 @@
   color: var(--bs-secondary-color, #a1a1aa);
   border-color: var(--bs-border-color);
 }
-[data-bs-theme="dark"] .rbc-btn-group button:hover,
-[data-bs-theme="dark"] .rbc-btn-group button:focus {
+[data-bs-theme="dark"] .rbc-btn-group button:hover {
   background-color: #2a2a32;
   color: var(--bs-emphasis-color);
 }
-[data-bs-theme="dark"] .rbc-btn-group button.rbc-active,
-[data-bs-theme="dark"] .rbc-btn-group button.rbc-active:focus {
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active {
   background-color: var(--bs-primary);
   color: #fff;
   border-color: var(--bs-primary);
