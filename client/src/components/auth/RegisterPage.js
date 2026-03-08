@@ -13,6 +13,7 @@ import authService from "../../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
+import ThemeToggleButton from "../common/ThemeToggleButton";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -74,7 +75,7 @@ function RegisterPage() {
               <Row className="mb-3">
                 <Col>
                   <Form.Group controlId="formName">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       First Name
                     </Form.Label>
                     <Form.Control
@@ -92,7 +93,7 @@ function RegisterPage() {
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group controlId="formSurname1">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Surname 1
                     </Form.Label>
                     <Form.Control
@@ -107,7 +108,7 @@ function RegisterPage() {
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="formSurname2">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Surname 2
                     </Form.Label>
                     <Form.Control
@@ -126,7 +127,7 @@ function RegisterPage() {
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group controlId="formUsername">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Username
                     </Form.Label>
                     <Form.Control
@@ -142,7 +143,7 @@ function RegisterPage() {
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="formEmail">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Email Address
                     </Form.Label>
                     <Form.Control
@@ -162,7 +163,7 @@ function RegisterPage() {
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group controlId="formPassword">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Password
                     </Form.Label>
                     <Form.Control
@@ -178,7 +179,7 @@ function RegisterPage() {
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="formConfirmPassword">
-                    <Form.Label className="fw-semibold text-dark">
+                    <Form.Label className="fw-semibold text-body">
                       Confirm Password
                     </Form.Label>
                     <Form.Control
@@ -224,6 +225,7 @@ function RegisterPage() {
           </Card>
         </Col>
       </Row>
+      <ThemeToggleButton />
     </Container>
   );
 }

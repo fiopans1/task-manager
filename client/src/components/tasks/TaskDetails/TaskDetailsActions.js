@@ -329,7 +329,7 @@ const TaskDetailsActions = ({ taskId }) => {
             const style = getActionStyle(item.actionType);
             return (
               <Card key={item.id} className="mb-3 shadow-sm border-0">
-                <Card.Header className="bg-white">
+                <Card.Header className="bg-body">
                   <Row className="align-items-center">
                     <Col>
                       <div className="d-flex align-items-center">

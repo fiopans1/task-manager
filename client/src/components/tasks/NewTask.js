@@ -182,7 +182,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                   className="mb-3 form-switch-lg text-secondary fw-medium"
                 />
                 <Collapse in={isEvent}>
-                  <Container className="mb-4 bg-light rounded-3 p-3 border border-light-subtle">
+                  <Container className="mb-4 bg-body-tertiary rounded-3 p-3 border border-light-subtle">
                     <Row>
                       <Form.Group
                         controlId="formDate"

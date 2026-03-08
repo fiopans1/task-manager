@@ -7,12 +7,14 @@ import {
   Button,
   Badge,
   Offcanvas,
+  Form,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation } from "react-router-dom";
 import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
+import { useTheme } from "../../context/ThemeContext";
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
@@ -47,6 +49,7 @@ function SidebarMenu({ onLogOut }) {
   const [collapsed, setCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   // Manejador para alternar el estado de colapso de la barra lateral
   const toggleSidebar = () => {
@@ -259,6 +262,21 @@ function SidebarMenu({ onLogOut }) {
               Settings
             </Dropdown.Item>
             <Dropdown.Divider /> */}
+              <Dropdown.ItemText className="py-2">
+                <Form.Check
+                  type="switch"
+                  id="dark-mode-switch"
+                  label={
+                    <span>
+                      <i className={`bi ${darkMode ? "bi-moon-fill" : "bi-sun-fill"} me-2`}></i>
+                      Dark Mode
+                    </span>
+                  }
+                  checked={darkMode}
+                  onChange={toggleDarkMode}
+                />
+              </Dropdown.ItemText>
+              <Dropdown.Divider />
               <Dropdown.Item onClick={onLogOut} className="text-danger py-2">
                 <i className="bi bi-box-arrow-right me-2"></i>
                 Log Out

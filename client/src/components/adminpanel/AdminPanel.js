@@ -452,7 +452,7 @@ const AdminPanel = () => {
                   </div>
                 </div>
               </Card.Body>
-              <Card.Footer className="d-flex justify-content-end bg-white border-top-0">
+              <Card.Footer className="d-flex justify-content-end bg-body border-top-0">
                 <Button variant="link" className="p-0 me-2" size="sm">
                   <Pencil size={16} />
                 </Button>
