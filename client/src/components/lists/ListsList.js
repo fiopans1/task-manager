@@ -115,8 +115,8 @@ const ListsList = ({
                   {card.descriptionOfList}
                 </Card.Text>
                 <Card.Text
-                  className="mb-1"
-                  style={{ fontSize: "0.7rem", color: "#6b7280" }}
+                  className="mb-1 text-body-secondary"
+                  style={{ fontSize: "0.7rem" }}
                 >
                   {card.completedElements} of {card.totalElements} completed
                   tasks

@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
+import ThemeToggleButton from "../common/ThemeToggleButton";
 
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
@@ -48,7 +49,7 @@ function LoginPage({ onLogin }) {
 
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-4" controlId="formBasicUsername">
-                <Form.Label className="fw-semibold text-dark mb-2">
+                <Form.Label className="fw-semibold text-body mb-2">
                   Username
                 </Form.Label>
                 <Form.Control
@@ -63,7 +64,7 @@ function LoginPage({ onLogin }) {
               </Form.Group>
 
               <Form.Group className="mb-4" controlId="formBasicPassword">
-                <Form.Label className="fw-semibold text-dark mb-2">
+                <Form.Label className="fw-semibold text-body mb-2">
                   Password
                 </Form.Label>
                 <Form.Control
@@ -107,6 +108,7 @@ function LoginPage({ onLogin }) {
           </Card>
         </Col>
       </Row>
+      <ThemeToggleButton />
     </Container>
   );
 }

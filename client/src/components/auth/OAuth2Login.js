@@ -4,6 +4,7 @@ import { Container, Button, Card, Spinner, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
+import ThemeToggleButton from "../common/ThemeToggleButton";
 function OAuth2Login({ onLogin }) {
   const [oauth2Loading, setOauth2Loading] = useState("");
 
@@ -203,6 +204,7 @@ function OAuth2Login({ onLogin }) {
           </Card>
         </Col>
       </Row>
+      <ThemeToggleButton />
     </Container>
   );
 }

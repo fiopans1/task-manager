@@ -147,24 +147,17 @@ const ListDetails = ({ listId }) => {
         <Col>
           <Stack direction="horizontal" gap={3} className="align-items-center">
             <Button
-              variant="outline-light"
+              variant="outline-secondary"
               size="lg"
               onClick={handleBack}
               className="rounded-circle p-2 shadow-sm"
-              style={{
-                backgroundColor: "#f8f9fa",
-                border: "2px solid #e9ecef",
-                color: "#6c757d",
-              }}
             >
               <ArrowLeft size={20} />
             </Button>
             <div>
               <h1
-                className="mb-1"
+                className="mb-1 fw-bold text-body"
                 style={{
-                  fontWeight: "700",
-                  color: "#2c3e50",
                   fontSize: "2rem",
                 }}
               >
@@ -239,13 +232,13 @@ const ListDetails = ({ listId }) => {
           <Row className="mb-4">
             <Col md={4} className="mb-3">
               <Card
-                className="border-0 bg-light h-100"
+                className="border-0 bg-body-tertiary h-100"
                 style={{ borderRadius: "15px" }}
               >
                 <Card.Body className="text-center py-3">
                   <List size={24} className="text-primary mb-2" />
                   <h6 className="mb-1 text-muted">Total Tasks</h6>
-                  <h4 style={{ fontWeight: "600", color: "#2c3e50" }}>
+                  <h4 className="fw-semibold text-body">
                     {totalTodos}
                   </h4>
                 </Card.Body>
@@ -254,13 +247,13 @@ const ListDetails = ({ listId }) => {
 
             <Col md={4} className="mb-3">
               <Card
-                className="border-0 bg-light h-100"
+                className="border-0 bg-body-tertiary h-100"
                 style={{ borderRadius: "15px" }}
               >
                 <Card.Body className="text-center py-3">
                   <CheckCircle size={24} className="text-success mb-2" />
                   <h6 className="mb-1 text-muted">Completed</h6>
-                  <h4 style={{ fontWeight: "600", color: "#2c3e50" }}>
+                  <h4 className="fw-semibold text-body">
                     {completedTodos}
                   </h4>
                 </Card.Body>
@@ -269,13 +262,13 @@ const ListDetails = ({ listId }) => {
 
             <Col md={4} className="mb-3">
               <Card
-                className="border-0 bg-light h-100"
+                className="border-0 bg-body-tertiary h-100"
                 style={{ borderRadius: "15px" }}
               >
                 <Card.Body className="text-center py-3">
                   <Trophy size={24} className="text-warning mb-2" />
                   <h6 className="mb-1 text-muted">Progress</h6>
-                  <h4 style={{ fontWeight: "600", color: "#2c3e50" }}>
+                  <h4 className="fw-semibold text-body">
                     {Math.round(progressPercentage)}%
                   </h4>
                 </Card.Body>
@@ -285,19 +278,16 @@ const ListDetails = ({ listId }) => {
 
           {/* Descripción mejorada */}
           <Card
-            className="border-0 shadow-sm mb-4"
+            className="border-0 shadow-sm mb-4 bg-body-tertiary"
             style={{
               borderRadius: "15px",
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #e9ecef",
             }}
           >
             <Card.Body className="p-4">
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <FileText size={20} className="text-primary" />
                 <h5
-                  className="mb-0"
-                  style={{ fontWeight: "600", color: "#2c3e50" }}
+                  className="mb-0 fw-semibold text-body"
                 >
                   Description
                 </h5>
@@ -306,16 +296,16 @@ const ListDetails = ({ listId }) => {
               {list.descriptionOfList && list.descriptionOfList !== "<None>" ? (
                 list.descriptionOfList.length < 100 ? (
                   <p
-                    className="mb-0"
-                    style={{ lineHeight: "1.6", color: "#495057" }}
+                    className="mb-0 text-body-secondary"
+                    style={{ lineHeight: "1.6" }}
                   >
                     {list.descriptionOfList}
                   </p>
                 ) : (
                   <>
                     <p
-                      className="mb-2"
-                      style={{ lineHeight: "1.6", color: "#495057" }}
+                      className="mb-2 text-body-secondary"
+                      style={{ lineHeight: "1.6" }}
                     >
                       {showMore
                         ? list.descriptionOfList
@@ -325,7 +315,6 @@ const ListDetails = ({ listId }) => {
                       variant="link"
                       className="p-0 text-decoration-none fw-semibold"
                       onClick={() => setShowMore(!showMore)}
-                      style={{ color: "#007bff" }}
                     >
                       {!showMore ? "Show More ↓" : "Show Less ↑"}
                     </Button>
@@ -342,22 +331,18 @@ const ListDetails = ({ listId }) => {
 
           {/* Add Task Section */}
           <Card
-            className="border-0 shadow-sm mb-4"
+            className="border-0 shadow-sm mb-4 bg-body-tertiary"
             style={{
               borderRadius: "15px",
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #e9ecef",
             }}
           >
             <Card.Body className="p-3">
               <Button
                 variant="primary"
-                className="w-100 d-flex align-items-center justify-content-center py-3"
+                className="w-100 d-flex align-items-center justify-content-center py-3 fw-semibold"
                 onClick={() => setShowAddModal(true)}
                 style={{
                   borderRadius: "12px",
-                  fontWeight: "600",
-                  background: "linear-gradient(135deg, #007bff, #0056b3)",
                 }}
               >
                 <PlusCircle className="me-2" size={20} />
@@ -368,11 +353,9 @@ const ListDetails = ({ listId }) => {
 
           {/* Tasks List */}
           <Card
-            className="border-0 shadow-sm"
+            className="border-0 shadow-sm bg-body-tertiary"
             style={{
               borderRadius: "15px",
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #e9ecef",
               maxHeight: "60vh",
               overflow: "auto",
             }}
@@ -381,8 +364,7 @@ const ListDetails = ({ listId }) => {
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <FileText size={20} className="text-primary" />
                 <h5
-                  className="mb-0"
-                  style={{ fontWeight: "600", color: "#2c3e50" }}
+                  className="mb-0 fw-semibold text-body"
                 >
                   Task List
                 </h5>
@@ -410,13 +392,10 @@ const ListDetails = ({ listId }) => {
                     <Card
                       key={todo.id}
                       className={`border-0 shadow-sm mb-3 ${
-                        todo.completed ? "bg-light" : "bg-white"
+                        todo.completed ? "bg-body-tertiary" : "bg-body"
                       }`}
                       style={{
                         borderRadius: "12px",
-                        border: todo.completed
-                          ? "1px solid #dee2e6"
-                          : "1px solid #e9ecef",
                       }}
                     >
                       <Card.Body className="p-3">
@@ -435,7 +414,7 @@ const ListDetails = ({ listId }) => {
                               className="p-0"
                               onClick={() => handleTodoStatus(todo)}
                               style={{
-                                color: todo.completed ? "#28a745" : "#6c757d",
+                                color: todo.completed ? "var(--bs-success)" : "var(--bs-secondary)",
                                 minWidth: "24px",
                               }}
                             >
@@ -454,7 +433,6 @@ const ListDetails = ({ listId }) => {
                                 }`}
                                 style={{
                                   fontWeight: todo.completed ? "400" : "600",
-                                  color: todo.completed ? "#6c757d" : "#2c3e50",
                                 }}
                               >
                                 {todo.name}
@@ -506,7 +484,7 @@ const ListDetails = ({ listId }) => {
       {/* Modal para agregar tarea */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered>
         <Modal.Header closeButton style={{ borderRadius: "15px 15px 0 0" }}>
-          <Modal.Title style={{ fontWeight: "600", color: "#2c3e50" }}>
+          <Modal.Title className="fw-semibold text-body">
             <PlusCircle className="me-2" size={20} />
             Add New Task
           </Modal.Title>
@@ -514,7 +492,7 @@ const ListDetails = ({ listId }) => {
         <Modal.Body className="p-4">
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label style={{ fontWeight: "600", color: "#495057" }}>
+              <Form.Label className="fw-semibold text-body-secondary">
                 Title *
               </Form.Label>
               <Form.Control
@@ -523,11 +501,11 @@ const ListDetails = ({ listId }) => {
                 value={newTodoTitle}
                 onChange={(e) => setNewTodoTitle(e.target.value)}
                 autoFocus
-                style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                className="rounded-3"
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label style={{ fontWeight: "600", color: "#495057" }}>
+              <Form.Label className="fw-semibold text-body-secondary">
                 Description (optional)
               </Form.Label>
               <Form.Control
@@ -536,7 +514,7 @@ const ListDetails = ({ listId }) => {
                 placeholder="Enter task description"
                 value={newTodoDescription}
                 onChange={(e) => setNewTodoDescription(e.target.value)}
-                style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                className="rounded-3"
               />
             </Form.Group>
           </Form>
@@ -552,10 +530,9 @@ const ListDetails = ({ listId }) => {
           <Button
             variant="primary"
             onClick={handleSubmitAddTodo}
+            className="fw-semibold"
             style={{
               borderRadius: "8px",
-              fontWeight: "600",
-              background: "linear-gradient(135deg, #007bff, #0056b3)",
             }}
           >
             Add Task
@@ -570,7 +547,7 @@ const ListDetails = ({ listId }) => {
         centered
       >
         <Modal.Header closeButton style={{ borderRadius: "15px 15px 0 0" }}>
-          <Modal.Title style={{ fontWeight: "600", color: "#2c3e50" }}>
+          <Modal.Title className="fw-semibold text-body">
             <PencilSquare className="me-2" size={20} />
             Edit Task
           </Modal.Title>
@@ -579,7 +556,7 @@ const ListDetails = ({ listId }) => {
           {editTodo && (
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label style={{ fontWeight: "600", color: "#495057" }}>
+                <Form.Label className="fw-semibold text-body-secondary">
                   Title *
                 </Form.Label>
                 <Form.Control
@@ -589,11 +566,11 @@ const ListDetails = ({ listId }) => {
                     setEditTodo({ ...editTodo, name: e.target.value })
                   }
                   autoFocus
-                  style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                  className="rounded-3"
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label style={{ fontWeight: "600", color: "#495057" }}>
+                <Form.Label className="fw-semibold text-body-secondary">
                   Description (optional)
                 </Form.Label>
                 <Form.Control
@@ -603,7 +580,7 @@ const ListDetails = ({ listId }) => {
                   onChange={(e) =>
                     setEditTodo({ ...editTodo, description: e.target.value })
                   }
-                  style={{ borderRadius: "10px", border: "1px solid #ced4da" }}
+                  className="rounded-3"
                 />
               </Form.Group>
             </Form>
