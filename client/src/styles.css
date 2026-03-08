@@ -391,10 +391,11 @@
   border-top-color: #d8d8d8 !important;
 }
 
-/* Remove default focus outline on calendar toolbar buttons; show ring only for keyboard nav */
+/* Remove default focus styles on calendar toolbar buttons; show ring only for keyboard nav */
 :global(.rbc-btn-group button:focus) {
   outline: none;
   box-shadow: none;
+  background-color: transparent;
 }
 :global(.rbc-btn-group button:focus-visible) {
   box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
@@ -798,7 +799,8 @@
   background-color: #2a2a32;
   color: var(--bs-emphasis-color);
 }
-[data-bs-theme="dark"] .rbc-btn-group button.rbc-active {
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active,
+[data-bs-theme="dark"] .rbc-btn-group button.rbc-active:focus {
   background-color: var(--bs-primary);
   color: #fff;
   border-color: var(--bs-primary);
