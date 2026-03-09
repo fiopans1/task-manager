@@ -52,7 +52,7 @@ function LoginPage({ onLogin }) {
               size="lg"
               className="auth-input"
               type="text"
-              placeholder="your username"
+              placeholder="Your username"
               value={username}
               onChange={(e) => setusername(e.target.value)}
               required
