@@ -10,12 +10,12 @@ const MainApp = ({ onLogOut }) => {
     >
       <Row
         className="main-app-row"
-        style={{ margin: 0, padding: 0, minHeight: "100vh" }}
+        style={{ margin: 0, padding: 0, height: "100vh" }}
       >
         <SidebarMenu onLogOut={onLogOut} /> {/*This component have a column*/}
         <Col
           className="p-0 outlet-col"
-          style={{ heigth: "100vh", overflow: "auto" }}
+          style={{ height: "100vh", overflow: "auto" }}
         >
           <Outlet />
         </Col>
