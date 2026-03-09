@@ -676,7 +676,7 @@
 
 /* Auth pages — dark mode */
 [data-bs-theme="dark"] .task-manager-bg {
-  background-color: #0f0f13 !important;
+  background-color: #151519 !important;
 }
 
 [data-bs-theme="dark"] .brand-title {
