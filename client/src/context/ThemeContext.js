@@ -14,6 +14,12 @@ export function ThemeProvider({ children }) {
     const theme = darkMode ? "dark" : "light";
     document.documentElement.setAttribute("data-bs-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
+
+    // Update theme-color meta so Safari viewport chrome matches the active theme
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", darkMode ? "#151519" : "#ffffff");
+    }
   }, [darkMode]);
 
   const toggleDarkMode = () => setDarkMode((prev) => !prev);

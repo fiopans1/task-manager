@@ -1,14 +1,5 @@
-import React from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Form,
-  Card,
-  Button,
-  Spinner,
-} from "react-bootstrap";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import authService from "../../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
@@ -38,7 +29,6 @@ function RegisterPage() {
     e.preventDefault();
     try {
       setLoading(true);
-      // Validate that passwords match
       if (formData.password !== formData.confirmPassword) {
         throw new Error("Passwords do not match");
       }
@@ -57,174 +47,183 @@ function RegisterPage() {
   return (
     <Container
       fluid
-      className="task-manager-bg d-flex justify-content-center align-items-center p-3"
+      className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3 py-4"
     >
-      <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={10} md={8} lg={6} xl={5}>
-          <Card className="modern-card p-4 p-md-5 rounded-4">
-            {/* Header del Task Manager */}
-            <div className="text-center mb-4">
-              <h2 className="brand-title display-6">Join {configService.getAppName()}</h2>
-              <p className="text-muted mb-0">
-                Create your account to get started
-              </p>
-            </div>
+      <div style={{ maxWidth: 480, width: "100%" }}>
+        <h1 className="brand-title text-center mb-3">
+          {configService.getAppName()}
+        </h1>
 
-            <Form onSubmit={handleSubmit}>
-              {/* Nombre completo */}
-              <Row className="mb-3">
-                <Col>
-                  <Form.Group controlId="formName">
-                    <Form.Label className="fw-semibold text-body">
-                      First Name
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="text"
-                      placeholder="Enter first name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+        <p className="auth-heading text-center mb-5">
+          Create your account
+        </p>
 
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="formSurname1">
-                    <Form.Label className="fw-semibold text-body">
-                      Surname 1
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="text"
-                      placeholder="Enter surname"
-                      name="surname1"
-                      value={formData.surname1}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formSurname2">
-                    <Form.Label className="fw-semibold text-body">
-                      Surname 2
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="text"
-                      placeholder="Enter surname"
-                      name="surname2"
-                      value={formData.surname2}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="formName">
+            <Form.Label
+              className="fw-medium mb-2"
+              style={{ fontSize: "0.875rem" }}
+            >
+              First Name
+            </Form.Label>
+            <Form.Control
+              className="auth-input"
+              type="text"
+              placeholder="John"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          </Form.Group>
 
-              {/* Username y Email */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="formUsername">
-                    <Form.Label className="fw-semibold text-body">
-                      Username
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="text"
-                      placeholder="Choose username"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formEmail">
-                    <Form.Label className="fw-semibold text-body">
-                      Email Address
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="email"
-                      placeholder="Enter your email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group controlId="formSurname1">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Surname 1
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="text"
+                  placeholder="Doe"
+                  name="surname1"
+                  value={formData.surname1}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mt-3 mt-md-0">
+              <Form.Group controlId="formSurname2">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Surname 2
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="text"
+                  placeholder="Optional"
+                  name="surname2"
+                  value={formData.surname2}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-              {/* Contraseñas */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="formPassword">
-                    <Form.Label className="fw-semibold text-body">
-                      Password
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="password"
-                      placeholder="Create password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formConfirmPassword">
-                    <Form.Label className="fw-semibold text-body">
-                      Confirm Password
-                    </Form.Label>
-                    <Form.Control
-                      className="modern-input rounded-3 border-2"
-                      type="password"
-                      placeholder="Confirm password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group controlId="formUsername">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Username
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="text"
+                  placeholder="johndoe"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mt-3 mt-md-0">
+              <Form.Group controlId="formEmail">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Email
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="email"
+                  placeholder="john@example.com"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-              <Button
-                className="modern-btn w-100 py-3 fw-semibold rounded-3 mb-4"
-                size="lg"
-                type="submit"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-2" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Create Account"
-                )}
-              </Button>
-            </Form>
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group controlId="formPassword">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Password
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="password"
+                  placeholder="••••••••"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mt-3 mt-md-0">
+              <Form.Group controlId="formConfirmPassword">
+                <Form.Label
+                  className="fw-medium mb-2"
+                  style={{ fontSize: "0.875rem" }}
+                >
+                  Confirm Password
+                </Form.Label>
+                <Form.Control
+                  className="auth-input"
+                  type="password"
+                  placeholder="••••••••"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-            {/* Footer */}
-            <hr className="mb-3" />
-            <div className="text-center">
-              <small className="text-muted">
-                Already have an account?{" "}
-                <Link to="/login" className="modern-link">
-                  Sign in here
-                </Link>
-              </small>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+          <Button
+            className="auth-btn-primary w-100 py-3 rounded-3"
+            size="lg"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Creating account…
+              </>
+            ) : (
+              "Create account"
+            )}
+          </Button>
+        </Form>
+
+        <p
+          className="text-center mt-4 mb-0"
+          style={{ fontSize: "0.875rem", color: "#64748b" }}
+        >
+          Already have an account?{" "}
+          <Link to="/login" className="auth-link">
+            Sign in
+          </Link>
+        </p>
+      </div>
       <ThemeToggleButton />
     </Container>
   );
