@@ -12,18 +12,13 @@ const HomePage = () => {
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
     >
       <div style={{ maxWidth: 420, width: "100%" }}>
-        <p className="brand-title text-center mb-4">
+        <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}
-        </p>
-
-        <h1
-          className="auth-heading text-center mb-3"
-          style={{ fontSize: "2.5rem" }}
-        >
-          Your tasks,
-          <br />
-          under control.
         </h1>
+
+        <p className="auth-heading text-center mb-4">
+          Your tasks, under control.
+        </p>
         <p className="auth-subtext text-center mb-5">
           A simple and focused way to organize your day, track progress, and get
           things done.

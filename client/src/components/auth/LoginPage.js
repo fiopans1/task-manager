@@ -31,13 +31,12 @@ function LoginPage({ onLogin }) {
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
     >
       <div style={{ maxWidth: 400, width: "100%" }}>
-        <p className="brand-title text-center mb-4">
+        <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}
-        </p>
+        </h1>
 
-        <h1 className="auth-heading text-center mb-2">Welcome back</h1>
-        <p className="auth-subtext text-center mb-5">
-          Enter your credentials to continue
+        <p className="auth-heading text-center mb-5">
+          Welcome back
         </p>
 
         <Form onSubmit={handleSubmit}>

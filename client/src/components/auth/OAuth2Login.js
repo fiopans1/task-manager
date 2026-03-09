@@ -53,13 +53,12 @@ function OAuth2Login({ onLogin }) {
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
     >
       <div style={{ maxWidth: 400, width: "100%" }}>
-        <p className="brand-title text-center mb-4">
+        <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}
-        </p>
+        </h1>
 
-        <h1 className="auth-heading text-center mb-2">Quick access</h1>
-        <p className="auth-subtext text-center mb-5">
-          Continue with your preferred provider
+        <p className="auth-heading text-center mb-5">
+          Quick access
         </p>
 
         <div className="d-grid gap-3 mb-5">

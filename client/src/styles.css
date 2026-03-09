@@ -415,18 +415,17 @@
 }
 
 .brand-title {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #64748b;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.15;
 }
 
 .auth-heading {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.2;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #475569;
+  line-height: 1.4;
 }
 
 .auth-subtext {
@@ -512,8 +511,8 @@
 
 /* Mobile improvements for auth pages */
 @media (max-width: 767.98px) {
-  .auth-heading {
-    font-size: 1.75rem;
+  .brand-title {
+    font-size: 2.25rem;
   }
 
   .auth-input,
@@ -681,11 +680,11 @@
 }
 
 [data-bs-theme="dark"] .brand-title {
-  color: #94a3b8;
+  color: #f1f5f9;
 }
 
 [data-bs-theme="dark"] .auth-heading {
-  color: #f1f5f9;
+  color: #94a3b8;
 }
 
 [data-bs-theme="dark"] .auth-subtext {
