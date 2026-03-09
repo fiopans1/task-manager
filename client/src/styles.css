@@ -678,6 +678,12 @@
 [data-bs-theme="dark"] .task-manager-bg {
   background-color: #151519 !important;
 }
+/* Ensure html + body carry the dark bg so Safari renders
+   status-bar / toolbar / overscroll areas with the correct color */
+html[data-bs-theme="dark"],
+html[data-bs-theme="dark"] body {
+  background-color: #151519;
+}
 
 [data-bs-theme="dark"] .brand-title {
   color: #f1f5f9;

@@ -45,7 +45,8 @@ const HomePage = () => {
           <>
             <div className="auth-divider my-4">or</div>
             <Button
-              className="oauth-btn w-100 py-3 rounded-3"
+              variant="success"
+              className="w-100 py-3 rounded-3"
               size="lg"
               onClick={() => navigateTo("/oauth2-login")}
             >
