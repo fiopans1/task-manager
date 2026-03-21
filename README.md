@@ -32,6 +32,7 @@ This will create a `TaskManager.zip` file containing the complete deployment pac
 ### Running the Application
 
 1. Extract the deployment package:
+
 ```bash
 unzip TaskManager.zip
 cd task-manager
@@ -40,12 +41,14 @@ cd task-manager
 2. Configure the application (see [Configuration Guide](docs/CONFIGURATION.md))
 
 3. Start the application:
+
 ```bash
 cd bin
 python3 start.py --start-all
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8080
 
@@ -54,6 +57,7 @@ The application will be available at:
 The application uses a professional configuration system with separate files for backend, frontend, and web server.
 
 See the [Configuration Guide](docs/CONFIGURATION.md) for detailed information on:
+
 - Application settings
 - OAuth2 provider setup
 - Frontend configuration
@@ -65,19 +69,19 @@ See the [Configuration Guide](docs/CONFIGURATION.md) for detailed information on
 ### Backend Development
 
 ```bash
-cd application
+cd backend
 mvn spring-boot:run
 ```
 
 ### Frontend Development
 
 ```bash
-cd client
+cd frontend
 npm install
 npm start
 ```
 
-Don't forget to create a `client/public/config.js` file for development (see template in `scripts/config_templates/config.template.js`).
+Don't forget to create a `frontend/public/config.js` file for development (see template in `scripts/config_templates/config.template.js`).
 
 ## Security
 
@@ -106,8 +110,8 @@ docker run -v /path/to/output:/output fiopans1/taskmanager-compilation:alpha
 
 ```
 task-manager/
-├── application/          # Spring Boot backend
-├── client/              # React frontend
+├── backend/             # Spring Boot backend
+├── frontend/            # React frontend
 ├── scripts/             # Build and deployment scripts
 │   ├── config_templates/  # Configuration templates
 │   ├── config_files/      # Static configuration files
@@ -156,6 +160,7 @@ Ensure both backend (`config/application.properties`) and frontend (`lib/fronten
 ## Contributing
 
 Contributions are welcome! Please ensure:
+
 1. Code follows existing style conventions
 2. All tests pass
 3. Configuration changes are documented
