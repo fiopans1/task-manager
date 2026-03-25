@@ -1,340 +1,271 @@
-import React from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Badge,
-  ListGroup,
-} from "react-bootstrap";
-import {
-  JournalBookmark,
-  InfoCircle,
-  StarFill,
-  Diagram3,
-  Tools,
-  Lightning,
-} from "react-bootstrap-icons";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import homeService from "../services/homeService";
 
+/* ── tiny helpers ─────────────────────────────────────────────── */
+const formatDate = (dateStr) => {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const stateLabel = {
+  NEW: "Nuevo",
+  IN_PROGRESS: "En progreso",
+  COMPLETED: "Completada",
+  CANCELLED: "Cancelada",
+  PAUSSED: "Pausada",
+};
+
+const stateStyle = {
+  NEW: { background: "#e0f2fe", color: "#0369a1" },
+  IN_PROGRESS: { background: "#fef9c3", color: "#854d0e" },
+  COMPLETED: { background: "#dcfce7", color: "#166534" },
+  CANCELLED: { background: "#fee2e2", color: "#991b1b" },
+  PAUSSED: { background: "#f3e8ff", color: "#6b21a8" },
+};
+
+/* ── skeleton placeholders ───────────────────────────────────── */
+const SkeletonLine = ({ width = "100%" }) => (
+  <div
+    className="home-skeleton"
+    style={{ width, height: 14, borderRadius: 6, marginBottom: 10 }}
+  />
+);
+
+const SkeletonRow = () => (
+  <div style={{ display: "flex", gap: 12, padding: "14px 0", borderBottom: "1px solid var(--home-border)" }}>
+    <SkeletonLine width="40%" />
+    <SkeletonLine width="20%" />
+    <SkeletonLine width="25%" />
+  </div>
+);
+
+/* ── empty state ─────────────────────────────────────────────── */
+const EmptyState = ({ message }) => (
+  <div className="home-empty-state">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+    </svg>
+    <p>{message}</p>
+  </div>
+);
+
+/* ── main component ──────────────────────────────────────────── */
 const Home = () => {
   const navigate = useNavigate();
-  // Datos para las funcionalidades destacadas
-  const features = [
-    {
-      title: "Gestión de tareas intuitiva",
-      description:
-        "Organiza tus tareas con un sistema de prioridades, estados y asignaciones fácil de usar.",
-      icon: <Diagram3 className="text-primary" size={24} />,
-    },
-    {
-      title: "Calendario integrado",
-      description:
-        "Visualiza fechas límite, reuniones y eventos en un calendario completo.",
-      icon: <JournalBookmark className="text-success" size={24} />,
-    },
-    {
-      title: "Seguimiento de tiempo",
-      description:
-        "Registra el tiempo dedicado a cada tarea para mejorar la productividad.",
-      icon: <Tools className="text-warning" size={24} />,
-    },
-  ];
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Datos para las nuevas funcionalidades
-  const newFeatures = [
-    {
-      title: "Crea tus tareas",
-      description: "Crea tareas fácilmente y asígnales un estado y prioridad.",
-      badge: "Nuevo",
-    },
-    {
-      title: "Conecta las tareas con el caliendario",
-      description:
-        "Sincroniza tus tareas con el calendario para una mejor planificación.",
-      badge: "Nuevo",
-    },
-    {
-      title: "Crea tus propias listas",
-      description:
-        "Organiza tus actividades en listas personalizadas para una mejor gestión.",
-      badge: "Nuevo",
-    },
-  ];
-
-  // Documentation links
-  const documentation = [
-    { title: "Guía de inicio rápido", link: "#" },
-    { title: "Manual del usuario", link: "#" },
-    { title: "API para desarrolladores", link: "#" },
-    { title: "Preguntas frecuentes", link: "#" },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    homeService
+      .getHomeSummary()
+      .then((data) => { if (!cancelled) setSummary(data); })
+      .catch((err) => { if (!cancelled) setError(err.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
-    <Container
-      fluid
-      className="py-4 px- overflow-auto"
-      style={{ height: "100vh" }}
-    >
-      {/* Banner de bienvenida */}
-      <Row className="mb-4">
-        <Col>
-          <Card className="bg-primary text-white shadow">
-            <Card.Body className="py-5">
-              <Row>
-                <Col>
-                  <h1 className="display-5 fw-bold mb-2">
-                    Bienvenido a TaskManager
-                  </h1>
-                  <p className="lead mb-4">
-                    Tu plataforma integral para gestionar proyectos, tareas y
-                    equipos de trabajo de manera eficiente.
-                  </p>
-                  <Button variant="light" size="lg" onClick={() => navigate("/home/tasks")}>
-                    <Lightning className="me-2" />
-                    Comenzar
-                  </Button>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+    <div className="home-root">
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <section className="home-hero">
+        <h1 className="home-hero-title">Task Manager</h1>
+        <p className="home-hero-text">
+          Un espacio diseñado para volcar todas tus ideas, organizar el caos
+          cotidiano y recuperar el enfoque que necesitas. Task Manager no
+          pretende deslumbrarte con colores brillantes ni con decenas de
+          funcionalidades que jamás usarás; en su lugar, te ofrece una
+          superficie limpia donde cada tarea encuentra su sitio, cada fecha
+          límite se visualiza de un vistazo y cada proyecto avanza sin
+          distracciones.
+        </p>
+        <p className="home-hero-text">
+          Creemos en la productividad silenciosa: esa que nace cuando la
+          herramienta desaparece y solo queda tu trabajo. Sin ruido visual, sin
+          notificaciones innecesarias, sin curvas de aprendizaje. Abre la
+          aplicación, escribe lo que necesitas hacer, y déjala que haga el
+          resto. Así de simple, así de claro.
+        </p>
+        <p className="home-hero-text">
+          Ya sea que estés gestionando un proyecto personal, coordinando un
+          equipo o simplemente intentando no olvidar lo importante, Task Manager
+          se adapta a ti. Listas, calendarios, estados y prioridades conviven
+          en armonía para que tú te centres en lo que de verdad importa:
+          avanzar.
+        </p>
+        <button className="home-cta" onClick={() => navigate("/home/tasks")}>
+          Comenzar →
+        </button>
+      </section>
 
-      {/* Características destacadas */}
-      <Row className="mb-4">
-        <Col xs={12}>
-          <h2 className="border-bottom pb-2 mb-4">
-            Características destacadas
-          </h2>
-        </Col>
-        {features.map((feature, index) => (
-          <Col key={index} md={4} className="mb-4">
-            <Card className="h-100 shadow-sm">
-              <Card.Body>
-                <div className="d-flex align-items-center mb-3">
-                  <div className="me-3 p-2 rounded-circle bg-body-tertiary">
-                    {feature.icon}
-                  </div>
-                  <h4 className="mb-0">{feature.title}</h4>
-                </div>
-                <p className="text-muted">{feature.description}</p>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      {/* ── Stats row ────────────────────────────────────────── */}
+      <section className="home-stats">
+        <div className="home-stat-card">
+          <span className="home-stat-number">
+            {loading ? "—" : summary?.totalTasks ?? 0}
+          </span>
+          <span className="home-stat-label">Tareas</span>
+        </div>
+        <div className="home-stat-card">
+          <span className="home-stat-number">
+            {loading ? "—" : summary?.totalLists ?? 0}
+          </span>
+          <span className="home-stat-label">Listas</span>
+        </div>
+        <div className="home-stat-card">
+          <span className="home-stat-number">
+            {loading ? "—" : summary?.nextEvents?.length ?? 0}
+          </span>
+          <span className="home-stat-label">Próximos eventos</span>
+        </div>
+      </section>
 
-      {/* Novedades y documentación */}
-      <Row className="mb-4">
-        {/* Nuevas funcionalidades */}
-        <Col md={6} className="mb-4 mb-md-0">
-          <Card className="shadow-sm h-100">
-            <Card.Header className="bg-body">
-              <h3 className="h5 mb-0">
-                <StarFill className="text-warning me-2" />
-                Novedades versión 1.0
-              </h3>
-            </Card.Header>
-            <ListGroup variant="flush">
-              {newFeatures.map((feature, index) => (
-                <ListGroup.Item key={index}>
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <h5 className="mb-0">{feature.title}</h5>
-                    <Badge bg="primary">{feature.badge}</Badge>
-                  </div>
-                  <p className="text-muted mb-0">{feature.description}</p>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-            <Card.Footer className="bg-body">
-              <Button variant="outline-primary" size="sm">
-                Ver todas las novedades
-              </Button>
-            </Card.Footer>
-          </Card>
-        </Col>
-
-        {/* Documentación */}
-        <Col md={6}>
-          <Card className="shadow-sm h-100">
-            <Card.Header className="bg-body">
-              <h3 className="h5 mb-0">
-                <JournalBookmark className="text-primary me-2" />
-                Documentación
-              </h3>
-            </Card.Header>
-            <ListGroup variant="flush">
-              {documentation.map((doc, index) => (
-                <ListGroup.Item
-                  key={index}
-                  className="d-flex justify-content-between align-items-center p-0 border-bottom"
-                >
-                  <a
-                    href={doc.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-decoration-none text-body w-100 d-flex justify-content-between align-items-center p-3"
-                  >
-                    {doc.title}
-                    <i className="bi bi-chevron-right"></i>
-                  </a>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-            <Card.Footer className="bg-body">
-              <Button variant="outline-primary" size="sm">
-                Centro de ayuda
-              </Button>
-            </Card.Footer>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Información de la aplicación */}
-      <Row className="mb-4">
-        <Col>
-          <Card className="shadow-sm">
-            <Card.Header className="bg-body">
-              <h3 className="h5 mb-0">
-                <InfoCircle className="text-primary me-2" />
-                Acerca de TaskManager
-              </h3>
-            </Card.Header>
-            <Card.Body>
-              <p>
-                TaskManager es una aplicación de gestión de tareas y proyectos
-                diseñada para equipos de todos los tamaños. Nuestra plataforma
-                combina la potencia de un sistema de seguimiento de problemas
-                como Redmine con una interfaz moderna y fácil de usar.
-              </p>
-              <p>
-                Con TaskManager puedes organizar tareas, asignar
-                responsabilidades, establecer plazos, hacer seguimiento del
-                tiempo y colaborar efectivamente con tu equipo.
-              </p>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Estadísticas */}
-      <Row className="mb-5">
-        <Col xs={12} sm={4} className="mb-3 mb-sm-0">
-          <Card className="text-center shadow-sm">
-            <Card.Body>
-              <h2 className="h1 fw-bold text-primary">2</h2>
-              <p className="mb-0">Usuarios registrados</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={12} sm={4} className="mb-3 mb-sm-0">
-          <Card className="text-center shadow-sm">
-            <Card.Body>
-              <h2 className="h1 fw-bold text-success">100%</h2>
-              <p className="mb-0">Satisfacción</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={12} sm={4}>
-          <Card className="text-center shadow-sm">
-            <Card.Body>
-              <h2 className="h1 fw-bold text-info">24/7</h2>
-              <p className="mb-0">Soporte técnico</p>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Footer */}
-      <footer className="border-top pt-4 mt-4">
-        <Row>
-          <Col md={4} className="mb-4 mb-md-0">
-            <h5>TaskManager</h5>
-            <p className="text-muted">
-              Simplificando la gestión de tareas desde 2025. Conectando equipos
-              y proyectos de manera eficiente.
-            </p>
-          </Col>
-          <Col md={4} className="mb-4 mb-md-0">
-            <h5>Enlaces rápidos</h5>
-            <ul className="list-unstyled">
-              <li>
-                <a
-                  href="https://fiopans1.com/"
-                  className="text-decoration-none"
-                >
-                  Website
-                </a>
-              </li>
-            </ul>
-          </Col>
-          <Col md={4}>
-            <h5>Conéctate con nosotros</h5>
-            <div className="d-flex gap-2 mb-3">
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() =>
-                  window.open(
-                    "https://fiopans1.com",
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-              >
-                Website
-              </Button>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() =>
-                  window.open(
-                    "https://www.linkedin.com/in/fiopans1/",
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-              >
-                LinkedIn
-              </Button>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() =>
-                  window.open(
-                    "https://github.com/fiopans1",
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-              >
-                GitHub
-              </Button>
+      {/* ── Activity section ─────────────────────────────────── */}
+      <section className="home-grid">
+        {/* Recent Tasks */}
+        <div className="home-panel">
+          <h2 className="home-panel-title">Tareas recientes</h2>
+          {loading ? (
+            <div>
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
             </div>
-            <p className="text-muted small">
-              Suscríbete a nuestro newsletter para recibir actualizaciones.
+          ) : error ? (
+            <EmptyState message="Error al cargar las tareas." />
+          ) : !summary?.recentTasks?.length ? (
+            <EmptyState message="Aún no has creado ninguna tarea." />
+          ) : (
+            <div className="home-table">
+              <div className="home-table-header">
+                <span>Tarea</span>
+                <span>Estado</span>
+                <span>Fecha</span>
+              </div>
+              {summary.recentTasks.map((task) => (
+                <div
+                  className="home-table-row"
+                  key={task.id}
+                  onClick={() => navigate(`/home/tasks/${task.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && navigate(`/home/tasks/${task.id}`)}
+                >
+                  <span className="home-task-name">{task.nameOfTask}</span>
+                  <span>
+                    <span
+                      className="home-badge"
+                      style={stateStyle[task.state] || {}}
+                    >
+                      {stateLabel[task.state] || task.state}
+                    </span>
+                  </span>
+                  <span className="home-date">
+                    {formatDate(task.creationDate)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming Events */}
+        <div className="home-panel">
+          <h2 className="home-panel-title">Próximos eventos</h2>
+          {loading ? (
+            <div>
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+            </div>
+          ) : error ? (
+            <EmptyState message="Error al cargar los eventos." />
+          ) : !summary?.nextEvents?.length ? (
+            <EmptyState message="No hay eventos próximos programados." />
+          ) : (
+            <div className="home-events-list">
+              {summary.nextEvents.map((evt) => (
+                <div className="home-event-card" key={evt.id}>
+                  <div className="home-event-dot" />
+                  <div>
+                    <p className="home-event-name">{evt.nameOfTask}</p>
+                    <p className="home-event-time">
+                      {formatDateTime(evt.startTime)}
+                      {evt.endTime ? ` — ${formatDateTime(evt.endTime)}` : ""}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────── */}
+      <footer className="home-footer">
+        <div className="home-footer-inner">
+          <div className="home-footer-brand">
+            <span className="home-footer-logo">TaskManager</span>
+            <p className="home-footer-copy">
+              Simplificando la gestión de tareas desde 2025.
             </p>
-          </Col>
-        </Row>
-        <Row className="mt-3">
-          <Col className="text-center">
-            <p className="text-muted small mb-0">
-              © 2025 TaskManager. Creado por{" "}
-              <a
-                href="https://github.com/fiopans1"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                fiopans1
-              </a>
-              . Todos los derechos reservados.
-            </p>
-          </Col>
-        </Row>
+          </div>
+          <div className="home-footer-links">
+            <a
+              href="https://fiopans1.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Website
+            </a>
+            <a
+              href="https://www.linkedin.com/in/fiopans1/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://github.com/fiopans1"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+        <p className="home-footer-bottom">
+          © 2025 TaskManager · Creado por{" "}
+          <a
+            href="https://github.com/fiopans1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            fiopans1
+          </a>
+        </p>
       </footer>
-    </Container>
+    </div>
   );
 };
 

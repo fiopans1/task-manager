@@ -12,4 +12,6 @@ import com.taskmanager.application.model.entities.User;
 public interface ListRepository extends JpaRepository<ListTM, Long>{
 
     List<ListTM> findAllByUser(User user);
+
+    long countByUser(User user);
 }
