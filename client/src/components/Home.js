@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Badge,
+  Placeholder,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import homeService from "../services/homeService";
 
-/* ── tiny helpers ─────────────────────────────────────────────── */
-const formatDate = (dateStr) => {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("es-ES", {
+/* ── helpers ─────────────────────────────────────────────────── */
+const formatDate = (d) => {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("es-ES", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 };
 
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("es-ES", {
+const formatDateTime = (d) => {
+  if (!d) return "—";
+  return new Date(d).toLocaleString("es-ES", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -24,51 +31,38 @@ const formatDateTime = (dateStr) => {
   });
 };
 
-const stateLabel = {
-  NEW: "Nuevo",
-  IN_PROGRESS: "En progreso",
-  COMPLETED: "Completada",
-  CANCELLED: "Cancelada",
-  PAUSSED: "Pausada",
+const STATE_MAP = {
+  NEW: { label: "Nuevo", bg: "info" },
+  IN_PROGRESS: { label: "En progreso", bg: "warning" },
+  COMPLETED: { label: "Completada", bg: "success" },
+  CANCELLED: { label: "Cancelada", bg: "danger" },
+  PAUSSED: { label: "Pausada", bg: "secondary" },
 };
 
-const stateStyle = {
-  NEW: { background: "#e0f2fe", color: "#0369a1" },
-  IN_PROGRESS: { background: "#fef9c3", color: "#854d0e" },
-  COMPLETED: { background: "#dcfce7", color: "#166534" },
-  CANCELLED: { background: "#fee2e2", color: "#991b1b" },
-  PAUSSED: { background: "#f3e8ff", color: "#6b21a8" },
-};
-
-/* ── skeleton placeholders ───────────────────────────────────── */
-const SkeletonLine = ({ width = "100%" }) => (
-  <div
-    className="home-skeleton"
-    style={{ width, height: 14, borderRadius: 6, marginBottom: 10 }}
-  />
-);
-
-const SkeletonRow = () => (
-  <div style={{ display: "flex", gap: 12, padding: "14px 0", borderBottom: "1px solid var(--home-border)" }}>
-    <SkeletonLine width="40%" />
-    <SkeletonLine width="20%" />
-    <SkeletonLine width="25%" />
-  </div>
-);
+/* ── skeleton rows (Bootstrap Placeholder) ───────────────────── */
+const SkeletonRows = ({ count = 3 }) =>
+  Array.from({ length: count }).map((_, i) => (
+    <div key={i} className="border-bottom py-3">
+      <Placeholder animation="glow">
+        <Placeholder xs={5} className="me-2" />
+        <Placeholder xs={2} className="me-2" />
+        <Placeholder xs={3} />
+      </Placeholder>
+    </div>
+  ));
 
 /* ── empty state ─────────────────────────────────────────────── */
-const EmptyState = ({ message }) => (
-  <div className="home-empty-state">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <line x1="9" y1="9" x2="15" y2="15" />
-      <line x1="15" y1="9" x2="9" y2="15" />
-    </svg>
-    <p>{message}</p>
+const Empty = ({ text }) => (
+  <div className="text-center text-muted py-5">
+    <p className="mb-0" style={{ fontSize: "0.875rem" }}>
+      {text}
+    </p>
   </div>
 );
 
-/* ── main component ──────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════
+   COMPONENT
+   ════════════════════════════════════════════════════════════════ */
 const Home = () => {
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
@@ -79,193 +73,260 @@ const Home = () => {
     let cancelled = false;
     homeService
       .getHomeSummary()
-      .then((data) => { if (!cancelled) setSummary(data); })
-      .catch((err) => { if (!cancelled) setError(err.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((data) => {
+        if (!cancelled) setSummary(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
-    <div className="home-root">
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="home-hero">
-        <h1 className="home-hero-title">Task Manager</h1>
-        <p className="home-hero-text">
-          Un espacio diseñado para volcar todas tus ideas, organizar el caos
-          cotidiano y recuperar el enfoque que necesitas. Task Manager no
-          pretende deslumbrarte con colores brillantes ni con decenas de
-          funcionalidades que jamás usarás; en su lugar, te ofrece una
-          superficie limpia donde cada tarea encuentra su sitio, cada fecha
-          límite se visualiza de un vistazo y cada proyecto avanza sin
-          distracciones.
-        </p>
-        <p className="home-hero-text">
-          Creemos en la productividad silenciosa: esa que nace cuando la
-          herramienta desaparece y solo queda tu trabajo. Sin ruido visual, sin
-          notificaciones innecesarias, sin curvas de aprendizaje. Abre la
-          aplicación, escribe lo que necesitas hacer, y déjala que haga el
-          resto. Así de simple, así de claro.
-        </p>
-        <p className="home-hero-text">
-          Ya sea que estés gestionando un proyecto personal, coordinando un
-          equipo o simplemente intentando no olvidar lo importante, Task Manager
-          se adapta a ti. Listas, calendarios, estados y prioridades conviven
-          en armonía para que tú te centres en lo que de verdad importa:
-          avanzar.
-        </p>
-        <button className="home-cta" onClick={() => navigate("/home/tasks")}>
-          Comenzar →
-        </button>
-      </section>
+    <Container
+      fluid
+      className="py-4 px-4 overflow-auto"
+      style={{ height: "100vh" }}
+    >
+      {/* ── Hero ───────────────────────────────────────────── */}
+      <Row className="justify-content-center mb-5">
+        <Col lg={8} xl={7} className="text-center py-5">
+          <h1 className="fw-bold mb-4" style={{ letterSpacing: "-0.025em" }}>
+            Task Manager
+          </h1>
+          <p className="text-muted mb-3" style={{ lineHeight: 1.75 }}>
+            Un espacio diseñado para volcar todas tus ideas, organizar el caos
+            cotidiano y recuperar el enfoque que necesitas. Task Manager no
+            pretende deslumbrarte con colores brillantes ni con decenas de
+            funcionalidades que jamás usarás; en su lugar, te ofrece una
+            superficie limpia donde cada tarea encuentra su sitio, cada fecha
+            límite se visualiza de un vistazo y cada proyecto avanza sin
+            distracciones.
+          </p>
+          <p className="text-muted mb-3" style={{ lineHeight: 1.75 }}>
+            Creemos en la productividad silenciosa: esa que nace cuando la
+            herramienta desaparece y solo queda tu trabajo. Sin ruido visual,
+            sin notificaciones innecesarias, sin curvas de aprendizaje. Abre la
+            aplicación, escribe lo que necesitas hacer, y déjala que haga el
+            resto. Así de simple, así de claro.
+          </p>
+          <p className="text-muted mb-4" style={{ lineHeight: 1.75 }}>
+            Ya sea que estés gestionando un proyecto personal, coordinando un
+            equipo o simplemente intentando no olvidar lo importante, Task
+            Manager se adapta a ti. Listas, calendarios, estados y prioridades
+            conviven en armonía para que tú te centres en lo que de verdad
+            importa: avanzar.
+          </p>
+          <Button
+            variant="dark"
+            className="rounded-3 px-4"
+            onClick={() => navigate("/home/tasks")}
+          >
+            Comenzar →
+          </Button>
+        </Col>
+      </Row>
 
-      {/* ── Stats row ────────────────────────────────────────── */}
-      <section className="home-stats">
-        <div className="home-stat-card">
-          <span className="home-stat-number">
-            {loading ? "—" : summary?.totalTasks ?? 0}
-          </span>
-          <span className="home-stat-label">Tareas</span>
-        </div>
-        <div className="home-stat-card">
-          <span className="home-stat-number">
-            {loading ? "—" : summary?.totalLists ?? 0}
-          </span>
-          <span className="home-stat-label">Listas</span>
-        </div>
-        <div className="home-stat-card">
-          <span className="home-stat-number">
-            {loading ? "—" : summary?.nextEvents?.length ?? 0}
-          </span>
-          <span className="home-stat-label">Próximos eventos</span>
-        </div>
-      </section>
-
-      {/* ── Activity section ─────────────────────────────────── */}
-      <section className="home-grid">
-        {/* Recent Tasks */}
-        <div className="home-panel">
-          <h2 className="home-panel-title">Tareas recientes</h2>
-          {loading ? (
-            <div>
-              <SkeletonRow />
-              <SkeletonRow />
-              <SkeletonRow />
-            </div>
-          ) : error ? (
-            <EmptyState message="Error al cargar las tareas." />
-          ) : !summary?.recentTasks?.length ? (
-            <EmptyState message="Aún no has creado ninguna tarea." />
-          ) : (
-            <div className="home-table">
-              <div className="home-table-header">
-                <span>Tarea</span>
-                <span>Estado</span>
-                <span>Fecha</span>
-              </div>
-              {summary.recentTasks.map((task) => (
-                <div
-                  className="home-table-row"
-                  key={task.id}
-                  onClick={() => navigate(`/home/tasks/${task.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && navigate(`/home/tasks/${task.id}`)}
+      {/* ── Stats ──────────────────────────────────────────── */}
+      <Row className="justify-content-center mb-5 g-3">
+        {[
+          {
+            value: loading ? "—" : summary?.totalTasks ?? 0,
+            label: "Tareas",
+          },
+          {
+            value: loading ? "—" : summary?.totalLists ?? 0,
+            label: "Listas",
+          },
+          {
+            value: loading ? "—" : summary?.nextEvents?.length ?? 0,
+            label: "Próximos eventos",
+          },
+        ].map((s, i) => (
+          <Col key={i} xs={12} sm={4} lg={3}>
+            <Card className="text-center border rounded-3">
+              <Card.Body className="py-4">
+                <h2
+                  className="fw-bold mb-1"
+                  style={{ letterSpacing: "-0.02em" }}
                 >
-                  <span className="home-task-name">{task.nameOfTask}</span>
-                  <span>
+                  {s.value}
+                </h2>
+                <small className="text-muted" style={{ letterSpacing: "0.03em" }}>
+                  {s.label}
+                </small>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      {/* ── Activity ───────────────────────────────────────── */}
+      <Row className="justify-content-center mb-5 g-4">
+        {/* Recent Tasks */}
+        <Col md={6} lg={5}>
+          <Card className="border rounded-3 h-100">
+            <Card.Body>
+              <h6
+                className="text-uppercase text-muted fw-semibold mb-3"
+                style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
+              >
+                Tareas recientes
+              </h6>
+
+              {loading ? (
+                <SkeletonRows />
+              ) : error ? (
+                <Empty text="Error al cargar las tareas." />
+              ) : !summary?.recentTasks?.length ? (
+                <Empty text="Aún no has creado ninguna tarea." />
+              ) : (
+                summary.recentTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="d-flex justify-content-between align-items-center border-bottom py-2"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/home/tasks/${task.id}`)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && navigate(`/home/tasks/${task.id}`)
+                    }
+                    style={{ cursor: "pointer" }}
+                  >
                     <span
-                      className="home-badge"
-                      style={stateStyle[task.state] || {}}
+                      className="fw-medium text-truncate me-2"
+                      style={{ fontSize: "0.875rem" }}
                     >
-                      {stateLabel[task.state] || task.state}
+                      {task.nameOfTask}
                     </span>
-                  </span>
-                  <span className="home-date">
-                    {formatDate(task.creationDate)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                    <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                      <Badge
+                        pill
+                        bg={STATE_MAP[task.state]?.bg || "secondary"}
+                        style={{ fontSize: "0.6875rem" }}
+                      >
+                        {STATE_MAP[task.state]?.label || task.state}
+                      </Badge>
+                      <small className="text-muted" style={{ fontSize: "0.8125rem" }}>
+                        {formatDate(task.creationDate)}
+                      </small>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
 
         {/* Upcoming Events */}
-        <div className="home-panel">
-          <h2 className="home-panel-title">Próximos eventos</h2>
-          {loading ? (
-            <div>
-              <SkeletonRow />
-              <SkeletonRow />
-              <SkeletonRow />
-            </div>
-          ) : error ? (
-            <EmptyState message="Error al cargar los eventos." />
-          ) : !summary?.nextEvents?.length ? (
-            <EmptyState message="No hay eventos próximos programados." />
-          ) : (
-            <div className="home-events-list">
-              {summary.nextEvents.map((evt) => (
-                <div className="home-event-card" key={evt.id}>
-                  <div className="home-event-dot" />
-                  <div>
-                    <p className="home-event-name">{evt.nameOfTask}</p>
-                    <p className="home-event-time">
-                      {formatDateTime(evt.startTime)}
-                      {evt.endTime ? ` — ${formatDateTime(evt.endTime)}` : ""}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        <Col md={6} lg={5}>
+          <Card className="border rounded-3 h-100">
+            <Card.Body>
+              <h6
+                className="text-uppercase text-muted fw-semibold mb-3"
+                style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
+              >
+                Próximos eventos
+              </h6>
 
-      {/* ── Footer ───────────────────────────────────────────── */}
-      <footer className="home-footer">
-        <div className="home-footer-inner">
-          <div className="home-footer-brand">
-            <span className="home-footer-logo">TaskManager</span>
-            <p className="home-footer-copy">
-              Simplificando la gestión de tareas desde 2025.
-            </p>
-          </div>
-          <div className="home-footer-links">
-            <a
-              href="https://fiopans1.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Website
-            </a>
-            <a
-              href="https://www.linkedin.com/in/fiopans1/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://github.com/fiopans1"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-          </div>
-        </div>
-        <p className="home-footer-bottom">
-          © 2025 TaskManager · Creado por{" "}
-          <a
-            href="https://github.com/fiopans1"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            fiopans1
-          </a>
-        </p>
+              {loading ? (
+                <SkeletonRows />
+              ) : error ? (
+                <Empty text="Error al cargar los eventos." />
+              ) : !summary?.nextEvents?.length ? (
+                <Empty text="No hay eventos próximos programados." />
+              ) : (
+                summary.nextEvents.map((evt) => (
+                  <div
+                    key={evt.id}
+                    className="d-flex align-items-start gap-2 border-bottom py-2"
+                  >
+                    <span
+                      className="rounded-circle bg-secondary mt-1 flex-shrink-0"
+                      style={{ width: 8, height: 8 }}
+                    />
+                    <div>
+                      <p
+                        className="mb-0 fw-medium"
+                        style={{ fontSize: "0.875rem" }}
+                      >
+                        {evt.nameOfTask}
+                      </p>
+                      <small className="text-muted">
+                        {formatDateTime(evt.startTime)}
+                        {evt.endTime ? ` — ${formatDateTime(evt.endTime)}` : ""}
+                      </small>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* ── Footer ─────────────────────────────────────────── */}
+      <footer className="border-top pt-4 mt-4 pb-3">
+        <Row className="justify-content-center">
+          <Col lg={10}>
+            <Row>
+              <Col md={4} className="mb-3 mb-md-0">
+                <h6 className="fw-semibold">TaskManager</h6>
+                <p className="text-muted small mb-0">
+                  Simplificando la gestión de tareas desde 2025.
+                </p>
+              </Col>
+              <Col md={4} className="mb-3 mb-md-0">
+                <div className="d-flex gap-3">
+                  <a
+                    href="https://fiopans1.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted text-decoration-none small"
+                  >
+                    Website
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/fiopans1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted text-decoration-none small"
+                  >
+                    LinkedIn
+                  </a>
+                  <a
+                    href="https://github.com/fiopans1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted text-decoration-none small"
+                  >
+                    GitHub
+                  </a>
+                </div>
+              </Col>
+              <Col md={4} className="text-md-end">
+                <p className="text-muted small mb-0">
+                  © 2025 TaskManager · Creado por{" "}
+                  <a
+                    href="https://github.com/fiopans1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-decoration-none"
+                  >
+                    fiopans1
+                  </a>
+                </p>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </footer>
-    </div>
+    </Container>
   );
 };
 
