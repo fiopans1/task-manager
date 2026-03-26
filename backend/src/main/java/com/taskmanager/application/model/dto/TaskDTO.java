@@ -26,6 +26,7 @@ public class TaskDTO {
     private Date endDate;
     private Date creationDate;
     private Long listId;
+    private String listName;
 
     public TaskDTO() {
     }
@@ -98,6 +99,12 @@ public class TaskDTO {
     public void setListId(Long listId) {
         this.listId = listId;
     }
+    public String getListName() {
+        return listName;
+    }
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
     public static TaskDTO fromEntity(Task task) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
@@ -116,6 +123,7 @@ public class TaskDTO {
         }
         if(task.getList() != null) {
             taskDTO.setListId(task.getList().getId());
+            taskDTO.setListName(task.getList().getNameOfList());
         }
         return taskDTO;
     }

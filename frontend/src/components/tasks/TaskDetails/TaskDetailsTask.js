@@ -19,7 +19,8 @@ import {
   Person,
   Flag,
   FileText,
-  CheckCircle
+  CheckCircle,
+  ListUl,
 } from "react-bootstrap-icons";
 
 const TaskDetailsTask = ({ taskId }) => {
@@ -214,6 +215,19 @@ const TaskDetailsTask = ({ taskId }) => {
                   >
                     <Person size={14} />
                     {task.user}
+                  </Badge>
+                )}
+
+                {task.listId && (
+                  <Badge
+                    bg="info"
+                    className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
+                    style={{ fontSize: "0.85rem", cursor: "pointer" }}
+                    onClick={() => navigate("/home/lists/" + task.listId)}
+                    title="Go to list"
+                  >
+                    <ListUl size={14} />
+                    {task.listName || "List #" + task.listId}
                   </Badge>
                 )}
               </Stack>

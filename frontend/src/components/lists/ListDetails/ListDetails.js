@@ -85,27 +85,8 @@ const ListDetails = ({ listId }) => {
     setSearchAvailable("");
     setLoadingAvailable(true);
     try {
-      taskService.invalidateTasksCache();
-      const resource = taskService.getTasks();
-      const allTasks = await new Promise((resolve, reject) => {
-        const check = () => {
-          try {
-            const result = resource.read();
-            resolve(result);
-          } catch (e) {
-            if (e && typeof e.then === "function") {
-              e.then(check).catch(reject);
-            } else {
-              reject(e);
-            }
-          }
-        };
-        check();
-      });
-      const currentTaskIds = new Set(tasks.map((t) => t.id));
-      setAvailableTasks(
-        allTasks.filter((t) => !currentTaskIds.has(t.id))
-      );
+      const unassignedTasks = await taskService.getTasksWithoutList();
+      setAvailableTasks(unassignedTasks);
     } catch (error) {
       errorToast("Error loading tasks: " + error.message);
     } finally {
@@ -523,7 +504,8 @@ const ListDetails = ({ listId }) => {
           ) : filteredAvailableTasks.length === 0 ? (
             <div className="text-center py-4">
               <List size={48} className="text-muted mb-2" />
-              <p className="text-muted mb-0">No available tasks to add</p>
+              <p className="text-muted mb-0">No unassigned tasks available</p>
+              <small className="text-muted">All tasks already belong to a list</small>
             </div>
           ) : (
             <ListGroup style={{ maxHeight: "400px", overflow: "auto" }}>
@@ -546,20 +528,7 @@ const ListDetails = ({ listId }) => {
                       <div className="fw-semibold text-truncate">
                         {task.nameOfTask}
                       </div>
-                      {task.descriptionOfTask && (
-                        <small className="text-truncate d-block" style={{ opacity: 0.8 }}>
-                          {task.descriptionOfTask}
-                        </small>
-                      )}
                     </div>
-                  </div>
-                  <div className="d-flex gap-1 flex-shrink-0">
-                    <Badge bg={getStateVariant(task.state)} style={{ fontSize: "0.7rem" }}>
-                      {task.state}
-                    </Badge>
-                    <Badge bg={getPriorityVariant(task.priority)} style={{ fontSize: "0.7rem" }}>
-                      {task.priority}
-                    </Badge>
                   </div>
                 </ListGroup.Item>
               ))}
