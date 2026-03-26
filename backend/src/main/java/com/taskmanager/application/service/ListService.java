@@ -68,13 +68,17 @@ public class ListService {
         logger.info("Deleting list with ID: {}", id);
 
         ListTM list = listRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
         if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            for (Task task : list.getListTasks()) {
+                task.setList(null);
+            }
+            taskRepository.flush();
             listRepository.deleteById(id);
             logger.info("Successfully deleted list with ID: {}", id);
         } else {
             logger.warn("Permission denied deleting list with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to delete this task");
+            throw new NotPermissionException("You don't have permission to delete this list");
         }
     }
 

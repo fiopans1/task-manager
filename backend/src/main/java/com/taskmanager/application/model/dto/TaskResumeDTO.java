@@ -4,15 +4,13 @@ public class TaskResumeDTO {
 
     private Long id;
     private String nameOfTask;
-    private Long listId;
 
     public TaskResumeDTO() {
     }
 
-    public TaskResumeDTO(Long id, String nameOfTask, Long listId) {
+    public TaskResumeDTO(Long id, String nameOfTask) {
         this.id = id;
         this.nameOfTask = nameOfTask;
-        this.listId = listId;
     }
 
     public Long getId() {
@@ -29,13 +27,5 @@ public class TaskResumeDTO {
 
     public void setNameOfTask(String nameOfTask) {
         this.nameOfTask = nameOfTask;
-    }
-
-    public Long getListId() {
-        return listId;
-    }
-
-    public void setListId(Long listId) {
-        this.listId = listId;
     }
 }

@@ -20,7 +20,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>{
 
     List<Task> findAllByUser(User user);
 
-    @Query("SELECT new com.taskmanager.application.model.dto.TaskResumeDTO(t.id, t.nameOfTask, t.list.id) " +
+    @Query("SELECT new com.taskmanager.application.model.dto.TaskResumeDTO(t.id, t.nameOfTask) " +
            "FROM Task t " +
            "WHERE t.user.id = :userId AND t.list IS NULL")
     List<TaskResumeDTO> findTasksResumeWithoutListByUserId(Long userId);
