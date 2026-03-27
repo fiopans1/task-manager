@@ -107,8 +107,8 @@ const Home = () => {
   return (
     <Container
       fluid
-      className="py-4 px-4 overflow-auto"
-      style={{ height: "100vh" }}
+      className="py-4 px-4 overflow-auto d-flex flex-column"
+      style={{ minHeight: "100vh" }}
     >
       {/* ── Hero ───────────────────────────────────────────── */}
       <Row className="justify-content-center mb-4">
@@ -366,7 +366,7 @@ const Home = () => {
       </Row>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-top pt-4 mt-4 pb-3">
+      <footer className="border-top pt-4 mt-auto pb-3">
         <Row className="justify-content-center">
           <Col lg={10}>
             <Row>
