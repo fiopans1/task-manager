@@ -4,8 +4,8 @@ task-manager.db
 application.properties
 .env
 jwtKeys
-TaskManager
-TaskManager.zip
+/TaskManager
+/TaskManager.zip
 .vscode
 
 # Frontend config (environment-specific, generated from template)
