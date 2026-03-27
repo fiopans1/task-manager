@@ -178,6 +178,25 @@ const getActionsTask = (taskId) => {
   }).then((response) => response.data);
 };
 
+const getTasksWithoutList = async () => {
+  try {
+    const serverUrl = configService.getApiBaseUrl();
+    const token = "Bearer " + store.getState().auth.token;
+    const response = await axios.get(
+      serverUrl + "/api/tasks/getTasksResumeWithoutList",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error connecting to server:" + error.message);
+  }
+};
+
 const taskService = {
   createTask,
   getTasks,
@@ -190,6 +209,7 @@ const taskService = {
   invalidateTasksCache,
   getEvents,
   getTaskById,
+  getTasksWithoutList,
 };
 
 export default taskService;

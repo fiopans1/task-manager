@@ -119,25 +119,13 @@ const deleteList = (id) => {
     .then((response) => response.data);
 };
 
-const deleteElementList = async (id) => {
-  const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  await axios
-    .delete(serverUrl + "/api/lists/deleteElement/" + id, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    });
-};
-
-const createElementList = async (id, element) => {
+const addTasksToList = async (listId, taskIds) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
     const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(
-      serverUrl + "/api/lists/addElement/" + id,
-      element,
+      serverUrl + "/api/lists/addTasksToList/" + listId,
+      taskIds,
       {
         headers: {
           "Content-Type": "application/json",
@@ -151,13 +139,12 @@ const createElementList = async (id, element) => {
   }
 };
 
-const updateElementList = async (id, element) => {
+const deleteTaskFromList = async (taskId) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
     const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.post(
-      serverUrl + "/api/lists/updateElement/" + id,
-      element,
+    await axios.delete(
+      serverUrl + "/api/lists/deleteTaskFromList/" + taskId,
       {
         headers: {
           "Content-Type": "application/json",
@@ -165,13 +152,12 @@ const updateElementList = async (id, element) => {
         },
       }
     );
-    return response.data;
   } catch (error) {
     throw new Error("Error connecting to server:" + error.message);
   }
 };
 
-const getElementsList = async (id) => {
+const getListById = async (id) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
     const token = "Bearer " + store.getState().auth.token;
@@ -193,10 +179,9 @@ const listService = {
   updateList,
   invalidateListsCache,
   deleteList,
-  deleteElementList,
-  createElementList,
-  updateElementList,
-  getElementsList,
+  addTasksToList,
+  deleteTaskFromList,
+  getListById,
 };
 
 export default listService;

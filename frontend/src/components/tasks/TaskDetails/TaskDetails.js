@@ -5,11 +5,7 @@ import TaskDetailsActions from "./TaskDetailsActions";
 const TaskDetails = () => {
   const params = useParams();
   return (
-    <Container
-      fluid
-      className="overflow-auto m-2 p-0"
-      style={{ height: "100vh" }}
-    >
+    <Container fluid className="p-0">
       <TaskDetailsTask taskId={params.id} />
       <TaskDetailsActions taskId={params.id} />
     </Container>
