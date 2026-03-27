@@ -23,8 +23,8 @@ class BuildTaskManager:
     def __init__(self, project_root, name_final_file="TaskManager", 
                  caddy_version="v2.7.6", specify_specifications=False, target_platform=None, target_architecture=None):
         self.project_root = Path(project_root).resolve()
-        self.backend_dir = self.project_root / 'application'
-        self.frontend_dir = self.project_root / 'client'
+        self.backend_dir = self.project_root / 'backend'
+        self.frontend_dir = self.project_root / 'frontend'
         self.backend_target_dir = self.backend_dir / 'target'
         self.frontend_build_dir = self.frontend_dir / 'build'
         self.scripts_dir = self.project_root / 'scripts'
