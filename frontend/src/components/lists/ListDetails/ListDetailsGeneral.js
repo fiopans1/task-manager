@@ -4,11 +4,7 @@ import ListDetails from "./ListDetails";
 const ListDetailsGeneral = () => {
   const params = useParams();
   return (
-    <Container
-      fluid
-      className="overflow-auto m-2 p-0"
-      style={{ height: "100vh" }}
-    >
+    <Container fluid className="p-0">
       <ListDetails listId={params.id} />
     </Container>
   );
