@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository;
 
 import com.taskmanager.application.model.dto.TaskResumeDTO;
 
-
-
-
-
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long>{
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findAllByUser(User user);
 
-    @Query("SELECT new com.taskmanager.application.model.dto.TaskResumeDTO(t.id, t.nameOfTask) " +
-           "FROM Task t " +
-           "WHERE t.user.id = :userId AND t.list IS NULL")
+    @Query("SELECT new com.taskmanager.application.model.dto.TaskResumeDTO(t.id, t.nameOfTask) "
+            + "FROM Task t "
+            + "WHERE t.user.id = :userId AND t.list IS NULL")
     List<TaskResumeDTO> findTasksResumeWithoutListByUserId(Long userId);
+
+    List<Task> findTop5ByUserOrderByCreationDateDesc(User user);
+
+    long countByUser(User user);
 }
