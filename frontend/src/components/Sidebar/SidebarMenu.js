@@ -326,6 +326,9 @@ function SidebarMenu({ onLogOut }) {
           <div style={{ width: "44px" }}></div>
         </div>
 
+        {/* Spacer to push content below the fixed top bar */}
+        <div style={{ height: "60px", width: "100%" }}></div>
+
         {/* Menú lateral como Offcanvas en móvil */}
         <Offcanvas
           id="sidebar-menu"

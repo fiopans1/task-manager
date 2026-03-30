@@ -182,7 +182,6 @@
     width: 100% !important;
     flex: 1 1 100% !important;
     padding-top: 60px !important; /* Space for mobile top bar */
-    overflow-x: hidden !important; /* Prevent horizontal scroll */
   }
 }
 

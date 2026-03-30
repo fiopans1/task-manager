@@ -75,13 +75,13 @@ const Tasks = () => {
   };
 
   return (
-    <Container fluid className="px-3 d-flex flex-column" style={{ height: "100%", overflow: "hidden" }}>
+    <Container fluid className="px-3">
       <div className="tittle-tab-container">
         <h2>My Tasks</h2>
       </div>
 
       {/* Primera fila con controles */}
-      <Card className="mb-4 shadow-sm flex-shrink-0">
+      <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Form onSubmit={handleSearch}>
             <Row className="g-2">
@@ -133,15 +133,15 @@ const Tasks = () => {
       </Card>
 
       {/* Segunda fila con la lista de tareas */}
-      <Row className="flex-grow-1" style={{ minHeight: 0 }}>
-        <Col className="d-flex flex-column" style={{ minHeight: 0 }}>
+      <Row>
+        <Col>
           <Container
             fluid
-            className="overflow-auto tasks-container flex-grow-1"
+            className="overflow-auto tasks-container"
             style={{ 
-              minHeight: 0,
+              height: isMobile ? "calc(100vh - 230px)" : "80vh", 
               width: "100%",
-              paddingBottom: "20px" 
+              paddingBottom: isMobile ? "80px" : "20px" 
             }}
           >
             <ErrorBoundary
