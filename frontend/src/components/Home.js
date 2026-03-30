@@ -108,7 +108,7 @@ const Home = () => {
     <Container
       fluid
       className="py-4 px-4 overflow-auto d-flex flex-column"
-      style={{ minHeight: "100%" }}
+      style={{ height: "100%" }}
     >
       {/* ── Hero ───────────────────────────────────────────── */}
       <Row className="justify-content-center mb-4">

@@ -15,7 +15,7 @@ const MainApp = ({ onLogOut }) => {
         <SidebarMenu onLogOut={onLogOut} /> {/*This component have a column*/}
         <Col
           className="p-0 outlet-col"
-          style={{ height: "100vh", overflow: "auto" }}
+          style={{ height: "100vh", overflow: "hidden" }}
         >
           <Outlet />
         </Col>
