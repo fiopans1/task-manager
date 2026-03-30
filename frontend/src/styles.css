@@ -181,7 +181,9 @@
   .outlet-col {
     width: 100% !important;
     flex: 1 1 100% !important;
-    padding-top: 60px !important; /* Space for mobile top bar */
+    height: calc(100vh - 60px) !important; /* Exact remaining space below top bar */
+    margin-top: 60px !important; /* Position below fixed top bar */
+    overflow-x: hidden !important; /* Prevent horizontal scroll */
   }
 }
 

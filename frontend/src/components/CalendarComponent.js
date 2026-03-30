@@ -157,7 +157,7 @@ const CalendarComponent = () => {
   };
 
   return (
-    <Container fluid className="py-4 overflow-auto" style={{ height: "100vh" }}>
+    <Container fluid className="py-4 overflow-auto" style={{ height: "100%" }}>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Calendario</h2>
         <div className="d-flex gap-4">
