@@ -24,11 +24,13 @@ import {
   FileText,
   Trophy,
   BoxArrowUpRight,
+  PencilSquare,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import listService from "../../../services/listService";
 import taskService from "../../../services/taskService";
 import { successToast, errorToast } from "../../common/Noty";
+import NewEditLists from "../NewEditLists";
 
 const ListDetails = ({ listId }) => {
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ const ListDetails = ({ listId }) => {
     tasks: [],
   });
   const [showMore, setShowMore] = useState(false);
+  const [showEditList, setShowEditList] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [availableTasks, setAvailableTasks] = useState([]);
@@ -173,7 +176,7 @@ const ListDetails = ({ listId }) => {
             >
               <ArrowLeft size={20} />
             </Button>
-            <div>
+            <div className="flex-grow-1">
               <h1
                 className="mb-1 fw-bold text-body"
                 style={{
@@ -186,6 +189,14 @@ const ListDetails = ({ listId }) => {
                 Track and manage your tasks efficiently
               </p>
             </div>
+            <Button
+              variant="outline-primary"
+              onClick={() => setShowEditList(true)}
+              className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
+            >
+              <PencilSquare size={18} />
+              Edit
+            </Button>
           </Stack>
         </Col>
       </Row>
@@ -557,6 +568,14 @@ const ListDetails = ({ listId }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <NewEditLists
+        show={showEditList}
+        handleClose={() => setShowEditList(false)}
+        refreshLists={refreshList}
+        editOrNew={true}
+        initialData={list}
+      />
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Card,
@@ -21,10 +21,13 @@ import {
   FileText,
   CheckCircle,
   ListUl,
+  PencilSquare,
 } from "react-bootstrap-icons";
+import EditTask from "../EditTask";
 
 const TaskDetailsTask = ({ taskId }) => {
   const [showMore, setShowMore] = useState(false);
+  const [showEditTask, setShowEditTask] = useState(false);
   const [task, setTask] = useState({
     id: 1,
     nameOfTask: "<None>",
@@ -42,18 +45,19 @@ const TaskDetailsTask = ({ taskId }) => {
   const handleBack = () => {
     navigate("..");
   };
+
+  const fetchTask = useCallback(async () => {
+    try {
+      const task = await taskService.getTaskById(taskId);
+      setTask(task);
+    } catch (error) {
+      errorToast("Error fetching data: " + error.message);
+    }
+  }, [taskId]);
   
   useEffect(() => {
-    async function fetchTask() {
-      try {
-        const task = await taskService.getTaskById(taskId);
-        setTask(task);
-      } catch (error) {
-        errorToast("Error fetching data: " + error.message);
-      }
-    }
     fetchTask();
-  }, [taskId]);
+  }, [fetchTask]);
 
   // Function to determine the priority color
   const getPriorityBadgeVariant = (priority) => {
@@ -124,7 +128,7 @@ const TaskDetailsTask = ({ taskId }) => {
             >
               <ArrowLeft size={20} />
             </Button>
-            <div>
+            <div className="flex-grow-1">
               <h1 className="mb-1 fw-bold text-body" style={{ 
                 fontSize: "2rem"
               }}>
@@ -132,6 +136,14 @@ const TaskDetailsTask = ({ taskId }) => {
               </h1>
               <p className="text-muted mb-0">Complete task information and status</p>
             </div>
+            <Button
+              variant="outline-primary"
+              onClick={() => setShowEditTask(true)}
+              className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
+            >
+              <PencilSquare size={18} />
+              Edit
+            </Button>
           </Stack>
         </Col>
       </Row>
@@ -323,6 +335,13 @@ const TaskDetailsTask = ({ taskId }) => {
           </Card>
         </Card.Body>
       </Card>
+
+      <EditTask
+        show={showEditTask}
+        handleClose={() => setShowEditTask(false)}
+        refreshTasks={fetchTask}
+        initialData={task}
+      />
     </Container>
   );
 };
