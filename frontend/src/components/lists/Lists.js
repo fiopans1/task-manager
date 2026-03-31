@@ -134,11 +134,10 @@ const List = () => {
         <Col>
           <Container
             fluid
-            className="overflow-auto tasks-container"
+            className="tasks-container"
             style={{
-              height: isMobile ? "calc(100vh - 230px)" : "80vh",
               width: "100%",
-              paddingBottom: isMobile ? "80px" : "20px",
+              paddingBottom: "20px",
             }}
           >
             <ErrorBoundary
