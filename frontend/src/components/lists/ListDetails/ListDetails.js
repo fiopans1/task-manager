@@ -375,8 +375,6 @@ const ListDetails = ({ listId }) => {
             className="border-0 shadow-sm bg-body-tertiary"
             style={{
               borderRadius: "15px",
-              maxHeight: "60vh",
-              overflow: "auto",
             }}
           >
             <Card.Body className="p-4">
