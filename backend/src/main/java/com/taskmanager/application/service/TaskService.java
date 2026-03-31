@@ -52,6 +52,8 @@ public class TaskService {
     public Task createTask(TaskDTO taskDto) {
         logger.info("Creating task: {}", taskDto.getNameOfTask());
 
+        validateEventDates(taskDto);
+
         Task task = TaskDTO.toEntity(taskDto);
         User user = authService.getCurrentUser();
 
@@ -73,6 +75,8 @@ public class TaskService {
     @Transactional
     public Task updateTask(Long id, TaskDTO task) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating task with ID: {}", id);
+
+        validateEventDates(task);
 
         Task taskToUpdate = tasksRepository.findById(id)
                 .orElseThrow(() -> {
@@ -330,6 +334,20 @@ public class TaskService {
         logger.info("Successfully retrieved {} task resumes without list for user: {}", tasksResume.size(), user.getUsername());
 
         return tasksResume;
+    }
+
+    private void validateEventDates(TaskDTO taskDto) {
+        if (taskDto.isEvent()) {
+            if (taskDto.getStartDate() == null) {
+                throw new IllegalArgumentException("Start date is required for events");
+            }
+            if (taskDto.getEndDate() == null) {
+                throw new IllegalArgumentException("End date is required for events");
+            }
+            if (taskDto.getEndDate().before(taskDto.getStartDate())) {
+                throw new IllegalArgumentException("End date must be after start date");
+            }
+        }
     }
 
 }

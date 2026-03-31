@@ -15,6 +15,8 @@ import dayjs from "dayjs";
 
 const NewTask = ({ show, handleClose, refreshTasks }) => {
   const [isEvent, setIsEvent] = useState(false);
+  const [validated, setValidated] = useState(false);
+  const [dateError, setDateError] = useState("");
 
   const handleEvent = () => {
     const newIsEvent = !isEvent;
@@ -23,6 +25,9 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       ...prevData,
       isEvent: newIsEvent,
     }));
+    if (!newIsEvent) {
+      setDateError("");
+    }
   };
   const [formData, setFormData] = useState({
     nameOfTask: "",
@@ -45,6 +50,8 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       endDate: "",
     });
     setIsEvent(false);
+    setValidated(false);
+    setDateError("");
     setStartDateField("");
     setStartTimeField("");
     setEndDateField("");
@@ -54,8 +61,37 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const validateForm = () => {
+    if (!formData.nameOfTask || formData.nameOfTask.trim() === "") {
+      return false;
+    }
+
+    if (isEvent) {
+      if (!startDateField || !startTimeField || !endDateField || !endTimeField) {
+        setDateError("All event date and time fields are required");
+        return false;
+      }
+
+      const startDateTime = dayjs(`${startDateField}T${startTimeField}`);
+      const endDateTime = dayjs(`${endDateField}T${endTimeField}`);
+      if (endDateTime.isBefore(startDateTime)) {
+        setDateError("End date must be after start date");
+        return false;
+      }
+      setDateError("");
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
-    // TODO: Add date validation to ensure start date is before end date
+    setValidated(true);
+
+    if (!validateForm()) {
+      return false;
+    }
+
     try {
       // Create a copy of formData to modify
       const taskData = { ...formData };
@@ -79,8 +115,10 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       restartForm();
       refreshTasks();
       successToast("Task created succesfully");
+      return true;
     } catch (error) {
       errorToast("Error: " + error.message);
+      return false;
     }
   };
 
@@ -129,7 +167,12 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                     value={formData.nameOfTask}
                     onChange={handleChange}
                     className="shadow-sm rounded-3 border-light-subtle"
+                    required
+                    isInvalid={validated && (!formData.nameOfTask || formData.nameOfTask.trim() === "")}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    Task name is required
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mb-4">
                   <Col>
@@ -247,6 +290,9 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                         </Row>
                       </Form.Group>
                     </Row>
+                    {dateError && (
+                      <div className="text-danger small mt-1">{dateError}</div>
+                    )}
                   </Container>
                 </Collapse>
                 <Form.Group
@@ -280,9 +326,11 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              handleClose();
-              handleSubmit();
+            onClick={async () => {
+              const success = await handleSubmit();
+              if (success) {
+                handleClose();
+              }
             }}
             className="rounded-3 px-4 fw-medium"
           >

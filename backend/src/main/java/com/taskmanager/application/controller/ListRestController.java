@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.taskmanager.application.service.ListService;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,7 +33,7 @@ public class ListRestController {
     private ListService listService;
 
     @PostMapping("/create")
-    public ResponseEntity<ListTMDTO> createList(@RequestBody ListTMDTO entity) {
+    public ResponseEntity<ListTMDTO> createList(@Valid @RequestBody ListTMDTO entity) {
         logger.info("Creating new list: {}", entity.getNameOfList());
 
         try {
@@ -100,7 +101,7 @@ public class ListRestController {
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<ListTMDTO> updateList(@PathVariable Long id, @RequestBody ListTMDTO entity) throws ResourceNotFoundException, NotPermissionException {
+    public ResponseEntity<ListTMDTO> updateList(@PathVariable Long id, @Valid @RequestBody ListTMDTO entity) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating list with ID: {}", id);
 
         try {

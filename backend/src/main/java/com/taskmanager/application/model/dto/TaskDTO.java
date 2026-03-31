@@ -2,8 +2,6 @@ package com.taskmanager.application.model.dto;
 
 import java.util.Date;
 
-import org.yaml.snakeyaml.events.Event;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.taskmanager.application.model.entities.EventTask;
@@ -11,15 +9,21 @@ import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
 import com.taskmanager.application.model.entities.Task;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskDTO {
 
     private Long id;
+    @NotBlank(message = "Task name is required")
     private String nameOfTask;
     private String descriptionOfTask;
+    @NotNull(message = "Task state is required")
     private StateTask state;
     private String user;
+    @NotNull(message = "Task priority is required")
     private PriorityTask priority;
     private boolean isEvent;
     private Date startDate;

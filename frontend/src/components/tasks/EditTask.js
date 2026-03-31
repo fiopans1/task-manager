@@ -15,6 +15,8 @@ import dayjs from "dayjs";
 
 const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
   const [isEvent, setIsEvent] = useState(false);
+  const [validated, setValidated] = useState(false);
+  const [dateError, setDateError] = useState("");
 
   const handleEvent = () => {
     const newIsEvent = !isEvent;
@@ -23,6 +25,9 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
       ...prevData,
       isEvent: newIsEvent,
     }));
+    if (!newIsEvent) {
+      setDateError("");
+    }
   };
 
   const [formData, setFormData] = useState({
@@ -78,7 +83,36 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    if (!formData.nameOfTask || formData.nameOfTask.trim() === "") {
+      return false;
+    }
+
+    if (isEvent) {
+      if (!startDateField || !startTimeField || !endDateField || !endTimeField) {
+        setDateError("All event date and time fields are required");
+        return false;
+      }
+
+      const startDateTime = dayjs(`${startDateField}T${startTimeField}`);
+      const endDateTime = dayjs(`${endDateField}T${endTimeField}`);
+      if (endDateTime.isBefore(startDateTime)) {
+        setDateError("End date must be after start date");
+        return false;
+      }
+      setDateError("");
+    }
+
+    return true;
+  };
+
   const handleSubmit = async () => {
+    setValidated(true);
+
+    if (!validateForm()) {
+      return false;
+    }
+
     try {
       // Create a copy of formData for modification
       const taskData = { ...formData };
@@ -102,8 +136,10 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
       await taskService.editTask(taskData);
       refreshTasks();
       successToast("Task updated successfully");
+      return true;
     } catch (error) {
       errorToast("Error: " + error.message);
+      return false;
     }
   };
 
@@ -143,7 +179,12 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                     value={formData.nameOfTask}
                     onChange={handleChange}
                     className="shadow-sm rounded-3 border-light-subtle"
+                    required
+                    isInvalid={validated && (!formData.nameOfTask || formData.nameOfTask.trim() === "")}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    Task name is required
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mb-4">
                   <Col>
@@ -261,6 +302,9 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
                         </Row>
                       </Form.Group>
                     </Row>
+                    {dateError && (
+                      <div className="text-danger small mt-1">{dateError}</div>
+                    )}
                   </Container>
                 </Collapse>
                 <Form.Group className="mb-4" controlId="editTaskDescription">
@@ -291,9 +335,11 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              handleSubmit();
-              handleClose();
+            onClick={async () => {
+              const success = await handleSubmit();
+              if (success) {
+                handleClose();
+              }
             }}
             className="rounded-3 px-4 fw-medium"
           >
