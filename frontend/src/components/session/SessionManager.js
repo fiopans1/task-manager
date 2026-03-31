@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import { warningToast, infoToast } from "../common/Noty";
 
-const SESSION_CHECK_INTERVAL = 60 * 1000; // Check every 60 seconds
-const WARNING_THRESHOLD = 5 * 60; // Show warning when 5 minutes remaining
-const COUNTDOWN_DURATION = 60; // 60 second countdown in the modal
+const SESSION_CHECK_INTERVAL = 30 * 1000; // Check every 30 seconds
+const WARNING_THRESHOLD = 5 * 60; // 5 minutes in seconds
+const COUNTDOWN_DURATION = 60; // 60 seconds countdown in the modal
 
 const SessionManager = ({ onLogOut }) => {
   const [showModal, setShowModal] = useState(false);
