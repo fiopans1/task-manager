@@ -36,7 +36,15 @@ function App() {
         // 2. Check existing token
         const existingToken = authService.getToken();
         if (existingToken) {
-          setIsAuthenticated(true);
+          // Validate token is not expired
+          if (authService.isTokenValid()) {
+            setIsAuthenticated(true);
+          } else {
+            // Token expired - clear it and redirect to login
+            authService.logout();
+            setIsAuthenticated(false);
+            infoToast("Your session has expired. Please log in again.");
+          }
         }
       } catch (error) {
         console.error("Error during auth initialization:", error);
