@@ -95,6 +95,48 @@ const isTokenValid = () => {
   }
 };
 
+// Get time remaining until token expires (in seconds)
+const getTokenTimeRemaining = () => {
+  const token = getToken();
+  if (!token) return 0;
+
+  try {
+    const payload = decodeJwt(token);
+    const currentTime = Date.now() / 1000;
+    const remaining = payload.exp - currentTime;
+    return Math.max(0, remaining);
+  } catch (error) {
+    console.error("Error getting token time remaining:", error);
+    return 0;
+  }
+};
+
+// Refresh the current token by requesting a new one from the backend
+const refreshToken = async () => {
+  const token = getToken();
+  if (!token) throw new Error("No token to refresh");
+
+  try {
+    const serverUrl = configService.getApiBaseUrl();
+    const response = await axios.post(
+      serverUrl + "/api/session/refresh",
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    const newToken = response.data.token;
+    store.dispatch(setToken(newToken));
+    return newToken;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    throw new Error("Error refreshing token");
+  }
+};
+
 // OAuth2 Methods
 
 // Start OAuth2 login (redirects to backend)
@@ -178,6 +220,8 @@ const authService = {
   getRoles,
   getUserEmail,
   isTokenValid,
+  getTokenTimeRemaining,
+  refreshToken,
 
   // OAuth2 methods
   loginWithOAuth2,

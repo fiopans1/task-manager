@@ -1,6 +1,7 @@
 import { Col, Container, Row } from "react-bootstrap";
 import SidebarMenu from "../components/Sidebar/SidebarMenu";
 import { Outlet } from "react-router-dom";
+import SessionManager from "../components/session/SessionManager";
 const MainApp = ({ onLogOut }) => {
   return (
     <Container
@@ -20,6 +21,7 @@ const MainApp = ({ onLogOut }) => {
           <Outlet />
         </Col>
       </Row>
+      <SessionManager onLogOut={onLogOut} />
     </Container>
   );
 };
