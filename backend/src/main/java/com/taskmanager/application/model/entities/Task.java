@@ -52,6 +52,14 @@ public class Task {
     @JoinColumn(name = "list_id", nullable = true)
     private ListTM list;
 
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "assigned_to_id", nullable = true)
+    private User assignedTo;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "team_id", nullable = true)
+    private Team team;
+
     public Task() {
     }
 
@@ -136,6 +144,22 @@ public class Task {
 
     public void setList(ListTM list) {
         this.list = list;
+    }
+
+    public User getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(User assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 
     public boolean isCompleted() {
