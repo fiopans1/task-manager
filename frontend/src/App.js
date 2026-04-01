@@ -17,6 +17,8 @@ import OAuth2Login from "./components/auth/OAuth2Login";
 // import AdminPanel from "./components/adminpanel/AdminPanel";
 import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
+import Teams from "./components/teams/Teams";
+import TeamDashboard from "./components/teams/TeamDashboard";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -126,6 +128,10 @@ function App() {
         <Route path="/home/lists" element={<OutletUtil />}>
           <Route index element={<Lists />} />
           <Route path=":id" element={<ListDetailsGeneral />} />
+        </Route>
+        <Route path="/home/teams" element={<OutletUtil />}>
+          <Route index element={<Teams />} />
+          <Route path=":id" element={<TeamDashboard />} />
         </Route>
         {/* <Route path="/home/admin" element={<AdminPanel />} /> */}
       </Route>

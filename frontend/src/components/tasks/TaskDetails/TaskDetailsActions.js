@@ -16,13 +16,16 @@ import {
   Alert,
 } from "react-bootstrap";
 import taskService from "../../../services/taskService";
+import teamService from "../../../services/teamService";
 import { successToast, errorToast } from "../../common/Noty";
+import MentionInput, { renderMentionText } from "../../teams/MentionInput";
 
-const TaskDetailsActions = ({ taskId }) => {
+const TaskDetailsActions = ({ taskId, teamId }) => {
   // States for action handling
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]);
 
   // States for the modal
   const [showModal, setShowModal] = useState(false);
@@ -68,6 +71,16 @@ const TaskDetailsActions = ({ taskId }) => {
       fetchData();
     }
   }, [taskId]); // Only taskId as dependency
+
+  // Load team members for mentions
+  useEffect(() => {
+    if (teamId) {
+      teamService
+        .getMembersForMention(teamId)
+        .then(setTeamMembers)
+        .catch(() => setTeamMembers([]));
+    }
+  }, [teamId]);
 
   // Separate effect for filters (without backend calls)
   useEffect(() => {
@@ -358,7 +371,7 @@ const TaskDetailsActions = ({ taskId }) => {
                   </Row>
                 </Card.Header>
                 <Card.Body>
-                  <Card.Text>{item.actionDescription}</Card.Text>
+                  <Card.Text>{renderMentionText(item.actionDescription)}</Card.Text>
                 </Card.Body>
               </Card>
             );
@@ -388,15 +401,27 @@ const TaskDetailsActions = ({ taskId }) => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="actionDescription"
-                value={newAction.actionDescription}
-                onChange={handleInputChange}
-                placeholder="Describe the action performed in detail..."
-                rows={4}
-              />
+              <Form.Label>Description {teamMembers.length > 0 && <small className="text-muted">(type @ to mention)</small>}</Form.Label>
+              {teamMembers.length > 0 ? (
+                <MentionInput
+                  value={newAction.actionDescription}
+                  onChange={(val) =>
+                    setNewAction((prev) => ({ ...prev, actionDescription: val }))
+                  }
+                  members={teamMembers}
+                  placeholder="Describe the action performed in detail... Use @username to mention"
+                  rows={4}
+                />
+              ) : (
+                <Form.Control
+                  as="textarea"
+                  name="actionDescription"
+                  value={newAction.actionDescription}
+                  onChange={handleInputChange}
+                  placeholder="Describe the action performed in detail..."
+                  rows={4}
+                />
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Action type</Form.Label>
