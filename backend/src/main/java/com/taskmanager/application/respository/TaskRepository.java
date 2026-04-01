@@ -44,8 +44,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("state") StateTask state,
             @Param("priority") PriorityTask priority);
 
-    @Query("SELECT COUNT(t) FROM Task t WHERE t.team = :team AND t.assignedTo = :user AND t.state <> 'COMPLETED' AND t.state <> 'CANCELLED'")
-    long countPendingByTeamAndAssignedTo(@Param("team") Team team, @Param("user") User user);
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.team = :team AND t.assignedTo = :user AND t.state NOT IN (:excludedStates)")
+    long countPendingByTeamAndAssignedTo(@Param("team") Team team, @Param("user") User user, @Param("excludedStates") List<StateTask> excludedStates);
 
     long countByTeam(Team team);
 

@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.Arrays;
 
 @Service
 public class TeamService {
@@ -331,7 +332,8 @@ public class TeamService {
         // Get members with pending task counts
         List<TeamMemberDTO> memberDTOs = team.getMembers().stream().map(member -> {
             TeamMemberDTO dto = TeamMemberDTO.fromEntity(member);
-            long pending = taskRepository.countPendingByTeamAndAssignedTo(team, member.getUser());
+            long pending = taskRepository.countPendingByTeamAndAssignedTo(team, member.getUser(),
+                    Arrays.asList(StateTask.COMPLETED, StateTask.CANCELLED));
             dto.setPendingTasks(pending);
             return dto;
         }).toList();
