@@ -247,8 +247,7 @@ const TeamDashboard = () => {
   return (
     <Container
       fluid
-      className="py-3 px-4 overflow-auto mt-2 mt-md-0"
-      style={{ height: "100%" }}
+      className="py-3 px-4 mt-2 mt-md-0"
     >
       {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">

@@ -77,11 +77,7 @@ const Teams = () => {
   };
 
   return (
-    <Container
-      fluid
-      className="py-4 px-4 d-flex flex-column mt-2 mt-md-0"
-      style={{ height: "100%" }}
-    >
+    <Container fluid className="py-4 px-4 mt-2 mt-md-0">
       {/* Header */}
       <div className="tittle-tab-container mb-3">
         <h2 className="fw-bold mb-2 flex-grow-1">
@@ -150,7 +146,7 @@ const Teams = () => {
       )}
 
       {/* Teams List */}
-      <div className="flex-grow-1" style={{ minHeight: 0, overflowY: "auto" }}>
+      <div>
         {loading ? (
           <div className="text-center py-5">
             <Spinner animation="border" />
