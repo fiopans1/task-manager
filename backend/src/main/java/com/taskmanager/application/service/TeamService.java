@@ -6,6 +6,8 @@ import com.taskmanager.application.model.dto.TeamDashboardDTO;
 import com.taskmanager.application.model.dto.TeamDTO;
 import com.taskmanager.application.model.dto.TeamInvitationDTO;
 import com.taskmanager.application.model.dto.TeamMemberDTO;
+import com.taskmanager.application.model.entities.ActionTask;
+import com.taskmanager.application.model.entities.ActionType;
 import com.taskmanager.application.model.entities.InvitationStatus;
 import com.taskmanager.application.model.entities.PriorityTask;
 import com.taskmanager.application.model.entities.StateTask;
@@ -18,6 +20,7 @@ import com.taskmanager.application.model.entities.TeamRole;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.respository.ActionTaskRepository;
 import com.taskmanager.application.respository.TaskAssignmentHistoryRepository;
 import com.taskmanager.application.respository.TaskRepository;
 import com.taskmanager.application.respository.TeamInvitationRepository;
@@ -52,6 +55,9 @@ public class TeamService {
 
     @Autowired
     private TaskAssignmentHistoryRepository assignmentHistoryRepository;
+
+    @Autowired
+    private ActionTaskRepository actionTaskRepository;
 
     @Autowired
     private TeamInvitationRepository invitationRepository;
@@ -278,6 +284,25 @@ public class TeamService {
         task.setTeam(team);
         task = taskRepository.save(task);
 
+        // Create action comment recording the reassignment
+        ActionTask action = new ActionTask();
+        action.setActionName("Task Reassigned");
+        if (previousUser != null) {
+            action.setActionDescription("Task reassigned from @" + previousUser.getUsername()
+                    + " to @" + targetUser.getUsername()
+                    + " by @" + currentUser.getUsername()
+                    + " in team " + team.getName());
+        } else {
+            action.setActionDescription("Task assigned to @" + targetUser.getUsername()
+                    + " by @" + currentUser.getUsername()
+                    + " in team " + team.getName());
+        }
+        action.setActionType(ActionType.COMMENT);
+        action.setUser(currentUser.getUsername());
+        action.setTask(task);
+        action.setActionDate(new Date());
+        actionTaskRepository.save(action);
+
         logger.info("Task {} assigned to {} in team {} by {}",
                 taskId, targetUsername, teamId, currentUser.getUsername());
         return TaskDTO.fromEntity(task);
@@ -312,6 +337,18 @@ public class TeamService {
         history.setTeam(team);
         history.setChangedDate(new Date());
         assignmentHistoryRepository.save(history);
+
+        // Create action comment recording the task addition
+        ActionTask action = new ActionTask();
+        action.setActionName("Task Added to Team");
+        action.setActionDescription("Task added to team " + team.getName()
+                + " by @" + currentUser.getUsername()
+                + ". Assigned to @" + currentUser.getUsername());
+        action.setActionType(ActionType.COMMENT);
+        action.setUser(currentUser.getUsername());
+        action.setTask(task);
+        action.setActionDate(new Date());
+        actionTaskRepository.save(action);
 
         logger.info("Task {} added to team {} by {}", taskId, teamId, currentUser.getUsername());
         return TaskDTO.fromEntity(task);
@@ -359,7 +396,6 @@ public class TeamService {
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
         TeamMember currentMember = validateMembership(team);
 
-        // Only admins can filter by other members
         User assignedToUser = null;
         if (assignedToUsername != null && !assignedToUsername.isEmpty()) {
             if (currentMember.getRole() != TeamRole.ADMIN) {
@@ -371,6 +407,9 @@ public class TeamService {
             }
             assignedToUser = userRepository.findByUsername(assignedToUsername)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found: " + assignedToUsername));
+        } else if (currentMember.getRole() != TeamRole.ADMIN) {
+            // Non-admins without assignedTo filter should only see their own tasks
+            assignedToUser = authService.getCurrentUser();
         }
 
         List<Task> tasks = taskRepository.findTeamTasksFiltered(team, assignedToUser, state, priority);
@@ -381,9 +420,16 @@ public class TeamService {
     public List<TaskDTO> getTeamTasks(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
-        validateMembership(team);
+        TeamMember currentMember = validateMembership(team);
 
-        List<Task> tasks = taskRepository.findAllByTeam(team);
+        List<Task> tasks;
+        if (currentMember.getRole() == TeamRole.ADMIN) {
+            tasks = taskRepository.findAllByTeam(team);
+        } else {
+            // Non-admins only see their own tasks
+            User currentUser = authService.getCurrentUser();
+            tasks = taskRepository.findAllByTeamAndAssignedTo(team, currentUser);
+        }
         return tasks.stream().map(TaskDTO::fromEntity).toList();
     }
 
@@ -405,7 +451,7 @@ public class TeamService {
     // ===== INVITATIONS =====
 
     @Transactional
-    public TeamInvitationDTO createInvitation(Long teamId, String email)
+    public TeamInvitationDTO createInvitationByUsername(Long teamId, String username)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
@@ -413,23 +459,25 @@ public class TeamService {
 
         User currentUser = authService.getCurrentUser();
 
+        User targetUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
         // Check if user is already a member
-        userRepository.findByEmail(email).ifPresent(user -> {
-            if (teamMemberRepository.existsByTeamAndUser(team, user)) {
-                throw new RuntimeException("User is already a member of this team");
-            }
-        });
+        if (teamMemberRepository.existsByTeamAndUser(team, targetUser)) {
+            throw new RuntimeException("User is already a member of this team");
+        }
 
         TeamInvitation invitation = new TeamInvitation();
         invitation.setTeam(team);
-        invitation.setInvitedEmail(email);
+        invitation.setInvitedUsername(username);
+        invitation.setInvitedEmail(targetUser.getEmail());
         invitation.setInvitedBy(currentUser);
         invitation.setStatus(InvitationStatus.PENDING);
         invitation.setToken(UUID.randomUUID().toString());
         invitation.setCreatedDate(new Date());
         invitation = invitationRepository.save(invitation);
 
-        logger.info("Invitation created for {} to team {} by {}", email, teamId, currentUser.getUsername());
+        logger.info("Invitation created for user {} to team {} by {}", username, teamId, currentUser.getUsername());
         return TeamInvitationDTO.fromEntity(invitation);
     }
 
@@ -448,8 +496,23 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<TeamInvitationDTO> getMyPendingInvitations() {
         User currentUser = authService.getCurrentUser();
-        return invitationRepository.findAllByInvitedEmailAndStatus(currentUser.getEmail(), InvitationStatus.PENDING)
-                .stream()
+        // Find invitations by username or email
+        List<TeamInvitation> byUsername = invitationRepository
+                .findAllByInvitedUsernameAndStatus(currentUser.getUsername(), InvitationStatus.PENDING);
+        List<TeamInvitation> byEmail = invitationRepository
+                .findAllByInvitedEmailAndStatus(currentUser.getEmail(), InvitationStatus.PENDING);
+
+        // Merge and deduplicate
+        java.util.Set<Long> seen = new java.util.HashSet<>();
+        List<TeamInvitation> all = new java.util.ArrayList<>();
+        for (TeamInvitation inv : byUsername) {
+            if (seen.add(inv.getId())) all.add(inv);
+        }
+        for (TeamInvitation inv : byEmail) {
+            if (seen.add(inv.getId())) all.add(inv);
+        }
+
+        return all.stream()
                 .map(TeamInvitationDTO::fromEntity)
                 .toList();
     }

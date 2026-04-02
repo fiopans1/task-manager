@@ -81,17 +81,6 @@ public class TeamRestController {
 
     // ===== MEMBER MANAGEMENT =====
 
-    @PostMapping("/{teamId}/members")
-    public ResponseEntity<TeamMemberDTO> addMember(@PathVariable Long teamId, @RequestBody Map<String, String> body)
-            throws ResourceNotFoundException, NotPermissionException {
-        String username = body.get("username");
-        String roleStr = body.get("role");
-        TeamRole role = roleStr != null ? TeamRole.valueOf(roleStr) : TeamRole.MEMBER;
-        logger.info("Adding member {} to team {}", username, teamId);
-        TeamMemberDTO member = teamService.addMemberByUsername(teamId, username, role);
-        return ResponseEntity.ok(member);
-    }
-
     @DeleteMapping("/{teamId}/members/{memberId}")
     public ResponseEntity<String> removeMember(@PathVariable Long teamId, @PathVariable Long memberId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -174,9 +163,9 @@ public class TeamRestController {
     public ResponseEntity<TeamInvitationDTO> createInvitation(@PathVariable Long teamId,
                                                                @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
-        String email = body.get("email");
-        logger.info("Creating invitation for {} to team {}", email, teamId);
-        TeamInvitationDTO invitation = teamService.createInvitation(teamId, email);
+        String username = body.get("username");
+        logger.info("Creating invitation for {} to team {}", username, teamId);
+        TeamInvitationDTO invitation = teamService.createInvitationByUsername(teamId, username);
         return ResponseEntity.ok(invitation);
     }
 

@@ -13,6 +13,7 @@ public class TeamInvitationDTO {
     private Long teamId;
     private String teamName;
     private String invitedEmail;
+    private String invitedUsername;
     private String invitedByUsername;
     private InvitationStatus status;
     private String token;
@@ -53,6 +54,14 @@ public class TeamInvitationDTO {
         this.invitedEmail = invitedEmail;
     }
 
+    public String getInvitedUsername() {
+        return invitedUsername;
+    }
+
+    public void setInvitedUsername(String invitedUsername) {
+        this.invitedUsername = invitedUsername;
+    }
+
     public String getInvitedByUsername() {
         return invitedByUsername;
     }
@@ -91,6 +100,7 @@ public class TeamInvitationDTO {
         dto.setTeamId(invitation.getTeam().getId());
         dto.setTeamName(invitation.getTeam().getName());
         dto.setInvitedEmail(invitation.getInvitedEmail());
+        dto.setInvitedUsername(invitation.getInvitedUsername());
         dto.setInvitedByUsername(invitation.getInvitedBy().getUsername());
         dto.setStatus(invitation.getStatus());
         dto.setToken(invitation.getToken());

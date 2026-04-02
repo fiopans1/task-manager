@@ -54,15 +54,15 @@ const TeamDashboard = () => {
 
   // Modals
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [newMemberUsername, setNewMemberUsername] = useState("");
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [inviteUsername, setInviteUsername] = useState("");
   const [userTasks, setUserTasks] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
-
-  // Drag & Drop
-  const [draggedTask, setDraggedTask] = useState(null);
+  const [reassignTask, setReassignTask] = useState(null);
+  const [reassignTarget, setReassignTarget] = useState("");
+  const [memberToRemove, setMemberToRemove] = useState(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -116,69 +116,27 @@ const TeamDashboard = () => {
     if (activeTab === "history") loadHistory();
   }, [activeTab, loadHistory]);
 
-  // ===== Drag & Drop =====
-  const handleDragStart = (e, task) => {
-    setDraggedTask(task);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const handleDrop = async (e, targetUsername) => {
-    e.preventDefault();
-    if (!draggedTask || !isAdmin) return;
-    if (draggedTask.assignedTo === targetUsername) {
-      setDraggedTask(null);
-      return;
-    }
-
-    try {
-      await teamService.assignTask(teamId, draggedTask.id, targetUsername);
-      successToast(
-        `Task "${draggedTask.nameOfTask}" reassigned to ${targetUsername}`
-      );
-      loadData();
-      if (activeTab === "tasks") loadTasks();
-    } catch (err) {
-      errorToast("Error reassigning task");
-    }
-    setDraggedTask(null);
-  };
-
   // ===== Actions =====
   const handleInvite = async (e) => {
     e.preventDefault();
     try {
-      await teamService.createInvitation(teamId, inviteEmail);
-      successToast("Invitation sent to " + inviteEmail);
+      await teamService.createInvitation(teamId, inviteUsername);
+      successToast("Invitation sent to " + inviteUsername);
       setShowInviteModal(false);
-      setInviteEmail("");
-    } catch (err) {
-      errorToast("Error sending invitation");
-    }
-  };
-
-  const handleAddMember = async (e) => {
-    e.preventDefault();
-    try {
-      await teamService.addMember(teamId, newMemberUsername);
-      successToast("Member added successfully");
-      setShowAddMemberModal(false);
-      setNewMemberUsername("");
+      setInviteUsername("");
       loadData();
     } catch (err) {
-      errorToast("Error adding member");
+      errorToast(err?.response?.data?.message || "Error sending invitation");
     }
   };
 
-  const handleRemoveMember = async (memberId) => {
-    if (!window.confirm("Are you sure you want to remove this member?")) return;
+  const handleRemoveMember = async () => {
+    if (!memberToRemove) return;
     try {
-      await teamService.removeMember(teamId, memberId);
+      await teamService.removeMember(teamId, memberToRemove.id);
       successToast("Member removed");
+      setShowRemoveModal(false);
+      setMemberToRemove(null);
       loadData();
     } catch (err) {
       errorToast("Error removing member");
@@ -210,6 +168,24 @@ const TeamDashboard = () => {
     }
   };
 
+  const handleReassign = async (e) => {
+    e.preventDefault();
+    if (!reassignTask || !reassignTarget) return;
+    try {
+      await teamService.assignTask(teamId, reassignTask.id, reassignTarget);
+      successToast(
+        `Task "${reassignTask.nameOfTask}" reassigned to ${reassignTarget}`
+      );
+      setShowReassignModal(false);
+      setReassignTask(null);
+      setReassignTarget("");
+      loadData();
+      if (activeTab === "tasks") loadTasks();
+    } catch (err) {
+      errorToast("Error reassigning task");
+    }
+  };
+
   const loadUserTasks = async () => {
     try {
       const serverUrl = (await import("../../services/configService")).default.getApiBaseUrl();
@@ -222,6 +198,17 @@ const TeamDashboard = () => {
     } catch (err) {
       setUserTasks([]);
     }
+  };
+
+  const openReassignModal = (task) => {
+    setReassignTask(task);
+    setReassignTarget("");
+    setShowReassignModal(true);
+  };
+
+  const openRemoveModal = (member) => {
+    setMemberToRemove(member);
+    setShowRemoveModal(true);
   };
 
   if (loading) {
@@ -273,34 +260,27 @@ const TeamDashboard = () => {
             )}
           </div>
         </div>
-        {isAdmin && (
-          <div className="d-flex gap-2">
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => {
+              setShowAddTaskModal(true);
+              loadUserTasks();
+            }}
+          >
+            <i className="bi bi-plus-lg me-1"></i>Add Task
+          </Button>
+          {isAdmin && (
             <Button
               variant="outline-primary"
-              size="sm"
-              onClick={() => {
-                setShowAddTaskModal(true);
-                loadUserTasks();
-              }}
-            >
-              <i className="bi bi-plus-lg me-1"></i>Add Task
-            </Button>
-            <Button
-              variant="outline-primary"
-              size="sm"
-              onClick={() => setShowAddMemberModal(true)}
-            >
-              <i className="bi bi-person-plus me-1"></i>Add Member
-            </Button>
-            <Button
-              variant="outline-info"
               size="sm"
               onClick={() => setShowInviteModal(true)}
             >
-              <i className="bi bi-envelope me-1"></i>Invite
+              <i className="bi bi-person-plus me-1"></i>Invite Member
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -360,20 +340,7 @@ const TeamDashboard = () => {
               <Row className="g-3 mb-4">
                 {dashboard.members.map((member) => (
                   <Col key={member.id} xs={12} md={6} lg={4}>
-                    <Card
-                      className="border rounded-3 h-100"
-                      onDragOver={isAdmin ? handleDragOver : undefined}
-                      onDrop={
-                        isAdmin
-                          ? (e) => handleDrop(e, member.username)
-                          : undefined
-                      }
-                      style={
-                        isAdmin
-                          ? { transition: "box-shadow 0.2s" }
-                          : undefined
-                      }
-                    >
+                    <Card className="border rounded-3 h-100">
                       <Card.Body>
                         <div className="d-flex align-items-center mb-2">
                           <i className="bi bi-person-circle fs-4 me-2 text-muted"></i>
@@ -406,12 +373,6 @@ const TeamDashboard = () => {
                             className="rounded-pill"
                           />
                         </div>
-                        {isAdmin && (
-                          <small className="text-muted fst-italic">
-                            <i className="bi bi-arrows-move me-1"></i>
-                            Drop tasks here to reassign
-                          </small>
-                        )}
                       </Card.Body>
                     </Card>
                   </Col>
@@ -463,7 +424,7 @@ const TeamDashboard = () => {
                             <Button
                               size="sm"
                               variant="outline-danger"
-                              onClick={() => handleRemoveMember(member.id)}
+                              onClick={() => openRemoveModal(member)}
                             >
                               <i className="bi bi-x-lg"></i>
                             </Button>
@@ -483,23 +444,25 @@ const TeamDashboard = () => {
           <Card className="border rounded-3 mb-3">
             <Card.Body className="py-2">
               <Row className="g-2 align-items-end">
-                <Col xs={12} sm={4}>
-                  <Form.Label className="small mb-1">Member</Form.Label>
-                  <Form.Select
-                    size="sm"
-                    value={filterMember}
-                    onChange={(e) => setFilterMember(e.target.value)}
-                  >
-                    <option value="">All Members</option>
-                    {team.members &&
-                      team.members.map((m) => (
-                        <option key={m.id} value={m.username}>
-                          {m.username}
-                        </option>
-                      ))}
-                  </Form.Select>
-                </Col>
-                <Col xs={12} sm={3}>
+                {isAdmin && (
+                  <Col xs={12} sm={4}>
+                    <Form.Label className="small mb-1">Member</Form.Label>
+                    <Form.Select
+                      size="sm"
+                      value={filterMember}
+                      onChange={(e) => setFilterMember(e.target.value)}
+                    >
+                      <option value="">All Members</option>
+                      {team.members &&
+                        team.members.map((m) => (
+                          <option key={m.id} value={m.username}>
+                            {m.username}
+                          </option>
+                        ))}
+                    </Form.Select>
+                  </Col>
+                )}
+                <Col xs={12} sm={isAdmin ? 3 : 5}>
                   <Form.Label className="small mb-1">State</Form.Label>
                   <Form.Select
                     size="sm"
@@ -514,7 +477,7 @@ const TeamDashboard = () => {
                     ))}
                   </Form.Select>
                 </Col>
-                <Col xs={12} sm={3}>
+                <Col xs={12} sm={isAdmin ? 3 : 5}>
                   <Form.Label className="small mb-1">Priority</Form.Label>
                   <Form.Select
                     size="sm"
@@ -550,26 +513,16 @@ const TeamDashboard = () => {
           {/* Task List */}
           {tasks.length === 0 ? (
             <div className="text-center text-muted py-5">
-              <p>No tasks found with selected filters</p>
+              <p>No tasks found{!isAdmin ? " assigned to you" : " with selected filters"}</p>
             </div>
           ) : (
             <Row className="g-2">
               {tasks.map((task) => (
                 <Col key={task.id} xs={12}>
-                  <Card
-                    className="border rounded-3 task-card"
-                    draggable={isAdmin}
-                    onDragStart={
-                      isAdmin ? (e) => handleDragStart(e, task) : undefined
-                    }
-                    style={isAdmin ? { cursor: "grab" } : undefined}
-                  >
+                  <Card className="border rounded-3">
                     <Card.Body className="py-2 px-3">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center flex-grow-1 me-2">
-                          {isAdmin && (
-                            <i className="bi bi-grip-vertical text-muted me-2"></i>
-                          )}
                           <span
                             className="fw-medium text-truncate me-2"
                             role="button"
@@ -593,6 +546,17 @@ const TeamDashboard = () => {
                           <Badge bg={PRIORITY_MAP[task.priority]?.bg || "secondary"} pill>
                             {PRIORITY_MAP[task.priority]?.label || task.priority}
                           </Badge>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              className="py-0 px-2"
+                              onClick={() => openReassignModal(task)}
+                              title="Reassign task"
+                            >
+                              <i className="bi bi-arrow-left-right"></i>
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </Card.Body>
@@ -649,24 +613,27 @@ const TeamDashboard = () => {
         )}
       </Tabs>
 
-      {/* ===== Invite Modal ===== */}
+      {/* ===== Invite Member Modal ===== */}
       <Modal show={showInviteModal} onHide={() => setShowInviteModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Invite to Team</Modal.Title>
+          <Modal.Title>
+            <i className="bi bi-person-plus me-2"></i>Invite Member
+          </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleInvite}>
           <Modal.Body>
             <Form.Group>
-              <Form.Label>Email Address</Form.Label>
+              <Form.Label>Username</Form.Label>
               <Form.Control
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="user@example.com"
+                type="text"
+                value={inviteUsername}
+                onChange={(e) => setInviteUsername(e.target.value)}
+                placeholder="Enter username to invite"
                 required
+                autoFocus
               />
               <Form.Text className="text-muted">
-                An invitation link will be generated. Share it with the user to join.
+                The user will receive an in-app notification to accept or reject the invitation.
               </Form.Text>
             </Form.Group>
           </Modal.Body>
@@ -675,39 +642,88 @@ const TeamDashboard = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Send Invitation
+              <i className="bi bi-send me-1"></i>Send Invitation
             </Button>
           </Modal.Footer>
         </Form>
       </Modal>
 
-      {/* ===== Add Member Modal ===== */}
-      <Modal show={showAddMemberModal} onHide={() => setShowAddMemberModal(false)} centered>
+      {/* ===== Reassign Task Modal ===== */}
+      <Modal show={showReassignModal} onHide={() => setShowReassignModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Add Member</Modal.Title>
+          <Modal.Title>
+            <i className="bi bi-arrow-left-right me-2"></i>Reassign Task
+          </Modal.Title>
         </Modal.Header>
-        <Form onSubmit={handleAddMember}>
+        <Form onSubmit={handleReassign}>
           <Modal.Body>
-            <Form.Group>
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                value={newMemberUsername}
-                onChange={(e) => setNewMemberUsername(e.target.value)}
-                placeholder="Enter username"
-                required
-              />
-            </Form.Group>
+            {reassignTask && (
+              <>
+                <div className="mb-3 p-2 bg-body-tertiary rounded">
+                  <small className="text-muted">Task:</small>
+                  <p className="mb-0 fw-medium">{reassignTask.nameOfTask}</p>
+                  {reassignTask.assignedTo && (
+                    <small className="text-muted">
+                      Currently assigned to: <strong>{reassignTask.assignedTo}</strong>
+                    </small>
+                  )}
+                </div>
+                <Form.Group>
+                  <Form.Label>Assign to</Form.Label>
+                  <Form.Select
+                    value={reassignTarget}
+                    onChange={(e) => setReassignTarget(e.target.value)}
+                    required
+                  >
+                    <option value="">Select a member...</option>
+                    {team.members &&
+                      team.members
+                        .filter((m) => m.username !== reassignTask.assignedTo)
+                        .map((m) => (
+                          <option key={m.id} value={m.username}>
+                            {m.username} ({m.role === "ADMIN" ? "Admin" : "Member"})
+                          </option>
+                        ))}
+                  </Form.Select>
+                </Form.Group>
+              </>
+            )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowAddMemberModal(false)}>
+            <Button variant="secondary" onClick={() => setShowReassignModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              Add Member
+            <Button type="submit" variant="primary" disabled={!reassignTarget}>
+              <i className="bi bi-arrow-left-right me-1"></i>Reassign
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* ===== Remove Member Confirmation Modal ===== */}
+      <Modal show={showRemoveModal} onHide={() => setShowRemoveModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="bi bi-person-x me-2 text-danger"></i>Remove Member
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {memberToRemove && (
+            <p>
+              Are you sure you want to remove{" "}
+              <strong>{memberToRemove.username}</strong> from this team?
+              Their assigned tasks will be unassigned.
+            </p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRemoveModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleRemoveMember}>
+            <i className="bi bi-person-x me-1"></i>Remove
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       {/* ===== Add Task Modal ===== */}
@@ -732,7 +748,7 @@ const TeamDashboard = () => {
                 ))}
               </Form.Select>
               <Form.Text className="text-muted">
-                Only tasks not already in a team are shown.
+                Only your tasks not already in a team are shown.
               </Form.Text>
             </Form.Group>
           </Modal.Body>

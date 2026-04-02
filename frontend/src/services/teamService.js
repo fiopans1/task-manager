@@ -131,10 +131,10 @@ const getAssignmentHistory = async (teamId) => {
 
 // ===== INVITATIONS =====
 
-const createInvitation = async (teamId, email) => {
+const createInvitation = async (teamId, username) => {
   const response = await axios.post(
     getBaseUrl() + "/" + teamId + "/invitations",
-    { email },
+    { username },
     { headers: getAuthHeaders() }
   );
   return response.data;

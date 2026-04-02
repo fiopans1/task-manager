@@ -23,8 +23,11 @@ public class TeamInvitation {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String invitedEmail;
+
+    @Column(nullable = true)
+    private String invitedUsername;
 
     @ManyToOne
     @JoinColumn(name = "invited_by_id", nullable = false)
@@ -66,6 +69,14 @@ public class TeamInvitation {
 
     public void setInvitedEmail(String invitedEmail) {
         this.invitedEmail = invitedEmail;
+    }
+
+    public String getInvitedUsername() {
+        return invitedUsername;
+    }
+
+    public void setInvitedUsername(String invitedUsername) {
+        this.invitedUsername = invitedUsername;
     }
 
     public User getInvitedBy() {
