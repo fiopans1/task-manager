@@ -247,7 +247,7 @@ const TeamDashboard = () => {
   return (
     <Container
       fluid
-      className="py-3 px-4 overflow-auto"
+      className="py-3 px-4 overflow-auto mt-2 mt-md-0"
       style={{ height: "100%" }}
     >
       {/* Header */}
@@ -271,6 +271,18 @@ const TeamDashboard = () => {
           </div>
         </div>
         <div className="d-flex gap-2">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => {
+              loadData();
+              if (activeTab === "tasks") loadTasks();
+              if (activeTab === "history") loadHistory();
+            }}
+            title="Refresh"
+          >
+            <i className="bi bi-arrow-clockwise"></i>
+          </Button>
           <Button
             variant="outline-primary"
             size="sm"

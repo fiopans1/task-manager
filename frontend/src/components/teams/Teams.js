@@ -79,7 +79,7 @@ const Teams = () => {
   return (
     <Container
       fluid
-      className="py-4 px-4 d-flex flex-column"
+      className="py-4 px-4 d-flex flex-column mt-2 mt-md-0"
       style={{ height: "100%" }}
     >
       {/* Header */}
@@ -87,13 +87,27 @@ const Teams = () => {
         <h2 className="fw-bold mb-2 flex-grow-1">
           <i className="bi bi-people me-2"></i>Teams
         </h2>
-        <Button
-          variant="primary"
-          className="rounded-3"
-          onClick={() => setShowCreateModal(true)}
-        >
-          <i className="bi bi-plus-lg me-1"></i> New Team
-        </Button>
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline-secondary"
+            className="rounded-3"
+            onClick={() => {
+              setLoading(true);
+              loadTeams();
+              loadPendingInvitations();
+            }}
+            title="Refresh"
+          >
+            <i className="bi bi-arrow-clockwise"></i>
+          </Button>
+          <Button
+            variant="primary"
+            className="rounded-3"
+            onClick={() => setShowCreateModal(true)}
+          >
+            <i className="bi bi-plus-lg me-1"></i> New Team
+          </Button>
+        </div>
       </div>
 
       {/* Pending Invitations */}
