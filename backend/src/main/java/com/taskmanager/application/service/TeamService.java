@@ -34,10 +34,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class TeamService {
@@ -343,7 +346,7 @@ public class TeamService {
         action.setActionName("Task Added to Team");
         action.setActionDescription("Task added to team " + team.getName()
                 + " by @" + currentUser.getUsername()
-                + ". Assigned to @" + currentUser.getUsername());
+                + ". Assigned to @" + task.getAssignedTo().getUsername());
         action.setActionType(ActionType.COMMENT);
         action.setUser(currentUser.getUsername());
         action.setTask(task);
@@ -503,8 +506,8 @@ public class TeamService {
                 .findAllByInvitedEmailAndStatus(currentUser.getEmail(), InvitationStatus.PENDING);
 
         // Merge and deduplicate
-        java.util.Set<Long> seen = new java.util.HashSet<>();
-        List<TeamInvitation> all = new java.util.ArrayList<>();
+        Set<Long> seen = new HashSet<>();
+        List<TeamInvitation> all = new ArrayList<>();
         for (TeamInvitation inv : byUsername) {
             if (seen.add(inv.getId())) all.add(inv);
         }

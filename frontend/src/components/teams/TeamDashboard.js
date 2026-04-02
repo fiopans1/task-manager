@@ -124,7 +124,6 @@ const TeamDashboard = () => {
       successToast("Invitation sent to " + inviteUsername);
       setShowInviteModal(false);
       setInviteUsername("");
-      loadData();
     } catch (err) {
       errorToast(err?.response?.data?.message || "Error sending invitation");
     }
