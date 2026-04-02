@@ -16,6 +16,7 @@ import {
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import teamService from "../../services/teamService";
+import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 
 /* ── State/Priority maps ─────────────────────────────────── */
@@ -188,13 +189,8 @@ const TeamDashboard = () => {
 
   const loadUserTasks = async () => {
     try {
-      const serverUrl = (await import("../../services/configService")).default.getApiBaseUrl();
-      const token = "Bearer " + (await import("../../redux/store")).default.getState().auth.token;
-      const response = await (await import("axios")).default.get(
-        serverUrl + "/api/tasks/tasks",
-        { headers: { "Content-Type": "application/json", Authorization: token } }
-      );
-      setUserTasks(response.data.filter((t) => !t.teamId));
+      const allTasks = await taskService.getAllTasks();
+      setUserTasks(allTasks.filter((t) => !t.teamId));
     } catch (err) {
       setUserTasks([]);
     }
