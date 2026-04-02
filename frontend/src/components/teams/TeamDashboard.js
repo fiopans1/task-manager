@@ -32,7 +32,7 @@ const PRIORITY_MAP = {
   HIGH: { label: "High", bg: "warning" },
   MEDIUM: { label: "Medium", bg: "info" },
   LOW: { label: "Low", bg: "secondary" },
-  MIN: { label: "Min", bg: "light" },
+  MIN: { label: "Min", bg: "dark" },
 };
 
 const TeamDashboard = () => {
@@ -57,6 +57,7 @@ const TeamDashboard = () => {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showReassignModal, setShowReassignModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
   const [inviteUsername, setInviteUsername] = useState("");
   const [userTasks, setUserTasks] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
@@ -84,7 +85,7 @@ const TeamDashboard = () => {
   const loadTasks = useCallback(async () => {
     try {
       const filters = {};
-      if (filterMember) filters.assignedTo = filterMember;
+      if (filterMember) filters.member = filterMember;
       if (filterState) filters.state = filterState;
       if (filterPriority) filters.priority = filterPriority;
       const data = await teamService.getTeamTasks(teamId, filters);
@@ -210,6 +211,16 @@ const TeamDashboard = () => {
     setShowRemoveModal(true);
   };
 
+  const handleDeleteTeam = async () => {
+    try {
+      await teamService.deleteTeam(teamId);
+      successToast("Team deleted successfully");
+      navigate("/home/teams");
+    } catch (err) {
+      errorToast("Error deleting team");
+    }
+  };
+
   if (loading) {
     return (
       <Container className="text-center py-5">
@@ -279,6 +290,15 @@ const TeamDashboard = () => {
               <i className="bi bi-person-plus me-1"></i>Invite Member
             </Button>
           )}
+          {isAdmin && (
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={() => setShowDeleteTeamModal(true)}
+            >
+              <i className="bi bi-trash me-1"></i>Delete Team
+            </Button>
+          )}
         </div>
       </div>
 
@@ -341,10 +361,10 @@ const TeamDashboard = () => {
                   <Col key={member.id} xs={12} md={6} lg={4}>
                     <Card className="border rounded-3 h-100">
                       <Card.Body>
-                        <div className="d-flex align-items-center mb-2">
-                          <i className="bi bi-person-circle fs-4 me-2 text-muted"></i>
-                          <div>
-                            <strong>{member.username}</strong>
+                        <div className="d-flex align-items-center mb-2 overflow-hidden">
+                          <i className="bi bi-person-circle fs-4 me-2 text-muted flex-shrink-0"></i>
+                          <div className="text-truncate">
+                            <strong className="text-truncate d-inline-block" style={{ maxWidth: "100%" }}>{member.username}</strong>
                             <Badge
                               bg={member.role === "ADMIN" ? "warning" : "secondary"}
                               className="ms-2"
@@ -388,19 +408,19 @@ const TeamDashboard = () => {
                     team.members.map((member) => (
                       <ListGroup.Item
                         key={member.id}
-                        className="d-flex align-items-center justify-content-between"
+                        className="d-flex align-items-center justify-content-between flex-wrap gap-2"
                       >
-                        <div className="d-flex align-items-center">
-                          <i className="bi bi-person-circle me-2 fs-5 text-muted"></i>
-                          <div>
+                        <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
+                          <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
+                          <div className="text-truncate">
                             <span className="fw-medium">{member.username}</span>
-                            <small className="text-muted ms-2">
+                            <small className="text-muted ms-2 d-none d-sm-inline">
                               {member.email}
                             </small>
                           </div>
                           <Badge
                             bg={member.role === "ADMIN" ? "warning" : "secondary"}
-                            className="ms-2"
+                            className="ms-2 flex-shrink-0"
                             pill
                           >
                             {member.role === "ADMIN" ? "Admin" : "Member"}
@@ -520,8 +540,8 @@ const TeamDashboard = () => {
                 <Col key={task.id} xs={12}>
                   <Card className="border rounded-3">
                     <Card.Body className="py-2 px-3">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center flex-grow-1 me-2">
+                      <div className="d-flex align-items-center justify-content-between flex-wrap gap-1">
+                        <div className="d-flex align-items-center flex-grow-1 me-2" style={{ minWidth: 0 }}>
                           <span
                             className="fw-medium text-truncate me-2"
                             role="button"
@@ -532,11 +552,11 @@ const TeamDashboard = () => {
                             {task.nameOfTask}
                           </span>
                         </div>
-                        <div className="d-flex align-items-center gap-2 flex-shrink-0">
-                          {task.assignedTo && (
+                        <div className="d-flex align-items-center gap-1 flex-shrink-0 flex-wrap">
+                          {task.user && (
                             <Badge bg="dark" pill>
                               <i className="bi bi-person me-1"></i>
-                              {task.assignedTo}
+                              {task.user}
                             </Badge>
                           )}
                           <Badge bg={STATE_MAP[task.state]?.bg || "secondary"} pill>
@@ -661,14 +681,14 @@ const TeamDashboard = () => {
                 <div className="mb-3 p-2 bg-body-tertiary rounded">
                   <small className="text-muted">Task:</small>
                   <p className="mb-0 fw-medium">{reassignTask.nameOfTask}</p>
-                  {reassignTask.assignedTo && (
+                  {reassignTask.user && (
                     <small className="text-muted">
-                      Currently assigned to: <strong>{reassignTask.assignedTo}</strong>
+                      Current owner: <strong>{reassignTask.user}</strong>
                     </small>
                   )}
                 </div>
                 <Form.Group>
-                  <Form.Label>Assign to</Form.Label>
+                  <Form.Label>Reassign to</Form.Label>
                   <Form.Select
                     value={reassignTarget}
                     onChange={(e) => setReassignTarget(e.target.value)}
@@ -677,7 +697,7 @@ const TeamDashboard = () => {
                     <option value="">Select a member...</option>
                     {team.members &&
                       team.members
-                        .filter((m) => m.username !== reassignTask.assignedTo)
+                        .filter((m) => m.username !== reassignTask.user)
                         .map((m) => (
                           <option key={m.id} value={m.username}>
                             {m.username} ({m.role === "ADMIN" ? "Admin" : "Member"})
@@ -760,6 +780,34 @@ const TeamDashboard = () => {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* ===== Delete Team Confirmation Modal ===== */}
+      <Modal show={showDeleteTeamModal} onHide={() => setShowDeleteTeamModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="bi bi-trash me-2 text-danger"></i>Delete Team
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Are you sure you want to delete <strong>{team.name}</strong>?
+            All tasks will be removed from the team but will remain in their
+            owners' task lists.
+          </p>
+          <p className="text-danger mb-0">
+            <i className="bi bi-exclamation-triangle me-1"></i>
+            This action cannot be undone.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteTeamModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteTeam}>
+            <i className="bi bi-trash me-1"></i>Delete Team
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

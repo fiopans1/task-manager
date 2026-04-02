@@ -108,7 +108,7 @@ const getTeamDashboard = async (teamId) => {
 
 const getTeamTasks = async (teamId, filters = {}) => {
   const params = new URLSearchParams();
-  if (filters.assignedTo) params.append("assignedTo", filters.assignedTo);
+  if (filters.member) params.append("member", filters.member);
   if (filters.state) params.append("state", filters.state);
   if (filters.priority) params.append("priority", filters.priority);
 

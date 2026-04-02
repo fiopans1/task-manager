@@ -255,18 +255,6 @@ const TaskDetailsTask = ({ taskId }) => {
                     {task.teamName || "Team #" + task.teamId}
                   </Badge>
                 )}
-
-                {task.assignedTo && (
-                  <Badge
-                    bg="warning"
-                    text="dark"
-                    className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    <Person size={14} />
-                    Assigned: {task.assignedTo}
-                  </Badge>
-                )}
               </Stack>
             </Col>
           </Row>

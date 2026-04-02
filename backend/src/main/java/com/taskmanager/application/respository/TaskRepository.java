@@ -31,21 +31,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findAllByTeam(Team team);
 
-    @Query("SELECT t FROM Task t WHERE t.team = :team AND t.assignedTo = :user")
-    List<Task> findAllByTeamAndAssignedTo(@Param("team") Team team, @Param("user") User user);
+    @Query("SELECT t FROM Task t WHERE t.team = :team AND t.user = :user")
+    List<Task> findAllByTeamAndUser(@Param("team") Team team, @Param("user") User user);
 
     @Query("SELECT t FROM Task t WHERE t.team = :team "
-            + "AND (:assignedTo IS NULL OR t.assignedTo = :assignedTo) "
+            + "AND (:owner IS NULL OR t.user = :owner) "
             + "AND (:state IS NULL OR t.state = :state) "
             + "AND (:priority IS NULL OR t.priority = :priority)")
     List<Task> findTeamTasksFiltered(
             @Param("team") Team team,
-            @Param("assignedTo") User assignedTo,
+            @Param("owner") User owner,
             @Param("state") StateTask state,
             @Param("priority") PriorityTask priority);
 
-    @Query("SELECT COUNT(t) FROM Task t WHERE t.team = :team AND t.assignedTo = :user AND t.state NOT IN (:excludedStates)")
-    long countPendingByTeamAndAssignedTo(@Param("team") Team team, @Param("user") User user, @Param("excludedStates") List<StateTask> excludedStates);
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.team = :team AND t.user = :user AND t.state NOT IN (:excludedStates)")
+    long countPendingByTeamAndUser(@Param("team") Team team, @Param("user") User user, @Param("excludedStates") List<StateTask> excludedStates);
 
     long countByTeam(Team team);
 

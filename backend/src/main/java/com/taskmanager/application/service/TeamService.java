@@ -138,7 +138,6 @@ public class TeamService {
         List<Task> teamTasks = taskRepository.findAllByTeam(team);
         for (Task task : teamTasks) {
             task.setTeam(null);
-            task.setAssignedTo(null);
         }
         taskRepository.saveAll(teamTasks);
 
@@ -196,12 +195,12 @@ public class TeamService {
             }
         }
 
-        // Unassign tasks from this member in this team
-        List<Task> assignedTasks = taskRepository.findAllByTeamAndAssignedTo(team, member.getUser());
-        for (Task task : assignedTasks) {
-            task.setAssignedTo(null);
+        // Remove team reference from this member's tasks
+        List<Task> memberTasks = taskRepository.findAllByTeamAndUser(team, member.getUser());
+        for (Task task : memberTasks) {
+            task.setTeam(null);
         }
-        taskRepository.saveAll(assignedTasks);
+        taskRepository.saveAll(memberTasks);
 
         team.removeMember(member);
         teamMemberRepository.delete(member);
@@ -266,13 +265,13 @@ public class TeamService {
                 throw new NotPermissionException("Only team admins can assign tasks to other members");
             }
             // Members can only reassign their own tasks
-            if (task.getAssignedTo() != null && !task.getAssignedTo().getId().equals(currentUser.getId())) {
+            if (!task.getUser().getId().equals(currentUser.getId())) {
                 throw new NotPermissionException("You can only reassign your own tasks");
             }
         }
 
         // Record assignment history
-        User previousUser = task.getAssignedTo();
+        User previousUser = task.getUser();
         TaskAssignmentHistory history = new TaskAssignmentHistory();
         history.setTask(task);
         history.setFromUser(previousUser);
@@ -282,8 +281,13 @@ public class TeamService {
         history.setChangedDate(new Date());
         assignmentHistoryRepository.save(history);
 
-        // Update task
-        task.setAssignedTo(targetUser);
+        // Remove from list if in one (task is moving to another user)
+        if (task.getList() != null) {
+            task.setList(null);
+        }
+
+        // Change task ownership — task now belongs to the target user
+        task.setUser(targetUser);
         task.setTeam(team);
         task = taskRepository.save(task);
 
@@ -328,7 +332,6 @@ public class TeamService {
         }
 
         task.setTeam(team);
-        task.setAssignedTo(currentUser);
         task = taskRepository.save(task);
 
         // Record initial assignment
@@ -345,8 +348,7 @@ public class TeamService {
         ActionTask action = new ActionTask();
         action.setActionName("Task Added to Team");
         action.setActionDescription("Task added to team " + team.getName()
-                + " by @" + currentUser.getUsername()
-                + ". Assigned to @" + task.getAssignedTo().getUsername());
+                + " by @" + currentUser.getUsername());
         action.setActionType(ActionType.COMMENT);
         action.setUser(currentUser.getUsername());
         action.setTask(task);
@@ -372,7 +374,7 @@ public class TeamService {
         // Get members with pending task counts
         List<TeamMemberDTO> memberDTOs = team.getMembers().stream().map(member -> {
             TeamMemberDTO dto = TeamMemberDTO.fromEntity(member);
-            long pending = taskRepository.countPendingByTeamAndAssignedTo(team, member.getUser(),
+            long pending = taskRepository.countPendingByTeamAndUser(team, member.getUser(),
                     Arrays.asList(StateTask.COMPLETED, StateTask.CANCELLED));
             dto.setPendingTasks(pending);
             return dto;
@@ -392,30 +394,30 @@ public class TeamService {
     // ===== FILTERED TASKS =====
 
     @Transactional(readOnly = true)
-    public List<TaskDTO> getTeamTasksFiltered(Long teamId, String assignedToUsername,
+    public List<TaskDTO> getTeamTasksFiltered(Long teamId, String ownerUsername,
                                               StateTask state, PriorityTask priority)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
         TeamMember currentMember = validateMembership(team);
 
-        User assignedToUser = null;
-        if (assignedToUsername != null && !assignedToUsername.isEmpty()) {
+        User ownerUser = null;
+        if (ownerUsername != null && !ownerUsername.isEmpty()) {
             if (currentMember.getRole() != TeamRole.ADMIN) {
                 // Members can only see their own tasks
                 User currentUser = authService.getCurrentUser();
-                if (!assignedToUsername.equals(currentUser.getUsername())) {
+                if (!ownerUsername.equals(currentUser.getUsername())) {
                     throw new NotPermissionException("You can only filter your own tasks");
                 }
             }
-            assignedToUser = userRepository.findByUsername(assignedToUsername)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + assignedToUsername));
+            ownerUser = userRepository.findByUsername(ownerUsername)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + ownerUsername));
         } else if (currentMember.getRole() != TeamRole.ADMIN) {
-            // Non-admins without assignedTo filter should only see their own tasks
-            assignedToUser = authService.getCurrentUser();
+            // Non-admins without owner filter should only see their own tasks
+            ownerUser = authService.getCurrentUser();
         }
 
-        List<Task> tasks = taskRepository.findTeamTasksFiltered(team, assignedToUser, state, priority);
+        List<Task> tasks = taskRepository.findTeamTasksFiltered(team, ownerUser, state, priority);
         return tasks.stream().map(TaskDTO::fromEntity).toList();
     }
 
@@ -431,7 +433,7 @@ public class TeamService {
         } else {
             // Non-admins only see their own tasks
             User currentUser = authService.getCurrentUser();
-            tasks = taskRepository.findAllByTeamAndAssignedTo(team, currentUser);
+            tasks = taskRepository.findAllByTeamAndUser(team, currentUser);
         }
         return tasks.stream().map(TaskDTO::fromEntity).toList();
     }

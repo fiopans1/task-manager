@@ -27,7 +27,6 @@ public class TaskDTO {
     private Date creationDate;
     private Long listId;
     private String listName;
-    private String assignedTo;
     private Long teamId;
     private String teamName;
 
@@ -108,12 +107,6 @@ public class TaskDTO {
     public void setListName(String listName) {
         this.listName = listName;
     }
-    public String getAssignedTo() {
-        return assignedTo;
-    }
-    public void setAssignedTo(String assignedTo) {
-        this.assignedTo = assignedTo;
-    }
     public Long getTeamId() {
         return teamId;
     }
@@ -145,9 +138,6 @@ public class TaskDTO {
         if(task.getList() != null) {
             taskDTO.setListId(task.getList().getId());
             taskDTO.setListName(task.getList().getNameOfList());
-        }
-        if(task.getAssignedTo() != null) {
-            taskDTO.setAssignedTo(task.getAssignedTo().getUsername());
         }
         if(task.getTeam() != null) {
             taskDTO.setTeamId(task.getTeam().getId());

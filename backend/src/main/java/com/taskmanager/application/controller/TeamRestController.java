@@ -134,13 +134,13 @@ public class TeamRestController {
     @GetMapping("/{teamId}/tasks")
     public ResponseEntity<List<TaskDTO>> getTeamTasks(
             @PathVariable Long teamId,
-            @RequestParam(required = false) String assignedTo,
+            @RequestParam(required = false) String member,
             @RequestParam(required = false) StateTask state,
             @RequestParam(required = false) PriorityTask priority)
             throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving filtered tasks for team {}", teamId);
-        if (assignedTo != null || state != null || priority != null) {
-            List<TaskDTO> tasks = teamService.getTeamTasksFiltered(teamId, assignedTo, state, priority);
+        if (member != null || state != null || priority != null) {
+            List<TaskDTO> tasks = teamService.getTeamTasksFiltered(teamId, member, state, priority);
             return ResponseEntity.ok(tasks);
         }
         List<TaskDTO> tasks = teamService.getTeamTasks(teamId);
