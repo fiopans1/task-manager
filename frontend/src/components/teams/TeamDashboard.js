@@ -12,29 +12,16 @@ import {
   Tab,
   Tabs,
   ProgressBar,
-  ListGroup,
+  Stack,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import teamService from "../../services/teamService";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
-
-/* ── State/Priority maps ─────────────────────────────────── */
-const STATE_MAP = {
-  NEW: { label: "New", bg: "info" },
-  IN_PROGRESS: { label: "In Progress", bg: "warning" },
-  COMPLETED: { label: "Completed", bg: "success" },
-  CANCELLED: { label: "Cancelled", bg: "danger" },
-  PAUSSED: { label: "Paused", bg: "secondary" },
-};
-
-const PRIORITY_MAP = {
-  CRITICAL: { label: "Critical", bg: "danger" },
-  HIGH: { label: "High", bg: "warning" },
-  MEDIUM: { label: "Medium", bg: "info" },
-  LOW: { label: "Low", bg: "secondary" },
-  MIN: { label: "Min", bg: "dark" },
-};
+import DashboardTab from "./DashboardTab";
+import TasksTab from "./TasksTab";
+import HistoryTab from "./HistoryTab";
+import InvitationsTab from "./InvitationsTab";
 
 const TeamDashboard = () => {
   const { id: teamId } = useParams();
@@ -48,6 +35,7 @@ const TeamDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showMore, setShowMore] = useState(false);
 
   // Filters
   const [filterMember, setFilterMember] = useState("");
@@ -298,92 +286,253 @@ const TeamDashboard = () => {
     ? Math.max(...dashboard.members.map((m) => m.pendingTasks), 1)
     : 1;
 
+  const memberCount = team.members ? team.members.length : 0;
+  const completionPercent = dashboard && dashboard.totalTasks > 0
+    ? Math.round((dashboard.completedTasks / dashboard.totalTasks) * 100)
+    : 0;
+
   return (
     <Container
       fluid
       className="py-3 px-4 mt-2 mt-md-0"
     >
-      {/* Header — clean, just back arrow + action buttons */}
-      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-        <div className="d-flex align-items-center">
-          <Button
-            variant="link"
-            className="p-0 me-3 text-decoration-none"
-            onClick={() => navigate("/home/teams")}
-          >
-            <i className="bi bi-arrow-left fs-5"></i>
-          </Button>
-          <h4 className="mb-0 fw-bold text-truncate">
-            <i className="bi bi-people-fill me-2 text-primary"></i>
-            {team.name}
-          </h4>
-        </div>
-        <div className="d-flex gap-2 flex-wrap">
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={() => {
-              loadData();
-              if (activeTab === "tasks") loadTasks();
-              if (activeTab === "history") loadHistory();
-              if (activeTab === "invitations") loadInvitations();
-            }}
-            title="Refresh"
-          >
-            <i className="bi bi-arrow-clockwise"></i>
-          </Button>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={() => {
-              setShowAddTaskModal(true);
-              loadUserTasks();
-            }}
-            title="Add Task"
-          >
-            <i className="bi bi-plus-lg me-1"></i><span className="d-none d-sm-inline">Add Task</span>
-          </Button>
-          {isAdmin && (
-            <Button
-              variant="outline-primary"
-              size="sm"
-              onClick={() => setShowInviteModal(true)}
-              title="Invite Member"
-            >
-              <i className="bi bi-person-plus me-1"></i><span className="d-none d-sm-inline">Invite</span>
-            </Button>
-          )}
-          {isAdmin && (
+      {/* Header */}
+      <Row className="mb-4">
+        <Col>
+          <Stack direction="horizontal" gap={3} className="align-items-center flex-wrap">
             <Button
               variant="outline-secondary"
-              size="sm"
-              onClick={openEditTeamModal}
-              title="Edit Team"
+              size="lg"
+              onClick={() => navigate("/home/teams")}
+              className="rounded-circle p-2 shadow-sm"
             >
-              <i className="bi bi-pencil me-1"></i><span className="d-none d-sm-inline">Edit</span>
+              <i className="bi bi-arrow-left fs-5"></i>
             </Button>
+            <div className="flex-grow-1">
+              <h1 className="mb-1 fw-bold text-body" style={{ fontSize: "2rem" }}>
+                Team Details
+              </h1>
+              <p className="text-muted mb-0">Team overview and management</p>
+            </div>
+            <div className="d-flex gap-2 flex-wrap">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  loadData();
+                  if (activeTab === "tasks") loadTasks();
+                  if (activeTab === "history") loadHistory();
+                  if (activeTab === "invitations") loadInvitations();
+                }}
+                className="rounded-3 shadow-sm"
+                title="Refresh"
+              >
+                <i className="bi bi-arrow-clockwise"></i>
+              </Button>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => {
+                  setShowAddTaskModal(true);
+                  loadUserTasks();
+                }}
+                className="rounded-3 shadow-sm"
+                title="Add Task"
+              >
+                <i className="bi bi-plus-lg"></i><span className="d-none d-sm-inline ms-1">Add Task</span>
+              </Button>
+              {isAdmin && (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => setShowInviteModal(true)}
+                  className="rounded-3 shadow-sm"
+                  title="Invite Member"
+                >
+                  <i className="bi bi-person-plus"></i><span className="d-none d-sm-inline ms-1">Invite</span>
+                </Button>
+              )}
+              {isAdmin && (
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={openEditTeamModal}
+                  className="rounded-3 shadow-sm"
+                  title="Edit Team"
+                >
+                  <i className="bi bi-pencil"></i><span className="d-none d-sm-inline ms-1">Edit</span>
+                </Button>
+              )}
+              {isAdmin ? (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => setShowDeleteTeamModal(true)}
+                  className="rounded-3 shadow-sm"
+                  title="Delete Team"
+                >
+                  <i className="bi bi-trash"></i><span className="d-none d-sm-inline ms-1">Delete</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => setShowLeaveTeamModal(true)}
+                  className="rounded-3 shadow-sm"
+                  title="Leave Team"
+                >
+                  <i className="bi bi-box-arrow-right"></i><span className="d-none d-sm-inline ms-1">Leave</span>
+                </Button>
+              )}
+            </div>
+          </Stack>
+        </Col>
+      </Row>
+
+      {/* Main Card */}
+      <Card className="border-0 shadow-lg mb-4" style={{ borderRadius: "20px", overflow: "hidden" }}>
+        <Card.Header
+          className="border-0 text-white p-4"
+          style={{
+            background: "linear-gradient(135deg, #007bff, #6f42c1)",
+          }}
+        >
+          <Stack direction="horizontal" className="justify-content-between align-items-center">
+            <div>
+              <h3 className="mb-1" style={{ fontWeight: "600" }}>
+                {team.name}
+              </h3>
+              <Stack direction="horizontal" gap={2}>
+                <i className="bi bi-people-fill"></i>
+                <small>Team ID: #{team.id}</small>
+              </Stack>
+            </div>
+            <Badge
+              bg="light"
+              text="dark"
+              className="px-4 py-2 rounded-pill"
+              style={{ fontSize: "0.9rem", fontWeight: "600" }}
+            >
+              <i className="bi bi-people me-1"></i>
+              {memberCount} {memberCount === 1 ? "Member" : "Members"}
+            </Badge>
+          </Stack>
+
+          {dashboard && dashboard.totalTasks > 0 && (
+            <div className="mt-3">
+              <small className="text-white-50">Progress</small>
+              <ProgressBar
+                now={completionPercent}
+                className="mt-1"
+                style={{ height: "8px", borderRadius: "4px" }}
+                variant={completionPercent === 100 ? "light" : "warning"}
+              />
+            </div>
           )}
-          {isAdmin ? (
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={() => setShowDeleteTeamModal(true)}
-              title="Delete Team"
-            >
-              <i className="bi bi-trash me-1"></i><span className="d-none d-sm-inline">Delete</span>
-            </Button>
-          ) : (
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={() => setShowLeaveTeamModal(true)}
-              title="Leave Team"
-            >
-              <i className="bi bi-box-arrow-right me-1"></i><span className="d-none d-sm-inline">Leave</span>
-            </Button>
+        </Card.Header>
+
+        <Card.Body className="p-4">
+          {/* Badges row */}
+          <Row className="mb-4">
+            <Col>
+              <Stack direction="horizontal" gap={2} className="flex-wrap">
+                <Badge
+                  bg="dark"
+                  className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  <i className="bi bi-people"></i>
+                  {memberCount} {memberCount === 1 ? "Member" : "Members"}
+                </Badge>
+
+                <Badge
+                  bg={isAdmin ? "warning" : "secondary"}
+                  className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  <i className="bi bi-shield"></i>
+                  {isAdmin ? "Admin" : "Member"}
+                </Badge>
+
+                {dashboard && (
+                  <Badge
+                    bg="primary"
+                    className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
+                    style={{ fontSize: "0.85rem" }}
+                  >
+                    <i className="bi bi-list-task"></i>
+                    {dashboard.totalTasks} {dashboard.totalTasks === 1 ? "Task" : "Tasks"}
+                  </Badge>
+                )}
+              </Stack>
+            </Col>
+          </Row>
+
+          {/* Created date card */}
+          {team.createdDate && (
+            <Row className="mb-4">
+              <Col md={4} className="mb-3">
+                <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
+                  <Card.Body className="text-center py-3">
+                    <i className="bi bi-calendar3 text-primary mb-2 d-block" style={{ fontSize: "1.5rem" }}></i>
+                    <h6 className="mb-1 text-muted">Created</h6>
+                    <small className="fw-semibold">
+                      {new Date(team.createdDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </small>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
           )}
-        </div>
-      </div>
+
+          {/* Description card */}
+          <Card
+            className="border-0 shadow-sm bg-body-tertiary"
+            style={{ borderRadius: "15px" }}
+          >
+            <Card.Body className="p-4">
+              <Stack direction="horizontal" gap={2} className="mb-3">
+                <i className="bi bi-file-text text-primary" style={{ fontSize: "1.25rem" }}></i>
+                <h5 className="mb-0 fw-semibold text-body">
+                  Description
+                </h5>
+              </Stack>
+
+              {team.description ? (
+                team.description.length < 100 ? (
+                  <p className="mb-0 text-body-secondary" style={{ lineHeight: "1.6" }}>
+                    {team.description}
+                  </p>
+                ) : (
+                  <>
+                    <p className="mb-2 text-body-secondary" style={{ lineHeight: "1.6" }}>
+                      {showMore
+                        ? team.description
+                        : `${team.description.substring(0, 100)}...`}
+                    </p>
+                    <Button
+                      variant="link"
+                      className="p-0 text-decoration-none fw-semibold"
+                      onClick={() => setShowMore(!showMore)}
+                    >
+                      {!showMore ? "Show More ↓" : "Show Less ↑"}
+                    </Button>
+                  </>
+                )
+              ) : (
+                <div className="text-center py-4">
+                  <i className="bi bi-file-text text-muted d-block mb-2" style={{ fontSize: "3rem" }}></i>
+                  <p className="text-muted mb-0">No description available</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Card.Body>
+      </Card>
 
       {/* Tabs */}
       <Tabs
@@ -392,375 +541,50 @@ const TeamDashboard = () => {
         className="mb-3"
         fill
       >
-        {/* ===== Dashboard Tab ===== */}
         <Tab eventKey="dashboard" title={<><i className="bi bi-speedometer2 me-1"></i>Dashboard</>}>
-          {/* Team Info */}
-          <Card className="border rounded-3 mb-4">
-            <Card.Body>
-              <h4 className="fw-bold mb-1">{team.name}</h4>
-              {team.description && (
-                <p className="text-muted mb-0">{team.description}</p>
-              )}
-              {!team.description && (
-                <p className="text-muted fst-italic mb-0">No description</p>
-              )}
-            </Card.Body>
-          </Card>
-
-          {dashboard && (
-            <>
-              {/* Stats */}
-              <Row className="g-3 mb-4">
-                {[
-                  { label: "Total Tasks", value: dashboard.totalTasks, bg: "primary" },
-                  { label: "Completed", value: dashboard.completedTasks, bg: "success" },
-                  { label: "In Progress", value: dashboard.inProgressTasks, bg: "warning" },
-                  { label: "Pending", value: dashboard.pendingTasks, bg: "info" },
-                ].map((stat, i) => (
-                  <Col key={i} xs={6} md={3}>
-                    <Card className="text-center border rounded-3">
-                      <Card.Body className="py-3">
-                        <h3 className="fw-bold mb-0">{stat.value}</h3>
-                        <small className="text-muted">{stat.label}</small>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-
-              {/* Completion Progress */}
-              {dashboard.totalTasks > 0 && (
-                <Card className="border rounded-3 mb-4">
-                  <Card.Body className="py-3">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <small className="fw-semibold text-muted">Team Progress</small>
-                      <Badge bg={dashboard.completedTasks === dashboard.totalTasks ? "success" : "primary"} pill>
-                        {Math.round((dashboard.completedTasks / dashboard.totalTasks) * 100)}%
-                      </Badge>
-                    </div>
-                    <ProgressBar
-                      now={(dashboard.completedTasks / dashboard.totalTasks) * 100}
-                      variant={dashboard.completedTasks === dashboard.totalTasks ? "success" : "primary"}
-                      style={{ height: 8 }}
-                      className="rounded-pill"
-                    />
-                  </Card.Body>
-                </Card>
-              )}
-
-              {/* Team Workload */}
-              <h5 className="fw-semibold mb-3">
-                <i className="bi bi-bar-chart me-2"></i>Team Workload
-              </h5>
-              <Row className="g-3 mb-4">
-                {dashboard.members.map((member) => (
-                  <Col key={member.id} xs={12} md={6} lg={4}>
-                    <Card className="border rounded-3 h-100">
-                      <Card.Body>
-                        <div className="d-flex align-items-center mb-2 overflow-hidden">
-                          <i className="bi bi-person-circle fs-4 me-2 text-muted flex-shrink-0"></i>
-                          <div className="text-truncate">
-                            <strong className="text-truncate d-inline-block" style={{ maxWidth: "100%" }}>{member.username}</strong>
-                            <Badge
-                              bg={member.role === "ADMIN" ? "warning" : "secondary"}
-                              className="ms-2"
-                              pill
-                            >
-                              {member.role === "ADMIN" ? "Admin" : "Member"}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="mb-2">
-                          <div className="d-flex justify-content-between mb-1">
-                            <small className="text-muted">Pending tasks</small>
-                            <small className="fw-semibold">{member.pendingTasks}</small>
-                          </div>
-                          <ProgressBar
-                            now={maxPending > 0 ? (member.pendingTasks / maxPending) * 100 : 0}
-                            variant={
-                              member.pendingTasks / maxPending > 0.8
-                                ? "danger"
-                                : member.pendingTasks / maxPending > 0.5
-                                ? "warning"
-                                : "success"
-                            }
-                            style={{ height: 6 }}
-                            className="rounded-pill"
-                          />
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-
-              {/* Members Management */}
-              <h5 className="fw-semibold mb-3">
-                <i className="bi bi-people me-2"></i>Members
-              </h5>
-              <Card className="border rounded-3 mb-4">
-                <ListGroup variant="flush">
-                  {team.members &&
-                    team.members.map((member) => (
-                      <ListGroup.Item
-                        key={member.id}
-                        className="d-flex align-items-center justify-content-between flex-wrap gap-2"
-                      >
-                        <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
-                          <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
-                          <div className="text-truncate">
-                            <span className="fw-medium">{member.username}</span>
-                            <small className="text-muted ms-2 d-none d-sm-inline">
-                              {member.email}
-                            </small>
-                          </div>
-                          <Badge
-                            bg={member.role === "ADMIN" ? "warning" : "secondary"}
-                            className="ms-2 flex-shrink-0"
-                            pill
-                          >
-                            {member.role === "ADMIN" ? "Admin" : "Member"}
-                          </Badge>
-                        </div>
-                        {isAdmin && (
-                          <div className="d-flex gap-1">
-                            <Button
-                              size="sm"
-                              variant={member.role === "ADMIN" ? "outline-secondary" : "outline-warning"}
-                              onClick={() =>
-                                handleRoleChange(
-                                  member.id,
-                                  member.role === "ADMIN" ? "MEMBER" : "ADMIN"
-                                )
-                              }
-                            >
-                              {member.role === "ADMIN" ? "Demote" : "Promote"}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline-danger"
-                              onClick={() => openRemoveModal(member)}
-                            >
-                              <i className="bi bi-x-lg"></i>
-                            </Button>
-                          </div>
-                        )}
-                      </ListGroup.Item>
-                    ))}
-                </ListGroup>
-              </Card>
-            </>
-          )}
+          <DashboardTab
+            dashboard={dashboard}
+            team={team}
+            isAdmin={isAdmin}
+            maxPending={maxPending}
+            onRoleChange={handleRoleChange}
+            onRemoveMember={openRemoveModal}
+          />
         </Tab>
 
-        {/* ===== Tasks Tab ===== */}
         <Tab eventKey="tasks" title={<><i className="bi bi-list-task me-1"></i>Tasks</>}>
-          {/* Filters */}
-          <Card className="border rounded-3 mb-3">
-            <Card.Body className="py-2">
-              <Row className="g-2 align-items-end">
-                {isAdmin && (
-                  <Col xs={12} sm={4}>
-                    <Form.Label className="small mb-1">Member</Form.Label>
-                    <Form.Select
-                      size="sm"
-                      value={filterMember}
-                      onChange={(e) => setFilterMember(e.target.value)}
-                    >
-                      <option value="">All Members</option>
-                      {team.members &&
-                        team.members.map((m) => (
-                          <option key={m.id} value={m.username}>
-                            {m.username}
-                          </option>
-                        ))}
-                    </Form.Select>
-                  </Col>
-                )}
-                <Col xs={12} sm={isAdmin ? 3 : 5}>
-                  <Form.Label className="small mb-1">State</Form.Label>
-                  <Form.Select
-                    size="sm"
-                    value={filterState}
-                    onChange={(e) => setFilterState(e.target.value)}
-                  >
-                    <option value="">All States</option>
-                    {Object.entries(STATE_MAP).map(([key, val]) => (
-                      <option key={key} value={key}>
-                        {val.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col xs={12} sm={isAdmin ? 3 : 5}>
-                  <Form.Label className="small mb-1">Priority</Form.Label>
-                  <Form.Select
-                    size="sm"
-                    value={filterPriority}
-                    onChange={(e) => setFilterPriority(e.target.value)}
-                  >
-                    <option value="">All Priorities</option>
-                    {Object.entries(PRIORITY_MAP).map(([key, val]) => (
-                      <option key={key} value={key}>
-                        {val.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col xs={12} sm={2}>
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    className="w-100"
-                    onClick={() => {
-                      setFilterMember("");
-                      setFilterState("");
-                      setFilterPriority("");
-                    }}
-                  >
-                    Clear
-                  </Button>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-
-          {/* Task List */}
-          {tasks.length === 0 ? (
-            <div className="text-center text-muted py-5">
-              <p>No tasks found{!isAdmin ? " assigned to you" : " with selected filters"}</p>
-            </div>
-          ) : (
-            <Row className="g-2">
-              {tasks.map((task) => (
-                <Col key={task.id} xs={12}>
-                  <Card className="border rounded-3">
-                    <Card.Body className="py-2 px-3">
-                      <div className="d-flex align-items-center justify-content-between flex-wrap gap-1">
-                        <div className="d-flex align-items-center flex-grow-1 me-2" style={{ minWidth: 0 }}>
-                          <span
-                            className="fw-medium text-truncate me-2"
-                            role="button"
-                            onClick={() =>
-                              navigate(`/home/tasks/${task.id}`)
-                            }
-                          >
-                            {task.nameOfTask}
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center gap-1 flex-shrink-0 flex-wrap">
-                          {task.user && (
-                            <Badge bg="dark" pill>
-                              <i className="bi bi-person me-1"></i>
-                              {task.user}
-                            </Badge>
-                          )}
-                          <Badge bg={STATE_MAP[task.state]?.bg || "secondary"} pill>
-                            {STATE_MAP[task.state]?.label || task.state}
-                          </Badge>
-                          <Badge bg={PRIORITY_MAP[task.priority]?.bg || "secondary"} pill>
-                            {PRIORITY_MAP[task.priority]?.label || task.priority}
-                          </Badge>
-                          {isAdmin && (
-                            <Button
-                              size="sm"
-                              variant="outline-primary"
-                              className="py-0 px-2"
-                              onClick={() => openReassignModal(task)}
-                              title="Reassign task"
-                            >
-                              <i className="bi bi-arrow-left-right"></i>
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
+          <TasksTab
+            tasks={tasks}
+            team={team}
+            isAdmin={isAdmin}
+            filterMember={filterMember}
+            filterState={filterState}
+            filterPriority={filterPriority}
+            onFilterMemberChange={setFilterMember}
+            onFilterStateChange={setFilterState}
+            onFilterPriorityChange={setFilterPriority}
+            onClearFilters={() => {
+              setFilterMember("");
+              setFilterState("");
+              setFilterPriority("");
+            }}
+            onReassign={openReassignModal}
+            onNavigateToTask={(taskId) => navigate(`/home/tasks/${taskId}`)}
+          />
         </Tab>
 
-        {/* ===== History Tab (Admin only) ===== */}
         {isAdmin && (
           <Tab eventKey="history" title={<><i className="bi bi-clock-history me-1"></i>History</>}>
-            {history.length === 0 ? (
-              <div className="text-center text-muted py-5">
-                <p>No assignment history yet</p>
-              </div>
-            ) : (
-              <ListGroup variant="flush">
-                {history.map((h) => (
-                  <ListGroup.Item key={h.id} className="border-bottom py-2">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <span className="fw-medium">{h.taskName}</span>
-                        <br />
-                        <small className="text-muted">
-                          {h.fromUsername ? (
-                            <>
-                              <Badge bg="outline-secondary" className="border me-1">
-                                {h.fromUsername}
-                              </Badge>
-                              <i className="bi bi-arrow-right mx-1"></i>
-                            </>
-                          ) : (
-                            <span className="me-1">Assigned to</span>
-                          )}
-                          <Badge bg="primary" className="me-1">
-                            {h.toUsername}
-                          </Badge>
-                          <span className="text-muted">
-                            by {h.changedByUsername}
-                          </span>
-                        </small>
-                      </div>
-                      <small className="text-muted">
-                        {new Date(h.changedDate).toLocaleString()}
-                      </small>
-                    </div>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            )}
+            <HistoryTab history={history} />
           </Tab>
         )}
 
-        {/* ===== Invitations Tab (Admin only) ===== */}
         {isAdmin && (
           <Tab eventKey="invitations" title={<><i className="bi bi-envelope me-1"></i>Invitations</>}>
-            {invitations.length === 0 ? (
-              <div className="text-center text-muted py-5">
-                <p>No pending invitations</p>
-              </div>
-            ) : (
-              <ListGroup variant="flush">
-                {invitations.map((inv) => (
-                  <ListGroup.Item key={inv.id} className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
-                      <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
-                      <div className="text-truncate">
-                        <span className="fw-medium">{inv.invitedUsername}</span>
-                        <Badge bg="warning" className="ms-2" pill>Pending</Badge>
-                        <br />
-                        <small className="text-muted">
-                          Invited by {inv.invitedByUsername} — {new Date(inv.createdDate).toLocaleDateString()}
-                        </small>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline-danger"
-                      onClick={() => handleCancelInvitation(inv.id)}
-                      title="Cancel invitation"
-                    >
-                      <i className="bi bi-x-lg me-1"></i>Cancel
-                    </Button>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            )}
+            <InvitationsTab
+              invitations={invitations}
+              onCancelInvitation={handleCancelInvitation}
+            />
           </Tab>
         )}
       </Tabs>
