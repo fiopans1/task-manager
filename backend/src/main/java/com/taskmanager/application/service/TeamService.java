@@ -208,6 +208,37 @@ public class TeamService {
     }
 
     @Transactional
+    public void leaveTeam(Long teamId) throws ResourceNotFoundException, NotPermissionException {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+        User currentUser = authService.getCurrentUser();
+
+        TeamMember member = teamMemberRepository.findByTeamAndUser(team, currentUser)
+                .orElseThrow(() -> new NotPermissionException("You are not a member of this team"));
+
+        // Prevent the last admin from leaving
+        if (member.getRole() == TeamRole.ADMIN) {
+            long adminCount = team.getMembers().stream()
+                    .filter(m -> m.getRole() == TeamRole.ADMIN)
+                    .count();
+            if (adminCount <= 1) {
+                throw new NotPermissionException("Cannot leave the team as the last admin. Promote another member first.");
+            }
+        }
+
+        // Remove team reference from this member's tasks
+        List<Task> memberTasks = taskRepository.findAllByTeamAndUser(team, currentUser);
+        for (Task task : memberTasks) {
+            task.setTeam(null);
+        }
+        taskRepository.saveAll(memberTasks);
+
+        team.removeMember(member);
+        teamMemberRepository.delete(member);
+        logger.info("User {} left team {}", currentUser.getUsername(), teamId);
+    }
+
+    @Transactional
     public TeamMemberDTO updateMemberRole(Long teamId, Long memberId, TeamRole newRole)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
@@ -493,9 +524,27 @@ public class TeamService {
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
         validateAdminRole(team);
 
-        return invitationRepository.findAllByTeam(team).stream()
+        return invitationRepository.findAllByTeamAndStatus(team, InvitationStatus.PENDING).stream()
                 .map(TeamInvitationDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public void cancelInvitation(Long teamId, Long invitationId)
+            throws ResourceNotFoundException, NotPermissionException {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+        validateAdminRole(team);
+
+        TeamInvitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invitation not found with id " + invitationId));
+
+        if (!invitation.getTeam().getId().equals(teamId)) {
+            throw new NotPermissionException("Invitation does not belong to this team");
+        }
+
+        invitationRepository.delete(invitation);
+        logger.info("Invitation {} cancelled in team {} by admin", invitationId, teamId);
     }
 
     @Transactional(readOnly = true)

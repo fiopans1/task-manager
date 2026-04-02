@@ -19,5 +19,7 @@ public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, 
 
     List<TeamInvitation> findAllByInvitedUsernameAndStatus(String username, InvitationStatus status);
 
+    List<TeamInvitation> findAllByTeamAndStatus(Team team, InvitationStatus status);
+
     Optional<TeamInvitation> findByToken(String token);
 }

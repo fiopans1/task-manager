@@ -44,6 +44,7 @@ const TeamDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
+  const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -59,12 +60,16 @@ const TeamDashboard = () => {
   const [showReassignModal, setShowReassignModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
+  const [showEditTeamModal, setShowEditTeamModal] = useState(false);
+  const [showLeaveTeamModal, setShowLeaveTeamModal] = useState(false);
   const [inviteUsername, setInviteUsername] = useState("");
   const [userTasks, setUserTasks] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
   const [reassignTask, setReassignTask] = useState(null);
   const [reassignTarget, setReassignTarget] = useState("");
   const [memberToRemove, setMemberToRemove] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
 
   const loadData = useCallback(async () => {
     try {
@@ -106,6 +111,16 @@ const TeamDashboard = () => {
     }
   }, [teamId, isAdmin]);
 
+  const loadInvitations = useCallback(async () => {
+    if (!isAdmin) return;
+    try {
+      const data = await teamService.getTeamInvitations(teamId);
+      setInvitations(data);
+    } catch (err) {
+      // Only admins can see invitations
+    }
+  }, [teamId, isAdmin]);
+
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -118,6 +133,10 @@ const TeamDashboard = () => {
     if (activeTab === "history") loadHistory();
   }, [activeTab, loadHistory]);
 
+  useEffect(() => {
+    if (activeTab === "invitations") loadInvitations();
+  }, [activeTab, loadInvitations]);
+
   // ===== Actions =====
   const handleInvite = async (e) => {
     e.preventDefault();
@@ -126,6 +145,7 @@ const TeamDashboard = () => {
       successToast("Invitation sent to " + inviteUsername);
       setShowInviteModal(false);
       setInviteUsername("");
+      if (activeTab === "invitations") loadInvitations();
     } catch (err) {
       errorToast(err?.response?.data?.message || "Error sending invitation");
     }
@@ -217,6 +237,44 @@ const TeamDashboard = () => {
     }
   };
 
+  const handleEditTeam = async (e) => {
+    e.preventDefault();
+    try {
+      await teamService.updateTeam(teamId, { name: editName, description: editDescription });
+      successToast("Team updated");
+      setShowEditTeamModal(false);
+      loadData();
+    } catch (err) {
+      errorToast("Error updating team");
+    }
+  };
+
+  const openEditTeamModal = () => {
+    setEditName(team.name || "");
+    setEditDescription(team.description || "");
+    setShowEditTeamModal(true);
+  };
+
+  const handleLeaveTeam = async () => {
+    try {
+      await teamService.leaveTeam(teamId);
+      successToast("You left the team");
+      navigate("/home/teams");
+    } catch (err) {
+      errorToast(err?.response?.data?.message || "Error leaving team");
+    }
+  };
+
+  const handleCancelInvitation = async (invitationId) => {
+    try {
+      await teamService.cancelInvitation(teamId, invitationId);
+      successToast("Invitation cancelled");
+      loadInvitations();
+    } catch (err) {
+      errorToast("Error cancelling invitation");
+    }
+  };
+
   if (loading) {
     return (
       <Container className="text-center py-5">
@@ -245,7 +303,7 @@ const TeamDashboard = () => {
       fluid
       className="py-3 px-4 mt-2 mt-md-0"
     >
-      {/* Header */}
+      {/* Header — clean, just back arrow + action buttons */}
       <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <div className="d-flex align-items-center">
           <Button
@@ -255,17 +313,12 @@ const TeamDashboard = () => {
           >
             <i className="bi bi-arrow-left fs-5"></i>
           </Button>
-          <div>
-            <h3 className="mb-0 fw-bold">
-              <i className="bi bi-people-fill me-2 text-primary"></i>
-              {team.name}
-            </h3>
-            {team.description && (
-              <small className="text-muted">{team.description}</small>
-            )}
-          </div>
+          <h4 className="mb-0 fw-bold text-truncate">
+            <i className="bi bi-people-fill me-2 text-primary"></i>
+            {team.name}
+          </h4>
         </div>
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 flex-wrap">
           <Button
             variant="outline-secondary"
             size="sm"
@@ -273,6 +326,7 @@ const TeamDashboard = () => {
               loadData();
               if (activeTab === "tasks") loadTasks();
               if (activeTab === "history") loadHistory();
+              if (activeTab === "invitations") loadInvitations();
             }}
             title="Refresh"
           >
@@ -285,25 +339,47 @@ const TeamDashboard = () => {
               setShowAddTaskModal(true);
               loadUserTasks();
             }}
+            title="Add Task"
           >
-            <i className="bi bi-plus-lg me-1"></i>Add Task
+            <i className="bi bi-plus-lg me-1"></i><span className="d-none d-sm-inline">Add Task</span>
           </Button>
           {isAdmin && (
             <Button
               variant="outline-primary"
               size="sm"
               onClick={() => setShowInviteModal(true)}
+              title="Invite Member"
             >
-              <i className="bi bi-person-plus me-1"></i>Invite Member
+              <i className="bi bi-person-plus me-1"></i><span className="d-none d-sm-inline">Invite</span>
             </Button>
           )}
           {isAdmin && (
             <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={openEditTeamModal}
+              title="Edit Team"
+            >
+              <i className="bi bi-pencil me-1"></i><span className="d-none d-sm-inline">Edit</span>
+            </Button>
+          )}
+          {isAdmin ? (
+            <Button
               variant="outline-danger"
               size="sm"
               onClick={() => setShowDeleteTeamModal(true)}
+              title="Delete Team"
             >
-              <i className="bi bi-trash me-1"></i>Delete Team
+              <i className="bi bi-trash me-1"></i><span className="d-none d-sm-inline">Delete</span>
+            </Button>
+          ) : (
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={() => setShowLeaveTeamModal(true)}
+              title="Leave Team"
+            >
+              <i className="bi bi-box-arrow-right me-1"></i><span className="d-none d-sm-inline">Leave</span>
             </Button>
           )}
         </div>
@@ -318,6 +394,19 @@ const TeamDashboard = () => {
       >
         {/* ===== Dashboard Tab ===== */}
         <Tab eventKey="dashboard" title={<><i className="bi bi-speedometer2 me-1"></i>Dashboard</>}>
+          {/* Team Info */}
+          <Card className="border rounded-3 mb-4">
+            <Card.Body>
+              <h4 className="fw-bold mb-1">{team.name}</h4>
+              {team.description && (
+                <p className="text-muted mb-0">{team.description}</p>
+              )}
+              {!team.description && (
+                <p className="text-muted fst-italic mb-0">No description</p>
+              )}
+            </Card.Body>
+          </Card>
+
           {dashboard && (
             <>
               {/* Stats */}
@@ -637,6 +726,43 @@ const TeamDashboard = () => {
             )}
           </Tab>
         )}
+
+        {/* ===== Invitations Tab (Admin only) ===== */}
+        {isAdmin && (
+          <Tab eventKey="invitations" title={<><i className="bi bi-envelope me-1"></i>Invitations</>}>
+            {invitations.length === 0 ? (
+              <div className="text-center text-muted py-5">
+                <p>No pending invitations</p>
+              </div>
+            ) : (
+              <ListGroup variant="flush">
+                {invitations.map((inv) => (
+                  <ListGroup.Item key={inv.id} className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
+                      <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
+                      <div className="text-truncate">
+                        <span className="fw-medium">{inv.invitedUsername}</span>
+                        <Badge bg="warning" className="ms-2" pill>Pending</Badge>
+                        <br />
+                        <small className="text-muted">
+                          Invited by {inv.invitedByUsername} — {new Date(inv.createdDate).toLocaleDateString()}
+                        </small>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => handleCancelInvitation(inv.id)}
+                      title="Cancel invitation"
+                    >
+                      <i className="bi bi-x-lg me-1"></i>Cancel
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            )}
+          </Tab>
+        )}
       </Tabs>
 
       {/* ===== Invite Member Modal ===== */}
@@ -813,6 +939,71 @@ const TeamDashboard = () => {
           </Button>
           <Button variant="danger" onClick={handleDeleteTeam}>
             <i className="bi bi-trash me-1"></i>Delete Team
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ===== Edit Team Modal ===== */}
+      <Modal show={showEditTeamModal} onHide={() => setShowEditTeamModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="bi bi-pencil me-2"></i>Edit Team
+          </Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleEditTeam}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Team Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Team name"
+                required
+                autoFocus
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Team description (optional)"
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowEditTeamModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              <i className="bi bi-check-lg me-1"></i>Save Changes
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* ===== Leave Team Confirmation Modal ===== */}
+      <Modal show={showLeaveTeamModal} onHide={() => setShowLeaveTeamModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="bi bi-box-arrow-right me-2 text-danger"></i>Leave Team
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Are you sure you want to leave <strong>{team.name}</strong>?
+            Your tasks will be removed from the team.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowLeaveTeamModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleLeaveTeam}>
+            <i className="bi bi-box-arrow-right me-1"></i>Leave Team
           </Button>
         </Modal.Footer>
       </Modal>

@@ -65,6 +65,15 @@ const removeMember = async (teamId, memberId) => {
   return response.data;
 };
 
+const leaveTeam = async (teamId) => {
+  const response = await axios.post(
+    getBaseUrl() + "/" + teamId + "/leave",
+    {},
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
 const updateMemberRole = async (teamId, memberId, role) => {
   const response = await axios.put(
     getBaseUrl() + "/" + teamId + "/members/" + memberId + "/role",
@@ -148,6 +157,14 @@ const getTeamInvitations = async (teamId) => {
   return response.data;
 };
 
+const cancelInvitation = async (teamId, invitationId) => {
+  const response = await axios.delete(
+    getBaseUrl() + "/" + teamId + "/invitations/" + invitationId,
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
 const getMyPendingInvitations = async () => {
   const response = await axios.get(
     getBaseUrl() + "/invitations/pending",
@@ -193,6 +210,7 @@ const teamService = {
   deleteTeam,
   addMember,
   removeMember,
+  leaveTeam,
   updateMemberRole,
   assignTask,
   addTaskToTeam,
@@ -201,6 +219,7 @@ const teamService = {
   getAssignmentHistory,
   createInvitation,
   getTeamInvitations,
+  cancelInvitation,
   getMyPendingInvitations,
   respondToInvitation,
   getMembersForMention,

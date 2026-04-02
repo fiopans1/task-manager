@@ -89,6 +89,14 @@ public class TeamRestController {
         return ResponseEntity.ok("Member removed successfully");
     }
 
+    @PostMapping("/{teamId}/leave")
+    public ResponseEntity<String> leaveTeam(@PathVariable Long teamId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("User leaving team {}", teamId);
+        teamService.leaveTeam(teamId);
+        return ResponseEntity.ok("Left team successfully");
+    }
+
     @PutMapping("/{teamId}/members/{memberId}/role")
     public ResponseEntity<TeamMemberDTO> updateMemberRole(@PathVariable Long teamId, @PathVariable Long memberId,
                                                            @RequestBody Map<String, String> body)
@@ -175,6 +183,14 @@ public class TeamRestController {
         logger.debug("Retrieving invitations for team {}", teamId);
         List<TeamInvitationDTO> invitations = teamService.getTeamInvitations(teamId);
         return ResponseEntity.ok(invitations);
+    }
+
+    @DeleteMapping("/{teamId}/invitations/{invitationId}")
+    public ResponseEntity<String> cancelInvitation(@PathVariable Long teamId, @PathVariable Long invitationId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Cancelling invitation {} in team {}", invitationId, teamId);
+        teamService.cancelInvitation(teamId, invitationId);
+        return ResponseEntity.ok("Invitation cancelled successfully");
     }
 
     @GetMapping("/invitations/pending")
