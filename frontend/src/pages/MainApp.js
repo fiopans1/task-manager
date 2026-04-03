@@ -2,6 +2,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import SidebarMenu from "../components/Sidebar/SidebarMenu";
 import { Outlet } from "react-router-dom";
 import SessionManager from "../components/session/SessionManager";
+import SystemMessageModal from "../components/common/SystemMessageModal";
 const MainApp = ({ onLogOut }) => {
   return (
     <Container
@@ -22,6 +23,7 @@ const MainApp = ({ onLogOut }) => {
         </Col>
       </Row>
       <SessionManager onLogOut={onLogOut} />
+      <SystemMessageModal />
     </Container>
   );
 };

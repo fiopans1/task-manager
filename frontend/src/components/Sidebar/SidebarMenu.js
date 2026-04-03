@@ -38,12 +38,12 @@ const NAVIGATION_ITEMS = [
     icon: "bi bi-people",
     label: "Teams",
   },
-  // {
-  //   path: "/home/admin",
-  //   icon: "bi bi-gear-wide-connected",
-  //   label: "Admin Panel",
-  //   adminOnly: true,
-  // },
+  {
+    path: "/home/admin",
+    icon: "bi bi-shield-lock",
+    label: "Admin Panel",
+    adminOnly: true,
+  },
 ];
 
 function SidebarMenu({ onLogOut }) {

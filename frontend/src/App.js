@@ -14,7 +14,7 @@ import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import Home from "./components/Home";
 import OAuth2Login from "./components/auth/OAuth2Login";
-// import AdminPanel from "./components/adminpanel/AdminPanel";
+import AdminPanel from "./components/adminpanel/AdminPanel";
 import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
@@ -133,7 +133,7 @@ function App() {
           <Route index element={<Teams />} />
           <Route path=":id" element={<TeamDashboard />} />
         </Route>
-        {/* <Route path="/home/admin" element={<AdminPanel />} /> */}
+        <Route path="/home/admin" element={<AdminPanel />} />
       </Route>
     </Routes>
   );
