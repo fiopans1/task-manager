@@ -107,7 +107,7 @@ public class AdminRestController {
     @PutMapping("/system-message")
     public ResponseEntity<Map<String, Object>> updateSystemMessage(@RequestBody Map<String, Object> body) {
         String message = (String) body.getOrDefault("message", "");
-        boolean enabled = (Boolean) body.getOrDefault("enabled", false);
+        boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
         return ResponseEntity.ok(adminService.updateSystemMessage(message, enabled));
     }
 }
