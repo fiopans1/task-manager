@@ -178,6 +178,18 @@ const getActionsTask = (taskId) => {
   }).then((response) => response.data);
 };
 
+const getAllTasks = async () => {
+  const serverUrl = configService.getApiBaseUrl();
+  const token = "Bearer " + store.getState().auth.token;
+  const response = await axios.get(serverUrl + "/api/tasks/tasks", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  });
+  return response.data;
+};
+
 const getTasksWithoutList = async () => {
   try {
     const serverUrl = configService.getApiBaseUrl();
@@ -209,6 +221,7 @@ const taskService = {
   invalidateTasksCache,
   getEvents,
   getTaskById,
+  getAllTasks,
   getTasksWithoutList,
 };
 

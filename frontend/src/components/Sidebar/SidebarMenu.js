@@ -22,7 +22,6 @@ const NAVIGATION_ITEMS = [
     path: "/home/tasks",
     icon: "bi bi-list-task",
     label: "My Tasks",
-    // badge: "5" // Ejemplo de contador de tareas pendientes
   },
   {
     path: "/home/calendar",
@@ -33,6 +32,11 @@ const NAVIGATION_ITEMS = [
     path: "/home/lists",
     icon: "bi bi-card-checklist",
     label: "Lists",
+  },
+  {
+    path: "/home/teams",
+    icon: "bi bi-people",
+    label: "Teams",
   },
   // {
   //   path: "/home/admin",

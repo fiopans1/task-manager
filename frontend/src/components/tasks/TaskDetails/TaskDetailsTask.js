@@ -242,6 +242,19 @@ const TaskDetailsTask = ({ taskId }) => {
                     {task.listName || "List #" + task.listId}
                   </Badge>
                 )}
+
+                {task.teamId && (
+                  <Badge
+                    bg="primary"
+                    className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
+                    style={{ fontSize: "0.85rem", cursor: "pointer" }}
+                    onClick={() => navigate("/home/teams/" + task.teamId)}
+                    title="Go to team"
+                  >
+                    <Person size={14} />
+                    {task.teamName || "Team #" + task.teamId}
+                  </Badge>
+                )}
               </Stack>
             </Col>
           </Row>
