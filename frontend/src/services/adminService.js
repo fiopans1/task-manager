@@ -90,6 +90,23 @@ const getUserTeams = async (userId) => {
   return response.data;
 };
 
+const updateTeam = async (teamId, teamData) => {
+  const response = await axios.put(
+    getBaseUrl() + `/api/admin/teams/${teamId}`,
+    teamData,
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
+const deleteTeam = async (teamId) => {
+  const response = await axios.delete(
+    getBaseUrl() + `/api/admin/teams/${teamId}`,
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
 // ===== FEATURE FLAGS =====
 
 const getFeatureFlags = async () => {
@@ -117,20 +134,20 @@ const getSystemMessage = async () => {
   return response.data;
 };
 
-const updateSystemMessage = async (message, enabled) => {
+const updateSystemMessage = async (message, enabled, showBeforeLogin, showAfterLogin) => {
   const response = await axios.put(
     getBaseUrl() + "/api/admin/system-message",
-    { message, enabled },
+    { message, enabled, showBeforeLogin, showAfterLogin },
     { headers: getAuthHeaders() }
   );
   return response.data;
 };
 
-// ===== PUBLIC CONFIG =====
+// ===== PUBLIC CONFIG (no auth needed) =====
 
 const getPublicConfig = async () => {
   const response = await axios.get(getBaseUrl() + "/api/config", {
-    headers: getAuthHeaders(),
+    headers: { "Content-Type": "application/json" },
   });
   return response.data;
 };
@@ -145,6 +162,8 @@ const adminService = {
   getUserLists,
   deleteUserList,
   getUserTeams,
+  updateTeam,
+  deleteTeam,
   getFeatureFlags,
   updateFeatureFlag,
   getSystemMessage,

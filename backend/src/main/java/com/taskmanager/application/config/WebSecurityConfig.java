@@ -50,7 +50,7 @@ public class WebSecurityConfig {
         logger.info("Configuring security filter chain");
 
         http.authorizeHttpRequests(authorizeRequests
-                -> authorizeRequests.requestMatchers("/auth/**", "/oauth2/**", "/health").permitAll()
+                -> authorizeRequests.requestMatchers("/auth/**", "/oauth2/**", "/health", "/api/config").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //TO-DO: Change thiis for a filter
                         .anyRequest().authenticated()
         );

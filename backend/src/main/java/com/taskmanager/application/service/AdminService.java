@@ -36,6 +36,8 @@ public class AdminService {
     private static final String FEATURE_PREFIX = "feature.";
     private static final String SYSTEM_MESSAGE_KEY = "system.message";
     private static final String SYSTEM_MESSAGE_ENABLED_KEY = "system.message.enabled";
+    private static final String SYSTEM_MESSAGE_BEFORE_LOGIN_KEY = "system.message.beforeLogin";
+    private static final String SYSTEM_MESSAGE_AFTER_LOGIN_KEY = "system.message.afterLogin";
 
     @Autowired
     private UserRepository userRepository;
@@ -60,12 +62,10 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> searchUsers(String query) {
         logger.info("Admin searching users with query: {}", query);
-        List<User> users;
         if (query == null || query.trim().isEmpty()) {
-            users = userRepository.findAll();
-        } else {
-            users = userRepository.searchUsers(query.trim());
+            return List.of();
         }
+        List<User> users = userRepository.searchUsers(query.trim());
         return users.stream().map(this::mapUserToAdminView).collect(Collectors.toList());
     }
 
@@ -181,6 +181,24 @@ public class AdminService {
         return teams.stream().map(t -> TeamDTO.fromEntity(t, false)).collect(Collectors.toList());
     }
 
+    @Transactional
+    public TeamDTO updateTeam(Long teamId, TeamDTO teamDTO) throws ResourceNotFoundException {
+        logger.info("Admin updating team {}", teamId);
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id: " + teamId));
+        if (teamDTO.getName() != null) team.setName(teamDTO.getName());
+        if (teamDTO.getDescription() != null) team.setDescription(teamDTO.getDescription());
+        return TeamDTO.fromEntity(teamRepository.save(team), false);
+    }
+
+    @Transactional
+    public void deleteTeam(Long teamId) throws ResourceNotFoundException {
+        logger.info("Admin deleting team {}", teamId);
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id: " + teamId));
+        teamRepository.delete(team);
+    }
+
     // ===== FEATURE FLAGS =====
 
     @Transactional(readOnly = true)
@@ -217,13 +235,17 @@ public class AdminService {
         Map<String, Object> result = new HashMap<>();
         Optional<AppConfig> message = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_KEY);
         Optional<AppConfig> enabled = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_ENABLED_KEY);
+        Optional<AppConfig> beforeLogin = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_BEFORE_LOGIN_KEY);
+        Optional<AppConfig> afterLogin = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_AFTER_LOGIN_KEY);
         result.put("message", message.map(AppConfig::getConfigValue).orElse(""));
         result.put("enabled", enabled.map(c -> "true".equalsIgnoreCase(c.getConfigValue())).orElse(false));
+        result.put("showBeforeLogin", beforeLogin.map(c -> "true".equalsIgnoreCase(c.getConfigValue())).orElse(false));
+        result.put("showAfterLogin", afterLogin.map(c -> "true".equalsIgnoreCase(c.getConfigValue())).orElse(true));
         return result;
     }
 
     @Transactional
-    public Map<String, Object> updateSystemMessage(String message, boolean enabled) {
+    public Map<String, Object> updateSystemMessage(String message, boolean enabled, boolean showBeforeLogin, boolean showAfterLogin) {
         logger.info("Admin updating system message, enabled: {}", enabled);
         AppConfig msgConfig = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_KEY)
                 .orElseGet(() -> new AppConfig(SYSTEM_MESSAGE_KEY, ""));
@@ -234,6 +256,16 @@ public class AdminService {
                 .orElseGet(() -> new AppConfig(SYSTEM_MESSAGE_ENABLED_KEY, "false"));
         enabledConfig.setConfigValue(String.valueOf(enabled));
         appConfigRepository.save(enabledConfig);
+
+        AppConfig beforeLoginConfig = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_BEFORE_LOGIN_KEY)
+                .orElseGet(() -> new AppConfig(SYSTEM_MESSAGE_BEFORE_LOGIN_KEY, "false"));
+        beforeLoginConfig.setConfigValue(String.valueOf(showBeforeLogin));
+        appConfigRepository.save(beforeLoginConfig);
+
+        AppConfig afterLoginConfig = appConfigRepository.findByConfigKey(SYSTEM_MESSAGE_AFTER_LOGIN_KEY)
+                .orElseGet(() -> new AppConfig(SYSTEM_MESSAGE_AFTER_LOGIN_KEY, "true"));
+        afterLoginConfig.setConfigValue(String.valueOf(showAfterLogin));
+        appConfigRepository.save(afterLoginConfig);
 
         return getSystemMessage();
     }

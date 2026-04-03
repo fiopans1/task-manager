@@ -23,7 +23,7 @@ const MainApp = ({ onLogOut }) => {
         </Col>
       </Row>
       <SessionManager onLogOut={onLogOut} />
-      <SystemMessageModal />
+      <SystemMessageModal context="afterLogin" />
     </Container>
   );
 };

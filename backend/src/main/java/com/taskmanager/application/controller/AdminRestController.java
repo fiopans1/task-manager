@@ -83,6 +83,17 @@ public class AdminRestController {
         return ResponseEntity.ok(adminService.getUserTeams(userId));
     }
 
+    @PutMapping("/teams/{teamId}")
+    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long teamId, @RequestBody TeamDTO teamDTO) throws ResourceNotFoundException {
+        return ResponseEntity.ok(adminService.updateTeam(teamId, teamDTO));
+    }
+
+    @DeleteMapping("/teams/{teamId}")
+    public ResponseEntity<String> deleteTeam(@PathVariable Long teamId) throws ResourceNotFoundException {
+        adminService.deleteTeam(teamId);
+        return ResponseEntity.ok("Team deleted successfully");
+    }
+
     // ===== FEATURE FLAGS =====
 
     @GetMapping("/features")
@@ -108,6 +119,8 @@ public class AdminRestController {
     public ResponseEntity<Map<String, Object>> updateSystemMessage(@RequestBody Map<String, Object> body) {
         String message = (String) body.getOrDefault("message", "");
         boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
-        return ResponseEntity.ok(adminService.updateSystemMessage(message, enabled));
+        boolean showBeforeLogin = Boolean.TRUE.equals(body.get("showBeforeLogin"));
+        boolean showAfterLogin = body.get("showAfterLogin") == null || Boolean.TRUE.equals(body.get("showAfterLogin"));
+        return ResponseEntity.ok(adminService.updateSystemMessage(message, enabled, showBeforeLogin, showAfterLogin));
     }
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import adminService from "../../services/adminService";
 
-const SystemMessageModal = () => {
+const SystemMessageModal = ({ context = "afterLogin" }) => {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -12,8 +12,13 @@ const SystemMessageModal = () => {
         const config = await adminService.getPublicConfig();
         const sysMsg = config.systemMessage;
         if (sysMsg && sysMsg.enabled && sysMsg.message) {
-          setMessage(sysMsg.message);
-          setShow(true);
+          const shouldShow =
+            (context === "afterLogin" && sysMsg.showAfterLogin !== false) ||
+            (context === "beforeLogin" && sysMsg.showBeforeLogin === true);
+          if (shouldShow) {
+            setMessage(sysMsg.message);
+            setShow(true);
+          }
         }
       } catch (error) {
         // Silently fail - system message is not critical
@@ -22,7 +27,7 @@ const SystemMessageModal = () => {
     };
 
     loadSystemMessage();
-  }, []);
+  }, [context]);
 
   if (!message) return null;
 
