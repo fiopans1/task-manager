@@ -5,6 +5,8 @@ import com.taskmanager.application.model.entities.User;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +17,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @Query("SELECT DISTINCT t FROM Team t JOIN t.members m WHERE m.user = :user")
     List<Team> findAllByMemberUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT t FROM Team t JOIN t.members m WHERE m.user = :user")
+    Page<Team> findAllByMemberUser(@Param("user") User user, Pageable pageable);
 }

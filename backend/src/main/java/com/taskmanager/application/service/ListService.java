@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ListTMDTO;
@@ -65,6 +67,12 @@ public class ListService {
         logger.debug("Found {} lists for user: {}", list.size(), user.getUsername());
 
         return list.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ListTMDTO> findAllListsForLoggedUser(Pageable pageable) {
+        User user = authService.getCurrentUser();
+        return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
     }
 
     @Transactional
@@ -184,5 +192,15 @@ public class ListService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<ListTM> lists = listRepository.findAllByUser(user);
         return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ListTMDTO> getListSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' lists");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
     }
 }

@@ -16,6 +16,9 @@ import com.taskmanager.application.service.TeamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +55,13 @@ public class TeamRestController {
     public ResponseEntity<List<TeamDTO>> getMyTeams() {
         logger.debug("Retrieving teams for current user");
         List<TeamDTO> teams = teamService.getTeamsForCurrentUser();
+        return ResponseEntity.ok(teams);
+    }
+
+    @GetMapping("/my-teams/paged")
+    public ResponseEntity<Page<TeamDTO>> getMyTeamsPaged(@PageableDefault(size = 50) Pageable pageable) {
+        logger.debug("Retrieving paged teams for current user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<TeamDTO> teams = teamService.getTeamsForCurrentUser(pageable);
         return ResponseEntity.ok(teams);
     }
 
@@ -155,6 +165,21 @@ public class TeamRestController {
         return ResponseEntity.ok(tasks);
     }
 
+    @GetMapping("/{teamId}/tasks/paged")
+    public ResponseEntity<Page<TaskDTO>> getTeamTasksPaged(
+            @PathVariable Long teamId,
+            @RequestParam(required = false) String member,
+            @RequestParam(required = false) StateTask state,
+            @RequestParam(required = false) PriorityTask priority,
+            @PageableDefault(size = 50) Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Retrieving paged filtered tasks for team {}", teamId);
+        if (member != null || state != null || priority != null) {
+            return ResponseEntity.ok(teamService.getTeamTasksFiltered(teamId, member, state, priority, pageable));
+        }
+        return ResponseEntity.ok(teamService.getTeamTasks(teamId, pageable));
+    }
+
     // ===== ASSIGNMENT HISTORY =====
 
     @GetMapping("/{teamId}/assignment-history")
@@ -163,6 +188,15 @@ public class TeamRestController {
         logger.debug("Retrieving assignment history for team {}", teamId);
         List<TaskAssignmentHistoryDTO> history = teamService.getAssignmentHistory(teamId);
         return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/{teamId}/assignment-history/paged")
+    public ResponseEntity<Page<TaskAssignmentHistoryDTO>> getAssignmentHistoryPaged(
+            @PathVariable Long teamId,
+            @PageableDefault(size = 50) Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Retrieving paged assignment history for team {}", teamId);
+        return ResponseEntity.ok(teamService.getAssignmentHistory(teamId, pageable));
     }
 
     // ===== INVITATIONS =====
@@ -236,5 +270,14 @@ public class TeamRestController {
         logger.debug("Admin retrieving team summaries for user ID: {}", userId);
         List<TeamDTO> teams = teamService.getTeamSummariesByUserId(userId);
         return ResponseEntity.ok(teams);
+    }
+
+    @GetMapping("/user/{userId}/paged")
+    public ResponseEntity<Page<TeamDTO>> getTeamsByUserIdPaged(
+            @PathVariable Long userId,
+            @PageableDefault(size = 50) Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Admin retrieving paged team summaries for user ID: {}", userId);
+        return ResponseEntity.ok(teamService.getTeamSummariesByUserId(userId, pageable));
     }
 }

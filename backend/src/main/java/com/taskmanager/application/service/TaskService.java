@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ActionTaskDTO;
@@ -132,6 +134,13 @@ public class TaskService {
         logger.info("Successfully retrieved {} tasks for user: {}", result.size(), user.getUsername());
 
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TaskDTO> findAllTasksForLoggedUser(Pageable pageable) {
+        User user = authService.getCurrentUser();
+        Page<Task> page = tasksRepository.findAllByUser(user, pageable);
+        return page.map(TaskDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)
@@ -258,6 +267,18 @@ public class TaskService {
         return actions;
     }
 
+    @Transactional(readOnly = true)
+    public Page<ActionTask> getAllActionsForTask(Long taskId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        Task task = tasksRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+
+        if (!authService.hasRole("ROLE_ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+            throw new NotPermissionException("You don't have permission to see the actions for this task");
+        }
+
+        return actionTaskRepository.findAllByTask(task, pageable);
+    }
+
     @Transactional
     public void deleteActionFromTask(Long taskId, Long actionId) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Deleting action with ID: {} from task with ID: {}", actionId, taskId);
@@ -348,6 +369,16 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<Task> tasks = tasksRepository.findAllByUser(user);
         return tasks.stream().map(TaskSummaryDTO::fromEntity).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TaskSummaryDTO> getTaskSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' tasks");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return tasksRepository.findAllByUser(user, pageable).map(TaskSummaryDTO::fromEntity);
     }
 
 }
