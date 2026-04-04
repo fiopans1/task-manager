@@ -10,7 +10,7 @@ import {
   Form,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
@@ -57,6 +57,7 @@ const NAVIGATION_ITEMS = [
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -129,7 +130,10 @@ function SidebarMenu({ onLogOut }) {
   });
 
   // Invalidate cache for the feature being navigated to
-  const handleNavClick = (item) => {
+  const handleNavClick = (item, e) => {
+    // Prevent default Link navigation so we can force a new navigation
+    // even when already on the same path (ensures location.key changes)
+    e.preventDefault();
     if (item.featureKey === "tasks") {
       taskService.invalidateTasksCache();
     } else if (item.featureKey === "lists") {
@@ -137,6 +141,7 @@ function SidebarMenu({ onLogOut }) {
     } else if (item.featureKey === "teams") {
       teamService.invalidateTeamsCache();
     }
+    navigate(item.path);
     if (isMobile) {
       toggleMobileMenu();
     }
@@ -183,7 +188,7 @@ function SidebarMenu({ onLogOut }) {
                   className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
                     location.pathname === item.path ? "active" : ""
                   }`}
-                  onClick={() => handleNavClick(item)}
+                  onClick={(e) => handleNavClick(item, e)}
                 >
                   <div className="d-flex align-items-center position-relative w-100">
                     <i
