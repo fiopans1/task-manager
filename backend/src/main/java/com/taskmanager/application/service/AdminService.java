@@ -4,6 +4,7 @@ import com.taskmanager.application.model.dto.ListTMDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.dto.TeamDTO;
 import com.taskmanager.application.model.entities.AppConfig;
+import com.taskmanager.application.model.entities.EventTask;
 import com.taskmanager.application.model.entities.ListTM;
 import com.taskmanager.application.model.entities.Task;
 import com.taskmanager.application.model.entities.Team;
@@ -127,6 +128,20 @@ public class AdminService {
         if (taskDTO.getDescriptionOfTask() != null) task.setDescriptionOfTask(taskDTO.getDescriptionOfTask());
         if (taskDTO.getState() != null) task.setState(taskDTO.getState());
         if (taskDTO.getPriority() != null) task.setPriority(taskDTO.getPriority());
+
+        // Handle event fields
+        if (taskDTO.isEvent()) {
+            EventTask eventTask = task.getEventTask();
+            if (eventTask == null) {
+                eventTask = new EventTask();
+            }
+            eventTask.setStartTime(taskDTO.getStartDate());
+            eventTask.setEndTime(taskDTO.getEndDate());
+            task.setEventTask(eventTask);
+        } else {
+            task.setEventTask(null);
+        }
+
         return TaskDTO.fromEntity(taskRepository.save(task));
     }
 
@@ -152,6 +167,22 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<ListTM> lists = listRepository.findAllByUser(user);
         return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ListTMDTO updateUserList(Long userId, Long listId, ListTMDTO listDTO) throws ResourceNotFoundException {
+        logger.info("Admin updating list {} for user {}", listId, userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        ListTM list = listRepository.findById(listId)
+                .orElseThrow(() -> new ResourceNotFoundException("List not found with id: " + listId));
+        if (!list.getUser().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("List does not belong to user");
+        }
+        if (listDTO.getNameOfList() != null) list.setNameOfList(listDTO.getNameOfList());
+        if (listDTO.getDescriptionOfList() != null) list.setDescriptionOfList(listDTO.getDescriptionOfList());
+        if (listDTO.getColor() != null) list.setColor(listDTO.getColor());
+        return ListTMDTO.fromEntity(listRepository.save(list), false);
     }
 
     @Transactional

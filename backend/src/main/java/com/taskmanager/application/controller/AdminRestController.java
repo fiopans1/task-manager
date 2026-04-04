@@ -70,6 +70,12 @@ public class AdminRestController {
         return ResponseEntity.ok(adminService.getUserLists(userId));
     }
 
+    @PutMapping("/users/{userId}/lists/{listId}")
+    public ResponseEntity<ListTMDTO> updateUserList(@PathVariable Long userId, @PathVariable Long listId,
+                                                     @RequestBody ListTMDTO listDTO) throws ResourceNotFoundException {
+        return ResponseEntity.ok(adminService.updateUserList(userId, listId, listDTO));
+    }
+
     @DeleteMapping("/users/{userId}/lists/{listId}")
     public ResponseEntity<String> deleteUserList(@PathVariable Long userId, @PathVariable Long listId) throws ResourceNotFoundException {
         adminService.deleteUserList(userId, listId);

@@ -1,25 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Row,
-  Col,
   Table,
-  Form,
   Button,
   Badge,
   Tab,
   Tabs,
   Modal,
   Spinner,
-  Collapse,
-  Container,
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
 import { successToast, errorToast } from "../common/Noty";
 import ConfirmModal from "./ConfirmModal";
-import dayjs from "dayjs";
-
-const priorityOptions = ["LOW", "MIN", "MEDIUM", "HIGH", "CRITICAL"];
-const statusOptions = ["COMPLETED", "CANCELLED", "IN_PROGRESS", "NEW", "PAUSSED"];
+import EditTask from "../tasks/EditTask";
+import NewEditLists from "../lists/NewEditLists";
+import EditTeam from "../teams/EditTeam";
 
 const getStateBadge = (state) => {
   const variants = {
@@ -48,91 +42,73 @@ const UserDetailModal = ({ show, onHide, user }) => {
   const [userLists, setUserLists] = useState([]);
   const [userTeams, setUserTeams] = useState([]);
   const [detailTab, setDetailTab] = useState("tasks");
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [loadedTabs, setLoadedTabs] = useState({});
 
-  // Edit task modal
+  // Reused modals
   const [showEditTask, setShowEditTask] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-  const [isEvent, setIsEvent] = useState(false);
-  const [startDateField, setStartDateField] = useState("");
-  const [startTimeField, setStartTimeField] = useState("");
-  const [endDateField, setEndDateField] = useState("");
-  const [endTimeField, setEndTimeField] = useState("");
-
-  // Edit team modal
+  const [editTaskData, setEditTaskData] = useState({});
+  const [showEditList, setShowEditList] = useState(false);
+  const [editListData, setEditListData] = useState({});
   const [showEditTeam, setShowEditTeam] = useState(false);
-  const [editingTeam, setEditingTeam] = useState(null);
+  const [editTeamData, setEditTeamData] = useState({});
 
   // Confirm modal
   const [confirmConfig, setConfirmConfig] = useState({ show: false });
 
-  const loadDetails = useCallback(async () => {
+  // Load data for a specific tab only when first opened
+  const loadTabData = useCallback(async (tab) => {
     if (!user) return;
-    setLoadingDetails(true);
     try {
-      const [tasks, lists, teams] = await Promise.all([
-        adminService.getUserTasks(user.id),
-        adminService.getUserLists(user.id),
-        adminService.getUserTeams(user.id),
-      ]);
-      setUserTasks(tasks);
-      setUserLists(lists);
-      setUserTeams(teams);
+      if (tab === "tasks") {
+        const tasks = await adminService.getUserTasks(user.id);
+        setUserTasks(tasks);
+      } else if (tab === "lists") {
+        const lists = await adminService.getUserLists(user.id);
+        setUserLists(lists);
+      } else if (tab === "teams") {
+        const teams = await adminService.getUserTeams(user.id);
+        setUserTeams(teams);
+      }
+      setLoadedTabs((prev) => ({ ...prev, [tab]: true }));
     } catch (error) {
-      errorToast("Error loading user details");
-    } finally {
-      setLoadingDetails(false);
+      errorToast("Error loading " + tab);
     }
   }, [user]);
 
+  // Load the initial tab when modal opens
   useEffect(() => {
     if (show && user) {
-      loadDetails();
+      setLoadedTabs({});
+      setDetailTab("tasks");
+      loadTabData("tasks");
     }
-  }, [show, user, loadDetails]);
+  }, [show, user, loadTabData]);
+
+  // Load tab data when switching tabs (lazy load)
+  const handleTabSelect = (tab) => {
+    setDetailTab(tab);
+    if (!loadedTabs[tab]) {
+      loadTabData(tab);
+    }
+  };
 
   // ===== TASK ACTIONS =====
   const handleEditTask = (task) => {
-    setEditingTask({ ...task });
-    setIsEvent(task.isEvent || false);
-    if (task.isEvent && task.startDate) {
-      const start = dayjs(task.startDate);
-      setStartDateField(start.format("YYYY-MM-DD"));
-      setStartTimeField(start.format("HH:mm"));
-    } else {
-      setStartDateField("");
-      setStartTimeField("");
-    }
-    if (task.isEvent && task.endDate) {
-      const end = dayjs(task.endDate);
-      setEndDateField(end.format("YYYY-MM-DD"));
-      setEndTimeField(end.format("HH:mm"));
-    } else {
-      setEndDateField("");
-      setEndTimeField("");
-    }
+    setEditTaskData(task);
     setShowEditTask(true);
   };
 
-  const handleSaveTask = async () => {
-    if (!user || !editingTask) return;
+  const refreshTasksAfterEdit = async () => {
     try {
-      const taskData = { ...editingTask, isEvent };
-      if (isEvent) {
-        if (startDateField && startTimeField) {
-          taskData.startDate = dayjs(`${startDateField}T${startTimeField}`).toISOString();
-        }
-        if (endDateField && endTimeField) {
-          taskData.endDate = dayjs(`${endDateField}T${endTimeField}`).toISOString();
-        }
-      }
-      const updated = await adminService.updateUserTask(user.id, editingTask.id, taskData);
-      setUserTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-      setShowEditTask(false);
-      successToast("Task updated");
+      const tasks = await adminService.getUserTasks(user.id);
+      setUserTasks(tasks);
     } catch (error) {
-      errorToast("Error updating task");
+      errorToast("Error refreshing tasks");
     }
+  };
+
+  const handleAdminSaveTask = async (taskData) => {
+    await adminService.updateUserTask(user.id, taskData.id, taskData);
   };
 
   const handleDeleteTask = (taskId) => {
@@ -155,6 +131,24 @@ const UserDetailModal = ({ show, onHide, user }) => {
   };
 
   // ===== LIST ACTIONS =====
+  const handleEditList = (list) => {
+    setEditListData(list);
+    setShowEditList(true);
+  };
+
+  const refreshListsAfterEdit = async () => {
+    try {
+      const lists = await adminService.getUserLists(user.id);
+      setUserLists(lists);
+    } catch (error) {
+      errorToast("Error refreshing lists");
+    }
+  };
+
+  const handleAdminSaveList = async (listData) => {
+    await adminService.updateUserList(user.id, listData.id, listData);
+  };
+
   const handleDeleteList = (listId) => {
     setConfirmConfig({
       show: true,
@@ -175,21 +169,15 @@ const UserDetailModal = ({ show, onHide, user }) => {
   };
 
   // ===== TEAM ACTIONS =====
-  const handleEditTeam = (team) => {
-    setEditingTeam({ ...team });
+  const handleEditTeamOpen = (team) => {
+    setEditTeamData(team);
     setShowEditTeam(true);
   };
 
-  const handleSaveTeam = async () => {
-    if (!editingTeam) return;
-    try {
-      const updated = await adminService.updateTeam(editingTeam.id, editingTeam);
-      setUserTeams((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-      setShowEditTeam(false);
-      successToast("Team updated");
-    } catch (error) {
-      errorToast("Error updating team");
-    }
+  const handleSaveTeam = async (formData) => {
+    await adminService.updateTeam(editTeamData.id, formData);
+    const teams = await adminService.getUserTeams(user.id);
+    setUserTeams(teams);
   };
 
   const handleDeleteTeam = (teamId) => {
@@ -238,339 +226,235 @@ const UserDetailModal = ({ show, onHide, user }) => {
             <div><strong>Created:</strong> {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : "—"}</div>
           </div>
 
-          {loadingDetails ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" />
-              <p className="mt-2">Loading user details...</p>
-            </div>
-          ) : (
-            <Tabs activeKey={detailTab} onSelect={setDetailTab} className="mb-3">
-              <Tab eventKey="tasks" title={`Tasks (${userTasks.length})`}>
-                {/* Mobile: card layout; Desktop: table */}
-                <div className="d-none d-md-block">
-                  <Table responsive hover size="sm">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>State</th>
-                        <th>Priority</th>
-                        <th>List</th>
-                        <th>Team</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {userTasks.map((task) => (
-                        <tr key={task.id}>
-                          <td>{task.nameOfTask}</td>
-                          <td>{getStateBadge(task.state)}</td>
-                          <td>{getPriorityBadge(task.priority)}</td>
-                          <td>{task.listName || "—"}</td>
-                          <td>{task.teamName || "—"}</td>
-                          <td>
+          <Tabs activeKey={detailTab} onSelect={handleTabSelect} className="mb-3">
+            <Tab eventKey="tasks" title={`Tasks (${loadedTabs.tasks ? userTasks.length : "..."})`}>
+              {!loadedTabs.tasks ? (
+                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading tasks...</p></div>
+              ) : (
+                <>
+                  <div className="d-none d-md-block">
+                    <Table responsive hover size="sm">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>State</th>
+                          <th>Priority</th>
+                          <th>List</th>
+                          <th>Team</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userTasks.map((task) => (
+                          <tr key={task.id}>
+                            <td>{task.nameOfTask}</td>
+                            <td>{getStateBadge(task.state)}</td>
+                            <td>{getPriorityBadge(task.priority)}</td>
+                            <td>{task.listName || "—"}</td>
+                            <td>{task.teamName || "—"}</td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTask(task)}>
+                                <i className="bi bi-pencil"></i>
+                              </Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
+                                <i className="bi bi-trash"></i>
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                        {userTasks.length === 0 && (
+                          <tr><td colSpan="6" className="text-center text-muted py-3">No tasks</td></tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                  <div className="d-md-none">
+                    {userTasks.map((task) => (
+                      <div key={task.id} className="border rounded-3 p-3 mb-2">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <strong>{task.nameOfTask}</strong>
+                          <div>
                             <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTask(task)}>
                               <i className="bi bi-pencil"></i>
                             </Button>
                             <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
                               <i className="bi bi-trash"></i>
                             </Button>
-                          </td>
-                        </tr>
-                      ))}
-                      {userTasks.length === 0 && (
-                        <tr><td colSpan="6" className="text-center text-muted py-3">No tasks</td></tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
-                {/* Mobile card layout */}
-                <div className="d-md-none">
-                  {userTasks.map((task) => (
-                    <div key={task.id} className="border rounded-3 p-3 mb-2">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <strong>{task.nameOfTask}</strong>
-                        <div>
-                          <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTask(task)}>
-                            <i className="bi bi-pencil"></i>
-                          </Button>
-                          <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
-                            <i className="bi bi-trash"></i>
-                          </Button>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-2 flex-wrap">
+                          {getStateBadge(task.state)}
+                          {getPriorityBadge(task.priority)}
+                          {task.listName && <Badge bg="light" text="dark">{task.listName}</Badge>}
+                          {task.teamName && <Badge bg="light" text="dark">{task.teamName}</Badge>}
                         </div>
                       </div>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {getStateBadge(task.state)}
-                        {getPriorityBadge(task.priority)}
-                        {task.listName && <Badge bg="light" text="dark">{task.listName}</Badge>}
-                        {task.teamName && <Badge bg="light" text="dark">{task.teamName}</Badge>}
-                      </div>
-                    </div>
-                  ))}
-                  {userTasks.length === 0 && <p className="text-center text-muted py-3">No tasks</p>}
-                </div>
-              </Tab>
+                    ))}
+                    {userTasks.length === 0 && <p className="text-center text-muted py-3">No tasks</p>}
+                  </div>
+                </>
+              )}
+            </Tab>
 
-              <Tab eventKey="lists" title={`Lists (${userLists.length})`}>
-                <div className="d-none d-md-block">
-                  <Table responsive hover size="sm">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Total Tasks</th>
-                        <th>Completed</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {userLists.map((list) => (
-                        <tr key={list.id}>
-                          <td>
+            <Tab eventKey="lists" title={`Lists (${loadedTabs.lists ? userLists.length : "..."})`}>
+              {!loadedTabs.lists ? (
+                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading lists...</p></div>
+              ) : (
+                <>
+                  <div className="d-none d-md-block">
+                    <Table responsive hover size="sm">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Description</th>
+                          <th>Total Tasks</th>
+                          <th>Completed</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userLists.map((list) => (
+                          <tr key={list.id}>
+                            <td>
+                              <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
+                              {list.nameOfList}
+                            </td>
+                            <td className="text-truncate" style={{ maxWidth: 200 }}>{list.descriptionOfList || "—"}</td>
+                            <td>{list.totalElements}</td>
+                            <td>{list.completedElements}</td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditList(list)}>
+                                <i className="bi bi-pencil"></i>
+                              </Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteList(list.id)}>
+                                <i className="bi bi-trash"></i>
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                        {userLists.length === 0 && (
+                          <tr><td colSpan="5" className="text-center text-muted py-3">No lists</td></tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                  <div className="d-md-none">
+                    {userLists.map((list) => (
+                      <div key={list.id} className="border rounded-3 p-3 mb-2">
+                        <div className="d-flex justify-content-between align-items-start mb-1">
+                          <div className="d-flex align-items-center">
                             <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
-                            {list.nameOfList}
-                          </td>
-                          <td className="text-truncate" style={{ maxWidth: 200 }}>{list.descriptionOfList || "—"}</td>
-                          <td>{list.totalElements}</td>
-                          <td>{list.completedElements}</td>
-                          <td>
+                            <strong>{list.nameOfList}</strong>
+                          </div>
+                          <div>
+                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditList(list)}>
+                              <i className="bi bi-pencil"></i>
+                            </Button>
                             <Button variant="outline-danger" size="sm" onClick={() => handleDeleteList(list.id)}>
                               <i className="bi bi-trash"></i>
                             </Button>
-                          </td>
-                        </tr>
-                      ))}
-                      {userLists.length === 0 && (
-                        <tr><td colSpan="5" className="text-center text-muted py-3">No lists</td></tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
-                <div className="d-md-none">
-                  {userLists.map((list) => (
-                    <div key={list.id} className="border rounded-3 p-3 mb-2">
-                      <div className="d-flex justify-content-between align-items-start mb-1">
-                        <div className="d-flex align-items-center">
-                          <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
-                          <strong>{list.nameOfList}</strong>
+                          </div>
                         </div>
-                        <Button variant="outline-danger" size="sm" onClick={() => handleDeleteList(list.id)}>
-                          <i className="bi bi-trash"></i>
-                        </Button>
+                        <small className="text-muted">{list.totalElements} tasks, {list.completedElements} completed</small>
                       </div>
-                      <small className="text-muted">{list.totalElements} tasks, {list.completedElements} completed</small>
-                    </div>
-                  ))}
-                  {userLists.length === 0 && <p className="text-center text-muted py-3">No lists</p>}
-                </div>
-              </Tab>
+                    ))}
+                    {userLists.length === 0 && <p className="text-center text-muted py-3">No lists</p>}
+                  </div>
+                </>
+              )}
+            </Tab>
 
-              <Tab eventKey="teams" title={`Teams (${userTeams.length})`}>
-                <div className="d-none d-md-block">
-                  <Table responsive hover size="sm">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Members</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {userTeams.map((team) => (
-                        <tr key={team.id}>
-                          <td className="fw-semibold">{team.name}</td>
-                          <td className="text-truncate" style={{ maxWidth: 200 }}>{team.description || "—"}</td>
-                          <td>{team.memberCount}</td>
-                          <td>{team.creationDate ? new Date(team.creationDate).toLocaleDateString() : "—"}</td>
-                          <td>
-                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeam(team)}>
+            <Tab eventKey="teams" title={`Teams (${loadedTabs.teams ? userTeams.length : "..."})`}>
+              {!loadedTabs.teams ? (
+                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading teams...</p></div>
+              ) : (
+                <>
+                  <div className="d-none d-md-block">
+                    <Table responsive hover size="sm">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Description</th>
+                          <th>Members</th>
+                          <th>Created</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userTeams.map((team) => (
+                          <tr key={team.id}>
+                            <td className="fw-semibold">{team.name}</td>
+                            <td className="text-truncate" style={{ maxWidth: 200 }}>{team.description || "—"}</td>
+                            <td>{team.memberCount}</td>
+                            <td>{team.creationDate ? new Date(team.creationDate).toLocaleDateString() : "—"}</td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeamOpen(team)}>
+                                <i className="bi bi-pencil"></i>
+                              </Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTeam(team.id)}>
+                                <i className="bi bi-trash"></i>
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                        {userTeams.length === 0 && (
+                          <tr><td colSpan="5" className="text-center text-muted py-3">No teams</td></tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                  <div className="d-md-none">
+                    {userTeams.map((team) => (
+                      <div key={team.id} className="border rounded-3 p-3 mb-2">
+                        <div className="d-flex justify-content-between align-items-start mb-1">
+                          <strong>{team.name}</strong>
+                          <div>
+                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeamOpen(team)}>
                               <i className="bi bi-pencil"></i>
                             </Button>
                             <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTeam(team.id)}>
                               <i className="bi bi-trash"></i>
                             </Button>
-                          </td>
-                        </tr>
-                      ))}
-                      {userTeams.length === 0 && (
-                        <tr><td colSpan="5" className="text-center text-muted py-3">No teams</td></tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
-                <div className="d-md-none">
-                  {userTeams.map((team) => (
-                    <div key={team.id} className="border rounded-3 p-3 mb-2">
-                      <div className="d-flex justify-content-between align-items-start mb-1">
-                        <strong>{team.name}</strong>
-                        <div>
-                          <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeam(team)}>
-                            <i className="bi bi-pencil"></i>
-                          </Button>
-                          <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTeam(team.id)}>
-                            <i className="bi bi-trash"></i>
-                          </Button>
+                          </div>
                         </div>
+                        <small className="text-muted">{team.memberCount} members</small>
                       </div>
-                      <small className="text-muted">{team.memberCount} members</small>
-                    </div>
-                  ))}
-                  {userTeams.length === 0 && <p className="text-center text-muted py-3">No teams</p>}
-                </div>
-              </Tab>
-            </Tabs>
-          )}
+                    ))}
+                    {userTeams.length === 0 && <p className="text-center text-muted py-3">No teams</p>}
+                  </div>
+                </>
+              )}
+            </Tab>
+          </Tabs>
         </Modal.Body>
       </Modal>
 
-      {/* Edit Task Modal — matches existing EditTask.js style */}
-      <Modal show={showEditTask} onHide={() => setShowEditTask(false)} size="lg" centered className="task-modal">
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-primary">Edit Task</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="pt-2">
-          {editingTask && (
-            <Container>
-              <Col>
-                <Form>
-                  <Form.Group className="mb-4" controlId="adminEditTaskName">
-                    <Form.Label className="text-secondary fw-medium">Name</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Name of task"
-                      value={editingTask.nameOfTask || ""}
-                      onChange={(e) => setEditingTask({ ...editingTask, nameOfTask: e.target.value })}
-                      className="shadow-sm rounded-3 border-light-subtle"
-                    />
-                  </Form.Group>
-                  <Row className="mb-4">
-                    <Col>
-                      <Form.Group controlId="adminEditPriority">
-                        <Form.Label className="text-secondary fw-medium">Priority</Form.Label>
-                        <Form.Select
-                          value={editingTask.priority || "MEDIUM"}
-                          onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value })}
-                          className="shadow-sm rounded-3 border-light-subtle"
-                        >
-                          {priorityOptions.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                    <Col>
-                      <Form.Group controlId="adminEditStatus">
-                        <Form.Label className="text-secondary fw-medium">Status</Form.Label>
-                        <Form.Select
-                          value={editingTask.state || "NEW"}
-                          onChange={(e) => setEditingTask({ ...editingTask, state: e.target.value })}
-                          className="shadow-sm rounded-3 border-light-subtle"
-                        >
-                          {statusOptions.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Form.Check
-                    type="switch"
-                    id="admin-edit-event-switch"
-                    label="Is an Event?"
-                    checked={isEvent}
-                    onChange={() => setIsEvent(!isEvent)}
-                    className="mb-3 form-switch-lg text-secondary fw-medium"
-                  />
-                  <Collapse in={isEvent}>
-                    <Container className="mb-4 bg-body-tertiary rounded-3 p-3 border border-light-subtle">
-                      <Row>
-                        <Form.Group controlId="adminEditStartDate" className="mb-3" style={{ width: "100%" }}>
-                          <Form.Label className="text-secondary fw-medium">Start Event</Form.Label>
-                          <Row>
-                            <Col>
-                              <Form.Control type="date" value={startDateField} onChange={(e) => setStartDateField(e.target.value)} className="shadow-sm rounded-3 border-light-subtle" />
-                            </Col>
-                            <Col>
-                              <Form.Control type="time" value={startTimeField} onChange={(e) => setStartTimeField(e.target.value)} className="shadow-sm rounded-3 border-light-subtle" />
-                            </Col>
-                          </Row>
-                        </Form.Group>
-                        <Form.Group controlId="adminEditEndDate" className="mb-3" style={{ width: "100%" }}>
-                          <Form.Label className="text-secondary fw-medium">End Event</Form.Label>
-                          <Row>
-                            <Col>
-                              <Form.Control type="date" value={endDateField} onChange={(e) => setEndDateField(e.target.value)} className="shadow-sm rounded-3 border-light-subtle" />
-                            </Col>
-                            <Col>
-                              <Form.Control type="time" value={endTimeField} onChange={(e) => setEndTimeField(e.target.value)} className="shadow-sm rounded-3 border-light-subtle" />
-                            </Col>
-                          </Row>
-                        </Form.Group>
-                      </Row>
-                    </Container>
-                  </Collapse>
-                  <Form.Group className="mb-4" controlId="adminEditDescription">
-                    <Form.Label className="text-secondary fw-medium">Description</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={4}
-                      placeholder="Description....."
-                      value={editingTask.descriptionOfTask || ""}
-                      onChange={(e) => setEditingTask({ ...editingTask, descriptionOfTask: e.target.value })}
-                      className="shadow-sm rounded-3 border-light-subtle"
-                    />
-                  </Form.Group>
-                </Form>
-              </Col>
-            </Container>
-          )}
-        </Modal.Body>
-        <Modal.Footer className="border-0 pt-0">
-          <Button variant="light" onClick={() => setShowEditTask(false)} className="rounded-3 px-4 fw-medium">Cancel</Button>
-          <Button variant="primary" onClick={handleSaveTask} className="rounded-3 px-4 fw-medium">Save Changes</Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Reuse existing EditTask modal */}
+      <EditTask
+        show={showEditTask}
+        handleClose={() => setShowEditTask(false)}
+        refreshTasks={refreshTasksAfterEdit}
+        initialData={editTaskData}
+        onSave={handleAdminSaveTask}
+      />
 
-      {/* Edit Team Modal */}
-      <Modal show={showEditTeam} onHide={() => setShowEditTeam(false)} centered className="task-modal">
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-primary">Edit Team</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="pt-2">
-          {editingTeam && (
-            <Container>
-              <Form>
-                <Form.Group className="mb-4">
-                  <Form.Label className="text-secondary fw-medium">Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Team name"
-                    value={editingTeam.name || ""}
-                    onChange={(e) => setEditingTeam({ ...editingTeam, name: e.target.value })}
-                    className="shadow-sm rounded-3 border-light-subtle"
-                  />
-                </Form.Group>
-                <Form.Group className="mb-4">
-                  <Form.Label className="text-secondary fw-medium">Description</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    placeholder="Team description..."
-                    value={editingTeam.description || ""}
-                    onChange={(e) => setEditingTeam({ ...editingTeam, description: e.target.value })}
-                    className="shadow-sm rounded-3 border-light-subtle"
-                  />
-                </Form.Group>
-              </Form>
-            </Container>
-          )}
-        </Modal.Body>
-        <Modal.Footer className="border-0 pt-0">
-          <Button variant="light" onClick={() => setShowEditTeam(false)} className="rounded-3 px-4 fw-medium">Cancel</Button>
-          <Button variant="primary" onClick={handleSaveTeam} className="rounded-3 px-4 fw-medium">Save Changes</Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Reuse existing NewEditLists modal (edit mode) */}
+      <NewEditLists
+        show={showEditList}
+        handleClose={() => setShowEditList(false)}
+        refreshLists={refreshListsAfterEdit}
+        editOrNew={true}
+        initialData={editListData}
+        onSave={handleAdminSaveList}
+      />
+
+      {/* Reuse EditTeam component */}
+      <EditTeam
+        show={showEditTeam}
+        handleClose={() => setShowEditTeam(false)}
+        onSave={handleSaveTeam}
+        initialData={editTeamData}
+      />
 
       {/* Confirm Modal */}
       <ConfirmModal

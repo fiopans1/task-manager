@@ -80,6 +80,15 @@ const deleteUserList = async (userId, listId) => {
   return response.data;
 };
 
+const updateUserList = async (userId, listId, listData) => {
+  const response = await axios.put(
+    getBaseUrl() + `/api/admin/users/${userId}/lists/${listId}`,
+    listData,
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
 // ===== USER TEAMS =====
 
 const getUserTeams = async (userId) => {
@@ -160,6 +169,7 @@ const adminService = {
   updateUserTask,
   deleteUserTask,
   getUserLists,
+  updateUserList,
   deleteUserList,
   getUserTeams,
   updateTeam,

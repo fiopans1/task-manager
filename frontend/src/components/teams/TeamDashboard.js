@@ -22,6 +22,7 @@ import DashboardTab from "./DashboardTab";
 import TasksTab from "./TasksTab";
 import HistoryTab from "./HistoryTab";
 import InvitationsTab from "./InvitationsTab";
+import EditTeam from "./EditTeam";
 
 const TeamDashboard = () => {
   const { id: teamId } = useParams();
@@ -56,8 +57,6 @@ const TeamDashboard = () => {
   const [reassignTask, setReassignTask] = useState(null);
   const [reassignTarget, setReassignTarget] = useState("");
   const [memberToRemove, setMemberToRemove] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
 
   const loadData = useCallback(async () => {
     try {
@@ -225,21 +224,13 @@ const TeamDashboard = () => {
     }
   };
 
-  const handleEditTeam = async (e) => {
-    e.preventDefault();
-    try {
-      await teamService.updateTeam(teamId, { name: editName, description: editDescription });
-      successToast("Team updated");
-      setShowEditTeamModal(false);
-      loadData();
-    } catch (err) {
-      errorToast("Error updating team");
-    }
+  const handleEditTeamSave = async (formData) => {
+    await teamService.updateTeam(teamId, formData);
+    setShowEditTeamModal(false);
+    loadData();
   };
 
   const openEditTeamModal = () => {
-    setEditName(team.name || "");
-    setEditDescription(team.description || "");
     setShowEditTeamModal(true);
   };
 
@@ -768,46 +759,12 @@ const TeamDashboard = () => {
       </Modal>
 
       {/* ===== Edit Team Modal ===== */}
-      <Modal show={showEditTeamModal} onHide={() => setShowEditTeamModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-pencil me-2"></i>Edit Team
-          </Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleEditTeam}>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Team Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="Team name"
-                required
-                autoFocus
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                placeholder="Team description (optional)"
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowEditTeamModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary">
-              <i className="bi bi-check-lg me-1"></i>Save Changes
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
+      <EditTeam
+        show={showEditTeamModal}
+        handleClose={() => setShowEditTeamModal(false)}
+        onSave={handleEditTeamSave}
+        initialData={team}
+      />
 
       {/* ===== Leave Team Confirmation Modal ===== */}
       <Modal show={showLeaveTeamModal} onHide={() => setShowLeaveTeamModal(false)} centered>

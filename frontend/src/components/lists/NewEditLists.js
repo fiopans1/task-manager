@@ -9,6 +9,7 @@ const NewEditLists = ({
   refreshLists,
   editOrNew,
   initialData,
+  onSave,
 }) => {
   const [formData, setFormData] = useState({
     id: null,
@@ -35,7 +36,10 @@ const NewEditLists = ({
   const handleSubmit = async (e) => {
     // TODO: Add date validation to ensure start date is before end date
     try {
-      if (editOrNew && formData.id) {
+      if (onSave) {
+        await onSave(formData);
+        successToast("List updated successfully");
+      } else if (editOrNew && formData.id) {
         await listService.updateList(formData);
         successToast("List updated successfully");
       } else {

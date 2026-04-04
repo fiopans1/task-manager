@@ -54,6 +54,16 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             logger.debug("JWT validated successfully for user: {}", username);
 
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+            // Reject blocked users — their token is still valid but account is locked
+            if (!userDetails.isAccountNonLocked()) {
+                logger.warn("Blocked user attempted access: {}", username);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Your account has been blocked. Contact an administrator.\"}");
+                return;
+            }
+
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
