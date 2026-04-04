@@ -630,6 +630,12 @@ public class TeamService {
     }
 
     private TeamMember validateAdminRole(Team team) throws NotPermissionException {
+        // Global ADMIN role bypasses team membership check — they can manage any team
+        if (authService.hasRole("ROLE_ADMIN")) {
+            User currentUser = authService.getCurrentUser();
+            // Return actual membership if exists, otherwise return null (global admin not in team)
+            return teamMemberRepository.findByTeamAndUser(team, currentUser).orElse(null);
+        }
         TeamMember member = validateMembership(team);
         if (member.getRole() != TeamRole.ADMIN) {
             throw new NotPermissionException("Only team admins can perform this action");
@@ -649,5 +655,18 @@ public class TeamService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // ===== ADMIN: Get team summaries for a specific user =====
+
+    @Transactional(readOnly = true)
+    public List<TeamDTO> getTeamSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' teams");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<Team> teams = teamRepository.findAllByMemberUser(user);
+        return teams.stream().map(t -> TeamDTO.fromEntity(t, false)).toList();
     }
 }

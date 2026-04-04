@@ -2,6 +2,7 @@ import { Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import configService from "../services/configService";
 import ThemeToggleButton from "../components/common/ThemeToggleButton";
+import SystemMessageModal from "../components/common/SystemMessageModal";
 
 const HomePage = () => {
   const navigateTo = useNavigate();
@@ -64,6 +65,7 @@ const HomePage = () => {
         </p>
       </div>
       <ThemeToggleButton />
+      <SystemMessageModal context="beforeLogin" />
     </Container>
   );
 };

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.taskmanager.application.model.dto.TaskResumeDTO;
+import com.taskmanager.application.model.dto.TaskSummaryDTO;
 
 
 @RestController
@@ -219,5 +220,14 @@ public class TaskRestController {
         }
     }
     
+
+    // ===== ADMIN: Get task summaries for a specific user =====
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TaskSummaryDTO>> getTasksByUserId(@PathVariable Long userId) throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Admin retrieving task summaries for user ID: {}", userId);
+        List<TaskSummaryDTO> tasks = taskService.getTaskSummariesByUserId(userId);
+        return ResponseEntity.ok(tasks);
+    }
 
 }

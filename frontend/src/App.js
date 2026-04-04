@@ -14,7 +14,8 @@ import Tasks from "./components/tasks/Tasks";
 import OutletUtil from "./components/common/OutletUtil";
 import Home from "./components/Home";
 import OAuth2Login from "./components/auth/OAuth2Login";
-// import AdminPanel from "./components/adminpanel/AdminPanel";
+import AdminPanel from "./components/adminpanel/AdminPanel";
+import FeatureGuard from "./components/common/FeatureGuard";
 import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
@@ -120,20 +121,20 @@ function App() {
         }
       >
         <Route index element={<Home />} />
-        <Route path="/home/tasks" element={<OutletUtil />}>
+        <Route path="/home/tasks" element={<FeatureGuard featureKey="tasks"><OutletUtil /></FeatureGuard>}>
           <Route index element={<Tasks />} />
           <Route path=":id" element={<TaskDetails />} />
         </Route>
-        <Route path="/home/calendar" element={<CalendarComponent />} />
-        <Route path="/home/lists" element={<OutletUtil />}>
+        <Route path="/home/calendar" element={<FeatureGuard featureKey="calendar"><CalendarComponent /></FeatureGuard>} />
+        <Route path="/home/lists" element={<FeatureGuard featureKey="lists"><OutletUtil /></FeatureGuard>}>
           <Route index element={<Lists />} />
           <Route path=":id" element={<ListDetailsGeneral />} />
         </Route>
-        <Route path="/home/teams" element={<OutletUtil />}>
+        <Route path="/home/teams" element={<FeatureGuard featureKey="teams"><OutletUtil /></FeatureGuard>}>
           <Route index element={<Teams />} />
           <Route path=":id" element={<TeamDashboard />} />
         </Route>
-        {/* <Route path="/home/admin" element={<AdminPanel />} /> */}
+        <Route path="/home/admin" element={<AdminPanel />} />
       </Route>
     </Routes>
   );

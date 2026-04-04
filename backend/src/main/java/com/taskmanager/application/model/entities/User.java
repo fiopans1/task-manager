@@ -48,6 +48,9 @@ public class User implements UserDetails {
 
     private Date creationDate;
 
+    @Column(nullable = false)
+    private boolean blocked = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Task> tasksForUser = new HashSet<>();
 
@@ -194,6 +197,19 @@ public class User implements UserDetails {
 
     public void addRole(RoleOfUser role) {
         roles.add(role);
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !blocked;
     }
 
 }

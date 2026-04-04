@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ActionTaskDTO;
 import com.taskmanager.application.model.dto.TaskResumeDTO;
+import com.taskmanager.application.model.dto.TaskSummaryDTO;
+import com.taskmanager.application.respository.UserRepository;
 
 @Service
 public class TaskService {
@@ -44,6 +46,9 @@ public class TaskService {
     @Autowired
     private EventTaskRepository eventTaskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     /*This method, when the frontend is properly implemented, should check who is
      * logged in, and see if they are admin or not. If not admin, we only put the task with the user who created it,
      * if admin, we can put the task with the user assigned by the admin (in this case send the username).
@@ -56,7 +61,7 @@ public class TaskService {
         User user = authService.getCurrentUser();
 
         task.setCreationDate(new Date());
-        if (task.getUser() != null && authService.hasRole("ADMIN")) {
+        if (task.getUser() != null && authService.hasRole("ROLE_ADMIN")) {
             logger.info("Admin creating task for user: {}", task.getUser().getUsername());
             Task savedTask = tasksRepository.save(task);
             logger.info("Successfully created task with ID: {} for user: {}", savedTask.getId(), task.getUser().getUsername());
@@ -80,7 +85,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
 
-        if (authService.hasRole("ADMIN") || taskToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || taskToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for updating task ID: {}", id);
 
             taskToUpdate.setNameOfTask(task.getNameOfTask());
@@ -143,7 +148,7 @@ public class TaskService {
     public void deleteTask(Task task) {
         logger.info("Attempting to delete task with ID: {}", task.getId());
 
-        if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for deleting task ID: {}", task.getId());
             tasksRepository.delete(task);
             logger.info("Successfully deleted task with ID: {}", task.getId());
@@ -162,7 +167,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
 
-        if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for deleting task ID: {}", id);
             tasksRepository.deleteById(id);
             logger.info("Successfully deleted task with ID: {}", id);
@@ -182,7 +187,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + id);
                 });
 
-        if (authService.hasRole("ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("Permission granted for accessing task ID: {}", id);
             logger.info("Successfully retrieved task with ID: {}", id);
             return task;
@@ -217,7 +222,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + taskId);
                 });
 
-        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (!authService.hasRole("ROLE_ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.warn("Permission denied adding action to task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to add actions to this task");
         }
@@ -242,7 +247,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + taskId);
                 });
 
-        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (!authService.hasRole("ROLE_ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.warn("Permission denied accessing actions for task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to see the actions for this task");
         }
@@ -263,7 +268,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + taskId);
                 });
 
-        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (!authService.hasRole("ROLE_ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.warn("Permission denied deleting action from task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to delete actions from this task");
         }
@@ -294,7 +299,7 @@ public class TaskService {
                     return new ResourceNotFoundException("Task not found with id " + taskId);
                 });
 
-        if (!authService.hasRole("ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (!authService.hasRole("ROLE_ADMIN") && !task.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.warn("Permission denied updating action from task with ID: {} for user: {}", taskId, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to update actions from this task");
         }
@@ -330,6 +335,19 @@ public class TaskService {
         logger.info("Successfully retrieved {} task resumes without list for user: {}", tasksResume.size(), user.getUsername());
 
         return tasksResume;
+    }
+
+    // ===== ADMIN: Get task summaries for a specific user =====
+
+    @Transactional(readOnly = true)
+    public List<TaskSummaryDTO> getTaskSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' tasks");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<Task> tasks = tasksRepository.findAllByUser(user);
+        return tasks.stream().map(TaskSummaryDTO::fromEntity).toList();
     }
 
 }

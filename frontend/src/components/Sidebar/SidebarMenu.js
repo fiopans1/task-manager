@@ -15,6 +15,7 @@ import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
 import { useTheme } from "../../context/ThemeContext";
+import adminService from "../../services/adminService";
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
@@ -22,28 +23,32 @@ const NAVIGATION_ITEMS = [
     path: "/home/tasks",
     icon: "bi bi-list-task",
     label: "My Tasks",
+    featureKey: "tasks",
   },
   {
     path: "/home/calendar",
     icon: "bi bi-calendar-date",
     label: "Calendar",
+    featureKey: "calendar",
   },
   {
     path: "/home/lists",
     icon: "bi bi-card-checklist",
     label: "Lists",
+    featureKey: "lists",
   },
   {
     path: "/home/teams",
     icon: "bi bi-people",
     label: "Teams",
+    featureKey: "teams",
   },
-  // {
-  //   path: "/home/admin",
-  //   icon: "bi bi-gear-wide-connected",
-  //   label: "Admin Panel",
-  //   adminOnly: true,
-  // },
+  {
+    path: "/home/admin",
+    icon: "bi bi-shield-lock",
+    label: "Admin Panel",
+    adminOnly: true,
+  },
 ];
 
 function SidebarMenu({ onLogOut }) {
@@ -54,6 +59,7 @@ function SidebarMenu({ onLogOut }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const { darkMode, toggleDarkMode } = useTheme();
+  const [featureFlags, setFeatureFlags] = useState({});
 
   // Manejador para alternar el estado de colapso de la barra lateral
   const toggleSidebar = () => {
@@ -94,13 +100,30 @@ function SidebarMenu({ onLogOut }) {
       }
     };
 
+    // Load feature flags from backend
+    const loadFeatureFlags = async () => {
+      try {
+        const config = await adminService.getPublicConfig();
+        if (config.features) {
+          setFeatureFlags(config.features);
+        }
+      } catch (error) {
+        console.debug("Could not load feature flags:", error);
+      }
+    };
+
     checkAdminStatus();
+    loadFeatureFlags();
   }, []);
 
-  // Filter navigation items based on user role
-  const filteredNavItems = NAVIGATION_ITEMS.filter(
-    (item) => !item.adminOnly || (item.adminOnly && isAdmin)
-  );
+  // Filter navigation items based on user role and feature flags
+  const filteredNavItems = NAVIGATION_ITEMS.filter((item) => {
+    // Admin-only items: only show to admins
+    if (item.adminOnly) return isAdmin;
+    // Feature-gated items: hide if feature is explicitly disabled
+    if (item.featureKey && featureFlags[item.featureKey] === false) return false;
+    return true;
+  });
 
   // Main sidebar content
   const renderSidebarContent = () => {

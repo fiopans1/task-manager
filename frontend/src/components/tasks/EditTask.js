@@ -13,7 +13,7 @@ import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import dayjs from "dayjs";
 
-const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
+const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
   const [isEvent, setIsEvent] = useState(false);
 
   const handleEvent = () => {
@@ -99,7 +99,11 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData }) => {
         }
       }
 
-      await taskService.editTask(taskData);
+      if (onSave) {
+        await onSave(taskData);
+      } else {
+        await taskService.editTask(taskData);
+      }
       refreshTasks();
       successToast("Task updated successfully");
     } catch (error) {
