@@ -631,7 +631,7 @@ public class TeamService {
 
     private TeamMember validateAdminRole(Team team) throws NotPermissionException {
         // Global ADMIN role bypasses team membership check — they can manage any team
-        if (authService.hasRole("ADMIN")) {
+        if (authService.hasRole("ROLE_ADMIN")) {
             User currentUser = authService.getCurrentUser();
             // Return actual membership if exists, otherwise return null (global admin not in team)
             return teamMemberRepository.findByTeamAndUser(team, currentUser).orElse(null);
@@ -661,7 +661,7 @@ public class TeamService {
 
     @Transactional(readOnly = true)
     public List<TeamDTO> getTeamSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
-        if (!authService.hasRole("ADMIN")) {
+        if (!authService.hasRole("ROLE_ADMIN")) {
             throw new NotPermissionException("Only admins can view other users' teams");
         }
         User user = userRepository.findById(userId)
