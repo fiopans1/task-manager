@@ -1,8 +1,5 @@
 package com.taskmanager.application.controller;
 
-import com.taskmanager.application.model.dto.ListTMDTO;
-import com.taskmanager.application.model.dto.TaskDTO;
-import com.taskmanager.application.model.dto.TeamDTO;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.AdminService;
 
@@ -13,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,62 +39,6 @@ public class AdminRestController {
     @PostMapping("/users/{userId}/toggle-block")
     public ResponseEntity<Map<String, Object>> toggleUserBlock(@PathVariable Long userId) throws ResourceNotFoundException {
         return ResponseEntity.ok(adminService.toggleUserBlock(userId));
-    }
-
-    // ===== USER TASKS =====
-
-    @GetMapping("/users/{userId}/tasks")
-    public ResponseEntity<List<TaskDTO>> getUserTasks(@PathVariable Long userId) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.getUserTasks(userId));
-    }
-
-    @PutMapping("/users/{userId}/tasks/{taskId}")
-    public ResponseEntity<TaskDTO> updateUserTask(@PathVariable Long userId, @PathVariable Long taskId,
-                                                   @RequestBody TaskDTO taskDTO) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.updateUserTask(userId, taskId, taskDTO));
-    }
-
-    @DeleteMapping("/users/{userId}/tasks/{taskId}")
-    public ResponseEntity<String> deleteUserTask(@PathVariable Long userId, @PathVariable Long taskId) throws ResourceNotFoundException {
-        adminService.deleteUserTask(userId, taskId);
-        return ResponseEntity.ok("Task deleted successfully");
-    }
-
-    // ===== USER LISTS =====
-
-    @GetMapping("/users/{userId}/lists")
-    public ResponseEntity<List<ListTMDTO>> getUserLists(@PathVariable Long userId) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.getUserLists(userId));
-    }
-
-    @PutMapping("/users/{userId}/lists/{listId}")
-    public ResponseEntity<ListTMDTO> updateUserList(@PathVariable Long userId, @PathVariable Long listId,
-                                                     @RequestBody ListTMDTO listDTO) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.updateUserList(userId, listId, listDTO));
-    }
-
-    @DeleteMapping("/users/{userId}/lists/{listId}")
-    public ResponseEntity<String> deleteUserList(@PathVariable Long userId, @PathVariable Long listId) throws ResourceNotFoundException {
-        adminService.deleteUserList(userId, listId);
-        return ResponseEntity.ok("List deleted successfully");
-    }
-
-    // ===== USER TEAMS =====
-
-    @GetMapping("/users/{userId}/teams")
-    public ResponseEntity<List<TeamDTO>> getUserTeams(@PathVariable Long userId) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.getUserTeams(userId));
-    }
-
-    @PutMapping("/teams/{teamId}")
-    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long teamId, @RequestBody TeamDTO teamDTO) throws ResourceNotFoundException {
-        return ResponseEntity.ok(adminService.updateTeam(teamId, teamDTO));
-    }
-
-    @DeleteMapping("/teams/{teamId}")
-    public ResponseEntity<String> deleteTeam(@PathVariable Long teamId) throws ResourceNotFoundException {
-        adminService.deleteTeam(teamId);
-        return ResponseEntity.ok("Team deleted successfully");
     }
 
     // ===== FEATURE FLAGS =====

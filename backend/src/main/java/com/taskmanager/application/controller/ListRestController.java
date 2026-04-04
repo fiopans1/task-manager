@@ -160,4 +160,13 @@ public class ListRestController {
         }
     }
 
+    // ===== ADMIN: Get list summaries for a specific user =====
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ListTMDTO>> getListsByUserId(@PathVariable Long userId) throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Admin retrieving list summaries for user ID: {}", userId);
+        List<ListTMDTO> lists = listService.getListSummariesByUserId(userId);
+        return ResponseEntity.ok(lists);
+    }
+
 }

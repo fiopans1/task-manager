@@ -1,20 +1,12 @@
 package com.taskmanager.application.service;
 
-import com.taskmanager.application.model.dto.ListTMDTO;
-import com.taskmanager.application.model.dto.TaskDTO;
-import com.taskmanager.application.model.dto.TeamDTO;
 import com.taskmanager.application.model.entities.AppConfig;
-import com.taskmanager.application.model.entities.EventTask;
-import com.taskmanager.application.model.entities.ListTM;
-import com.taskmanager.application.model.entities.Task;
-import com.taskmanager.application.model.entities.Team;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.respository.AppConfigRepository;
 import com.taskmanager.application.respository.ListRepository;
 import com.taskmanager.application.respository.TaskRepository;
 import com.taskmanager.application.respository.TeamMemberRepository;
-import com.taskmanager.application.respository.TeamRepository;
 import com.taskmanager.application.respository.UserRepository;
 
 import org.slf4j.Logger;
@@ -48,9 +40,6 @@ public class AdminService {
 
     @Autowired
     private ListRepository listRepository;
-
-    @Autowired
-    private TeamRepository teamRepository;
 
     @Autowired
     private TeamMemberRepository teamMemberRepository;
@@ -101,133 +90,6 @@ public class AdminService {
         map.put("listCount", listRepository.countByUser(user));
         map.put("teamCount", teamMemberRepository.findAllByUser(user).size());
         return map;
-    }
-
-    // ===== USER TASKS =====
-
-    @Transactional(readOnly = true)
-    public List<TaskDTO> getUserTasks(Long userId) throws ResourceNotFoundException {
-        logger.info("Admin retrieving tasks for user ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        List<Task> tasks = taskRepository.findAllByUser(user);
-        return tasks.stream().map(TaskDTO::fromEntity).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public TaskDTO updateUserTask(Long userId, Long taskId, TaskDTO taskDTO) throws ResourceNotFoundException {
-        logger.info("Admin updating task {} for user {}", taskId, userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Task does not belong to user");
-        }
-        if (taskDTO.getNameOfTask() != null) task.setNameOfTask(taskDTO.getNameOfTask());
-        if (taskDTO.getDescriptionOfTask() != null) task.setDescriptionOfTask(taskDTO.getDescriptionOfTask());
-        if (taskDTO.getState() != null) task.setState(taskDTO.getState());
-        if (taskDTO.getPriority() != null) task.setPriority(taskDTO.getPriority());
-
-        // Handle event fields
-        if (taskDTO.isEvent()) {
-            EventTask eventTask = task.getEventTask();
-            if (eventTask == null) {
-                eventTask = new EventTask();
-            }
-            eventTask.setStartTime(taskDTO.getStartDate());
-            eventTask.setEndTime(taskDTO.getEndDate());
-            task.setEventTask(eventTask);
-        } else {
-            task.setEventTask(null);
-        }
-
-        return TaskDTO.fromEntity(taskRepository.save(task));
-    }
-
-    @Transactional
-    public void deleteUserTask(Long userId, Long taskId) throws ResourceNotFoundException {
-        logger.info("Admin deleting task {} for user {}", taskId, userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Task does not belong to user");
-        }
-        taskRepository.delete(task);
-    }
-
-    // ===== USER LISTS =====
-
-    @Transactional(readOnly = true)
-    public List<ListTMDTO> getUserLists(Long userId) throws ResourceNotFoundException {
-        logger.info("Admin retrieving lists for user ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        List<ListTM> lists = listRepository.findAllByUser(user);
-        return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public ListTMDTO updateUserList(Long userId, Long listId, ListTMDTO listDTO) throws ResourceNotFoundException {
-        logger.info("Admin updating list {} for user {}", listId, userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        ListTM list = listRepository.findById(listId)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id: " + listId));
-        if (!list.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("List does not belong to user");
-        }
-        if (listDTO.getNameOfList() != null) list.setNameOfList(listDTO.getNameOfList());
-        if (listDTO.getDescriptionOfList() != null) list.setDescriptionOfList(listDTO.getDescriptionOfList());
-        if (listDTO.getColor() != null) list.setColor(listDTO.getColor());
-        return ListTMDTO.fromEntity(listRepository.save(list), false);
-    }
-
-    @Transactional
-    public void deleteUserList(Long userId, Long listId) throws ResourceNotFoundException {
-        logger.info("Admin deleting list {} for user {}", listId, userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        ListTM list = listRepository.findById(listId)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id: " + listId));
-        if (!list.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("List does not belong to user");
-        }
-        for (Task task : list.getListTasks()) {
-            task.setList(null);
-        }
-        listRepository.delete(list);
-    }
-
-    // ===== USER TEAMS =====
-
-    @Transactional(readOnly = true)
-    public List<TeamDTO> getUserTeams(Long userId) throws ResourceNotFoundException {
-        logger.info("Admin retrieving teams for user ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        List<Team> teams = teamRepository.findAllByMemberUser(user);
-        return teams.stream().map(t -> TeamDTO.fromEntity(t, false)).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public TeamDTO updateTeam(Long teamId, TeamDTO teamDTO) throws ResourceNotFoundException {
-        logger.info("Admin updating team {}", teamId);
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id: " + teamId));
-        if (teamDTO.getName() != null) team.setName(teamDTO.getName());
-        if (teamDTO.getDescription() != null) team.setDescription(teamDTO.getDescription());
-        return TeamDTO.fromEntity(teamRepository.save(team), false);
-    }
-
-    @Transactional
-    public void deleteTeam(Long teamId) throws ResourceNotFoundException {
-        logger.info("Admin deleting team {}", teamId);
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id: " + teamId));
-        teamRepository.delete(team);
     }
 
     // ===== FEATURE FLAGS =====
@@ -301,7 +163,7 @@ public class AdminService {
         return getSystemMessage();
     }
 
-    // ===== PUBLIC CONFIG (for all authenticated users) =====
+    // ===== PUBLIC CONFIG (for all users) =====
 
     @Transactional(readOnly = true)
     public Map<String, Object> getPublicConfig() {

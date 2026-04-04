@@ -35,82 +35,27 @@ const toggleUserBlock = async (userId) => {
   return response.data;
 };
 
-// ===== USER TASKS =====
+// ===== USER RESOURCES (using existing controllers with admin role) =====
 
 const getUserTasks = async (userId) => {
   const response = await axios.get(
-    getBaseUrl() + `/api/admin/users/${userId}/tasks`,
+    getBaseUrl() + `/api/tasks/user/${userId}`,
     { headers: getAuthHeaders() }
   );
   return response.data;
 };
-
-const updateUserTask = async (userId, taskId, taskData) => {
-  const response = await axios.put(
-    getBaseUrl() + `/api/admin/users/${userId}/tasks/${taskId}`,
-    taskData,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-const deleteUserTask = async (userId, taskId) => {
-  const response = await axios.delete(
-    getBaseUrl() + `/api/admin/users/${userId}/tasks/${taskId}`,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-// ===== USER LISTS =====
 
 const getUserLists = async (userId) => {
   const response = await axios.get(
-    getBaseUrl() + `/api/admin/users/${userId}/lists`,
+    getBaseUrl() + `/api/lists/user/${userId}`,
     { headers: getAuthHeaders() }
   );
   return response.data;
 };
-
-const deleteUserList = async (userId, listId) => {
-  const response = await axios.delete(
-    getBaseUrl() + `/api/admin/users/${userId}/lists/${listId}`,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-const updateUserList = async (userId, listId, listData) => {
-  const response = await axios.put(
-    getBaseUrl() + `/api/admin/users/${userId}/lists/${listId}`,
-    listData,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-// ===== USER TEAMS =====
 
 const getUserTeams = async (userId) => {
   const response = await axios.get(
-    getBaseUrl() + `/api/admin/users/${userId}/teams`,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-const updateTeam = async (teamId, teamData) => {
-  const response = await axios.put(
-    getBaseUrl() + `/api/admin/teams/${teamId}`,
-    teamData,
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
-};
-
-const deleteTeam = async (teamId) => {
-  const response = await axios.delete(
-    getBaseUrl() + `/api/admin/teams/${teamId}`,
+    getBaseUrl() + `/api/teams/user/${userId}`,
     { headers: getAuthHeaders() }
   );
   return response.data;
@@ -166,14 +111,8 @@ const adminService = {
   getUserById,
   toggleUserBlock,
   getUserTasks,
-  updateUserTask,
-  deleteUserTask,
   getUserLists,
-  updateUserList,
-  deleteUserList,
   getUserTeams,
-  updateTeam,
-  deleteTeam,
   getFeatureFlags,
   updateFeatureFlag,
   getSystemMessage,

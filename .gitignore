@@ -9,4 +9,4 @@ jwtKeys
 .vscode
 
 # Frontend config (environment-specific, generated from template)
-client/public/config.js      
+client/public/config.js      frontend/build/

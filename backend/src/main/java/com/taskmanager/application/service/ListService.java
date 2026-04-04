@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.respository.TaskRepository;
+import com.taskmanager.application.respository.UserRepository;
 
 @Service
 public class ListService {
@@ -34,6 +35,9 @@ public class ListService {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public ListTM createList(ListTMDTO listDTO) {
@@ -167,5 +171,18 @@ public class ListService {
             logger.warn("Permission denied deleting task with ID: {} for user: {}", id, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to delete this task from the list");
         }
+    }
+
+    // ===== ADMIN: Get list summaries for a specific user =====
+
+    @Transactional(readOnly = true)
+    public List<ListTMDTO> getListSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' lists");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<ListTM> lists = listRepository.findAllByUser(user);
+        return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
     }
 }

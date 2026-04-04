@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ActionTaskDTO;
 import com.taskmanager.application.model.dto.TaskResumeDTO;
+import com.taskmanager.application.model.dto.TaskSummaryDTO;
+import com.taskmanager.application.respository.UserRepository;
 
 @Service
 public class TaskService {
@@ -43,6 +45,9 @@ public class TaskService {
 
     @Autowired
     private EventTaskRepository eventTaskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     /*This method, when the frontend is properly implemented, should check who is
      * logged in, and see if they are admin or not. If not admin, we only put the task with the user who created it,
@@ -330,6 +335,19 @@ public class TaskService {
         logger.info("Successfully retrieved {} task resumes without list for user: {}", tasksResume.size(), user.getUsername());
 
         return tasksResume;
+    }
+
+    // ===== ADMIN: Get task summaries for a specific user =====
+
+    @Transactional(readOnly = true)
+    public List<TaskSummaryDTO> getTaskSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' tasks");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<Task> tasks = tasksRepository.findAllByUser(user);
+        return tasks.stream().map(TaskSummaryDTO::fromEntity).toList();
     }
 
 }

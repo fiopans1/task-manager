@@ -9,6 +9,9 @@ import {
   Spinner,
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
+import taskService from "../../services/taskService";
+import listService from "../../services/listService";
+import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
 import ConfirmModal from "./ConfirmModal";
 import EditTask from "../tasks/EditTask";
@@ -55,7 +58,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
   // Confirm modal
   const [confirmConfig, setConfirmConfig] = useState({ show: false });
 
-  // Load data for a specific tab only when first opened
+  // Load summary data for a specific tab only when first opened
   const loadTabData = useCallback(async (tab) => {
     if (!user) return;
     try {
@@ -93,9 +96,15 @@ const UserDetailModal = ({ show, onHide, user }) => {
   };
 
   // ===== TASK ACTIONS =====
-  const handleEditTask = (task) => {
-    setEditTaskData(task);
-    setShowEditTask(true);
+  const handleEditTask = async (task) => {
+    try {
+      // Load full task details from existing endpoint before editing
+      const fullTask = await taskService.getTaskById(task.id);
+      setEditTaskData(fullTask);
+      setShowEditTask(true);
+    } catch (error) {
+      errorToast("Error loading task details");
+    }
   };
 
   const refreshTasksAfterEdit = async () => {
@@ -107,10 +116,6 @@ const UserDetailModal = ({ show, onHide, user }) => {
     }
   };
 
-  const handleAdminSaveTask = async (taskData) => {
-    await adminService.updateUserTask(user.id, taskData.id, taskData);
-  };
-
   const handleDeleteTask = (taskId) => {
     setConfirmConfig({
       show: true,
@@ -119,7 +124,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       confirmText: "Delete",
       onConfirm: async () => {
         try {
-          await adminService.deleteUserTask(user.id, taskId);
+          await taskService.deleteTask(taskId);
           setUserTasks((prev) => prev.filter((t) => t.id !== taskId));
           successToast("Task deleted");
         } catch (error) {
@@ -145,10 +150,6 @@ const UserDetailModal = ({ show, onHide, user }) => {
     }
   };
 
-  const handleAdminSaveList = async (listData) => {
-    await adminService.updateUserList(user.id, listData.id, listData);
-  };
-
   const handleDeleteList = (listId) => {
     setConfirmConfig({
       show: true,
@@ -157,7 +158,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       confirmText: "Delete",
       onConfirm: async () => {
         try {
-          await adminService.deleteUserList(user.id, listId);
+          await listService.deleteList(listId);
           setUserLists((prev) => prev.filter((l) => l.id !== listId));
           successToast("List deleted");
         } catch (error) {
@@ -175,7 +176,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
   };
 
   const handleSaveTeam = async (formData) => {
-    await adminService.updateTeam(editTeamData.id, formData);
+    await teamService.updateTeam(editTeamData.id, formData);
     const teams = await adminService.getUserTeams(user.id);
     setUserTeams(teams);
   };
@@ -188,7 +189,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       confirmText: "Delete",
       onConfirm: async () => {
         try {
-          await adminService.deleteTeam(teamId);
+          await teamService.deleteTeam(teamId);
           setUserTeams((prev) => prev.filter((t) => t.id !== teamId));
           successToast("Team deleted");
         } catch (error) {
@@ -429,26 +430,24 @@ const UserDetailModal = ({ show, onHide, user }) => {
         </Modal.Body>
       </Modal>
 
-      {/* Reuse existing EditTask modal */}
+      {/* Reuse existing EditTask modal — no onSave override needed, existing TaskService already allows ADMIN */}
       <EditTask
         show={showEditTask}
         handleClose={() => setShowEditTask(false)}
         refreshTasks={refreshTasksAfterEdit}
         initialData={editTaskData}
-        onSave={handleAdminSaveTask}
       />
 
-      {/* Reuse existing NewEditLists modal (edit mode) */}
+      {/* Reuse existing NewEditLists modal (edit mode) — no onSave override needed, existing ListService already allows ADMIN */}
       <NewEditLists
         show={showEditList}
         handleClose={() => setShowEditList(false)}
         refreshLists={refreshListsAfterEdit}
         editOrNew={true}
         initialData={editListData}
-        onSave={handleAdminSaveList}
       />
 
-      {/* Reuse EditTeam component */}
+      {/* Reuse EditTeam component — uses teamService.updateTeam which now allows global ADMIN */}
       <EditTeam
         show={showEditTeam}
         handleClose={() => setShowEditTeam(false)}

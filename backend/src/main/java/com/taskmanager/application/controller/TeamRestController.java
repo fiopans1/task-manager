@@ -227,4 +227,14 @@ public class TeamRestController {
         boolean isAdmin = teamService.isCurrentUserAdminOfTeam(teamId);
         return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
     }
+
+    // ===== ADMIN: Get team summaries for a specific user =====
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TeamDTO>> getTeamsByUserId(@PathVariable Long userId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Admin retrieving team summaries for user ID: {}", userId);
+        List<TeamDTO> teams = teamService.getTeamSummariesByUserId(userId);
+        return ResponseEntity.ok(teams);
+    }
 }
