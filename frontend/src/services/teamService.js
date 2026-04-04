@@ -272,6 +272,37 @@ const isCurrentUserAdmin = async (teamId) => {
   return response.data.isAdmin;
 };
 
+// ===== PAGINATED FETCHERS =====
+
+const fetchTeamsPage = async (page = 0, size = 50) => {
+  const response = await axios.get(getBaseUrl() + "/my-teams/paged", {
+    headers: getAuthHeaders(),
+    params: { page, size },
+  });
+  return response.data;
+};
+
+const fetchTeamTasksPage = async (teamId, filters = {}, page = 0, size = 50) => {
+  const params = { page, size };
+  if (filters.member) params.member = filters.member;
+  if (filters.state) params.state = filters.state;
+  if (filters.priority) params.priority = filters.priority;
+
+  const response = await axios.get(getBaseUrl() + "/" + teamId + "/tasks/paged", {
+    headers: getAuthHeaders(),
+    params,
+  });
+  return response.data;
+};
+
+const fetchAssignmentHistoryPage = async (teamId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + "/" + teamId + "/assignment-history/paged",
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
 const teamService = {
   createTeam,
   getMyTeams,
@@ -296,6 +327,9 @@ const teamService = {
   getMembersForMention,
   isCurrentUserAdmin,
   invalidateTeamsCache,
+  fetchTeamsPage,
+  fetchTeamTasksPage,
+  fetchAssignmentHistoryPage,
 };
 
 export default teamService;

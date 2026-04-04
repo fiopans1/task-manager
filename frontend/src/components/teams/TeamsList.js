@@ -1,29 +1,26 @@
-import { useState, useEffect } from "react";
+import { useCallback } from "react";
 import { Row, Col, Card, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import teamService from "../../services/teamService";
 
 const TeamsList = ({ teamsResource, searchTerm }) => {
   const navigate = useNavigate();
-  const [data, setData] = useState(teamsResource.read());
 
-  useEffect(() => {
-    try {
-      let teams = teamsResource.read();
-      if (searchTerm) {
-        teams = teams.filter((team) =>
-          team.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-      setData(teams);
-    } catch (error) {
-      // handled by ErrorBoundary
-    }
-  }, [teamsResource, searchTerm]);
+  const fetchPage = useCallback(async (page, size) => {
+    return teamService.fetchTeamsPage(page, size);
+  }, []);
 
-  const { displayedItems: paginatedData, LoadMoreSpinner } = useInfiniteScroll(data || []);
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [teamsResource]);
 
-  if (!data || data.length === 0) {
+  // Filter data client-side for search
+  const filteredData = searchTerm
+    ? data.filter((team) =>
+        team.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : data;
+
+  if (!filteredData || filteredData.length === 0) {
     return (
       <div className="text-center text-muted py-5">
         <i
@@ -42,7 +39,7 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
   return (
     <>
       <Row className="g-3">
-        {paginatedData.map((team) => (
+        {filteredData.map((team) => (
         <Col key={team.id} xs={12} sm={6} lg={4}>
           <Card
             className="h-100 border rounded-3 task-card"

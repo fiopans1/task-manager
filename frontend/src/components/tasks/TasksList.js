@@ -1,8 +1,8 @@
 import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const TasksList = ({
   tasksResource,
@@ -11,27 +11,14 @@ const TasksList = ({
   refreshTasks,
   searchTerm,
 }) => {
-  const [data, setData] = useState(tasksResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        var data = tasksResource.read();
-        if (searchTerm) {
-          data = data.filter((task) =>
-            task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        }
-        setData(data);
-      } catch (error) {
-        errorToast("Error fetching lists: " + error.message);
-      }
-    };
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasksResource]);
+  const fetchPage = useCallback(async (page, size) => {
+    return taskService.fetchTasksPage(page, size);
+  }, []);
+
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [tasksResource]);
 
   const deleteTask = async () => {
     try {
@@ -109,13 +96,18 @@ const TasksList = ({
     </Card>
   );
 
-  const { displayedItems: paginatedData, LoadMoreSpinner } = useInfiniteScroll(data);
+  // Filter data client-side for search
+  const filteredData = searchTerm
+    ? data.filter((task) =>
+        task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : data;
 
-  return !data || data.length === 0 ? (
+  return !filteredData || filteredData.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="task-list">
-      {paginatedData.map((task) => (
+      {filteredData.map((task) => (
         <Card key={task.id} className="mb-3 shadow-sm task-card">
           <Card.Body>
             <Row className="align-items-center">

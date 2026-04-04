@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Card, Button, Badge } from "react-bootstrap";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import React, { useCallback } from "react";
+import { Card, Button, Badge, Spinner } from "react-bootstrap";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import adminService from "../../services/adminService";
 
-const UserSearchResults = ({ usersResource, onViewUser, onToggleBlock }) => {
-  const [users, setUsers] = useState(usersResource.read());
+const UserSearchResults = ({ query, refreshKey, onViewUser, onToggleBlock }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserSearchPage(query, page, size);
+  }, [query]);
 
-  useEffect(() => {
-    try {
-      setUsers(usersResource.read());
-    } catch (error) {
-      // handled by ErrorBoundary
-    }
-  }, [usersResource]);
+  const { items: users, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [query, refreshKey]
+  );
 
-  const { displayedItems: paginatedUsers, LoadMoreSpinner } = useInfiniteScroll(users);
+  if (initialLoading) {
+    return (
+      <div className="text-center py-5">
+        <Spinner animation="border" size="sm" className="me-2" />
+        <span className="text-muted">Searching users...</span>
+      </div>
+    );
+  }
 
   if (!users || users.length === 0) {
     return (
@@ -26,7 +32,7 @@ const UserSearchResults = ({ usersResource, onViewUser, onToggleBlock }) => {
 
   return (
     <>
-      {paginatedUsers.map((user) => (
+      {users.map((user) => (
         <Card key={user.id} className="mb-2 border-0 shadow-sm">
           <Card.Body className="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">

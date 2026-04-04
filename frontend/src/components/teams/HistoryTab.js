@@ -1,9 +1,25 @@
-import React from "react";
-import { Badge, ListGroup } from "react-bootstrap";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import React, { useCallback } from "react";
+import { Badge, ListGroup, Spinner } from "react-bootstrap";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import teamService from "../../services/teamService";
 
-const HistoryTab = ({ history }) => {
-  const { displayedItems: paginatedHistory, LoadMoreSpinner } = useInfiniteScroll(history);
+const HistoryTab = ({ teamId, refreshKey }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return teamService.fetchAssignmentHistoryPage(teamId, page, size);
+  }, [teamId]);
+
+  const { items: history, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [teamId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return (
+      <div className="text-center py-5">
+        <Spinner animation="border" size="sm" className="me-2" />
+        <span className="text-muted">Loading history...</span>
+      </div>
+    );
+  }
 
   if (history.length === 0) {
     return (
@@ -16,7 +32,7 @@ const HistoryTab = ({ history }) => {
   return (
     <>
       <ListGroup variant="flush">
-        {paginatedHistory.map((h) => (
+        {history.map((h) => (
           <ListGroup.Item key={h.id} className="border-bottom py-2">
             <div className="d-flex justify-content-between align-items-start">
               <div>

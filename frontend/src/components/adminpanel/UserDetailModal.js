@@ -17,7 +17,7 @@ import ConfirmModal from "./ConfirmModal";
 import EditTask from "../tasks/EditTask";
 import NewEditLists from "../lists/NewEditLists";
 import EditTeam from "../teams/EditTeam";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const getStateBadge = (state) => {
   const variants = {
@@ -42,11 +42,10 @@ const getPriorityBadge = (priority) => {
 };
 
 const UserDetailModal = ({ show, onHide, user }) => {
-  const [userTasks, setUserTasks] = useState([]);
-  const [userLists, setUserLists] = useState([]);
-  const [userTeams, setUserTeams] = useState([]);
   const [detailTab, setDetailTab] = useState("tasks");
-  const [loadedTabs, setLoadedTabs] = useState({});
+  const [tasksRefreshKey, setTasksRefreshKey] = useState(0);
+  const [listsRefreshKey, setListsRefreshKey] = useState(0);
+  const [teamsRefreshKey, setTeamsRefreshKey] = useState(0);
 
   // Reused modals
   const [showEditTask, setShowEditTask] = useState(false);
@@ -59,47 +58,18 @@ const UserDetailModal = ({ show, onHide, user }) => {
   // Confirm modal
   const [confirmConfig, setConfirmConfig] = useState({ show: false });
 
-  // Load summary data for a specific tab only when first opened
-  const loadTabData = useCallback(async (tab) => {
-    if (!user) return;
-    try {
-      if (tab === "tasks") {
-        const tasks = await adminService.getUserTasks(user.id);
-        setUserTasks(tasks);
-      } else if (tab === "lists") {
-        const lists = await adminService.getUserLists(user.id);
-        setUserLists(lists);
-      } else if (tab === "teams") {
-        const teams = await adminService.getUserTeams(user.id);
-        setUserTeams(teams);
-      }
-      setLoadedTabs((prev) => ({ ...prev, [tab]: true }));
-    } catch (error) {
-      errorToast("Error loading " + tab);
-    }
-  }, [user]);
-
-  // Load the initial tab when modal opens
   useEffect(() => {
     if (show && user) {
-      setLoadedTabs({});
       setDetailTab("tasks");
-      loadTabData("tasks");
+      setTasksRefreshKey((k) => k + 1);
+      setListsRefreshKey((k) => k + 1);
+      setTeamsRefreshKey((k) => k + 1);
     }
-  }, [show, user, loadTabData]);
-
-  // Load tab data when switching tabs (lazy load)
-  const handleTabSelect = (tab) => {
-    setDetailTab(tab);
-    if (!loadedTabs[tab]) {
-      loadTabData(tab);
-    }
-  };
+  }, [show, user]);
 
   // ===== TASK ACTIONS =====
   const handleEditTask = async (task) => {
     try {
-      // Load full task details from existing endpoint before editing
       const fullTask = await taskService.getTaskById(task.id);
       setEditTaskData(fullTask);
       setShowEditTask(true);
@@ -108,13 +78,8 @@ const UserDetailModal = ({ show, onHide, user }) => {
     }
   };
 
-  const refreshTasksAfterEdit = async () => {
-    try {
-      const tasks = await adminService.getUserTasks(user.id);
-      setUserTasks(tasks);
-    } catch (error) {
-      errorToast("Error refreshing tasks");
-    }
+  const refreshTasksAfterEdit = () => {
+    setTasksRefreshKey((k) => k + 1);
   };
 
   const handleDeleteTask = (taskId) => {
@@ -126,7 +91,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await taskService.deleteTask(taskId);
-          setUserTasks((prev) => prev.filter((t) => t.id !== taskId));
+          setTasksRefreshKey((k) => k + 1);
           successToast("Task deleted");
         } catch (error) {
           errorToast("Error deleting task");
@@ -142,13 +107,8 @@ const UserDetailModal = ({ show, onHide, user }) => {
     setShowEditList(true);
   };
 
-  const refreshListsAfterEdit = async () => {
-    try {
-      const lists = await adminService.getUserLists(user.id);
-      setUserLists(lists);
-    } catch (error) {
-      errorToast("Error refreshing lists");
-    }
+  const refreshListsAfterEdit = () => {
+    setListsRefreshKey((k) => k + 1);
   };
 
   const handleDeleteList = (listId) => {
@@ -160,7 +120,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await listService.deleteList(listId);
-          setUserLists((prev) => prev.filter((l) => l.id !== listId));
+          setListsRefreshKey((k) => k + 1);
           successToast("List deleted");
         } catch (error) {
           errorToast("Error deleting list");
@@ -178,8 +138,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
   const handleSaveTeam = async (formData) => {
     await teamService.updateTeam(editTeamData.id, formData);
-    const teams = await adminService.getUserTeams(user.id);
-    setUserTeams(teams);
+    setTeamsRefreshKey((k) => k + 1);
   };
 
   const handleDeleteTeam = (teamId) => {
@@ -191,7 +150,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await teamService.deleteTeam(teamId);
-          setUserTeams((prev) => prev.filter((t) => t.id !== teamId));
+          setTeamsRefreshKey((k) => k + 1);
           successToast("Team deleted");
         } catch (error) {
           errorToast("Error deleting team");
@@ -228,29 +187,32 @@ const UserDetailModal = ({ show, onHide, user }) => {
             <div><strong>Created:</strong> {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : "—"}</div>
           </div>
 
-          <Tabs activeKey={detailTab} onSelect={handleTabSelect} className="mb-3">
-            <Tab eventKey="tasks" title={`Tasks (${loadedTabs.tasks ? userTasks.length : "..."})`}>
-              {!loadedTabs.tasks ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading tasks...</p></div>
-              ) : (
-                <AdminTasksTabContent tasks={userTasks} onEditTask={handleEditTask} onDeleteTask={handleDeleteTask} />
-              )}
+          <Tabs activeKey={detailTab} onSelect={setDetailTab} className="mb-3">
+            <Tab eventKey="tasks" title="Tasks">
+              <AdminTasksTabContent
+                userId={user.id}
+                refreshKey={tasksRefreshKey}
+                onEditTask={handleEditTask}
+                onDeleteTask={handleDeleteTask}
+              />
             </Tab>
 
-            <Tab eventKey="lists" title={`Lists (${loadedTabs.lists ? userLists.length : "..."})`}>
-              {!loadedTabs.lists ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading lists...</p></div>
-              ) : (
-                <AdminListsTabContent lists={userLists} onEditList={handleEditList} onDeleteList={handleDeleteList} />
-              )}
+            <Tab eventKey="lists" title="Lists">
+              <AdminListsTabContent
+                userId={user.id}
+                refreshKey={listsRefreshKey}
+                onEditList={handleEditList}
+                onDeleteList={handleDeleteList}
+              />
             </Tab>
 
-            <Tab eventKey="teams" title={`Teams (${loadedTabs.teams ? userTeams.length : "..."})`}>
-              {!loadedTabs.teams ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading teams...</p></div>
-              ) : (
-                <AdminTeamsTabContent teams={userTeams} onEditTeam={handleEditTeamOpen} onDeleteTeam={handleDeleteTeam} />
-              )}
+            <Tab eventKey="teams" title="Teams">
+              <AdminTeamsTabContent
+                userId={user.id}
+                refreshKey={teamsRefreshKey}
+                onEditTeam={handleEditTeamOpen}
+                onDeleteTeam={handleDeleteTeam}
+              />
             </Tab>
           </Tabs>
         </Modal.Body>
@@ -296,8 +258,18 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
 // ===== Paginated sub-components for admin tabs =====
 
-const AdminTasksTabContent = ({ tasks, onEditTask, onDeleteTask }) => {
-  const { displayedItems: paginatedTasks, LoadMoreSpinner } = useInfiniteScroll(tasks);
+const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserTasksPage(userId, page, size);
+  }, [userId]);
+
+  const { items: tasks, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading tasks...</p></div>;
+  }
 
   return (
     <>
@@ -314,7 +286,7 @@ const AdminTasksTabContent = ({ tasks, onEditTask, onDeleteTask }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedTasks.map((task) => (
+            {tasks.map((task) => (
               <tr key={task.id}>
                 <td>{task.nameOfTask}</td>
                 <td>{getStateBadge(task.state)}</td>
@@ -338,7 +310,7 @@ const AdminTasksTabContent = ({ tasks, onEditTask, onDeleteTask }) => {
         </Table>
       </div>
       <div className="d-md-none">
-        {paginatedTasks.map((task) => (
+        {tasks.map((task) => (
           <div key={task.id} className="border rounded-3 p-3 mb-2">
             <div className="d-flex justify-content-between align-items-start mb-2">
               <strong>{task.nameOfTask}</strong>
@@ -366,8 +338,18 @@ const AdminTasksTabContent = ({ tasks, onEditTask, onDeleteTask }) => {
   );
 };
 
-const AdminListsTabContent = ({ lists, onEditList, onDeleteList }) => {
-  const { displayedItems: paginatedLists, LoadMoreSpinner } = useInfiniteScroll(lists);
+const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserListsPage(userId, page, size);
+  }, [userId]);
+
+  const { items: lists, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading lists...</p></div>;
+  }
 
   return (
     <>
@@ -383,7 +365,7 @@ const AdminListsTabContent = ({ lists, onEditList, onDeleteList }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedLists.map((list) => (
+            {lists.map((list) => (
               <tr key={list.id}>
                 <td>
                   <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
@@ -409,7 +391,7 @@ const AdminListsTabContent = ({ lists, onEditList, onDeleteList }) => {
         </Table>
       </div>
       <div className="d-md-none">
-        {paginatedLists.map((list) => (
+        {lists.map((list) => (
           <div key={list.id} className="border rounded-3 p-3 mb-2">
             <div className="d-flex justify-content-between align-items-start mb-1">
               <div className="d-flex align-items-center">
@@ -435,8 +417,18 @@ const AdminListsTabContent = ({ lists, onEditList, onDeleteList }) => {
   );
 };
 
-const AdminTeamsTabContent = ({ teams, onEditTeam, onDeleteTeam }) => {
-  const { displayedItems: paginatedTeams, LoadMoreSpinner } = useInfiniteScroll(teams);
+const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserTeamsPage(userId, page, size);
+  }, [userId]);
+
+  const { items: teams, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading teams...</p></div>;
+  }
 
   return (
     <>
@@ -452,7 +444,7 @@ const AdminTeamsTabContent = ({ teams, onEditTeam, onDeleteTeam }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedTeams.map((team) => (
+            {teams.map((team) => (
               <tr key={team.id}>
                 <td className="fw-semibold">{team.name}</td>
                 <td className="text-truncate" style={{ maxWidth: 200 }}>{team.description || "—"}</td>
@@ -475,7 +467,7 @@ const AdminTeamsTabContent = ({ teams, onEditTeam, onDeleteTeam }) => {
         </Table>
       </div>
       <div className="d-md-none">
-        {paginatedTeams.map((team) => (
+        {teams.map((team) => (
           <div key={team.id} className="border rounded-3 p-3 mb-2">
             <div className="d-flex justify-content-between align-items-start mb-1">
               <strong>{team.name}</strong>

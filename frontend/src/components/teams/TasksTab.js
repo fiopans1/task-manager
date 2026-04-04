@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Row,
   Col,
@@ -6,8 +6,10 @@ import {
   Button,
   Badge,
   Form,
+  Spinner,
 } from "react-bootstrap";
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import teamService from "../../services/teamService";
 
 const STATE_MAP = {
   NEW: { label: "New", bg: "info" },
@@ -26,7 +28,7 @@ const PRIORITY_MAP = {
 };
 
 const TasksTab = ({
-  tasks,
+  teamId,
   team,
   isAdmin,
   filterMember,
@@ -38,7 +40,20 @@ const TasksTab = ({
   onClearFilters,
   onReassign,
   onNavigateToTask,
+  refreshKey,
 }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    const filters = {};
+    if (filterMember) filters.member = filterMember;
+    if (filterState) filters.state = filterState;
+    if (filterPriority) filters.priority = filterPriority;
+    return teamService.fetchTeamTasksPage(teamId, filters, page, size);
+  }, [teamId, filterMember, filterState, filterPriority]);
+
+  const { items: tasks, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [teamId, filterMember, filterState, filterPriority, refreshKey]
+  );
+
   return (
     <>
       {/* Filters */}
@@ -108,74 +123,66 @@ const TasksTab = ({
       </Card>
 
       {/* Task List */}
-      {tasks.length === 0 ? (
+      {initialLoading ? (
+        <div className="text-center py-5">
+          <Spinner animation="border" size="sm" className="me-2" />
+          <span className="text-muted">Loading tasks...</span>
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="text-center text-muted py-5">
           <p>No tasks found{!isAdmin ? " assigned to you" : " with selected filters"}</p>
         </div>
       ) : (
-        <TaskListWithPagination
-          tasks={tasks}
-          isAdmin={isAdmin}
-          onReassign={onReassign}
-          onNavigateToTask={onNavigateToTask}
-        />
+        <>
+          <Row className="g-2">
+            {tasks.map((task) => (
+              <Col key={task.id} xs={12}>
+                <Card className="border rounded-3">
+                  <Card.Body className="py-2 px-3">
+                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-1">
+                      <div className="d-flex align-items-center flex-grow-1 me-2" style={{ minWidth: 0 }}>
+                        <span
+                          className="fw-medium text-truncate me-2"
+                          role="button"
+                          onClick={() => onNavigateToTask(task.id)}
+                        >
+                          {task.nameOfTask}
+                        </span>
+                      </div>
+                      <div className="d-flex align-items-center gap-1 flex-shrink-0 flex-wrap">
+                        {task.user && (
+                          <Badge bg="dark" pill>
+                            <i className="bi bi-person me-1"></i>
+                            {task.user}
+                          </Badge>
+                        )}
+                        <Badge bg={STATE_MAP[task.state]?.bg || "secondary"} pill>
+                          {STATE_MAP[task.state]?.label || task.state}
+                        </Badge>
+                        <Badge bg={PRIORITY_MAP[task.priority]?.bg || "secondary"} pill>
+                          {PRIORITY_MAP[task.priority]?.label || task.priority}
+                        </Badge>
+                        {isAdmin && (
+                          <Button
+                            size="sm"
+                            variant="outline-primary"
+                            className="py-0 px-2"
+                            onClick={() => onReassign(task)}
+                            title="Reassign task"
+                          >
+                            <i className="bi bi-arrow-left-right"></i>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          <LoadMoreSpinner />
+        </>
       )}
-    </>
-  );
-};
-
-const TaskListWithPagination = ({ tasks, isAdmin, onReassign, onNavigateToTask }) => {
-  const { displayedItems: paginatedTasks, LoadMoreSpinner } = useInfiniteScroll(tasks);
-
-  return (
-    <>
-      <Row className="g-2">
-        {paginatedTasks.map((task) => (
-          <Col key={task.id} xs={12}>
-            <Card className="border rounded-3">
-              <Card.Body className="py-2 px-3">
-                <div className="d-flex align-items-center justify-content-between flex-wrap gap-1">
-                  <div className="d-flex align-items-center flex-grow-1 me-2" style={{ minWidth: 0 }}>
-                    <span
-                      className="fw-medium text-truncate me-2"
-                      role="button"
-                      onClick={() => onNavigateToTask(task.id)}
-                    >
-                      {task.nameOfTask}
-                    </span>
-                  </div>
-                  <div className="d-flex align-items-center gap-1 flex-shrink-0 flex-wrap">
-                    {task.user && (
-                      <Badge bg="dark" pill>
-                        <i className="bi bi-person me-1"></i>
-                        {task.user}
-                      </Badge>
-                    )}
-                    <Badge bg={STATE_MAP[task.state]?.bg || "secondary"} pill>
-                      {STATE_MAP[task.state]?.label || task.state}
-                    </Badge>
-                    <Badge bg={PRIORITY_MAP[task.priority]?.bg || "secondary"} pill>
-                      {PRIORITY_MAP[task.priority]?.label || task.priority}
-                    </Badge>
-                    {isAdmin && (
-                      <Button
-                        size="sm"
-                        variant="outline-primary"
-                        className="py-0 px-2"
-                        onClick={() => onReassign(task)}
-                        title="Reassign task"
-                      >
-                        <i className="bi bi-arrow-left-right"></i>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <LoadMoreSpinner />
     </>
   );
 };

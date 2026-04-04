@@ -30,13 +30,13 @@ const TeamDashboard = () => {
 
   const [team, setTeam] = useState(null);
   const [dashboard, setDashboard] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [history, setHistory] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showMore, setShowMore] = useState(false);
+  const [tasksRefreshKey, setTasksRefreshKey] = useState(0);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   // Filters
   const [filterMember, setFilterMember] = useState("");
@@ -75,29 +75,6 @@ const TeamDashboard = () => {
     }
   }, [teamId]);
 
-  const loadTasks = useCallback(async () => {
-    try {
-      const filters = {};
-      if (filterMember) filters.member = filterMember;
-      if (filterState) filters.state = filterState;
-      if (filterPriority) filters.priority = filterPriority;
-      const data = await teamService.getTeamTasks(teamId, filters);
-      setTasks(data);
-    } catch (err) {
-      errorToast("Error loading tasks");
-    }
-  }, [teamId, filterMember, filterState, filterPriority]);
-
-  const loadHistory = useCallback(async () => {
-    if (!isAdmin) return;
-    try {
-      const data = await teamService.getAssignmentHistory(teamId);
-      setHistory(data);
-    } catch (err) {
-      // Only admins can see history
-    }
-  }, [teamId, isAdmin]);
-
   const loadInvitations = useCallback(async () => {
     if (!isAdmin) return;
     try {
@@ -111,14 +88,6 @@ const TeamDashboard = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  useEffect(() => {
-    if (activeTab === "tasks") loadTasks();
-  }, [activeTab, loadTasks]);
-
-  useEffect(() => {
-    if (activeTab === "history") loadHistory();
-  }, [activeTab, loadHistory]);
 
   useEffect(() => {
     if (activeTab === "invitations") loadInvitations();
@@ -170,7 +139,7 @@ const TeamDashboard = () => {
       setShowAddTaskModal(false);
       setSelectedTaskId("");
       loadData();
-      if (activeTab === "tasks") loadTasks();
+      if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
       errorToast("Error adding task to team");
     }
@@ -188,7 +157,7 @@ const TeamDashboard = () => {
       setReassignTask(null);
       setReassignTarget("");
       loadData();
-      if (activeTab === "tasks") loadTasks();
+      if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
       errorToast("Error reassigning task");
     }
@@ -311,8 +280,8 @@ const TeamDashboard = () => {
                 size="sm"
                 onClick={() => {
                   loadData();
-                  if (activeTab === "tasks") loadTasks();
-                  if (activeTab === "history") loadHistory();
+                  if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
+                  if (activeTab === "history") setHistoryRefreshKey(k => k + 1);
                   if (activeTab === "invitations") loadInvitations();
                 }}
                 className="rounded-3 shadow-sm"
@@ -545,7 +514,7 @@ const TeamDashboard = () => {
 
         <Tab eventKey="tasks" title={<><i className="bi bi-list-task me-1"></i>Tasks</>}>
           <TasksTab
-            tasks={tasks}
+            teamId={teamId}
             team={team}
             isAdmin={isAdmin}
             filterMember={filterMember}
@@ -561,12 +530,13 @@ const TeamDashboard = () => {
             }}
             onReassign={openReassignModal}
             onNavigateToTask={(taskId) => navigate(`/home/tasks/${taskId}`)}
+            refreshKey={tasksRefreshKey}
           />
         </Tab>
 
         {isAdmin && (
           <Tab eventKey="history" title={<><i className="bi bi-clock-history me-1"></i>History</>}>
-            <HistoryTab history={history} />
+            <HistoryTab teamId={teamId} refreshKey={historyRefreshKey} />
           </Tab>
         )}
 

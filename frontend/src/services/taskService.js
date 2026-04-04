@@ -178,6 +178,32 @@ const getActionsTask = (taskId) => {
   }).then((response) => response.data);
 };
 
+const fetchTasksPage = async (page = 0, size = 50) => {
+  const serverUrl = configService.getApiBaseUrl();
+  const token = "Bearer " + store.getState().auth.token;
+  const response = await axios.get(serverUrl + "/api/tasks/tasks/paged", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    params: { page, size },
+  });
+  return response.data;
+};
+
+const fetchActionsPage = async (taskId, page = 0, size = 50) => {
+  const serverUrl = configService.getApiBaseUrl();
+  const token = "Bearer " + store.getState().auth.token;
+  const response = await axios.get(serverUrl + "/api/tasks/" + taskId + "/actions/paged", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    params: { page, size },
+  });
+  return response.data;
+};
+
 const getAllTasks = async () => {
   const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
@@ -223,6 +249,8 @@ const taskService = {
   getTaskById,
   getAllTasks,
   getTasksWithoutList,
+  fetchTasksPage,
+  fetchActionsPage,
 };
 
 export default taskService;

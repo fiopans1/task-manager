@@ -129,6 +129,40 @@ const getUserTeams = async (userId) => {
   return response.data;
 };
 
+// ===== PAGINATED FETCHERS =====
+
+const fetchUserSearchPage = async (query, page = 0, size = 50) => {
+  const response = await axios.get(getBaseUrl() + "/api/admin/users/paged", {
+    headers: getAuthHeaders(),
+    params: { query, page, size },
+  });
+  return response.data;
+};
+
+const fetchUserTasksPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/tasks/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
+const fetchUserListsPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/lists/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
+const fetchUserTeamsPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/teams/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
 // ===== FEATURE FLAGS =====
 
 const getFeatureFlags = async () => {
@@ -188,6 +222,10 @@ const adminService = {
   getSystemMessage,
   updateSystemMessage,
   getPublicConfig,
+  fetchUserSearchPage,
+  fetchUserTasksPage,
+  fetchUserListsPage,
+  fetchUserTeamsPage,
 };
 
 export default adminService;

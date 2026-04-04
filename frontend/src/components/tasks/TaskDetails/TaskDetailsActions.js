@@ -13,20 +13,17 @@ import {
   Dropdown,
   DropdownButton,
   Spinner,
-  Alert,
 } from "react-bootstrap";
 import taskService from "../../../services/taskService";
 import teamService from "../../../services/teamService";
 import { successToast, errorToast } from "../../common/Noty";
 import MentionInput, { renderMentionText } from "../../teams/MentionInput";
-import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
+import { useServerInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
 const TaskDetailsActions = ({ taskId, teamId }) => {
   // States for action handling
-  const [actions, setActions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // States for the modal
   const [showModal, setShowModal] = useState(false);
@@ -41,37 +38,18 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
   // States for filters and search
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
-  const [filteredActions, setFilteredActions] = useState([]);
 
-  // Function to load data (WITHOUT useCallback to avoid circular dependency)
-  const fetchData = async () => {
-    if (!taskId) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const initialActions = await taskService.getActionsTask(taskId);
-      setActions(initialActions);
-    } catch (error) {
-      errorToast("Error loading actions: " + (error.message || error));
-      setError(error.message || "Error loading actions");
-      console.error("Error fetching actions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Public function to refresh (this one can use useCallback)
-  const refreshActions = useCallback(() => {
-    fetchData();
+  const fetchPage = useCallback(async (page, size) => {
+    if (!taskId) return { content: [], last: true };
+    return taskService.fetchActionsPage(taskId, page, size);
   }, [taskId]);
 
-  // Effect to load initial data - ONLY depends on taskId
-  useEffect(() => {
-    if (taskId) {
-      fetchData();
-    }
-  }, [taskId]); // Only taskId as dependency
+  const { items: actions, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [taskId, refreshKey]);
+
+  // Public function to refresh
+  const refreshActions = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
   // Load team members for mentions
   useEffect(() => {
@@ -83,8 +61,8 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
     }
   }, [teamId]);
 
-  // Separate effect for filters (without backend calls)
-  useEffect(() => {
+  // Apply client-side filters
+  const filteredActions = (() => {
     let result = [...actions];
 
     // Apply search
@@ -111,10 +89,8 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
       }
     });
 
-    setFilteredActions(result);
-  }, [actions, searchTerm, sortOrder]); // Only depends on actions, searchTerm and sortOrder
-
-  const { displayedItems: paginatedActions, LoadMoreSpinner } = useInfiniteScroll(filteredActions);
+    return result;
+  })();
 
   // Open modal for new action
   const handleAddAction = () => {
@@ -155,7 +131,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
       await taskService.createActionTask(taskId, actionToAdd);
 
       // Refresh data after creating
-      await fetchData();
+      refreshActions();
 
       successToast("Action saved successfully");
       handleCloseModal();
@@ -208,28 +184,11 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
     }
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <Container fluid className="text-center py-5">
         <Spinner animation="border" variant="primary" />
         <p className="mt-3">Loading action history...</p>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container fluid>
-        <Alert variant="danger" className="mt-4">
-          <Alert.Heading>
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            Error loading history
-          </Alert.Heading>
-          <p>{error}</p>
-          <Button variant="outline-danger" onClick={fetchData}>
-            Retry
-          </Button>
-        </Alert>
       </Container>
     );
   }
@@ -249,7 +208,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
               variant="outline-secondary"
               size="sm"
               className="d-flex align-items-center px-3"
-              onClick={fetchData}
+              onClick={refreshActions}
             >
               <i className="bi bi-arrow-clockwise me-1"></i>
               Refresh
@@ -342,7 +301,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
           </Card>
         ) : (
           <>
-            {paginatedActions.map((item) => {
+            {filteredActions.map((item) => {
               const style = getActionStyle(item.actionType);
               return (
                 <Card key={item.id} className="mb-3 shadow-sm border-0">
@@ -382,7 +341,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
             })}
             <LoadMoreSpinner />
           </>
-        )}}
+        )}
       </div>
 
       {/* Modal for adding new action */}
