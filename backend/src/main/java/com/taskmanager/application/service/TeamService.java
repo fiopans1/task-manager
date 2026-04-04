@@ -630,11 +630,11 @@ public class TeamService {
     }
 
     private TeamMember validateAdminRole(Team team) throws NotPermissionException {
-        // Global ADMIN role bypasses team membership check
+        // Global ADMIN role bypasses team membership check — they can manage any team
         if (authService.hasRole("ADMIN")) {
             User currentUser = authService.getCurrentUser();
-            return teamMemberRepository.findByTeamAndUser(team, currentUser)
-                    .orElse(null);
+            // Return actual membership if exists, otherwise return null (global admin not in team)
+            return teamMemberRepository.findByTeamAndUser(team, currentUser).orElse(null);
         }
         TeamMember member = validateMembership(team);
         if (member.getRole() != TeamRole.ADMIN) {
