@@ -18,8 +18,8 @@ const FeatureGuard = ({ featureKey, children }) => {
         // Feature is allowed unless explicitly disabled (false)
         setAllowed(features[featureKey] !== false);
       } catch (error) {
-        // If we can't load config, allow access (fail open)
-        setAllowed(true);
+        // If config can't be loaded, deny access (fail closed)
+        setAllowed(false);
       }
     };
     checkFeature();
