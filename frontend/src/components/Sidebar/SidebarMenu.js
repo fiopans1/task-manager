@@ -16,6 +16,9 @@ import About from "./About";
 import configService from "../../services/configService";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
+import taskService from "../../services/taskService";
+import listService from "../../services/listService";
+import teamService from "../../services/teamService";
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
@@ -125,6 +128,20 @@ function SidebarMenu({ onLogOut }) {
     return true;
   });
 
+  // Invalidate cache for the feature being navigated to
+  const handleNavClick = (item) => {
+    if (item.featureKey === "tasks") {
+      taskService.invalidateTasksCache();
+    } else if (item.featureKey === "lists") {
+      listService.invalidateListsCache();
+    } else if (item.featureKey === "teams") {
+      teamService.invalidateTeamsCache();
+    }
+    if (isMobile) {
+      toggleMobileMenu();
+    }
+  };
+
   // Main sidebar content
   const renderSidebarContent = () => {
     // On mobile, always show expanded, regardless of collapsed state
@@ -166,7 +183,7 @@ function SidebarMenu({ onLogOut }) {
                   className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
                     location.pathname === item.path ? "active" : ""
                   }`}
-                  onClick={isMobile ? toggleMobileMenu : undefined}
+                  onClick={() => handleNavClick(item)}
                 >
                   <div className="d-flex align-items-center position-relative w-100">
                     <i

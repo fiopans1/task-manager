@@ -2,6 +2,8 @@ import axios from "axios";
 import store from "../redux/store";
 import configService from "./configService";
 
+const resourceCache = new Map();
+
 const getAuthHeaders = () => ({
   "Content-Type": "application/json",
   Authorization: "Bearer " + store.getState().auth.token,
@@ -9,12 +11,43 @@ const getAuthHeaders = () => ({
 
 const getBaseUrl = () => configService.getApiBaseUrl() + "/api/teams";
 
+function getSuspender(promise) {
+  let status = "pending";
+  let result;
+  const suspender = promise.then(
+    (response) => {
+      status = "success";
+      result = response;
+    },
+    (error) => {
+      status = "error";
+      result = error;
+    }
+  );
+  const read = () => {
+    switch (status) {
+      case "pending":
+        throw suspender;
+      case "error":
+        throw result;
+      default:
+        return result;
+    }
+  };
+  return { read };
+}
+
+const invalidateTeamsCache = (key = "teams") => {
+  resourceCache.delete(key);
+};
+
 // ===== TEAM CRUD =====
 
 const createTeam = async (team) => {
   const response = await axios.post(getBaseUrl() + "/create", team, {
     headers: getAuthHeaders(),
   });
+  invalidateTeamsCache();
   return response.data;
 };
 
@@ -23,6 +56,41 @@ const getMyTeams = async () => {
     headers: getAuthHeaders(),
   });
   return response.data;
+};
+
+const getTeams = () => {
+  const cacheKey = "teams";
+
+  // If already in cache, return cached resource
+  if (resourceCache.has(cacheKey)) {
+    return resourceCache.get(cacheKey);
+  }
+  const token = "Bearer " + store.getState().auth.token;
+  const baseUrl = getBaseUrl();
+  if (!baseUrl || !token) {
+    console.error("Server URL or token not found", { baseUrl, token });
+    return getSuspender(
+      Promise.reject(
+        new Error("Missing server configuration or authentication")
+      )
+    );
+  }
+  const promise = axios
+    .get(baseUrl + "/my-teams", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      // In case of error, invalidate cache to allow retries
+      invalidateTeamsCache();
+      throw error;
+    });
+  const resource = getSuspender(promise);
+  resourceCache.set(cacheKey, resource);
+  return resource;
 };
 
 const getTeamById = async (teamId) => {
@@ -36,6 +104,7 @@ const updateTeam = async (teamId, team) => {
   const response = await axios.put(getBaseUrl() + "/" + teamId, team, {
     headers: getAuthHeaders(),
   });
+  invalidateTeamsCache();
   return response.data;
 };
 
@@ -43,6 +112,7 @@ const deleteTeam = async (teamId) => {
   const response = await axios.delete(getBaseUrl() + "/" + teamId, {
     headers: getAuthHeaders(),
   });
+  invalidateTeamsCache();
   return response.data;
 };
 
@@ -205,6 +275,7 @@ const isCurrentUserAdmin = async (teamId) => {
 const teamService = {
   createTeam,
   getMyTeams,
+  getTeams,
   getTeamById,
   updateTeam,
   deleteTeam,
@@ -224,6 +295,7 @@ const teamService = {
   respondToInvitation,
   getMembersForMention,
   isCurrentUserAdmin,
+  invalidateTeamsCache,
 };
 
 export default teamService;
