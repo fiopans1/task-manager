@@ -2,7 +2,6 @@ import React, { useState, useEffect, Suspense } from "react";
 import {
   Container,
   Button,
-  Badge,
   Modal,
   Form,
   Spinner,

@@ -19,6 +19,7 @@ import taskService from "../../../services/taskService";
 import teamService from "../../../services/teamService";
 import { successToast, errorToast } from "../../common/Noty";
 import MentionInput, { renderMentionText } from "../../teams/MentionInput";
+import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
 const TaskDetailsActions = ({ taskId, teamId }) => {
   // States for action handling
@@ -112,6 +113,8 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
 
     setFilteredActions(result);
   }, [actions, searchTerm, sortOrder]); // Only depends on actions, searchTerm and sortOrder
+
+  const { displayedItems: paginatedActions, LoadMoreSpinner } = useInfiniteScroll(filteredActions);
 
   // Open modal for new action
   const handleAddAction = () => {
@@ -338,45 +341,48 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
             </Card.Body>
           </Card>
         ) : (
-          filteredActions.map((item) => {
-            const style = getActionStyle(item.actionType);
-            return (
-              <Card key={item.id} className="mb-3 shadow-sm border-0">
-                <Card.Header className="bg-body">
-                  <Row className="align-items-center">
-                    <Col>
-                      <div className="d-flex align-items-center">
-                        <Badge bg={style.badge} className="me-2 p-2">
-                          <i className={style.icon}></i>
-                        </Badge>
-                        <Card.Title className="mb-0 fs-5">
-                          {item.actionName}
-                        </Card.Title>
-                      </div>
-                    </Col>
-                    <Col xs="auto">
-                      <div className="d-flex align-items-center">
-                        <div className="me-3 text-nowrap">
-                          <Badge bg="light" text="dark" className="border">
-                            <i className="bi bi-person-fill me-1"></i>
-                            {item.user}
+          <>
+            {paginatedActions.map((item) => {
+              const style = getActionStyle(item.actionType);
+              return (
+                <Card key={item.id} className="mb-3 shadow-sm border-0">
+                  <Card.Header className="bg-body">
+                    <Row className="align-items-center">
+                      <Col>
+                        <div className="d-flex align-items-center">
+                          <Badge bg={style.badge} className="me-2 p-2">
+                            <i className={style.icon}></i>
                           </Badge>
+                          <Card.Title className="mb-0 fs-5">
+                            {item.actionName}
+                          </Card.Title>
                         </div>
-                        <small className="text-muted">
-                          <i className="bi bi-calendar-event me-1"></i>
-                          {formatDate(item.actionDate)}
-                        </small>
-                      </div>
-                    </Col>
-                  </Row>
-                </Card.Header>
-                <Card.Body>
-                  <Card.Text>{renderMentionText(item.actionDescription)}</Card.Text>
-                </Card.Body>
-              </Card>
-            );
-          })
-        )}
+                      </Col>
+                      <Col xs="auto">
+                        <div className="d-flex align-items-center">
+                          <div className="me-3 text-nowrap">
+                            <Badge bg="light" text="dark" className="border">
+                              <i className="bi bi-person-fill me-1"></i>
+                              {item.user}
+                            </Badge>
+                          </div>
+                          <small className="text-muted">
+                            <i className="bi bi-calendar-event me-1"></i>
+                            {formatDate(item.actionDate)}
+                          </small>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Header>
+                  <Card.Body>
+                    <Card.Text>{renderMentionText(item.actionDescription)}</Card.Text>
+                  </Card.Body>
+                </Card>
+              );
+            })}
+            <LoadMoreSpinner />
+          </>
+        )}}
       </div>
 
       {/* Modal for adding new action */}

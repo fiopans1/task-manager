@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Row, Col, Card, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const TeamsList = ({ teamsResource, searchTerm }) => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
     }
   }, [teamsResource, searchTerm]);
 
+  const { displayedItems: paginatedData, LoadMoreSpinner } = useInfiniteScroll(data || []);
+
   if (!data || data.length === 0) {
     return (
       <div className="text-center text-muted py-5">
@@ -37,8 +40,9 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
   }
 
   return (
-    <Row className="g-3">
-      {data.map((team) => (
+    <>
+      <Row className="g-3">
+        {paginatedData.map((team) => (
         <Col key={team.id} xs={12} sm={6} lg={4}>
           <Card
             className="h-100 border rounded-3 task-card"
@@ -71,7 +75,9 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
           </Card>
         </Col>
       ))}
-    </Row>
+      </Row>
+      <LoadMoreSpinner />
+    </>
   );
 };
 

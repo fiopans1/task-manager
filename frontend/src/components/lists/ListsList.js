@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Row, Card, Button, Modal } from "react-bootstrap";
 import { successToast, errorToast } from "../common/Noty";
 import listService from "../../services/listService";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 const ListsList = ({
   listsResource,
   handleOpenList,
@@ -67,11 +68,13 @@ const ListsList = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listsResource]);
 
+  const { displayedItems: paginatedData, LoadMoreSpinner } = useInfiniteScroll(data);
+
   return !data || data.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="list-list">
-      {data?.map((card) => (
+      {paginatedData.map((card) => (
         <Row key={card.id} className="m-1">
           <Card
             style={{ borderTop: `6px solid ${card.color}` }}
@@ -134,6 +137,8 @@ const ListsList = ({
           </Card>
         </Row>
       ))}
+
+      <LoadMoreSpinner />
 
       {/* Modal de confirmación para eliminar */}
       <Modal

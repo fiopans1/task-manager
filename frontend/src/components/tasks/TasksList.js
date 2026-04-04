@@ -2,6 +2,7 @@ import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const TasksList = ({
   tasksResource,
@@ -108,11 +109,13 @@ const TasksList = ({
     </Card>
   );
 
+  const { displayedItems: paginatedData, LoadMoreSpinner } = useInfiniteScroll(data);
+
   return !data || data.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="task-list">
-      {data?.map((task) => (
+      {paginatedData.map((task) => (
         <Card key={task.id} className="mb-3 shadow-sm task-card">
           <Card.Body>
             <Row className="align-items-center">
@@ -209,6 +212,8 @@ const TasksList = ({
           </Card.Body>
         </Card>
       ))}
+
+      <LoadMoreSpinner />
 
       {/* Modal de confirmación para eliminar */}
       <Modal

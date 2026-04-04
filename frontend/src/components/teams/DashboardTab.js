@@ -8,6 +8,7 @@ import {
   ProgressBar,
   ListGroup,
 } from "react-bootstrap";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRemoveMember }) => {
   return (
@@ -103,60 +104,73 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
           <h5 className="fw-semibold mb-3">
             <i className="bi bi-people me-2"></i>Members
           </h5>
-          <Card className="border rounded-3 mb-4">
-            <ListGroup variant="flush">
-              {team.members &&
-                team.members.map((member) => (
-                  <ListGroup.Item
-                    key={member.id}
-                    className="d-flex align-items-center justify-content-between flex-wrap gap-2"
-                  >
-                    <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
-                      <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
-                      <div className="text-truncate">
-                        <span className="fw-medium">{member.username}</span>
-                        <small className="text-muted ms-2 d-none d-sm-inline">
-                          {member.email}
-                        </small>
-                      </div>
-                      <Badge
-                        bg={member.role === "ADMIN" ? "warning" : "secondary"}
-                        className="ms-2 flex-shrink-0"
-                        pill
-                      >
-                        {member.role === "ADMIN" ? "Admin" : "Member"}
-                      </Badge>
-                    </div>
-                    {isAdmin && (
-                      <div className="d-flex gap-1">
-                        <Button
-                          size="sm"
-                          variant={member.role === "ADMIN" ? "outline-secondary" : "outline-warning"}
-                          onClick={() =>
-                            onRoleChange(
-                              member.id,
-                              member.role === "ADMIN" ? "MEMBER" : "ADMIN"
-                            )
-                          }
-                        >
-                          {member.role === "ADMIN" ? "Demote" : "Promote"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          onClick={() => onRemoveMember(member)}
-                        >
-                          <i className="bi bi-x-lg"></i>
-                        </Button>
-                      </div>
-                    )}
-                  </ListGroup.Item>
-                ))}
-            </ListGroup>
-          </Card>
+          <MembersList
+            members={team.members || []}
+            isAdmin={isAdmin}
+            onRoleChange={onRoleChange}
+            onRemoveMember={onRemoveMember}
+          />
         </>
       )}
     </>
+  );
+};
+
+const MembersList = ({ members, isAdmin, onRoleChange, onRemoveMember }) => {
+  const { displayedItems: paginatedMembers, LoadMoreSpinner } = useInfiniteScroll(members);
+
+  return (
+    <Card className="border rounded-3 mb-4">
+      <ListGroup variant="flush">
+        {paginatedMembers.map((member) => (
+          <ListGroup.Item
+            key={member.id}
+            className="d-flex align-items-center justify-content-between flex-wrap gap-2"
+          >
+            <div className="d-flex align-items-center overflow-hidden" style={{ minWidth: 0 }}>
+              <i className="bi bi-person-circle me-2 fs-5 text-muted flex-shrink-0"></i>
+              <div className="text-truncate">
+                <span className="fw-medium">{member.username}</span>
+                <small className="text-muted ms-2 d-none d-sm-inline">
+                  {member.email}
+                </small>
+              </div>
+              <Badge
+                bg={member.role === "ADMIN" ? "warning" : "secondary"}
+                className="ms-2 flex-shrink-0"
+                pill
+              >
+                {member.role === "ADMIN" ? "Admin" : "Member"}
+              </Badge>
+            </div>
+            {isAdmin && (
+              <div className="d-flex gap-1">
+                <Button
+                  size="sm"
+                  variant={member.role === "ADMIN" ? "outline-secondary" : "outline-warning"}
+                  onClick={() =>
+                    onRoleChange(
+                      member.id,
+                      member.role === "ADMIN" ? "MEMBER" : "ADMIN"
+                    )
+                  }
+                >
+                  {member.role === "ADMIN" ? "Demote" : "Promote"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => onRemoveMember(member)}
+                >
+                  <i className="bi bi-x-lg"></i>
+                </Button>
+              </div>
+            )}
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+      <LoadMoreSpinner />
+    </Card>
   );
 };
 
