@@ -399,18 +399,4 @@ public class TaskService {
         return tasksRepository.findAllByUser(user, pageable).map(TaskSummaryDTO::fromEntity);
     }
 
-    private void validateEventDates(TaskDTO taskDto) {
-        if (taskDto.isEvent()) {
-            if (taskDto.getStartDate() == null) {
-                throw new IllegalArgumentException("Start date is required for events");
-            }
-            if (taskDto.getEndDate() == null) {
-                throw new IllegalArgumentException("End date is required for events");
-            }
-            if (taskDto.getEndDate().before(taskDto.getStartDate())) {
-                throw new IllegalArgumentException("End date must be after start date");
-            }
-        }
-    }
-
 }
