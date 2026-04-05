@@ -53,7 +53,13 @@ const List = () => {
     setshowEditList(true);
   };
 
-  const [listsResource, setListsResource] = useState(listService.getLists());
+  const [listsResource, setListsResource] = useState(() => listService.getLists());
+
+  // Reload data when navigating back to this page (cache was invalidated by sidebar)
+  useEffect(() => {
+    setListsResource(listService.getLists());
+    setRefreshKey((prevKey) => prevKey + 1);
+  }, [location.key]);
 
   const refreshLists = () => {
     listService.invalidateListsCache();

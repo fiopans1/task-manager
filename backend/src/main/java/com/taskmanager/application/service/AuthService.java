@@ -55,6 +55,12 @@ public class AuthService {
                 return response;
             }
 
+            if (user.get().isBlocked()) {
+                logger.warn("Login failed: User is blocked - {}", login.getUsername());
+                response.put("error", "Your account has been blocked. Contact an administrator.");
+                return response;
+            }
+
             if (verifyPassword(login.getPassword(), user.get().getPassword())) {
                 logger.info("Login successful for user: {}", login.getUsername());
                 String token = jwtUtilityService.generateJWT(user.get());

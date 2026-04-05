@@ -13,16 +13,17 @@ import {
   Dropdown,
   DropdownButton,
   Spinner,
-  Alert,
 } from "react-bootstrap";
 import taskService from "../../../services/taskService";
+import teamService from "../../../services/teamService";
 import { successToast, errorToast } from "../../common/Noty";
+import MentionInput, { renderMentionText } from "../../teams/MentionInput";
+import { useServerInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
-const TaskDetailsActions = ({ taskId }) => {
+const TaskDetailsActions = ({ taskId, teamId }) => {
   // States for action handling
-  const [actions, setActions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // States for the modal
   const [showModal, setShowModal] = useState(false);
@@ -37,40 +38,31 @@ const TaskDetailsActions = ({ taskId }) => {
   // States for filters and search
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
-  const [filteredActions, setFilteredActions] = useState([]);
 
-  // Function to load data (WITHOUT useCallback to avoid circular dependency)
-  const fetchData = async () => {
-    if (!taskId) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const initialActions = await taskService.getActionsTask(taskId);
-      setActions(initialActions);
-    } catch (error) {
-      errorToast("Error loading actions: " + (error.message || error));
-      setError(error.message || "Error loading actions");
-      console.error("Error fetching actions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Public function to refresh (this one can use useCallback)
-  const refreshActions = useCallback(() => {
-    fetchData();
+  const fetchPage = useCallback(async (page, size) => {
+    if (!taskId) return { content: [], last: true };
+    return taskService.fetchActionsPage(taskId, page, size);
   }, [taskId]);
 
-  // Effect to load initial data - ONLY depends on taskId
-  useEffect(() => {
-    if (taskId) {
-      fetchData();
-    }
-  }, [taskId]); // Only taskId as dependency
+  const { items: actions, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [taskId, refreshKey]);
 
-  // Separate effect for filters (without backend calls)
+  // Public function to refresh
+  const refreshActions = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
+
+  // Load team members for mentions
   useEffect(() => {
+    if (teamId) {
+      teamService
+        .getMembersForMention(teamId)
+        .then(setTeamMembers)
+        .catch(() => setTeamMembers([]));
+    }
+  }, [teamId]);
+
+  // Apply client-side filters
+  const filteredActions = (() => {
     let result = [...actions];
 
     // Apply search
@@ -97,8 +89,8 @@ const TaskDetailsActions = ({ taskId }) => {
       }
     });
 
-    setFilteredActions(result);
-  }, [actions, searchTerm, sortOrder]); // Only depends on actions, searchTerm and sortOrder
+    return result;
+  })();
 
   // Open modal for new action
   const handleAddAction = () => {
@@ -139,7 +131,7 @@ const TaskDetailsActions = ({ taskId }) => {
       await taskService.createActionTask(taskId, actionToAdd);
 
       // Refresh data after creating
-      await fetchData();
+      refreshActions();
 
       successToast("Action saved successfully");
       handleCloseModal();
@@ -192,28 +184,11 @@ const TaskDetailsActions = ({ taskId }) => {
     }
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <Container fluid className="text-center py-5">
         <Spinner animation="border" variant="primary" />
         <p className="mt-3">Loading action history...</p>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container fluid>
-        <Alert variant="danger" className="mt-4">
-          <Alert.Heading>
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            Error loading history
-          </Alert.Heading>
-          <p>{error}</p>
-          <Button variant="outline-danger" onClick={fetchData}>
-            Retry
-          </Button>
-        </Alert>
       </Container>
     );
   }
@@ -233,7 +208,7 @@ const TaskDetailsActions = ({ taskId }) => {
               variant="outline-secondary"
               size="sm"
               className="d-flex align-items-center px-3"
-              onClick={fetchData}
+              onClick={refreshActions}
             >
               <i className="bi bi-arrow-clockwise me-1"></i>
               Refresh
@@ -325,44 +300,47 @@ const TaskDetailsActions = ({ taskId }) => {
             </Card.Body>
           </Card>
         ) : (
-          filteredActions.map((item) => {
-            const style = getActionStyle(item.actionType);
-            return (
-              <Card key={item.id} className="mb-3 shadow-sm border-0">
-                <Card.Header className="bg-body">
-                  <Row className="align-items-center">
-                    <Col>
-                      <div className="d-flex align-items-center">
-                        <Badge bg={style.badge} className="me-2 p-2">
-                          <i className={style.icon}></i>
-                        </Badge>
-                        <Card.Title className="mb-0 fs-5">
-                          {item.actionName}
-                        </Card.Title>
-                      </div>
-                    </Col>
-                    <Col xs="auto">
-                      <div className="d-flex align-items-center">
-                        <div className="me-3 text-nowrap">
-                          <Badge bg="light" text="dark" className="border">
-                            <i className="bi bi-person-fill me-1"></i>
-                            {item.user}
+          <>
+            {filteredActions.map((item) => {
+              const style = getActionStyle(item.actionType);
+              return (
+                <Card key={item.id} className="mb-3 shadow-sm border-0">
+                  <Card.Header className="bg-body">
+                    <Row className="align-items-center">
+                      <Col>
+                        <div className="d-flex align-items-center">
+                          <Badge bg={style.badge} className="me-2 p-2">
+                            <i className={style.icon}></i>
                           </Badge>
+                          <Card.Title className="mb-0 fs-5">
+                            {item.actionName}
+                          </Card.Title>
                         </div>
-                        <small className="text-muted">
-                          <i className="bi bi-calendar-event me-1"></i>
-                          {formatDate(item.actionDate)}
-                        </small>
-                      </div>
-                    </Col>
-                  </Row>
-                </Card.Header>
-                <Card.Body>
-                  <Card.Text>{item.actionDescription}</Card.Text>
-                </Card.Body>
-              </Card>
-            );
-          })
+                      </Col>
+                      <Col xs="auto">
+                        <div className="d-flex align-items-center">
+                          <div className="me-3 text-nowrap">
+                            <Badge bg="light" text="dark" className="border">
+                              <i className="bi bi-person-fill me-1"></i>
+                              {item.user}
+                            </Badge>
+                          </div>
+                          <small className="text-muted">
+                            <i className="bi bi-calendar-event me-1"></i>
+                            {formatDate(item.actionDate)}
+                          </small>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Header>
+                  <Card.Body>
+                    <Card.Text>{renderMentionText(item.actionDescription)}</Card.Text>
+                  </Card.Body>
+                </Card>
+              );
+            })}
+            <LoadMoreSpinner />
+          </>
         )}
       </div>
 
@@ -388,15 +366,27 @@ const TaskDetailsActions = ({ taskId }) => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="actionDescription"
-                value={newAction.actionDescription}
-                onChange={handleInputChange}
-                placeholder="Describe the action performed in detail..."
-                rows={4}
-              />
+              <Form.Label>Description {teamMembers.length > 0 && <small className="text-muted">(type @ to mention)</small>}</Form.Label>
+              {teamMembers.length > 0 ? (
+                <MentionInput
+                  value={newAction.actionDescription}
+                  onChange={(val) =>
+                    setNewAction((prev) => ({ ...prev, actionDescription: val }))
+                  }
+                  members={teamMembers}
+                  placeholder="Describe the action performed in detail... Use @username to mention"
+                  rows={4}
+                />
+              ) : (
+                <Form.Control
+                  as="textarea"
+                  name="actionDescription"
+                  value={newAction.actionDescription}
+                  onChange={handleInputChange}
+                  placeholder="Describe the action performed in detail..."
+                  rows={4}
+                />
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Action type</Form.Label>

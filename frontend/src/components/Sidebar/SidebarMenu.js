@@ -10,11 +10,15 @@ import {
   Form,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
 import { useTheme } from "../../context/ThemeContext";
+import adminService from "../../services/adminService";
+import taskService from "../../services/taskService";
+import listService from "../../services/listService";
+import teamService from "../../services/teamService";
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
@@ -22,34 +26,44 @@ const NAVIGATION_ITEMS = [
     path: "/home/tasks",
     icon: "bi bi-list-task",
     label: "My Tasks",
-    // badge: "5" // Ejemplo de contador de tareas pendientes
+    featureKey: "tasks",
   },
   {
     path: "/home/calendar",
     icon: "bi bi-calendar-date",
     label: "Calendar",
+    featureKey: "calendar",
   },
   {
     path: "/home/lists",
     icon: "bi bi-card-checklist",
     label: "Lists",
+    featureKey: "lists",
   },
-  // {
-  //   path: "/home/admin",
-  //   icon: "bi bi-gear-wide-connected",
-  //   label: "Admin Panel",
-  //   adminOnly: true,
-  // },
+  {
+    path: "/home/teams",
+    icon: "bi bi-people",
+    label: "Teams",
+    featureKey: "teams",
+  },
+  {
+    path: "/home/admin",
+    icon: "bi bi-shield-lock",
+    label: "Admin Panel",
+    adminOnly: true,
+  },
 ];
 
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const { darkMode, toggleDarkMode } = useTheme();
+  const [featureFlags, setFeatureFlags] = useState({});
 
   // Manejador para alternar el estado de colapso de la barra lateral
   const toggleSidebar = () => {
@@ -90,13 +104,48 @@ function SidebarMenu({ onLogOut }) {
       }
     };
 
+    // Load feature flags from backend
+    const loadFeatureFlags = async () => {
+      try {
+        const config = await adminService.getPublicConfig();
+        if (config.features) {
+          setFeatureFlags(config.features);
+        }
+      } catch (error) {
+        console.debug("Could not load feature flags:", error);
+      }
+    };
+
     checkAdminStatus();
+    loadFeatureFlags();
   }, []);
 
-  // Filter navigation items based on user role
-  const filteredNavItems = NAVIGATION_ITEMS.filter(
-    (item) => !item.adminOnly || (item.adminOnly && isAdmin)
-  );
+  // Filter navigation items based on user role and feature flags
+  const filteredNavItems = NAVIGATION_ITEMS.filter((item) => {
+    // Admin-only items: only show to admins
+    if (item.adminOnly) return isAdmin;
+    // Feature-gated items: hide if feature is explicitly disabled
+    if (item.featureKey && featureFlags[item.featureKey] === false) return false;
+    return true;
+  });
+
+  // Invalidate cache for the feature being navigated to
+  const handleNavClick = (item, e) => {
+    // Prevent default Link navigation so we can force a new navigation
+    // even when already on the same path (ensures location.key changes)
+    e.preventDefault();
+    if (item.featureKey === "tasks") {
+      taskService.invalidateTasksCache();
+    } else if (item.featureKey === "lists") {
+      listService.invalidateListsCache();
+    } else if (item.featureKey === "teams") {
+      teamService.invalidateTeamsCache();
+    }
+    navigate(item.path);
+    if (isMobile) {
+      toggleMobileMenu();
+    }
+  };
 
   // Main sidebar content
   const renderSidebarContent = () => {
@@ -139,7 +188,7 @@ function SidebarMenu({ onLogOut }) {
                   className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
                     location.pathname === item.path ? "active" : ""
                   }`}
-                  onClick={isMobile ? toggleMobileMenu : undefined}
+                  onClick={(e) => handleNavClick(item, e)}
                 >
                   <div className="d-flex align-items-center position-relative w-100">
                     <i

@@ -31,6 +31,8 @@ public class TaskDTO {
     private Date creationDate;
     private Long listId;
     private String listName;
+    private Long teamId;
+    private String teamName;
 
     public TaskDTO() {
     }
@@ -109,6 +111,18 @@ public class TaskDTO {
     public void setListName(String listName) {
         this.listName = listName;
     }
+    public Long getTeamId() {
+        return teamId;
+    }
+    public void setTeamId(Long teamId) {
+        this.teamId = teamId;
+    }
+    public String getTeamName() {
+        return teamName;
+    }
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
     public static TaskDTO fromEntity(Task task) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
@@ -128,6 +142,10 @@ public class TaskDTO {
         if(task.getList() != null) {
             taskDTO.setListId(task.getList().getId());
             taskDTO.setListName(task.getList().getNameOfList());
+        }
+        if(task.getTeam() != null) {
+            taskDTO.setTeamId(task.getTeam().getId());
+            taskDTO.setTeamName(task.getTeam().getName());
         }
         return taskDTO;
     }

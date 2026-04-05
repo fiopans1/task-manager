@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.taskmanager.application.model.dto.ListTMDTO;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.respository.TaskRepository;
+import com.taskmanager.application.respository.UserRepository;
 
 @Service
 public class ListService {
@@ -35,6 +38,9 @@ public class ListService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Transactional
     public ListTM createList(ListTMDTO listDTO) {
         logger.info("Creating list: {}", listDTO.getNameOfList());
@@ -42,7 +48,7 @@ public class ListService {
         ListTM list = ListTMDTO.toEntity(listDTO, false);
         User user = authService.getCurrentUser();
 
-        if (list.getUser() != null && authService.hasRole("ADMIN")) {
+        if (list.getUser() != null && authService.hasRole("ROLE_ADMIN")) {
             logger.info("Admin creating list for user: {}", list.getUser().getUsername());
             return listRepository.save(list);
         } else {
@@ -63,13 +69,19 @@ public class ListService {
         return list.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<ListTMDTO> findAllListsForLoggedUser(Pageable pageable) {
+        User user = authService.getCurrentUser();
+        return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
+    }
+
     @Transactional
     public void deleteListById(Long id) throws NotPermissionException, ResourceNotFoundException {
         logger.info("Deleting list with ID: {}", id);
 
         ListTM list = listRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
-        if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             for (Task task : list.getListTasks()) {
                 task.setList(null);
             }
@@ -89,7 +101,7 @@ public class ListService {
         ListTM listToUpdate = listRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
 
-        if (authService.hasRole("ADMIN") || listToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || listToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to update list ID: {}", id);
             listToUpdate.setColor(list.getColor());
             listToUpdate.setNameOfList(list.getNameOfList());
@@ -111,7 +123,7 @@ public class ListService {
         ListTM list = listRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
 
-        if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to view list with ID: {}", id);
             ListTMDTO result = ListTMDTO.fromEntity(list, true);
             logger.info("Successfully retrieved list with elements for ID: {}", id);
@@ -129,7 +141,7 @@ public class ListService {
         ListTM list = listRepository.findById(listId)
                 .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + listId));
         
-        if (authService.hasRole("ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
+        if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to add tasks to list ID: {}", listId);
 
             List<TaskDTO> addedTasks = new ArrayList<>();
@@ -156,7 +168,7 @@ public class ListService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
         ListTM list = task.getList();
 
-        if (authService.hasRole("ADMIN") || (list.getUser().getUsername().equals(authService.getCurrentUsername()) && task.getUser().getUsername().equals(authService.getCurrentUsername()))) {
+        if (authService.hasRole("ROLE_ADMIN") || (list.getUser().getUsername().equals(authService.getCurrentUsername()) && task.getUser().getUsername().equals(authService.getCurrentUsername()))) {
             logger.debug("User authorized to delete task ID: {}", id);
             task.setList(null);
             taskRepository.save(task);
@@ -167,5 +179,28 @@ public class ListService {
             logger.warn("Permission denied deleting task with ID: {} for user: {}", id, authService.getCurrentUsername());
             throw new NotPermissionException("You don't have permission to delete this task from the list");
         }
+    }
+
+    // ===== ADMIN: Get list summaries for a specific user =====
+
+    @Transactional(readOnly = true)
+    public List<ListTMDTO> getListSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' lists");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<ListTM> lists = listRepository.findAllByUser(user);
+        return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ListTMDTO> getListSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' lists");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
     }
 }

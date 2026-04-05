@@ -55,7 +55,13 @@ const Tasks = () => {
     setshowEditTask(true);
   };
 
-  const [tasksResource, setTasksResource] = useState(taskService.getTasks());
+  const [tasksResource, setTasksResource] = useState(() => taskService.getTasks());
+
+  // Reload data when navigating back to this page (cache was invalidated by sidebar)
+  useEffect(() => {
+    setTasksResource(taskService.getTasks());
+    setRefreshKey((prevKey) => prevKey + 1);
+  }, [location.key]);
 
   const refreshTasks = () => {
     taskService.invalidateTasksCache();

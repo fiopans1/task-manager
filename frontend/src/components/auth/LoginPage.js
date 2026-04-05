@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
+import SystemMessageModal from "../common/SystemMessageModal";
 
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
@@ -104,6 +105,7 @@ function LoginPage({ onLogin }) {
         </p>
       </div>
       <ThemeToggleButton />
+      <SystemMessageModal context="beforeLogin" />
     </Container>
   );
 }

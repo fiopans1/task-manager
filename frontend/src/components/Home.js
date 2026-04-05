@@ -151,6 +151,12 @@ const Home = () => {
             desc: "Crea listas personalizadas para tus proyectos.",
             path: "/home/lists",
           },
+          {
+            icon: <ListTask size={22} className="text-warning" />,
+            title: "Equipos",
+            desc: "Gestiona equipos y colabora con otros usuarios.",
+            path: "/home/teams",
+          },
         ].map((item, i) => (
           <Col key={i} xs={12} sm={4} lg={3}>
             <Card

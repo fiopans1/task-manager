@@ -9,6 +9,7 @@ const NewEditLists = ({
   refreshLists,
   editOrNew,
   initialData,
+  onSave,
 }) => {
   const [formData, setFormData] = useState({
     id: null,
@@ -52,7 +53,10 @@ const NewEditLists = ({
     }
 
     try {
-      if (editOrNew && formData.id) {
+      if (onSave) {
+        await onSave(formData);
+        successToast("List updated successfully");
+      } else if (editOrNew && formData.id) {
         await listService.updateList(formData);
         successToast("List updated successfully");
       } else {
