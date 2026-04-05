@@ -12,6 +12,8 @@ import com.taskmanager.application.respository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +59,14 @@ public class AdminService {
         }
         List<User> users = userRepository.searchUsers(query.trim());
         return users.stream().map(this::mapUserToAdminView).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Map<String, Object>> searchUsers(String query, Pageable pageable) {
+        if (query == null || query.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return userRepository.searchUsers(query.trim(), pageable).map(this::mapUserToAdminView);
     }
 
     @Transactional(readOnly = true)

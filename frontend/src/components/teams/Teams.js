@@ -1,43 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import {
   Container,
-  Row,
-  Col,
-  Card,
   Button,
-  Badge,
   Modal,
   Form,
   Spinner,
   Alert,
+  InputGroup,
+  Card,
+  Row,
+  Col,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
+import { ErrorBoundary } from "react-error-boundary";
+import TeamsList from "./TeamsList";
 
 const Teams = () => {
-  const navigate = useNavigate();
-  const [teams, setTeams] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: "", description: "" });
   const [creating, setCreating] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [teamsResource, setTeamsResource] = useState(() => teamService.getTeams());
+
+  // Reload data when navigating back to this page (cache was invalidated by sidebar)
   useEffect(() => {
-    loadTeams();
+    setTeamsResource(teamService.getTeams());
+    setRefreshKey((prevKey) => prevKey + 1);
     loadPendingInvitations();
-  }, []);
+  }, [location.key]);
 
-  const loadTeams = async () => {
-    try {
-      const data = await teamService.getMyTeams();
-      setTeams(data);
-    } catch (err) {
-      errorToast("Error loading teams");
-    } finally {
-      setLoading(false);
-    }
+  const refreshTeams = () => {
+    teamService.invalidateTeamsCache();
+    setTeamsResource(teamService.getTeams());
+    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const loadPendingInvitations = async () => {
@@ -57,7 +58,7 @@ const Teams = () => {
       successToast("Team created successfully");
       setShowCreateModal(false);
       setNewTeam({ name: "", description: "" });
-      loadTeams();
+      refreshTeams();
     } catch (err) {
       errorToast("Error creating team");
     } finally {
@@ -70,10 +71,14 @@ const Teams = () => {
       await teamService.respondToInvitation(token, accept);
       successToast(accept ? "Invitation accepted" : "Invitation rejected");
       loadPendingInvitations();
-      if (accept) loadTeams();
+      if (accept) refreshTeams();
     } catch (err) {
       errorToast("Error responding to invitation");
     }
+  };
+
+  const handleErrors = (error, info) => {
+    errorToast("Error: " + error.message);
   };
 
   return (
@@ -88,8 +93,7 @@ const Teams = () => {
             variant="outline-secondary"
             className="rounded-3"
             onClick={() => {
-              setLoading(true);
-              loadTeams();
+              refreshTeams();
               loadPendingInvitations();
             }}
             title="Refresh"
@@ -105,6 +109,32 @@ const Teams = () => {
           </Button>
         </div>
       </div>
+
+      {/* Search */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Row className="g-2">
+            <Col xs={12}>
+              <InputGroup>
+                <Form.Control
+                  className="border-end-0"
+                  placeholder="Search teams..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => {
+                    setSearchTerm("");
+                  }}
+                >
+                  Clear
+                </Button>
+              </InputGroup>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
       {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
@@ -145,60 +175,35 @@ const Teams = () => {
         </Alert>
       )}
 
-      {/* Teams List */}
-      <div>
-        {loading ? (
-          <div className="text-center py-5">
-            <Spinner animation="border" />
-          </div>
-        ) : teams.length === 0 ? (
-          <div className="text-center text-muted py-5">
-            <i
-              className="bi bi-people"
-              style={{ fontSize: "3rem", opacity: 0.3 }}
-            ></i>
-            <p className="mt-3">
-              You don't belong to any teams yet. Create one to get started!
-            </p>
-          </div>
-        ) : (
-          <Row className="g-3">
-            {teams.map((team) => (
-              <Col key={team.id} xs={12} sm={6} lg={4}>
-                <Card
-                  className="h-100 border rounded-3 task-card"
-                  role="button"
-                  onClick={() => navigate(`/home/teams/${team.id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <Card.Body className="d-flex flex-column">
-                    <div className="d-flex align-items-center mb-2">
-                      <i className="bi bi-people-fill text-primary me-2 fs-4"></i>
-                      <h5 className="mb-0 fw-semibold text-truncate">
-                        {team.name}
-                      </h5>
-                    </div>
-                    {team.description && (
-                      <p
-                        className="text-muted small mb-2 text-truncate"
-                        style={{ maxHeight: "3em" }}
-                      >
-                        {team.description}
-                      </p>
-                    )}
-                    <div className="mt-auto d-flex align-items-center gap-2">
-                      <Badge bg="secondary" pill>
-                        <i className="bi bi-person me-1"></i>
-                        {team.memberCount} members
-                      </Badge>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        )}
-      </div>
+      {/* Teams List with Suspense */}
+      <ErrorBoundary
+        resetKeys={[refreshKey]}
+        onError={handleErrors}
+        fallback={
+          <Container className="text-center mt-5">
+            <h2 style={{ color: "red" }}>Something went wrong</h2>
+            <p>There was an error loading your teams.</p>
+            <Button variant="primary" onClick={refreshTeams}>
+              Try Again
+            </Button>
+          </Container>
+        }
+      >
+        <Suspense
+          fallback={
+            <Container className="text-center mt-5">
+              <Spinner animation="border" />
+              <p className="mt-2">Loading teams...</p>
+            </Container>
+          }
+        >
+          <TeamsList
+            key={`teams-list-${refreshKey}`}
+            teamsResource={teamsResource}
+            searchTerm={searchTerm}
+          />
+        </Suspense>
+      </ErrorBoundary>
 
       {/* Create Team Modal */}
       <Modal

@@ -173,6 +173,19 @@ const getListById = async (id) => {
   }
 };
 
+const fetchListsPage = async (page = 0, size = 50) => {
+  const serverUrl = configService.getApiBaseUrl();
+  const token = "Bearer " + store.getState().auth.token;
+  const response = await axios.get(serverUrl + "/api/lists/lists/paged", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    params: { page, size },
+  });
+  return response.data;
+};
+
 const listService = {
   getLists,
   createList,
@@ -182,6 +195,7 @@ const listService = {
   addTasksToList,
   deleteTaskFromList,
   getListById,
+  fetchListsPage,
 };
 
 export default listService;

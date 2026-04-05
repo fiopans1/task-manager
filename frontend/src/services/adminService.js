@@ -2,12 +2,49 @@ import axios from "axios";
 import store from "../redux/store";
 import configService from "./configService";
 
+const resourceCache = new Map();
+
 const getAuthHeaders = () => ({
   "Content-Type": "application/json",
   Authorization: "Bearer " + store.getState().auth.token,
 });
 
 const getBaseUrl = () => configService.getApiBaseUrl();
+
+function getSuspender(promise) {
+  let status = "pending";
+  let result;
+  const suspender = promise.then(
+    (response) => {
+      status = "success";
+      result = response;
+    },
+    (error) => {
+      status = "error";
+      result = error;
+    }
+  );
+  const read = () => {
+    switch (status) {
+      case "pending":
+        throw suspender;
+      case "error":
+        throw result;
+      default:
+        return result;
+    }
+  };
+  return { read };
+}
+
+const invalidateUserSearchCache = () => {
+  // Clear all user search cache entries
+  for (const key of resourceCache.keys()) {
+    if (key.startsWith("userSearch:")) {
+      resourceCache.delete(key);
+    }
+  }
+};
 
 // ===== USER MANAGEMENT =====
 
@@ -17,6 +54,37 @@ const searchUsers = async (query = "") => {
     params: query ? { query } : {},
   });
   return response.data;
+};
+
+const searchUsersSuspense = (query = "") => {
+  const cacheKey = "userSearch:" + query;
+
+  if (resourceCache.has(cacheKey)) {
+    return resourceCache.get(cacheKey);
+  }
+  const token = "Bearer " + store.getState().auth.token;
+  const baseUrl = getBaseUrl();
+  if (!baseUrl || !token) {
+    return getSuspender(
+      Promise.reject(new Error("Missing server configuration or authentication"))
+    );
+  }
+  const promise = axios
+    .get(baseUrl + "/api/admin/users", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      params: query ? { query } : {},
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      resourceCache.delete(cacheKey);
+      throw error;
+    });
+  const resource = getSuspender(promise);
+  resourceCache.set(cacheKey, resource);
+  return resource;
 };
 
 const getUserById = async (userId) => {
@@ -57,6 +125,40 @@ const getUserTeams = async (userId) => {
   const response = await axios.get(
     getBaseUrl() + `/api/teams/user/${userId}`,
     { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
+// ===== PAGINATED FETCHERS =====
+
+const fetchUserSearchPage = async (query, page = 0, size = 50) => {
+  const response = await axios.get(getBaseUrl() + "/api/admin/users/paged", {
+    headers: getAuthHeaders(),
+    params: { query, page, size },
+  });
+  return response.data;
+};
+
+const fetchUserTasksPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/tasks/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
+const fetchUserListsPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/lists/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
+  );
+  return response.data;
+};
+
+const fetchUserTeamsPage = async (userId, page = 0, size = 50) => {
+  const response = await axios.get(
+    getBaseUrl() + `/api/teams/user/${userId}/paged`,
+    { headers: getAuthHeaders(), params: { page, size } }
   );
   return response.data;
 };
@@ -108,6 +210,8 @@ const getPublicConfig = async () => {
 
 const adminService = {
   searchUsers,
+  searchUsersSuspense,
+  invalidateUserSearchCache,
   getUserById,
   toggleUserBlock,
   getUserTasks,
@@ -118,6 +222,10 @@ const adminService = {
   getSystemMessage,
   updateSystemMessage,
   getPublicConfig,
+  fetchUserSearchPage,
+  fetchUserTasksPage,
+  fetchUserListsPage,
+  fetchUserTeamsPage,
 };
 
 export default adminService;

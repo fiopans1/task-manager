@@ -17,6 +17,7 @@ import ConfirmModal from "./ConfirmModal";
 import EditTask from "../tasks/EditTask";
 import NewEditLists from "../lists/NewEditLists";
 import EditTeam from "../teams/EditTeam";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const getStateBadge = (state) => {
   const variants = {
@@ -41,11 +42,10 @@ const getPriorityBadge = (priority) => {
 };
 
 const UserDetailModal = ({ show, onHide, user }) => {
-  const [userTasks, setUserTasks] = useState([]);
-  const [userLists, setUserLists] = useState([]);
-  const [userTeams, setUserTeams] = useState([]);
   const [detailTab, setDetailTab] = useState("tasks");
-  const [loadedTabs, setLoadedTabs] = useState({});
+  const [tasksRefreshKey, setTasksRefreshKey] = useState(0);
+  const [listsRefreshKey, setListsRefreshKey] = useState(0);
+  const [teamsRefreshKey, setTeamsRefreshKey] = useState(0);
 
   // Reused modals
   const [showEditTask, setShowEditTask] = useState(false);
@@ -58,47 +58,18 @@ const UserDetailModal = ({ show, onHide, user }) => {
   // Confirm modal
   const [confirmConfig, setConfirmConfig] = useState({ show: false });
 
-  // Load summary data for a specific tab only when first opened
-  const loadTabData = useCallback(async (tab) => {
-    if (!user) return;
-    try {
-      if (tab === "tasks") {
-        const tasks = await adminService.getUserTasks(user.id);
-        setUserTasks(tasks);
-      } else if (tab === "lists") {
-        const lists = await adminService.getUserLists(user.id);
-        setUserLists(lists);
-      } else if (tab === "teams") {
-        const teams = await adminService.getUserTeams(user.id);
-        setUserTeams(teams);
-      }
-      setLoadedTabs((prev) => ({ ...prev, [tab]: true }));
-    } catch (error) {
-      errorToast("Error loading " + tab);
-    }
-  }, [user]);
-
-  // Load the initial tab when modal opens
   useEffect(() => {
     if (show && user) {
-      setLoadedTabs({});
       setDetailTab("tasks");
-      loadTabData("tasks");
+      setTasksRefreshKey((k) => k + 1);
+      setListsRefreshKey((k) => k + 1);
+      setTeamsRefreshKey((k) => k + 1);
     }
-  }, [show, user, loadTabData]);
-
-  // Load tab data when switching tabs (lazy load)
-  const handleTabSelect = (tab) => {
-    setDetailTab(tab);
-    if (!loadedTabs[tab]) {
-      loadTabData(tab);
-    }
-  };
+  }, [show, user]);
 
   // ===== TASK ACTIONS =====
   const handleEditTask = async (task) => {
     try {
-      // Load full task details from existing endpoint before editing
       const fullTask = await taskService.getTaskById(task.id);
       setEditTaskData(fullTask);
       setShowEditTask(true);
@@ -107,13 +78,8 @@ const UserDetailModal = ({ show, onHide, user }) => {
     }
   };
 
-  const refreshTasksAfterEdit = async () => {
-    try {
-      const tasks = await adminService.getUserTasks(user.id);
-      setUserTasks(tasks);
-    } catch (error) {
-      errorToast("Error refreshing tasks");
-    }
+  const refreshTasksAfterEdit = () => {
+    setTasksRefreshKey((k) => k + 1);
   };
 
   const handleDeleteTask = (taskId) => {
@@ -125,7 +91,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await taskService.deleteTask(taskId);
-          setUserTasks((prev) => prev.filter((t) => t.id !== taskId));
+          setTasksRefreshKey((k) => k + 1);
           successToast("Task deleted");
         } catch (error) {
           errorToast("Error deleting task");
@@ -141,13 +107,8 @@ const UserDetailModal = ({ show, onHide, user }) => {
     setShowEditList(true);
   };
 
-  const refreshListsAfterEdit = async () => {
-    try {
-      const lists = await adminService.getUserLists(user.id);
-      setUserLists(lists);
-    } catch (error) {
-      errorToast("Error refreshing lists");
-    }
+  const refreshListsAfterEdit = () => {
+    setListsRefreshKey((k) => k + 1);
   };
 
   const handleDeleteList = (listId) => {
@@ -159,7 +120,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await listService.deleteList(listId);
-          setUserLists((prev) => prev.filter((l) => l.id !== listId));
+          setListsRefreshKey((k) => k + 1);
           successToast("List deleted");
         } catch (error) {
           errorToast("Error deleting list");
@@ -177,8 +138,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
   const handleSaveTeam = async (formData) => {
     await teamService.updateTeam(editTeamData.id, formData);
-    const teams = await adminService.getUserTeams(user.id);
-    setUserTeams(teams);
+    setTeamsRefreshKey((k) => k + 1);
   };
 
   const handleDeleteTeam = (teamId) => {
@@ -190,7 +150,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
       onConfirm: async () => {
         try {
           await teamService.deleteTeam(teamId);
-          setUserTeams((prev) => prev.filter((t) => t.id !== teamId));
+          setTeamsRefreshKey((k) => k + 1);
           successToast("Team deleted");
         } catch (error) {
           errorToast("Error deleting team");
@@ -227,204 +187,32 @@ const UserDetailModal = ({ show, onHide, user }) => {
             <div><strong>Created:</strong> {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : "—"}</div>
           </div>
 
-          <Tabs activeKey={detailTab} onSelect={handleTabSelect} className="mb-3">
-            <Tab eventKey="tasks" title={`Tasks (${loadedTabs.tasks ? userTasks.length : "..."})`}>
-              {!loadedTabs.tasks ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading tasks...</p></div>
-              ) : (
-                <>
-                  <div className="d-none d-md-block">
-                    <Table responsive hover size="sm">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>State</th>
-                          <th>Priority</th>
-                          <th>List</th>
-                          <th>Team</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {userTasks.map((task) => (
-                          <tr key={task.id}>
-                            <td>{task.nameOfTask}</td>
-                            <td>{getStateBadge(task.state)}</td>
-                            <td>{getPriorityBadge(task.priority)}</td>
-                            <td>{task.listName || "—"}</td>
-                            <td>{task.teamName || "—"}</td>
-                            <td>
-                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTask(task)}>
-                                <i className="bi bi-pencil"></i>
-                              </Button>
-                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
-                                <i className="bi bi-trash"></i>
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                        {userTasks.length === 0 && (
-                          <tr><td colSpan="6" className="text-center text-muted py-3">No tasks</td></tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                  <div className="d-md-none">
-                    {userTasks.map((task) => (
-                      <div key={task.id} className="border rounded-3 p-3 mb-2">
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <strong>{task.nameOfTask}</strong>
-                          <div>
-                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTask(task)}>
-                              <i className="bi bi-pencil"></i>
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
-                              <i className="bi bi-trash"></i>
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="d-flex gap-2 flex-wrap">
-                          {getStateBadge(task.state)}
-                          {getPriorityBadge(task.priority)}
-                          {task.listName && <Badge bg="light" text="dark">{task.listName}</Badge>}
-                          {task.teamName && <Badge bg="light" text="dark">{task.teamName}</Badge>}
-                        </div>
-                      </div>
-                    ))}
-                    {userTasks.length === 0 && <p className="text-center text-muted py-3">No tasks</p>}
-                  </div>
-                </>
-              )}
+          <Tabs activeKey={detailTab} onSelect={setDetailTab} className="mb-3">
+            <Tab eventKey="tasks" title="Tasks">
+              <AdminTasksTabContent
+                userId={user.id}
+                refreshKey={tasksRefreshKey}
+                onEditTask={handleEditTask}
+                onDeleteTask={handleDeleteTask}
+              />
             </Tab>
 
-            <Tab eventKey="lists" title={`Lists (${loadedTabs.lists ? userLists.length : "..."})`}>
-              {!loadedTabs.lists ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading lists...</p></div>
-              ) : (
-                <>
-                  <div className="d-none d-md-block">
-                    <Table responsive hover size="sm">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Description</th>
-                          <th>Total Tasks</th>
-                          <th>Completed</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {userLists.map((list) => (
-                          <tr key={list.id}>
-                            <td>
-                              <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
-                              {list.nameOfList}
-                            </td>
-                            <td className="text-truncate" style={{ maxWidth: 200 }}>{list.descriptionOfList || "—"}</td>
-                            <td>{list.totalElements}</td>
-                            <td>{list.completedElements}</td>
-                            <td>
-                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditList(list)}>
-                                <i className="bi bi-pencil"></i>
-                              </Button>
-                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteList(list.id)}>
-                                <i className="bi bi-trash"></i>
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                        {userLists.length === 0 && (
-                          <tr><td colSpan="5" className="text-center text-muted py-3">No lists</td></tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                  <div className="d-md-none">
-                    {userLists.map((list) => (
-                      <div key={list.id} className="border rounded-3 p-3 mb-2">
-                        <div className="d-flex justify-content-between align-items-start mb-1">
-                          <div className="d-flex align-items-center">
-                            <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
-                            <strong>{list.nameOfList}</strong>
-                          </div>
-                          <div>
-                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditList(list)}>
-                              <i className="bi bi-pencil"></i>
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => handleDeleteList(list.id)}>
-                              <i className="bi bi-trash"></i>
-                            </Button>
-                          </div>
-                        </div>
-                        <small className="text-muted">{list.totalElements} tasks, {list.completedElements} completed</small>
-                      </div>
-                    ))}
-                    {userLists.length === 0 && <p className="text-center text-muted py-3">No lists</p>}
-                  </div>
-                </>
-              )}
+            <Tab eventKey="lists" title="Lists">
+              <AdminListsTabContent
+                userId={user.id}
+                refreshKey={listsRefreshKey}
+                onEditList={handleEditList}
+                onDeleteList={handleDeleteList}
+              />
             </Tab>
 
-            <Tab eventKey="teams" title={`Teams (${loadedTabs.teams ? userTeams.length : "..."})`}>
-              {!loadedTabs.teams ? (
-                <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading teams...</p></div>
-              ) : (
-                <>
-                  <div className="d-none d-md-block">
-                    <Table responsive hover size="sm">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Description</th>
-                          <th>Members</th>
-                          <th>Created</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {userTeams.map((team) => (
-                          <tr key={team.id}>
-                            <td className="fw-semibold">{team.name}</td>
-                            <td className="text-truncate" style={{ maxWidth: 200 }}>{team.description || "—"}</td>
-                            <td>{team.memberCount}</td>
-                            <td>{team.creationDate ? new Date(team.creationDate).toLocaleDateString() : "—"}</td>
-                            <td>
-                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeamOpen(team)}>
-                                <i className="bi bi-pencil"></i>
-                              </Button>
-                              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTeam(team.id)}>
-                                <i className="bi bi-trash"></i>
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                        {userTeams.length === 0 && (
-                          <tr><td colSpan="5" className="text-center text-muted py-3">No teams</td></tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                  <div className="d-md-none">
-                    {userTeams.map((team) => (
-                      <div key={team.id} className="border rounded-3 p-3 mb-2">
-                        <div className="d-flex justify-content-between align-items-start mb-1">
-                          <strong>{team.name}</strong>
-                          <div>
-                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => handleEditTeamOpen(team)}>
-                              <i className="bi bi-pencil"></i>
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTeam(team.id)}>
-                              <i className="bi bi-trash"></i>
-                            </Button>
-                          </div>
-                        </div>
-                        <small className="text-muted">{team.memberCount} members</small>
-                      </div>
-                    ))}
-                    {userTeams.length === 0 && <p className="text-center text-muted py-3">No teams</p>}
-                  </div>
-                </>
-              )}
+            <Tab eventKey="teams" title="Teams">
+              <AdminTeamsTabContent
+                userId={user.id}
+                refreshKey={teamsRefreshKey}
+                onEditTeam={handleEditTeamOpen}
+                onDeleteTeam={handleDeleteTeam}
+              />
             </Tab>
           </Tabs>
         </Modal.Body>
@@ -464,6 +252,240 @@ const UserDetailModal = ({ show, onHide, user }) => {
         message={confirmConfig.message}
         confirmText={confirmConfig.confirmText}
       />
+    </>
+  );
+};
+
+// ===== Paginated sub-components for admin tabs =====
+
+const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserTasksPage(userId, page, size);
+  }, [userId]);
+
+  const { items: tasks, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading tasks...</p></div>;
+  }
+
+  return (
+    <>
+      <div className="d-none d-md-block">
+        <Table responsive hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>State</th>
+              <th>Priority</th>
+              <th>List</th>
+              <th>Team</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map((task) => (
+              <tr key={task.id}>
+                <td>{task.nameOfTask}</td>
+                <td>{getStateBadge(task.state)}</td>
+                <td>{getPriorityBadge(task.priority)}</td>
+                <td>{task.listName || "—"}</td>
+                <td>{task.teamName || "—"}</td>
+                <td>
+                  <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditTask(task)}>
+                    <i className="bi bi-pencil"></i>
+                  </Button>
+                  <Button variant="outline-danger" size="sm" onClick={() => onDeleteTask(task.id)}>
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {tasks.length === 0 && (
+              <tr><td colSpan="6" className="text-center text-muted py-3">No tasks</td></tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+      <div className="d-md-none">
+        {tasks.map((task) => (
+          <div key={task.id} className="border rounded-3 p-3 mb-2">
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <strong>{task.nameOfTask}</strong>
+              <div>
+                <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditTask(task)}>
+                  <i className="bi bi-pencil"></i>
+                </Button>
+                <Button variant="outline-danger" size="sm" onClick={() => onDeleteTask(task.id)}>
+                  <i className="bi bi-trash"></i>
+                </Button>
+              </div>
+            </div>
+            <div className="d-flex gap-2 flex-wrap">
+              {getStateBadge(task.state)}
+              {getPriorityBadge(task.priority)}
+              {task.listName && <Badge bg="light" text="dark">{task.listName}</Badge>}
+              {task.teamName && <Badge bg="light" text="dark">{task.teamName}</Badge>}
+            </div>
+          </div>
+        ))}
+        {tasks.length === 0 && <p className="text-center text-muted py-3">No tasks</p>}
+      </div>
+      <LoadMoreSpinner />
+    </>
+  );
+};
+
+const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserListsPage(userId, page, size);
+  }, [userId]);
+
+  const { items: lists, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading lists...</p></div>;
+  }
+
+  return (
+    <>
+      <div className="d-none d-md-block">
+        <Table responsive hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Total Tasks</th>
+              <th>Completed</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lists.map((list) => (
+              <tr key={list.id}>
+                <td>
+                  <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
+                  {list.nameOfList}
+                </td>
+                <td className="text-truncate" style={{ maxWidth: 200 }}>{list.descriptionOfList || "—"}</td>
+                <td>{list.totalElements}</td>
+                <td>{list.completedElements}</td>
+                <td>
+                  <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditList(list)}>
+                    <i className="bi bi-pencil"></i>
+                  </Button>
+                  <Button variant="outline-danger" size="sm" onClick={() => onDeleteList(list.id)}>
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {lists.length === 0 && (
+              <tr><td colSpan="5" className="text-center text-muted py-3">No lists</td></tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+      <div className="d-md-none">
+        {lists.map((list) => (
+          <div key={list.id} className="border rounded-3 p-3 mb-2">
+            <div className="d-flex justify-content-between align-items-start mb-1">
+              <div className="d-flex align-items-center">
+                <span className="d-inline-block rounded-circle me-2" style={{ width: 12, height: 12, backgroundColor: list.color || "#6c757d" }}></span>
+                <strong>{list.nameOfList}</strong>
+              </div>
+              <div>
+                <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditList(list)}>
+                  <i className="bi bi-pencil"></i>
+                </Button>
+                <Button variant="outline-danger" size="sm" onClick={() => onDeleteList(list.id)}>
+                  <i className="bi bi-trash"></i>
+                </Button>
+              </div>
+            </div>
+            <small className="text-muted">{list.totalElements} tasks, {list.completedElements} completed</small>
+          </div>
+        ))}
+        {lists.length === 0 && <p className="text-center text-muted py-3">No lists</p>}
+      </div>
+      <LoadMoreSpinner />
+    </>
+  );
+};
+
+const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) => {
+  const fetchPage = useCallback(async (page, size) => {
+    return adminService.fetchUserTeamsPage(userId, page, size);
+  }, [userId]);
+
+  const { items: teams, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(
+    fetchPage, 50, [userId, refreshKey]
+  );
+
+  if (initialLoading) {
+    return <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Loading teams...</p></div>;
+  }
+
+  return (
+    <>
+      <div className="d-none d-md-block">
+        <Table responsive hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Members</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teams.map((team) => (
+              <tr key={team.id}>
+                <td className="fw-semibold">{team.name}</td>
+                <td className="text-truncate" style={{ maxWidth: 200 }}>{team.description || "—"}</td>
+                <td>{team.memberCount}</td>
+                <td>{team.creationDate ? new Date(team.creationDate).toLocaleDateString() : "—"}</td>
+                <td>
+                  <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditTeam(team)}>
+                    <i className="bi bi-pencil"></i>
+                  </Button>
+                  <Button variant="outline-danger" size="sm" onClick={() => onDeleteTeam(team.id)}>
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {teams.length === 0 && (
+              <tr><td colSpan="5" className="text-center text-muted py-3">No teams</td></tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+      <div className="d-md-none">
+        {teams.map((team) => (
+          <div key={team.id} className="border rounded-3 p-3 mb-2">
+            <div className="d-flex justify-content-between align-items-start mb-1">
+              <strong>{team.name}</strong>
+              <div>
+                <Button variant="outline-primary" size="sm" className="me-1" onClick={() => onEditTeam(team)}>
+                  <i className="bi bi-pencil"></i>
+                </Button>
+                <Button variant="outline-danger" size="sm" onClick={() => onDeleteTeam(team.id)}>
+                  <i className="bi bi-trash"></i>
+                </Button>
+              </div>
+            </div>
+            <small className="text-muted">{team.memberCount} members</small>
+          </div>
+        ))}
+        {teams.length === 0 && <p className="text-center text-muted py-3">No teams</p>}
+      </div>
+      <LoadMoreSpinner />
     </>
   );
 };

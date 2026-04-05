@@ -5,6 +5,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +60,13 @@ public class ListRestController {
             logger.error("Error retrieving lists for logged user", e);
             throw e;
         }
+    }
+
+    @GetMapping("/lists/paged")
+    public ResponseEntity<Page<ListTMDTO>> getAllListForUserPaged(@PageableDefault(size = 50) Pageable pageable) {
+        logger.debug("Retrieving paged lists for logged user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<ListTMDTO> lists = listService.findAllListsForLoggedUser(pageable);
+        return ResponseEntity.ok(lists);
     }
 
     @GetMapping("/getList/{id}")
@@ -167,6 +177,14 @@ public class ListRestController {
         logger.debug("Admin retrieving list summaries for user ID: {}", userId);
         List<ListTMDTO> lists = listService.getListSummariesByUserId(userId);
         return ResponseEntity.ok(lists);
+    }
+
+    @GetMapping("/user/{userId}/paged")
+    public ResponseEntity<Page<ListTMDTO>> getListsByUserIdPaged(
+            @PathVariable Long userId,
+            @PageableDefault(size = 50) Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Admin retrieving paged list summaries for user ID: {}", userId);
+        return ResponseEntity.ok(listService.getListSummariesByUserId(userId, pageable));
     }
 
 }

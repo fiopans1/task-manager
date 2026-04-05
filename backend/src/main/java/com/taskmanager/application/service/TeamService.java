@@ -31,6 +31,8 @@ import com.taskmanager.application.respository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +106,13 @@ public class TeamService {
         return teams.stream()
                 .map(t -> TeamDTO.fromEntity(t, false))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TeamDTO> getTeamsForCurrentUser(Pageable pageable) {
+        User currentUser = authService.getCurrentUser();
+        return teamRepository.findAllByMemberUser(currentUser, pageable)
+                .map(t -> TeamDTO.fromEntity(t, false));
     }
 
     @Transactional(readOnly = true)
@@ -453,6 +462,32 @@ public class TeamService {
     }
 
     @Transactional(readOnly = true)
+    public Page<TaskDTO> getTeamTasksFiltered(Long teamId, String ownerUsername,
+                                              StateTask state, PriorityTask priority, Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+        TeamMember currentMember = validateMembership(team);
+
+        User ownerUser = null;
+        if (ownerUsername != null && !ownerUsername.isEmpty()) {
+            if (currentMember.getRole() != TeamRole.ADMIN) {
+                User currentUser = authService.getCurrentUser();
+                if (!ownerUsername.equals(currentUser.getUsername())) {
+                    throw new NotPermissionException("You can only filter your own tasks");
+                }
+            }
+            ownerUser = userRepository.findByUsername(ownerUsername)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + ownerUsername));
+        } else if (currentMember.getRole() != TeamRole.ADMIN) {
+            ownerUser = authService.getCurrentUser();
+        }
+
+        return taskRepository.findTeamTasksFiltered(team, ownerUser, state, priority, pageable)
+                .map(TaskDTO::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
     public List<TaskDTO> getTeamTasks(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
@@ -469,6 +504,22 @@ public class TeamService {
         return tasks.stream().map(TaskDTO::fromEntity).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<TaskDTO> getTeamTasks(Long teamId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+        TeamMember currentMember = validateMembership(team);
+
+        Page<Task> tasks;
+        if (currentMember.getRole() == TeamRole.ADMIN) {
+            tasks = taskRepository.findAllByTeam(team, pageable);
+        } else {
+            User currentUser = authService.getCurrentUser();
+            tasks = taskRepository.findAllByTeamAndUser(team, currentUser, pageable);
+        }
+        return tasks.map(TaskDTO::fromEntity);
+    }
+
     // ===== ASSIGNMENT HISTORY =====
 
     @Transactional(readOnly = true)
@@ -482,6 +533,17 @@ public class TeamService {
                 .stream()
                 .map(TaskAssignmentHistoryDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TaskAssignmentHistoryDTO> getAssignmentHistory(Long teamId, Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+        validateAdminRole(team);
+
+        return assignmentHistoryRepository.findAllByTeamOrderByChangedDateDesc(team, pageable)
+                .map(TaskAssignmentHistoryDTO::fromEntity);
     }
 
     // ===== INVITATIONS =====
@@ -668,5 +730,15 @@ public class TeamService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<Team> teams = teamRepository.findAllByMemberUser(user);
         return teams.stream().map(t -> TeamDTO.fromEntity(t, false)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TeamDTO> getTeamSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+        if (!authService.hasRole("ROLE_ADMIN")) {
+            throw new NotPermissionException("Only admins can view other users' teams");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return teamRepository.findAllByMemberUser(user, pageable).map(t -> TeamDTO.fromEntity(t, false));
     }
 }

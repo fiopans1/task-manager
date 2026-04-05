@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Row, Card, Button, Modal } from "react-bootstrap";
 import { successToast, errorToast } from "../common/Noty";
 import listService from "../../services/listService";
+import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 const ListsList = ({
   listsResource,
   handleOpenList,
@@ -9,9 +10,14 @@ const ListsList = ({
   refreshLists,
   searchTerm,
 }) => {
-  const [data, setData] = useState(listsResource.read());
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
+
+  const fetchPage = useCallback(async (page, size) => {
+    return listService.fetchListsPage(page, size);
+  }, []);
+
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [listsResource]);
 
   const EmptyState = () => (
     <Card className="text-center shadow-sm py-5">
@@ -49,29 +55,18 @@ const ListsList = ({
     setShowDelete(true);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        var data = await listsResource.read();
-        if (searchTerm) {
-          data = data.filter((list) =>
-            list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        }
-        setData(data);
-      } catch (error) {
-        errorToast("Error fetching lists: " + error.message);
-      }
-    };
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listsResource]);
+  // Filter data client-side for search
+  const filteredData = searchTerm
+    ? data.filter((list) =>
+        list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : data;
 
-  return !data || data.length === 0 ? (
+  return !filteredData || filteredData.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="list-list">
-      {data?.map((card) => (
+      {filteredData.map((card) => (
         <Row key={card.id} className="m-1">
           <Card
             style={{ borderTop: `6px solid ${card.color}` }}
@@ -134,6 +129,8 @@ const ListsList = ({
           </Card>
         </Row>
       ))}
+
+      <LoadMoreSpinner />
 
       {/* Modal de confirmación para eliminar */}
       <Modal

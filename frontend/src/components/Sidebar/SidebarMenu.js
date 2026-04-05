@@ -10,12 +10,15 @@ import {
   Form,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import About from "./About";
 import configService from "../../services/configService";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
+import taskService from "../../services/taskService";
+import listService from "../../services/listService";
+import teamService from "../../services/teamService";
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
@@ -54,6 +57,7 @@ const NAVIGATION_ITEMS = [
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -125,6 +129,24 @@ function SidebarMenu({ onLogOut }) {
     return true;
   });
 
+  // Invalidate cache for the feature being navigated to
+  const handleNavClick = (item, e) => {
+    // Prevent default Link navigation so we can force a new navigation
+    // even when already on the same path (ensures location.key changes)
+    e.preventDefault();
+    if (item.featureKey === "tasks") {
+      taskService.invalidateTasksCache();
+    } else if (item.featureKey === "lists") {
+      listService.invalidateListsCache();
+    } else if (item.featureKey === "teams") {
+      teamService.invalidateTeamsCache();
+    }
+    navigate(item.path);
+    if (isMobile) {
+      toggleMobileMenu();
+    }
+  };
+
   // Main sidebar content
   const renderSidebarContent = () => {
     // On mobile, always show expanded, regardless of collapsed state
@@ -166,7 +188,7 @@ function SidebarMenu({ onLogOut }) {
                   className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
                     location.pathname === item.path ? "active" : ""
                   }`}
-                  onClick={isMobile ? toggleMobileMenu : undefined}
+                  onClick={(e) => handleNavClick(item, e)}
                 >
                   <div className="d-flex align-items-center position-relative w-100">
                     <i

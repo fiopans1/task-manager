@@ -31,6 +31,7 @@ import listService from "../../../services/listService";
 import taskService from "../../../services/taskService";
 import { successToast, errorToast } from "../../common/Noty";
 import NewEditLists from "../NewEditLists";
+import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
 const ListDetails = ({ listId }) => {
   const navigate = useNavigate();
@@ -161,6 +162,8 @@ const ListDetails = ({ listId }) => {
   const filteredAvailableTasks = availableTasks.filter((t) =>
     t.nameOfTask.toLowerCase().includes(searchAvailable.toLowerCase())
   );
+
+  const { displayedItems: paginatedTasks, LoadMoreSpinner } = useInfiniteScroll(tasks);
 
   return (
     <Container fluid className="my-4">
@@ -415,72 +418,75 @@ const ListDetails = ({ listId }) => {
                   </Button>
                 </div>
               ) : (
-                <ListGroup variant="flush">
-                  {tasks.map((task) => (
-                    <ListGroup.Item
-                      key={task.id}
-                      className="d-flex justify-content-between align-items-center px-3 py-3 bg-transparent"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleGoToTask(task.id)}
-                    >
-                      <div className="d-flex align-items-center gap-3" style={{ minWidth: 0, flex: 1 }}>
-                        {task.state === "COMPLETED" ? (
-                          <CheckCircleFill size={20} className="text-success flex-shrink-0" />
-                        ) : (
-                          <Circle size={20} className="text-secondary flex-shrink-0" />
-                        )}
-                        <div style={{ minWidth: 0 }}>
-                          <div
-                            className={`fw-semibold text-truncate ${
-                              task.state === "COMPLETED"
-                                ? "text-decoration-line-through text-muted"
-                                : "text-body"
-                            }`}
-                          >
-                            {task.nameOfTask}
-                          </div>
-                          {task.descriptionOfTask && (
-                            <small className="text-muted text-truncate d-block">
-                              {task.descriptionOfTask}
-                            </small>
+                <>
+                  <ListGroup variant="flush">
+                    {paginatedTasks.map((task) => (
+                      <ListGroup.Item
+                        key={task.id}
+                        className="d-flex justify-content-between align-items-center px-3 py-3 bg-transparent"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleGoToTask(task.id)}
+                      >
+                        <div className="d-flex align-items-center gap-3" style={{ minWidth: 0, flex: 1 }}>
+                          {task.state === "COMPLETED" ? (
+                            <CheckCircleFill size={20} className="text-success flex-shrink-0" />
+                          ) : (
+                            <Circle size={20} className="text-secondary flex-shrink-0" />
                           )}
+                          <div style={{ minWidth: 0 }}>
+                            <div
+                              className={`fw-semibold text-truncate ${
+                                task.state === "COMPLETED"
+                                  ? "text-decoration-line-through text-muted"
+                                  : "text-body"
+                              }`}
+                            >
+                              {task.nameOfTask}
+                            </div>
+                            {task.descriptionOfTask && (
+                              <small className="text-muted text-truncate d-block">
+                                {task.descriptionOfTask}
+                              </small>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
-                        <Badge bg={getStateVariant(task.state)} className="text-uppercase" style={{ fontSize: "0.7rem" }}>
-                          {task.state}
-                        </Badge>
-                        <Badge bg={getPriorityVariant(task.priority)} className="text-uppercase" style={{ fontSize: "0.7rem" }}>
-                          {task.priority}
-                        </Badge>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGoToTask(task.id);
-                          }}
-                          style={{ borderRadius: "8px" }}
-                          title="Open task details"
-                        >
-                          <BoxArrowUpRight size={14} />
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveTask(task.id);
-                          }}
-                          style={{ borderRadius: "8px" }}
-                          title="Remove from list"
-                        >
-                          <Trash size={14} />
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
+                        <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
+                          <Badge bg={getStateVariant(task.state)} className="text-uppercase" style={{ fontSize: "0.7rem" }}>
+                            {task.state}
+                          </Badge>
+                          <Badge bg={getPriorityVariant(task.priority)} className="text-uppercase" style={{ fontSize: "0.7rem" }}>
+                            {task.priority}
+                          </Badge>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGoToTask(task.id);
+                            }}
+                            style={{ borderRadius: "8px" }}
+                            title="Open task details"
+                          >
+                            <BoxArrowUpRight size={14} />
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveTask(task.id);
+                            }}
+                            style={{ borderRadius: "8px" }}
+                            title="Remove from list"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                  <LoadMoreSpinner />
+                </>
               )}
             </Card.Body>
           </Card>
