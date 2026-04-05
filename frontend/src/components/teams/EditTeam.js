@@ -12,6 +12,7 @@ const EditTeam = ({
     name: "",
     description: "",
   });
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
@@ -27,11 +28,23 @@ const EditTeam = ({
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    if (!formData.name || formData.name.trim() === "") {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setValidated(true);
+    if (!validateForm()) {
+      return;
+    }
     try {
       await onSave(formData);
       successToast("Team updated successfully");
+      setValidated(false);
       handleClose();
     } catch (error) {
       errorToast("Error: " + error.message);
@@ -39,7 +52,7 @@ const EditTeam = ({
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
+    <Modal show={show} onHide={() => { setValidated(false); handleClose(); }} centered>
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="bi bi-pencil me-2"></i>Edit Team
@@ -57,7 +70,11 @@ const EditTeam = ({
               placeholder="Team name"
               required
               autoFocus
+              isInvalid={validated && (!formData.name || formData.name.trim() === "")}
             />
+            <Form.Control.Feedback type="invalid">
+              Team name is required
+            </Form.Control.Feedback>
           </Form.Group>
           <Form.Group>
             <Form.Label>Description</Form.Label>
@@ -72,7 +89,7 @@ const EditTeam = ({
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={() => { setValidated(false); handleClose(); }}>
             Cancel
           </Button>
           <Button type="submit" variant="primary">

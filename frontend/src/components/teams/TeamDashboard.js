@@ -52,10 +52,13 @@ const TeamDashboard = () => {
   const [showEditTeamModal, setShowEditTeamModal] = useState(false);
   const [showLeaveTeamModal, setShowLeaveTeamModal] = useState(false);
   const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteValidated, setInviteValidated] = useState(false);
   const [userTasks, setUserTasks] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [addTaskValidated, setAddTaskValidated] = useState(false);
   const [reassignTask, setReassignTask] = useState(null);
   const [reassignTarget, setReassignTarget] = useState("");
+  const [reassignValidated, setReassignValidated] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState(null);
 
   const loadData = useCallback(async () => {
@@ -96,11 +99,16 @@ const TeamDashboard = () => {
   // ===== Actions =====
   const handleInvite = async (e) => {
     e.preventDefault();
+    setInviteValidated(true);
+    if (!inviteUsername || inviteUsername.trim() === "") {
+      return;
+    }
     try {
       await teamService.createInvitation(teamId, inviteUsername);
       successToast("Invitation sent to " + inviteUsername);
       setShowInviteModal(false);
       setInviteUsername("");
+      setInviteValidated(false);
       if (activeTab === "invitations") loadInvitations();
     } catch (err) {
       errorToast(err?.response?.data?.message || "Error sending invitation");
@@ -132,12 +140,14 @@ const TeamDashboard = () => {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
+    setAddTaskValidated(true);
     if (!selectedTaskId) return;
     try {
       await teamService.addTaskToTeam(teamId, selectedTaskId);
       successToast("Task added to team");
       setShowAddTaskModal(false);
       setSelectedTaskId("");
+      setAddTaskValidated(false);
       loadData();
       if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
@@ -147,6 +157,7 @@ const TeamDashboard = () => {
 
   const handleReassign = async (e) => {
     e.preventDefault();
+    setReassignValidated(true);
     if (!reassignTask || !reassignTarget) return;
     try {
       await teamService.assignTask(teamId, reassignTask.id, reassignTarget);
@@ -156,6 +167,7 @@ const TeamDashboard = () => {
       setShowReassignModal(false);
       setReassignTask(null);
       setReassignTarget("");
+      setReassignValidated(false);
       loadData();
       if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
@@ -551,7 +563,7 @@ const TeamDashboard = () => {
       </Tabs>
 
       {/* ===== Invite Member Modal ===== */}
-      <Modal show={showInviteModal} onHide={() => setShowInviteModal(false)} centered>
+      <Modal show={showInviteModal} onHide={() => { setShowInviteModal(false); setInviteValidated(false); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             <i className="bi bi-person-plus me-2"></i>Invite Member
@@ -568,14 +580,18 @@ const TeamDashboard = () => {
                 placeholder="Enter username to invite"
                 required
                 autoFocus
+                isInvalid={inviteValidated && (!inviteUsername || inviteUsername.trim() === "")}
               />
+              <Form.Control.Feedback type="invalid">
+                Username is required
+              </Form.Control.Feedback>
               <Form.Text className="text-muted">
                 The user will receive an in-app notification to accept or reject the invitation.
               </Form.Text>
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowInviteModal(false)}>
+            <Button variant="secondary" onClick={() => { setShowInviteModal(false); setInviteValidated(false); }}>
               Cancel
             </Button>
             <Button type="submit" variant="primary">
@@ -586,7 +602,7 @@ const TeamDashboard = () => {
       </Modal>
 
       {/* ===== Reassign Task Modal ===== */}
-      <Modal show={showReassignModal} onHide={() => setShowReassignModal(false)} centered>
+      <Modal show={showReassignModal} onHide={() => { setShowReassignModal(false); setReassignValidated(false); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             <i className="bi bi-arrow-left-right me-2"></i>Reassign Task
@@ -611,6 +627,7 @@ const TeamDashboard = () => {
                     value={reassignTarget}
                     onChange={(e) => setReassignTarget(e.target.value)}
                     required
+                    isInvalid={reassignValidated && !reassignTarget}
                   >
                     <option value="">Select a member...</option>
                     {team.members &&
@@ -622,12 +639,15 @@ const TeamDashboard = () => {
                           </option>
                         ))}
                   </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    Please select a team member
+                  </Form.Control.Feedback>
                 </Form.Group>
               </>
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowReassignModal(false)}>
+            <Button variant="secondary" onClick={() => { setShowReassignModal(false); setReassignValidated(false); }}>
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={!reassignTarget}>
@@ -664,7 +684,7 @@ const TeamDashboard = () => {
       </Modal>
 
       {/* ===== Add Task Modal ===== */}
-      <Modal show={showAddTaskModal} onHide={() => setShowAddTaskModal(false)} centered>
+      <Modal show={showAddTaskModal} onHide={() => { setShowAddTaskModal(false); setAddTaskValidated(false); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>Add Task to Team</Modal.Title>
         </Modal.Header>
@@ -676,6 +696,7 @@ const TeamDashboard = () => {
                 value={selectedTaskId}
                 onChange={(e) => setSelectedTaskId(e.target.value)}
                 required
+                isInvalid={addTaskValidated && !selectedTaskId}
               >
                 <option value="">Select a task...</option>
                 {userTasks.map((t) => (
@@ -684,13 +705,16 @@ const TeamDashboard = () => {
                   </option>
                 ))}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                Please select a task
+              </Form.Control.Feedback>
               <Form.Text className="text-muted">
                 Only your tasks not already in a team are shown.
               </Form.Text>
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowAddTaskModal(false)}>
+            <Button variant="secondary" onClick={() => { setShowAddTaskModal(false); setAddTaskValidated(false); }}>
               Cancel
             </Button>
             <Button type="submit" variant="primary">

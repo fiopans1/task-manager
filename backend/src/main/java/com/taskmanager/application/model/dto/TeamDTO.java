@@ -3,6 +3,8 @@ package com.taskmanager.application.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.taskmanager.application.model.entities.Team;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +12,8 @@ import java.util.List;
 public class TeamDTO {
 
     private Long id;
+
+    @NotBlank(message = "Team name is required")
     private String name;
     private String description;
     private Date creationDate;

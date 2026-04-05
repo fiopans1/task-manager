@@ -22,6 +22,7 @@ const Teams = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: "", description: "" });
   const [creating, setCreating] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,14 +51,26 @@ const Teams = () => {
     }
   };
 
+  const validateForm = () => {
+    if (!newTeam.name || newTeam.name.trim() === "") {
+      return false;
+    }
+    return true;
+  };
+
   const handleCreateTeam = async (e) => {
     e.preventDefault();
+    setValidated(true);
+    if (!validateForm()) {
+      return;
+    }
     setCreating(true);
     try {
       await teamService.createTeam(newTeam);
       successToast("Team created successfully");
       setShowCreateModal(false);
       setNewTeam({ name: "", description: "" });
+      setValidated(false);
       refreshTeams();
     } catch (err) {
       errorToast("Error creating team");
@@ -208,7 +221,10 @@ const Teams = () => {
       {/* Create Team Modal */}
       <Modal
         show={showCreateModal}
-        onHide={() => setShowCreateModal(false)}
+        onHide={() => {
+          setShowCreateModal(false);
+          setValidated(false);
+        }}
         centered
       >
         <Modal.Header closeButton>
@@ -226,7 +242,11 @@ const Teams = () => {
                 }
                 placeholder="Enter team name"
                 required
+                isInvalid={validated && (!newTeam.name || newTeam.name.trim() === "")}
               />
+              <Form.Control.Feedback type="invalid">
+                Team name is required
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label>Description</Form.Label>
@@ -244,7 +264,10 @@ const Teams = () => {
           <Modal.Footer>
             <Button
               variant="secondary"
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => {
+                setShowCreateModal(false);
+                setValidated(false);
+              }}
             >
               Cancel
             </Button>

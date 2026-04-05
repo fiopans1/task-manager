@@ -13,6 +13,8 @@ import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.TeamService;
 
+import jakarta.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ public class TeamRestController {
     // ===== TEAM CRUD =====
 
     @PostMapping("/create")
-    public ResponseEntity<TeamDTO> createTeam(@RequestBody TeamDTO teamDTO) {
+    public ResponseEntity<TeamDTO> createTeam(@Valid @RequestBody TeamDTO teamDTO) {
         logger.info("Creating team: {}", teamDTO.getName());
         TeamDTO created = teamService.createTeam(teamDTO);
         return ResponseEntity.ok(created);
@@ -74,7 +76,7 @@ public class TeamRestController {
     }
 
     @PutMapping("/{teamId}")
-    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long teamId, @RequestBody TeamDTO teamDTO)
+    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long teamId, @Valid @RequestBody TeamDTO teamDTO)
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating team with ID: {}", teamId);
         TeamDTO updated = teamService.updateTeam(teamId, teamDTO);
@@ -111,7 +113,11 @@ public class TeamRestController {
     public ResponseEntity<TeamMemberDTO> updateMemberRole(@PathVariable Long teamId, @PathVariable Long memberId,
                                                            @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
-        TeamRole newRole = TeamRole.valueOf(body.get("role"));
+        String roleStr = body.get("role");
+        if (roleStr == null || roleStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        TeamRole newRole = TeamRole.valueOf(roleStr);
         logger.info("Updating member {} role to {} in team {}", memberId, newRole, teamId);
         TeamMemberDTO updated = teamService.updateMemberRole(teamId, memberId, newRole);
         return ResponseEntity.ok(updated);
@@ -124,6 +130,9 @@ public class TeamRestController {
                                                @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
         String targetUsername = body.get("username");
+        if (targetUsername == null || targetUsername.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required for task assignment");
+        }
         logger.info("Assigning task {} to {} in team {}", taskId, targetUsername, teamId);
         TaskDTO task = teamService.assignTask(teamId, taskId, targetUsername);
         return ResponseEntity.ok(task);
@@ -206,6 +215,9 @@ public class TeamRestController {
                                                                @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
         String username = body.get("username");
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required");
+        }
         logger.info("Creating invitation for {} to team {}", username, teamId);
         TeamInvitationDTO invitation = teamService.createInvitationByUsername(teamId, username);
         return ResponseEntity.ok(invitation);
