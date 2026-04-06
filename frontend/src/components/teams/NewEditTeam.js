@@ -52,7 +52,7 @@ const NewEditTeam = ({
         await onSave(formData);
         successToast(editOrNew ? "Team updated successfully" : "Team created successfully");
       } else if (editOrNew) {
-        // Edit mode handled externally via onSave
+        errorToast("Error: onSave handler is required for edit mode");
         return false;
       } else {
         await teamService.createTeam(formData);

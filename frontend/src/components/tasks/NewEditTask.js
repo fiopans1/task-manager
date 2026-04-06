@@ -171,7 +171,11 @@ const NewEditTask = ({
       if (onSave) {
         await onSave(taskData);
         successToast(editOrNew ? "Task updated successfully" : "Task created successfully");
-      } else if (editOrNew && taskData.id) {
+      } else if (editOrNew) {
+        if (!taskData.id) {
+          errorToast("Error: Task ID is missing for update");
+          return false;
+        }
         await taskService.editTask(taskData);
         successToast("Task updated successfully");
       } else {
