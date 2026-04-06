@@ -8,15 +8,99 @@ import {
   Row,
   Collapse,
 } from "react-bootstrap";
-import { useState } from "react";
-import taskervice from "../../services/taskService";
+import { useState, useEffect } from "react";
+import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import dayjs from "dayjs";
 
-const NewTask = ({ show, handleClose, refreshTasks }) => {
+const NewEditTask = ({
+  show,
+  handleClose,
+  refreshTasks,
+  editOrNew,
+  initialData,
+  onSave,
+}) => {
   const [isEvent, setIsEvent] = useState(false);
   const [validated, setValidated] = useState(false);
   const [dateError, setDateError] = useState("");
+
+  const [formData, setFormData] = useState({
+    nameOfTask: "",
+    descriptionOfTask: "",
+    state: "NEW",
+    priority: "MIN",
+    isEvent: false,
+    startDate: "",
+    endDate: "",
+    id: null,
+  });
+
+  // Date and time fields
+  const [startDateField, setStartDateField] = useState("");
+  const [startTimeField, setStartTimeField] = useState("");
+  const [endDateField, setEndDateField] = useState("");
+  const [endTimeField, setEndTimeField] = useState("");
+
+  const restartForm = () => {
+    setFormData({
+      nameOfTask: "",
+      descriptionOfTask: "",
+      state: "NEW",
+      priority: "MIN",
+      isEvent: false,
+      startDate: "",
+      endDate: "",
+      id: null,
+    });
+    setIsEvent(false);
+    setValidated(false);
+    setDateError("");
+    setStartDateField("");
+    setStartTimeField("");
+    setEndDateField("");
+    setEndTimeField("");
+  };
+
+  // Update form when initialData changes (edit mode)
+  useEffect(() => {
+    if (editOrNew && initialData && Object.keys(initialData).length > 0) {
+      setFormData({
+        nameOfTask: initialData.nameOfTask || "",
+        descriptionOfTask: initialData.descriptionOfTask || "",
+        state: initialData.state || "NEW",
+        priority: initialData.priority || "MIN",
+        isEvent: initialData.isEvent || false,
+        startDate: initialData.startDate || "",
+        endDate: initialData.endDate || "",
+        id: initialData.id || null,
+      });
+
+      setIsEvent(initialData.isEvent || false);
+
+      // Parse and set date/time fields if event
+      if (initialData.isEvent && initialData.startDate) {
+        const startDate = dayjs(initialData.startDate);
+        setStartDateField(startDate.format("YYYY-MM-DD"));
+        setStartTimeField(startDate.format("HH:mm"));
+      } else {
+        setStartDateField("");
+        setStartTimeField("");
+      }
+
+      if (initialData.isEvent && initialData.endDate) {
+        const endDate = dayjs(initialData.endDate);
+        setEndDateField(endDate.format("YYYY-MM-DD"));
+        setEndTimeField(endDate.format("HH:mm"));
+      } else {
+        setEndDateField("");
+        setEndTimeField("");
+      }
+
+      setValidated(false);
+      setDateError("");
+    }
+  }, [initialData, editOrNew]);
 
   const handleEvent = () => {
     const newIsEvent = !isEvent;
@@ -29,34 +113,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
       setDateError("");
     }
   };
-  const [formData, setFormData] = useState({
-    nameOfTask: "",
-    descriptionOfTask: "",
-    state: "NEW",
-    priority: "MIN",
-    isEvent: false,
-    startDate: "",
-    endDate: "",
-  });
 
-  const restartForm = () => {
-    setFormData({
-      nameOfTask: "",
-      descriptionOfTask: "",
-      state: "NEW",
-      priority: "MIN",
-      isEvent: false,
-      startDate: "",
-      endDate: "",
-    });
-    setIsEvent(false);
-    setValidated(false);
-    setDateError("");
-    setStartDateField("");
-    setStartTimeField("");
-    setEndDateField("");
-    setEndTimeField("");
-  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -85,7 +142,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     setValidated(true);
 
     if (!validateForm()) {
@@ -98,7 +155,6 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
 
       // If it's an event, combine date and time
       if (taskData.isEvent) {
-        // Formato ISO para LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
           taskData.startDate = dayjs(
             `${startDateField}T${startTimeField}`
@@ -111,22 +167,28 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
           ).toISOString();
         }
       }
-      await taskervice.createTask(taskData);
-      restartForm();
+
+      if (onSave) {
+        await onSave(taskData);
+        successToast(editOrNew ? "Task updated successfully" : "Task created successfully");
+      } else if (editOrNew && taskData.id) {
+        await taskService.editTask(taskData);
+        successToast("Task updated successfully");
+      } else {
+        await taskService.createTask(taskData);
+        successToast("Task created successfully");
+      }
+
+      if (!editOrNew) {
+        restartForm();
+      }
       refreshTasks();
-      successToast("Task created succesfully");
       return true;
     } catch (error) {
       errorToast("Error: " + error.message);
       return false;
     }
   };
-
-  // Add these variables to control date and time fields
-  const [startDateField, setStartDateField] = useState("");
-  const [startTimeField, setStartTimeField] = useState("");
-  const [endDateField, setEndDateField] = useState("");
-  const [endTimeField, setEndTimeField] = useState("");
 
   const priorityOptions = ["LOW", "MIN", "MEDIUM", "HIGH", "CRITICAL"];
   const statusOptions = [
@@ -147,21 +209,20 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
         className="task-modal"
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-primary">New Task</Modal.Title>
+          <Modal.Title className="fw-bold text-primary">
+            {editOrNew ? "Edit Task" : "New Task"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2">
           <Container>
             <Col>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group
-                  className="mb-4"
-                  controlId="exampleForm.ControlInput1"
-                >
+              <Form>
+                <Form.Group className="mb-4" controlId="taskNameInput">
                   <Form.Label className="text-secondary fw-medium">
                     Name
                   </Form.Label>
                   <Form.Control
-                    type="title"
+                    type="text"
                     placeholder="Name of task"
                     name="nameOfTask"
                     value={formData.nameOfTask}
@@ -218,7 +279,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                 </Row>
                 <Form.Check
                   type="switch"
-                  id="custom-switch"
+                  id="event-switch"
                   label="Is an Event?"
                   checked={isEvent}
                   onChange={handleEvent}
@@ -228,7 +289,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                   <Container className="mb-4 bg-body-tertiary rounded-3 p-3 border border-light-subtle">
                     <Row>
                       <Form.Group
-                        controlId="formDate"
+                        controlId="formStartDate"
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
@@ -261,7 +322,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                         </Row>
                       </Form.Group>
                       <Form.Group
-                        controlId="formDate"
+                        controlId="formEndDate"
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
@@ -295,10 +356,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
                     )}
                   </Container>
                 </Collapse>
-                <Form.Group
-                  className="mb-4"
-                  controlId="exampleForm.ControlTextarea1"
-                >
+                <Form.Group className="mb-4" controlId="taskDescription">
                   <Form.Label className="text-secondary fw-medium">
                     Description
                   </Form.Label>
@@ -334,7 +392,7 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
             }}
             className="rounded-3 px-4 fw-medium"
           >
-            Create
+            {editOrNew ? "Save Changes" : "Create"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -342,4 +400,4 @@ const NewTask = ({ show, handleClose, refreshTasks }) => {
   );
 };
 
-export default NewTask;
+export default NewEditTask;

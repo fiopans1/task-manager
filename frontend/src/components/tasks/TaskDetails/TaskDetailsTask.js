@@ -23,7 +23,7 @@ import {
   ListUl,
   PencilSquare,
 } from "react-bootstrap-icons";
-import EditTask from "../EditTask";
+import NewEditTask from "../NewEditTask";
 
 const TaskDetailsTask = ({ taskId }) => {
   const [showMore, setShowMore] = useState(false);
@@ -349,10 +349,11 @@ const TaskDetailsTask = ({ taskId }) => {
         </Card.Body>
       </Card>
 
-      <EditTask
+      <NewEditTask
         show={showEditTask}
         handleClose={() => setShowEditTask(false)}
         refreshTasks={fetchTask}
+        editOrNew={true}
         initialData={task}
       />
     </Container>

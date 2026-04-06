@@ -22,7 +22,7 @@ import DashboardTab from "./DashboardTab";
 import TasksTab from "./TasksTab";
 import HistoryTab from "./HistoryTab";
 import InvitationsTab from "./InvitationsTab";
-import EditTeam from "./EditTeam";
+import NewEditTeam from "./NewEditTeam";
 
 const TeamDashboard = () => {
   const { id: teamId } = useParams();
@@ -753,11 +753,13 @@ const TeamDashboard = () => {
       </Modal>
 
       {/* ===== Edit Team Modal ===== */}
-      <EditTeam
+      <NewEditTeam
         show={showEditTeamModal}
         handleClose={() => setShowEditTeamModal(false)}
         onSave={handleEditTeamSave}
+        editOrNew={true}
         initialData={team}
+        refreshTeams={loadData}
       />
 
       {/* ===== Leave Team Confirmation Modal ===== */}

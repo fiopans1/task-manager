@@ -10,13 +10,12 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import NewTask from "./NewTask";
+import NewEditTask from "./NewEditTask";
 import taskService from "../../services/taskService";
 import { Suspense } from "react";
 import TasksList from "./TasksList";
 import { ErrorBoundary } from "react-error-boundary";
 import { errorToast } from "../common/Noty";
-import EditTask from "./EditTask";
 
 const Tasks = () => {
   const navigateTo = useNavigate();
@@ -185,15 +184,18 @@ const Tasks = () => {
       </Row>
 
       {/* Modales */}
-      <NewTask
+      <NewEditTask
         show={showNewTask}
         handleClose={handleClose}
         refreshTasks={refreshTasks}
+        editOrNew={false}
+        initialData={{}}
       />
-      <EditTask
+      <NewEditTask
         show={showEditTask}
         handleClose={handleCloseEdit}
         refreshTasks={refreshTasks}
+        editOrNew={true}
         initialData={formEditData}
       />
     </Container>
