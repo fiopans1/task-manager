@@ -7,12 +7,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.taskmanager.application.model.entities.ListTM;
 import com.taskmanager.application.model.entities.Task;
 
+import jakarta.validation.constraints.NotBlank;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ListTMDTO {
 
     private Long id;
+    @NotBlank(message = "List name is required")
     private String nameOfList;
     private String descriptionOfList;
+    @NotBlank(message = "List color is required")
     private String color;
     private String user;
     private List<TaskDTO> tasks;

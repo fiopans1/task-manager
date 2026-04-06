@@ -14,9 +14,9 @@ import listService from "../../services/listService";
 import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
 import ConfirmModal from "./ConfirmModal";
-import EditTask from "../tasks/EditTask";
+import NewEditTask from "../tasks/NewEditTask";
 import NewEditLists from "../lists/NewEditLists";
-import EditTeam from "../teams/EditTeam";
+import NewEditTeam from "../teams/NewEditTeam";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const getStateBadge = (state) => {
@@ -218,11 +218,12 @@ const UserDetailModal = ({ show, onHide, user }) => {
         </Modal.Body>
       </Modal>
 
-      {/* Reuse existing EditTask modal — no onSave override needed, existing TaskService already allows ADMIN */}
-      <EditTask
+      {/* Reuse existing NewEditTask modal (edit mode) — no onSave override needed, existing TaskService already allows ADMIN */}
+      <NewEditTask
         show={showEditTask}
         handleClose={() => setShowEditTask(false)}
         refreshTasks={refreshTasksAfterEdit}
+        editOrNew={true}
         initialData={editTaskData}
       />
 
@@ -235,12 +236,14 @@ const UserDetailModal = ({ show, onHide, user }) => {
         initialData={editListData}
       />
 
-      {/* Reuse EditTeam component — uses teamService.updateTeam which now allows global ADMIN */}
-      <EditTeam
+      {/* Reuse NewEditTeam component (edit mode) — uses teamService.updateTeam which now allows global ADMIN */}
+      <NewEditTeam
         show={showEditTeam}
         handleClose={() => setShowEditTeam(false)}
         onSave={handleSaveTeam}
+        editOrNew={true}
         initialData={editTeamData}
+        refreshTeams={() => setTeamsRefreshKey((k) => k + 1)}
       />
 
       {/* Confirm Modal */}

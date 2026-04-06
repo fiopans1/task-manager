@@ -17,6 +17,8 @@ const NewEditLists = ({
     descriptionOfList: "",
     color: "#0d6efd",
   });
+  const [validated, setValidated] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -33,8 +35,23 @@ const NewEditLists = ({
     }
   }, [initialData, editOrNew]);
 
+  const validateForm = () => {
+    if (!formData.nameOfList || formData.nameOfList.trim() === "") {
+      return false;
+    }
+    if (!formData.color || formData.color.trim() === "") {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
-    // TODO: Add date validation to ensure start date is before end date
+    setValidated(true);
+
+    if (!validateForm()) {
+      return false;
+    }
+
     try {
       if (onSave) {
         await onSave(formData);
@@ -47,8 +64,10 @@ const NewEditLists = ({
         successToast("List created successfully");
       }
       refreshLists();
+      return true;
     } catch (error) {
       errorToast("Error: " + error.message);
+      return false;
     }
   };
 
@@ -69,7 +88,12 @@ const NewEditLists = ({
                 onChange={handleChange}
                 placeholder="Name of the list"
                 autoFocus
+                required
+                isInvalid={validated && (!formData.nameOfList || formData.nameOfList.trim() === "")}
               />
+              <Form.Control.Feedback type="invalid">
+                List name is required
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
@@ -107,9 +131,11 @@ const NewEditLists = ({
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              handleClose();
-              handleSubmit();
+            onClick={async () => {
+              const success = await handleSubmit();
+              if (success) {
+                handleClose();
+              }
             }}
           >
             {editOrNew ? "Update" : "Create List"}

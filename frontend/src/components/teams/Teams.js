@@ -2,7 +2,6 @@ import React, { useState, useEffect, Suspense } from "react";
 import {
   Container,
   Button,
-  Modal,
   Form,
   Spinner,
   Alert,
@@ -16,12 +15,11 @@ import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
 import { ErrorBoundary } from "react-error-boundary";
 import TeamsList from "./TeamsList";
+import NewEditTeam from "./NewEditTeam";
 
 const Teams = () => {
   const location = useLocation();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newTeam, setNewTeam] = useState({ name: "", description: "" });
-  const [creating, setCreating] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,22 +45,6 @@ const Teams = () => {
       setPendingInvitations(data);
     } catch (err) {
       // Silently fail
-    }
-  };
-
-  const handleCreateTeam = async (e) => {
-    e.preventDefault();
-    setCreating(true);
-    try {
-      await teamService.createTeam(newTeam);
-      successToast("Team created successfully");
-      setShowCreateModal(false);
-      setNewTeam({ name: "", description: "" });
-      refreshTeams();
-    } catch (err) {
-      errorToast("Error creating team");
-    } finally {
-      setCreating(false);
     }
   };
 
@@ -206,58 +188,13 @@ const Teams = () => {
       </ErrorBoundary>
 
       {/* Create Team Modal */}
-      <Modal
+      <NewEditTeam
         show={showCreateModal}
-        onHide={() => setShowCreateModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Create New Team</Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleCreateTeam}>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Team Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTeam.name}
-                onChange={(e) =>
-                  setNewTeam({ ...newTeam, name: e.target.value })
-                }
-                placeholder="Enter team name"
-                required
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={newTeam.description}
-                onChange={(e) =>
-                  setNewTeam({ ...newTeam, description: e.target.value })
-                }
-                placeholder="Describe the team's purpose"
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowCreateModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" disabled={creating}>
-              {creating ? (
-                <Spinner size="sm" animation="border" />
-              ) : (
-                "Create Team"
-              )}
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
+        handleClose={() => setShowCreateModal(false)}
+        refreshTeams={refreshTeams}
+        editOrNew={false}
+        initialData={{}}
+      />
     </Container>
   );
 };

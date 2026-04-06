@@ -6,11 +6,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.entities.ActionType;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActionTaskDTO {
     private Long id;
+    @NotBlank(message = "Action name is required")
     private String actionName;
     private String actionDescription;
+    @NotNull(message = "Action type is required")
     private ActionType actionType;
     private String user;
     private Date actionDate;

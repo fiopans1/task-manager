@@ -13,17 +13,17 @@ import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import dayjs from "dayjs";
 
-const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
+const NewEditTask = ({
+  show,
+  handleClose,
+  refreshTasks,
+  editOrNew,
+  initialData,
+  onSave,
+}) => {
   const [isEvent, setIsEvent] = useState(false);
-
-  const handleEvent = () => {
-    const newIsEvent = !isEvent;
-    setIsEvent(newIsEvent);
-    setFormData((prevData) => ({
-      ...prevData,
-      isEvent: newIsEvent,
-    }));
-  };
+  const [validated, setValidated] = useState(false);
+  const [dateError, setDateError] = useState("");
 
   const [formData, setFormData] = useState({
     nameOfTask: "",
@@ -33,18 +33,38 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
     isEvent: false,
     startDate: "",
     endDate: "",
-    id: "",
+    id: null,
   });
 
-  // Initialize date and time fields
+  // Date and time fields
   const [startDateField, setStartDateField] = useState("");
   const [startTimeField, setStartTimeField] = useState("");
   const [endDateField, setEndDateField] = useState("");
   const [endTimeField, setEndTimeField] = useState("");
 
-  // Update form when initialData changes
+  const restartForm = () => {
+    setFormData({
+      nameOfTask: "",
+      descriptionOfTask: "",
+      state: "NEW",
+      priority: "MIN",
+      isEvent: false,
+      startDate: "",
+      endDate: "",
+      id: null,
+    });
+    setIsEvent(false);
+    setValidated(false);
+    setDateError("");
+    setStartDateField("");
+    setStartTimeField("");
+    setEndDateField("");
+    setEndTimeField("");
+  };
+
+  // Update form when initialData changes (edit mode)
   useEffect(() => {
-    if (initialData && Object.keys(initialData).length > 0) {
+    if (editOrNew && initialData && Object.keys(initialData).length > 0) {
       setFormData({
         nameOfTask: initialData.nameOfTask || "",
         descriptionOfTask: initialData.descriptionOfTask || "",
@@ -53,7 +73,7 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
         isEvent: initialData.isEvent || false,
         startDate: initialData.startDate || "",
         endDate: initialData.endDate || "",
-        id: initialData.id || "",
+        id: initialData.id || null,
       });
 
       setIsEvent(initialData.isEvent || false);
@@ -63,29 +83,78 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
         const startDate = dayjs(initialData.startDate);
         setStartDateField(startDate.format("YYYY-MM-DD"));
         setStartTimeField(startDate.format("HH:mm"));
+      } else {
+        setStartDateField("");
+        setStartTimeField("");
       }
 
       if (initialData.isEvent && initialData.endDate) {
         const endDate = dayjs(initialData.endDate);
         setEndDateField(endDate.format("YYYY-MM-DD"));
         setEndTimeField(endDate.format("HH:mm"));
+      } else {
+        setEndDateField("");
+        setEndTimeField("");
       }
+
+      setValidated(false);
+      setDateError("");
     }
-  }, [initialData]);
+  }, [initialData, editOrNew]);
+
+  const handleEvent = () => {
+    const newIsEvent = !isEvent;
+    setIsEvent(newIsEvent);
+    setFormData((prevData) => ({
+      ...prevData,
+      isEvent: newIsEvent,
+    }));
+    if (!newIsEvent) {
+      setDateError("");
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    if (!formData.nameOfTask || formData.nameOfTask.trim() === "") {
+      return false;
+    }
+
+    if (isEvent) {
+      if (!startDateField || !startTimeField || !endDateField || !endTimeField) {
+        setDateError("All event date and time fields are required");
+        return false;
+      }
+
+      const startDateTime = dayjs(`${startDateField}T${startTimeField}`);
+      const endDateTime = dayjs(`${endDateField}T${endTimeField}`);
+      if (endDateTime.isBefore(startDateTime)) {
+        setDateError("End date must be after start date");
+        return false;
+      }
+      setDateError("");
+    }
+
+    return true;
+  };
+
   const handleSubmit = async () => {
+    setValidated(true);
+
+    if (!validateForm()) {
+      return false;
+    }
+
     try {
-      // Create a copy of formData for modification
+      // Create a copy of formData to modify
       const taskData = { ...formData };
 
       // If it's an event, combine date and time
       if (taskData.isEvent) {
-        // ISO format for LocalDateTime: YYYY-MM-DDThh:mm:ss
         if (startDateField && startTimeField) {
           taskData.startDate = dayjs(
             `${startDateField}T${startTimeField}`
@@ -101,13 +170,27 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
 
       if (onSave) {
         await onSave(taskData);
-      } else {
+        successToast(editOrNew ? "Task updated successfully" : "Task created successfully");
+      } else if (editOrNew) {
+        if (!taskData.id) {
+          errorToast("Error: Task ID is missing for update");
+          return false;
+        }
         await taskService.editTask(taskData);
+        successToast("Task updated successfully");
+      } else {
+        await taskService.createTask(taskData);
+        successToast("Task created successfully");
+      }
+
+      if (!editOrNew) {
+        restartForm();
       }
       refreshTasks();
-      successToast("Task updated successfully");
+      return true;
     } catch (error) {
       errorToast("Error: " + error.message);
+      return false;
     }
   };
 
@@ -130,13 +213,15 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
         className="task-modal"
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-primary">Edit Task</Modal.Title>
+          <Modal.Title className="fw-bold text-primary">
+            {editOrNew ? "Edit Task" : "New Task"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2">
           <Container>
             <Col>
               <Form>
-                <Form.Group className="mb-4" controlId="editTaskNameInput">
+                <Form.Group className="mb-4" controlId="taskNameInput">
                   <Form.Label className="text-secondary fw-medium">
                     Name
                   </Form.Label>
@@ -147,7 +232,12 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
                     value={formData.nameOfTask}
                     onChange={handleChange}
                     className="shadow-sm rounded-3 border-light-subtle"
+                    required
+                    isInvalid={validated && (!formData.nameOfTask || formData.nameOfTask.trim() === "")}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    Task name is required
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mb-4">
                   <Col>
@@ -193,7 +283,7 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
                 </Row>
                 <Form.Check
                   type="switch"
-                  id="edit-event-switch"
+                  id="event-switch"
                   label="Is an Event?"
                   checked={isEvent}
                   onChange={handleEvent}
@@ -203,7 +293,7 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
                   <Container className="mb-4 bg-body-tertiary rounded-3 p-3 border border-light-subtle">
                     <Row>
                       <Form.Group
-                        controlId="editFormStartDate"
+                        controlId="formStartDate"
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
@@ -236,7 +326,7 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
                         </Row>
                       </Form.Group>
                       <Form.Group
-                        controlId="editFormEndDate"
+                        controlId="formEndDate"
                         className="mb-3"
                         style={{ width: "100%" }}
                       >
@@ -265,9 +355,12 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
                         </Row>
                       </Form.Group>
                     </Row>
+                    {dateError && (
+                      <div className="text-danger small mt-1">{dateError}</div>
+                    )}
                   </Container>
                 </Collapse>
-                <Form.Group className="mb-4" controlId="editTaskDescription">
+                <Form.Group className="mb-4" controlId="taskDescription">
                   <Form.Label className="text-secondary fw-medium">
                     Description
                   </Form.Label>
@@ -295,13 +388,15 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              handleSubmit();
-              handleClose();
+            onClick={async () => {
+              const success = await handleSubmit();
+              if (success) {
+                handleClose();
+              }
             }}
             className="rounded-3 px-4 fw-medium"
           >
-            Save Changes
+            {editOrNew ? "Save Changes" : "Create"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -309,4 +404,4 @@ const EditTask = ({ show, handleClose, refreshTasks, initialData, onSave }) => {
   );
 };
 
-export default EditTask;
+export default NewEditTask;

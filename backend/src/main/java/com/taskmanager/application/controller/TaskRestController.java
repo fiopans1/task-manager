@@ -8,6 +8,7 @@ import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.TaskService;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class TaskRestController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO task) { //TO-DO: All ResponseEntity change and put correctly messages
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO task) { //TO-DO: All ResponseEntity change and put correctly messages
         logger.info("Creating new task: {}", task.getNameOfTask());
 
         try {
@@ -110,7 +111,7 @@ public class TaskRestController {
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO task) throws ResourceNotFoundException, NotPermissionException { //TO-DO: Change the expcetion to a custom exception
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO task) throws ResourceNotFoundException, NotPermissionException { //TO-DO: Change the expcetion to a custom exception
         logger.info("Updating task with ID: {}", id);
 
         try {
@@ -143,7 +144,7 @@ public class TaskRestController {
     // ===== ACTION ENDPOINTS =====
 
     @PostMapping("/{taskId}/actions")
-    public ResponseEntity<ActionTaskDTO> addActionToTask(@PathVariable Long taskId, @RequestBody ActionTaskDTO actionTaskDTO) 
+    public ResponseEntity<ActionTaskDTO> addActionToTask(@PathVariable Long taskId, @Valid @RequestBody ActionTaskDTO actionTaskDTO) 
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Adding action to task with ID: {}", taskId);
 
@@ -191,7 +192,7 @@ public class TaskRestController {
 
     @PutMapping("/{taskId}/actions/{actionId}")
     public ResponseEntity<ActionTaskDTO> updateActionTask(@PathVariable Long taskId, @PathVariable Long actionId, 
-            @RequestBody ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
+            @Valid @RequestBody ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating action with ID: {} for task with ID: {}", actionId, taskId);
 
         try {
