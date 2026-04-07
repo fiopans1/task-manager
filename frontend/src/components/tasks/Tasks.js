@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import NewEditTask from "./NewEditTask";
 import taskService from "../../services/taskService";
 import { Suspense } from "react";
@@ -18,6 +19,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { errorToast } from "../common/Noty";
 
 const Tasks = () => {
+  const { t } = useTranslation();
   const navigateTo = useNavigate();
   const location = useLocation();
   const handleOpenTask = (id) => {
@@ -82,7 +84,7 @@ const Tasks = () => {
   return (
     <Container fluid className="px-3">
       <div className="tittle-tab-container">
-        <h2>My Tasks</h2>
+        <h2>{t('tasks.title')}</h2>
       </div>
 
       {/* First row with controls */}
@@ -94,12 +96,12 @@ const Tasks = () => {
                 <InputGroup>
                   <Form.Control
                     className="border-end-0"
-                    placeholder="Search tasks..."
+                    placeholder={t('tasks.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <Button variant="outline-primary" type="submit">
-                    Search
+                    {t('tasks.search')}
                   </Button>
                 </InputGroup>
               </Col>
@@ -113,7 +115,7 @@ const Tasks = () => {
                   className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
-                  Clear Filter
+                  {t('tasks.clearFilter')}
                 </Button>
                 <Button
                   variant="outline-info"
@@ -121,7 +123,7 @@ const Tasks = () => {
                   onClick={refreshTasks}
                   size={isMobile ? "sm" : ""}
                 >
-                  Refresh
+                  {t('tasks.refresh')}
                 </Button>
                 <Button
                   variant="outline-primary"
@@ -129,7 +131,7 @@ const Tasks = () => {
                   className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
-                  <span className="me-1">+</span> New Task
+                  <span className="me-1">+</span> {t('tasks.newTask')}
                 </Button>
               </Col>
             </Row>
@@ -153,10 +155,10 @@ const Tasks = () => {
               onError={handleErrors}
               fallback={
                 <Container className="text-center mt-5">
-                  <h2 style={{ color: "red" }}>Something went wrong</h2>
-                  <p>There was an error loading your tasks.</p>
+                  <h2 style={{ color: "red" }}>{t('tasks.somethingWentWrong')}</h2>
+                  <p>{t('tasks.errorLoadingTasks')}</p>
                   <Button variant="primary" onClick={refreshTasks}>
-                    Try Again
+                    {t('tasks.tryAgain')}
                   </Button>
                 </Container>
               }
@@ -165,7 +167,7 @@ const Tasks = () => {
                 fallback={
                   <Container className="text-center mt-5">
                     <Spinner animation="border" />
-                    <p className="mt-2">Loading tasks...</p>
+                    <p className="mt-2">{t('tasks.loadingTasks')}</p>
                   </Container>
                 }
               >

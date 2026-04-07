@@ -19,6 +19,7 @@ import {
   CalendarCheck,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import homeService from "../services/homeService";
 
 /* ── helpers ─────────────────────────────────────────────────── */
@@ -74,6 +75,7 @@ const Empty = ({ text }) => (
    COMPONENT
    ════════════════════════════════════════════════════════════════ */
 const Home = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -114,18 +116,17 @@ const Home = () => {
       <Row className="justify-content-center mb-4">
         <Col lg={8} xl={7} className="text-center py-4">
           <h1 className="fw-bold mb-3" style={{ letterSpacing: "-0.025em" }}>
-            Task Manager
+            {t('home.title')}
           </h1>
           <p className="text-muted mb-4" style={{ lineHeight: 1.75 }}>
-            Organize your ideas, manage your projects, and regain focus.
-            No distractions, no noise — just you and your work.
+            {t('home.subtitle')}
           </p>
           <Button
             variant="dark"
             className="rounded-3 px-4"
             onClick={() => navigate("/home/tasks")}
           >
-            Get Started <ArrowRight className="ms-1" size={14} />
+            {t('home.getStarted')} <ArrowRight className="ms-1" size={14} />
           </Button>
         </Col>
       </Row>
@@ -135,26 +136,26 @@ const Home = () => {
         {[
           {
             icon: <ListTask size={22} className="text-primary" />,
-            title: "My Tasks",
-            desc: "Manage and organize all your tasks.",
+            title: t('home.myTasks'),
+            desc: t('home.myTasksDesc'),
             path: "/home/tasks",
           },
           {
             icon: <CalendarEvent size={22} className="text-success" />,
-            title: "Calendar",
-            desc: "Visualize your events and deadlines.",
+            title: t('home.calendar'),
+            desc: t('home.calendarDesc'),
             path: "/home/calendar",
           },
           {
             icon: <Kanban size={22} className="text-info" />,
-            title: "Lists",
-            desc: "Create custom lists for your projects.",
+            title: t('home.lists'),
+            desc: t('home.listsDesc'),
             path: "/home/lists",
           },
           {
             icon: <ListTask size={22} className="text-warning" />,
-            title: "Teams",
-            desc: "Manage teams and collaborate with other users.",
+            title: t('home.teams'),
+            desc: t('home.teamsDesc'),
             path: "/home/teams",
           },
         ].map((item, i) => (
@@ -185,17 +186,17 @@ const Home = () => {
           {
             icon: <CheckCircleFill size={18} className="text-primary mb-1" />,
             value: loading ? "—" : (summary?.totalTasks ?? 0),
-            label: "Total Tasks",
+            label: t('home.totalTasks'),
           },
           {
             icon: <ClockHistory size={18} className="text-success mb-1" />,
             value: loading ? "—" : (summary?.totalLists ?? 0),
-            label: "Lists Created",
+            label: t('home.listsCreated'),
           },
           {
             icon: <CalendarCheck size={18} className="text-info mb-1" />,
             value: loading ? "—" : (summary?.nextEvents?.length ?? 0),
-            label: "Upcoming Events",
+            label: t('home.upcomingEvents'),
           },
         ].map((s, i) => (
           <Col key={i} xs={12} sm={4} lg={3}>
@@ -223,13 +224,13 @@ const Home = () => {
               <Card.Body className="py-3">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <small className="text-muted fw-semibold">
-                    Recent tasks progress
+                    {t('home.recentTasksProgress')}
                   </small>
                   <Badge
                     bg={completionPct === 100 ? "success" : "primary"}
                     pill
                   >
-                    {completedCount}/{totalRecent} completed
+                    {completedCount}/{totalRecent} {t('home.completed')}
                   </Badge>
                 </div>
                 <ProgressBar
@@ -255,7 +256,7 @@ const Home = () => {
                   className="text-uppercase text-muted fw-semibold mb-0"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
                 >
-                  Recent Tasks
+                  {t('home.recentTasks')}
                 </h6>
                 <Button
                   variant="link"
@@ -263,16 +264,16 @@ const Home = () => {
                   className="text-decoration-none p-0"
                   onClick={() => navigate("/home/tasks")}
                 >
-                  View All <ArrowRight size={12} />
+                  {t('home.viewAll')} <ArrowRight size={12} />
                 </Button>
               </div>
 
               {loading ? (
                 <SkeletonRows />
               ) : error ? (
-                <Empty text="Error loading tasks." />
+                <Empty text={t('home.errorLoadingTasks')} />
               ) : !summary?.recentTasks?.length ? (
-                <Empty text="You haven't created any tasks yet." />
+                <Empty text={t('home.noTasksYet')} />
               ) : (
                 summary.recentTasks.map((task) => (
                   <div
@@ -298,7 +299,7 @@ const Home = () => {
                         bg={STATE_MAP[task.state]?.bg || "secondary"}
                         style={{ fontSize: "0.6875rem" }}
                       >
-                        {STATE_MAP[task.state]?.label || task.state}
+                        {t('states.' + task.state)}
                       </Badge>
                       <small
                         className="text-muted"
@@ -323,7 +324,7 @@ const Home = () => {
                   className="text-uppercase text-muted fw-semibold mb-0"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
                 >
-                  Upcoming Events
+                  {t('home.upcomingEventsTitle')}
                 </h6>
                 <Button
                   variant="link"
@@ -331,16 +332,16 @@ const Home = () => {
                   className="text-decoration-none p-0"
                   onClick={() => navigate("/home/calendar")}
                 >
-                  Ver calendario <ArrowRight size={12} />
+                  {t('home.viewCalendar')} <ArrowRight size={12} />
                 </Button>
               </div>
 
               {loading ? (
                 <SkeletonRows />
               ) : error ? (
-                <Empty text="Error loading events." />
+                <Empty text={t('home.errorLoadingEvents')} />
               ) : !summary?.nextEvents?.length ? (
-                <Empty text="No upcoming events scheduled." />
+                <Empty text={t('home.noUpcomingEvents')} />
               ) : (
                 summary.nextEvents.map((evt) => (
                   <div
@@ -377,9 +378,9 @@ const Home = () => {
           <Col lg={10}>
             <Row>
               <Col md={4} className="mb-3 mb-md-0">
-                <h6 className="fw-semibold">TaskManager</h6>
+                <h6 className="fw-semibold">{t('app.name')}</h6>
                 <p className="text-muted small mb-0">
-                  Simplifying task management since 2025.
+                  {t('home.simplifyingTaskMgmt')}
                 </p>
               </Col>
               <Col md={4} className="mb-3 mb-md-0">
@@ -412,7 +413,7 @@ const Home = () => {
               </Col>
               <Col md={4} className="text-md-end">
                 <p className="text-muted small mb-0">
-                  © 2025 TaskManager · Created by{" "}
+                  {t('home.footer')} · {t('home.createdBy')}{" "}
                   <a
                     href="https://github.com/fiopans1"
                     target="_blank"

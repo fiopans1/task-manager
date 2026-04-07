@@ -1,5 +1,6 @@
 import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
@@ -11,6 +12,7 @@ const TasksList = ({
   refreshTasks,
   searchTerm,
 }) => {
+  const { t } = useTranslation();
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
@@ -90,8 +92,8 @@ const TasksList = ({
             style={{ fontSize: "2.5rem" }}
           ></i>
         </div>
-        <Card.Title>No tasks available</Card.Title>
-        <Card.Text className="text-muted">Please create a new task</Card.Text>
+        <Card.Title>{t('tasks.noTasks')}</Card.Title>
+        <Card.Text className="text-muted">{t('tasks.createNewTask')}</Card.Text>
       </Card.Body>
     </Card>
   );
@@ -132,7 +134,7 @@ const TasksList = ({
                     task.descriptionOfTask
                   ) : (
                     <span className="text-muted fst-italic">
-                      No description
+                      {t('tasks.noDescription')}
                     </span>
                   )}
                 </Card.Text>
@@ -181,7 +183,7 @@ const TasksList = ({
                     onClick={() => handleOpenTask(task.id)}
                   >
                     <i className="bi bi-eye me-1"></i>
-                    View
+                    {t('tasks.view')}
                   </Button>
                   <Button
                     variant="outline-primary"
@@ -189,14 +191,14 @@ const TasksList = ({
                     onClick={() => handleEditTask(task)}
                   >
                     <i className="bi bi-pencil me-1"></i>
-                    Edit
+                    {t('tasks.edit')}
                   </Button>
                   <Button
                     variant="outline-danger"
                     onClick={() => confirmDeleteTask(task.id)}
                   >
                     <i className="bi bi-trash me-1"></i>
-                    Delete
+                    {t('tasks.delete')}
                   </Button>
                 </div>
               </Col>
@@ -215,11 +217,10 @@ const TasksList = ({
         backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
+          <Modal.Title>{t('tasks.confirmDeletion')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete this task? This action cannot be
-          undone.
+          {t('tasks.deleteTaskConfirm')}
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -229,7 +230,7 @@ const TasksList = ({
               setIdToDelete(null);
             }}
           >
-            Cancel
+            {t('tasks.cancel')}
           </Button>
           <Button
             variant="danger"
@@ -238,7 +239,7 @@ const TasksList = ({
               deleteTask();
             }}
           >
-            Delete Task
+            {t('tasks.deleteTask')}
           </Button>
         </Modal.Footer>
       </Modal>

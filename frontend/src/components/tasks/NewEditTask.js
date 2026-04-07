@@ -9,6 +9,7 @@ import {
   Collapse,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
 import dayjs from "dayjs";
@@ -21,6 +22,7 @@ const NewEditTask = ({
   initialData,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [isEvent, setIsEvent] = useState(false);
   const [validated, setValidated] = useState(false);
   const [dateError, setDateError] = useState("");
@@ -214,7 +216,7 @@ const NewEditTask = ({
       >
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-primary">
-            {editOrNew ? "Edit Task" : "New Task"}
+            {editOrNew ? t('newEditTask.editTask') : t('newEditTask.newTask')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2">
@@ -223,11 +225,11 @@ const NewEditTask = ({
               <Form>
                 <Form.Group className="mb-4" controlId="taskNameInput">
                   <Form.Label className="text-secondary fw-medium">
-                    Name
+                    {t('newEditTask.name')}
                   </Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Name of task"
+                    placeholder={t('newEditTask.namePlaceholder')}
                     name="nameOfTask"
                     value={formData.nameOfTask}
                     onChange={handleChange}
@@ -236,14 +238,14 @@ const NewEditTask = ({
                     isInvalid={validated && (!formData.nameOfTask || formData.nameOfTask.trim() === "")}
                   />
                   <Form.Control.Feedback type="invalid">
-                    Task name is required
+                    {t('newEditTask.nameRequired')}
                   </Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mb-4">
                   <Col>
                     <Form.Group controlId="formPriority">
                       <Form.Label className="text-secondary fw-medium">
-                        Priority
+                        {t('newEditTask.priority')}
                       </Form.Label>
                       <Form.Select
                         aria-label="Priority"
@@ -254,7 +256,7 @@ const NewEditTask = ({
                       >
                         {priorityOptions.map((option) => (
                           <option key={option} value={option}>
-                            {option}
+                            {t('priorities.' + option)}
                           </option>
                         ))}
                       </Form.Select>
@@ -263,7 +265,7 @@ const NewEditTask = ({
                   <Col>
                     <Form.Group controlId="formStatus">
                       <Form.Label className="text-secondary fw-medium">
-                        Status
+                        {t('newEditTask.status')}
                       </Form.Label>
                       <Form.Select
                         aria-label="Status"
@@ -274,7 +276,7 @@ const NewEditTask = ({
                       >
                         {statusOptions.map((option) => (
                           <option key={option} value={option}>
-                            {option}
+                            {t('states.' + option)}
                           </option>
                         ))}
                       </Form.Select>
@@ -284,7 +286,7 @@ const NewEditTask = ({
                 <Form.Check
                   type="switch"
                   id="event-switch"
-                  label="Is an Event?"
+                  label={t('newEditTask.isEvent')}
                   checked={isEvent}
                   onChange={handleEvent}
                   className="mb-3 form-switch-lg text-secondary fw-medium"
@@ -298,7 +300,7 @@ const NewEditTask = ({
                         style={{ width: "100%" }}
                       >
                         <Form.Label className="text-secondary fw-medium">
-                          Start Event
+                          {t('newEditTask.startEvent')}
                         </Form.Label>
                         <Row>
                           <Col>
@@ -331,7 +333,7 @@ const NewEditTask = ({
                         style={{ width: "100%" }}
                       >
                         <Form.Label className="text-secondary fw-medium">
-                          End Event
+                          {t('newEditTask.endEvent')}
                         </Form.Label>
                         <Row>
                           <Col>
@@ -362,12 +364,12 @@ const NewEditTask = ({
                 </Collapse>
                 <Form.Group className="mb-4" controlId="taskDescription">
                   <Form.Label className="text-secondary fw-medium">
-                    Description
+                    {t('newEditTask.description')}
                   </Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={4}
-                    placeholder="Description....."
+                    placeholder={t('newEditTask.descriptionPlaceholder')}
                     value={formData.descriptionOfTask}
                     name="descriptionOfTask"
                     onChange={handleChange}
@@ -384,7 +386,7 @@ const NewEditTask = ({
             onClick={handleClose}
             className="rounded-3 px-4 fw-medium"
           >
-            Cancel
+            {t('newEditTask.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -396,7 +398,7 @@ const NewEditTask = ({
             }}
             className="rounded-3 px-4 fw-medium"
           >
-            {editOrNew ? "Save Changes" : "Create"}
+            {editOrNew ? t('newEditTask.saveChanges') : t('newEditTask.create')}
           </Button>
         </Modal.Footer>
       </Modal>

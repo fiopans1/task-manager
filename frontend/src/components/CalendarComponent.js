@@ -3,10 +3,12 @@ import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { errorToast } from "./common/Noty";
 import taskService from "../services/taskService";
 
 const CalendarComponent = () => {
+  const { t } = useTranslation();
   const localizer = dayjsLocalizer(dayjs);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ const CalendarComponent = () => {
         }
       } catch (error) {
         if (isMounted) {
-          errorToast("Error loading events: " + error.message);
+          errorToast(t('calendar.errorLoadingEvents', { message: error.message }));
         }
       } finally {
         if (isMounted) {
@@ -48,7 +50,7 @@ const CalendarComponent = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   const eventPropGetter = (event) => {
     const categoryColors = {
@@ -89,6 +91,7 @@ const CalendarComponent = () => {
 
   // Custom toolbar component
   const CustomToolbar = (props) => {
+    const { t } = useTranslation();
     return (
       <div className="rbc-toolbar">
         <div className="rbc-btn-group">
@@ -104,7 +107,7 @@ const CalendarComponent = () => {
             className="mx-1" 
             onClick={() => props.onNavigate('TODAY')}
           >
-            Today
+            {t('calendar.today')}
           </Button>
           <Button 
             variant="outline-secondary" 
@@ -127,10 +130,10 @@ const CalendarComponent = () => {
               className="mx-1"
               onClick={() => props.onView(view)}
             >
-              {view === 'month' && 'Month'}
-              {view === 'week' && 'Week'}
-              {view === 'day' && 'Day'}
-              {view === 'agenda' && 'Agenda'}
+              {view === 'month' && t('calendar.month')}
+              {view === 'week' && t('calendar.week')}
+              {view === 'day' && t('calendar.day')}
+              {view === 'agenda' && t('calendar.agenda')}
             </Button>
           ))}
         </div>
@@ -159,7 +162,7 @@ const CalendarComponent = () => {
   return (
     <Container fluid className="py-4 overflow-auto" style={{ height: "100%" }}>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Calendar</h2>
+        <h2 className="mb-0">{t('calendar.title')}</h2>
         <div className="d-flex gap-4">
           {Object.entries({
             work: { label: "Work", color: "#4361ee" },
@@ -187,7 +190,7 @@ const CalendarComponent = () => {
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <p className="mt-3">Loading events...</p>
+              <p className="mt-3">{t('calendar.loadingEvents')}</p>
             </div>
           ) : (
             <div style={{ height: "80vh" }}>

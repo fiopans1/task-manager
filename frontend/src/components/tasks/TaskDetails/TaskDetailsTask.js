@@ -12,6 +12,7 @@ import {
 import taskService from "../../../services/taskService";
 import { errorToast } from "../../common/Noty";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   ArrowLeft, 
   Calendar3,
@@ -26,6 +27,7 @@ import {
 import NewEditTask from "../NewEditTask";
 
 const TaskDetailsTask = ({ taskId }) => {
+  const { t } = useTranslation();
   const [showMore, setShowMore] = useState(false);
   const [showEditTask, setShowEditTask] = useState(false);
   const [task, setTask] = useState({
@@ -132,9 +134,9 @@ const TaskDetailsTask = ({ taskId }) => {
               <h1 className="mb-1 fw-bold text-body" style={{ 
                 fontSize: "2rem"
               }}>
-                Task Overview
+                {t('taskDetails.taskOverview')}
               </h1>
-              <p className="text-muted mb-0">Complete task information and status</p>
+              <p className="text-muted mb-0">{t('taskDetails.completeTaskInfo')}</p>
             </div>
             <Button
               variant="outline-primary"
@@ -142,7 +144,7 @@ const TaskDetailsTask = ({ taskId }) => {
               className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
             >
               <PencilSquare size={18} />
-              Edit
+              {t('taskDetails.edit')}
             </Button>
           </Stack>
         </Col>
@@ -167,11 +169,11 @@ const TaskDetailsTask = ({ taskId }) => {
             <Stack direction="horizontal" className="justify-content-between align-items-center">
               <div>
                 <h3 className="mb-1" style={{ fontWeight: "600" }}>
-            {task.nameOfTask || "Untitled Task"}
+            {task.nameOfTask || t('taskDetails.untitledTask')}
                 </h3>
                 <Stack direction="horizontal" gap={2}>
             <CheckCircle size={16} />
-            <small>Task ID: #{task.id}</small>
+            <small>{t('taskDetails.taskId', { id: task.id })}</small>
                 </Stack>
               </div>
               <Badge 
@@ -180,13 +182,13 @@ const TaskDetailsTask = ({ taskId }) => {
                 className="px-4 py-2 rounded-pill"
                 style={{ fontSize: "0.9rem", fontWeight: "600" }}
               >
-                {task.state || "No Status"}
+                {task.state || t('taskDetails.noStatus')}
               </Badge>
             </Stack>
             
             {/* Progress bar */}
           <div className="mt-3">
-            <small className="text-white-50">Progress</small>
+            <small className="text-white-50">{t('taskDetails.progress')}</small>
             <ProgressBar 
               now={progress} 
               className="mt-1"
@@ -207,7 +209,7 @@ const TaskDetailsTask = ({ taskId }) => {
                   style={{ fontSize: "0.85rem" }}
                 >
                   <Flag size={14} />
-                  {task.priority || "None"}
+                  {task.priority || t('taskDetails.none')}
                 </Badge>
 
                 <Badge
@@ -216,7 +218,7 @@ const TaskDetailsTask = ({ taskId }) => {
                   style={{ fontSize: "0.85rem" }}
                 >
                   <Calendar3 size={14} />
-                  {task.isEvent ? "Event" : "Task"}
+                  {task.isEvent ? t('taskDetails.event') : t('taskDetails.task')}
                 </Badge>
 
                 {task.user && task.user !== "<None>" && (
@@ -236,7 +238,7 @@ const TaskDetailsTask = ({ taskId }) => {
                     className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
                     style={{ fontSize: "0.85rem", cursor: "pointer" }}
                     onClick={() => navigate("/home/lists/" + task.listId)}
-                    title="Go to list"
+                    title={t('taskDetails.goToList')}
                   >
                     <ListUl size={14} />
                     {task.listName || "List #" + task.listId}
@@ -249,7 +251,7 @@ const TaskDetailsTask = ({ taskId }) => {
                     className="px-3 py-2 rounded-pill d-flex align-items-center gap-1"
                     style={{ fontSize: "0.85rem", cursor: "pointer" }}
                     onClick={() => navigate("/home/teams/" + task.teamId)}
-                    title="Go to team"
+                    title={t('taskDetails.goToTeam')}
                   >
                     <Person size={14} />
                     {task.teamName || "Team #" + task.teamId}
@@ -265,7 +267,7 @@ const TaskDetailsTask = ({ taskId }) => {
               <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                 <Card.Body className="text-center py-3">
                   <Calendar3 size={24} className="text-primary mb-2" />
-                  <h6 className="mb-1 text-muted">Created</h6>
+                  <h6 className="mb-1 text-muted">{t('taskDetails.created')}</h6>
                   <small className="fw-semibold">
                     {formatDate(task.creationDate)}
                   </small>
@@ -279,7 +281,7 @@ const TaskDetailsTask = ({ taskId }) => {
                   <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                     <Card.Body className="text-center py-3">
                       <Clock size={24} className="text-success mb-2" />
-                      <h6 className="mb-1 text-muted">Start Date</h6>
+                      <h6 className="mb-1 text-muted">{t('taskDetails.startDate')}</h6>
                       <small className="fw-semibold">
                         {formatDate(task.startDate)}
                       </small>
@@ -291,7 +293,7 @@ const TaskDetailsTask = ({ taskId }) => {
                   <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                     <Card.Body className="text-center py-3">
                       <Clock size={24} className="text-danger mb-2" />
-                      <h6 className="mb-1 text-muted">End Date</h6>
+                      <h6 className="mb-1 text-muted">{t('taskDetails.endDate')}</h6>
                       <small className="fw-semibold">
                         {formatDate(task.endDate)}
                       </small>
@@ -313,7 +315,7 @@ const TaskDetailsTask = ({ taskId }) => {
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <FileText size={20} className="text-primary" />
                 <h5 className="mb-0 fw-semibold text-body">
-                  Description
+                  {t('taskDetails.description')}
                 </h5>
               </Stack>
               
@@ -334,14 +336,14 @@ const TaskDetailsTask = ({ taskId }) => {
                       className="p-0 text-decoration-none fw-semibold"
                       onClick={() => setShowMore(!showMore)}
                     >
-                      {!showMore ? "Show More ↓" : "Show Less ↑"}
+                      {!showMore ? t('taskDetails.showMore') : t('taskDetails.showLess')}
                     </Button>
                   </>
                 )
               ) : (
                 <div className="text-center py-4">
                   <FileText size={48} className="text-muted mb-2" />
-                  <p className="text-muted mb-0">No description available</p>
+                  <p className="text-muted mb-0">{t('taskDetails.noDescription')}</p>
                 </div>
               )}
             </Card.Body>

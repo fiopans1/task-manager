@@ -14,6 +14,7 @@ import {
   DropdownButton,
   Spinner,
 } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import taskService from "../../../services/taskService";
 import teamService from "../../../services/teamService";
 import { successToast, errorToast } from "../../common/Noty";
@@ -21,6 +22,7 @@ import MentionInput, { renderMentionText } from "../../teams/MentionInput";
 import { useServerInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
 const TaskDetailsActions = ({ taskId, teamId }) => {
+  const { t } = useTranslation();
   // States for action handling
   const [teamMembers, setTeamMembers] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -119,7 +121,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
   const handleSaveAction = async () => {
     try {
       if (!newAction.actionName || !newAction.actionDescription) {
-        errorToast("Please fill in all required fields");
+        errorToast(t('taskActions.fillRequired'));
         return;
       }
 
@@ -133,17 +135,17 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
       // Refresh data after creating
       refreshActions();
 
-      successToast("Action saved successfully");
+      successToast(t('taskActions.actionSaved'));
       handleCloseModal();
     } catch (error) {
       console.error("Error saving action:", error);
-      errorToast("Error saving action: " + (error.message || error));
+      errorToast(t('taskActions.errorSaving', { message: error.message || error }));
     }
   };
 
   // Function to format dates
   const formatDate = (actionDate) => {
-    if (!actionDate) return "Date not available";
+    if (!actionDate) return t('taskActions.dateNotAvailable');
 
     try {
       return new Date(actionDate).toLocaleString("en-US", {
@@ -154,7 +156,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         minute: "2-digit",
       });
     } catch (error) {
-      return "Invalid date";
+      return t('taskActions.invalidDate');
     }
   };
 
@@ -188,7 +190,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
     return (
       <Container fluid className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Loading action history...</p>
+        <p className="mt-3">{t('taskActions.loadingActions')}</p>
       </Container>
     );
   }
@@ -199,7 +201,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         <Col>
           <h3 className="mb-0">
             <i className="bi bi-clock-history me-2"></i>
-            Action History
+            {t('taskActions.actionHistory')}
           </h3>
         </Col>
         <Col xs="auto">
@@ -211,7 +213,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
               onClick={refreshActions}
             >
               <i className="bi bi-arrow-clockwise me-1"></i>
-              Refresh
+              {t('taskActions.refresh')}
             </Button>
             <Button
               variant="primary"
@@ -220,7 +222,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
               onClick={handleAddAction}
             >
               <i className="bi bi-plus-lg me-1"></i>
-              New Action
+              {t('taskActions.newAction')}
             </Button>
           </div>
         </Col>
@@ -234,7 +236,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
               <i className="bi bi-search"></i>
             </InputGroup.Text>
             <FormControl
-              placeholder="Search actions..."
+              placeholder={t('taskActions.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -254,7 +256,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
             title={
               <>
                 <i className="bi bi-sort-down me-1"></i>{" "}
-                {sortOrder === "newest" ? "Newest first" : "Oldest first"}
+                {sortOrder === "newest" ? t('taskActions.newestFirst') : t('taskActions.oldestFirst')}
               </>
             }
             variant="outline-secondary"
@@ -264,14 +266,14 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
               onClick={() => setSortOrder("newest")}
             >
               <i className="bi bi-sort-down me-2"></i>
-              Newest first
+              {t('taskActions.newestFirst')}
             </Dropdown.Item>
             <Dropdown.Item
               active={sortOrder === "oldest"}
               onClick={() => setSortOrder("oldest")}
             >
               <i className="bi bi-sort-up me-2"></i>
-              Oldest first
+              {t('taskActions.oldestFirst')}
             </Dropdown.Item>
           </DropdownButton>
         </Col>
@@ -283,18 +285,18 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
           <Card className="text-center py-5 my-3">
             <Card.Body>
               <i className="bi bi-inbox fs-1 text-muted"></i>
-              <h5 className="mt-3">No actions for this task</h5>
+              <h5 className="mt-3">{t('taskActions.noActions')}</h5>
               <p className="text-muted">
                 {searchTerm
-                  ? "No actions found with that search criteria."
-                  : "No actions have been recorded for this task yet."}
+                  ? t('taskActions.noActionsSearch')
+                  : t('taskActions.noActionsYet')}
               </p>
               {searchTerm && (
                 <Button
                   variant="outline-secondary"
                   onClick={() => setSearchTerm("")}
                 >
-                  Clear search
+                  {t('taskActions.clearSearch')}
                 </Button>
               )}
             </Card.Body>
@@ -349,24 +351,24 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         <Modal.Header closeButton>
           <Modal.Title>
             <i className="bi bi-plus-circle me-2"></i>
-            New Action
+            {t('taskActions.newAction')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Action title</Form.Label>
+              <Form.Label>{t('taskActions.actionTitle')}</Form.Label>
               <Form.Control
                 type="text"
                 name="actionName"
                 value={newAction.actionName}
                 onChange={handleInputChange}
-                placeholder="E.g: Priority update"
+                placeholder={t('taskActions.actionTitlePlaceholder')}
                 autoFocus
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description {teamMembers.length > 0 && <small className="text-muted">(type @ to mention)</small>}</Form.Label>
+              <Form.Label>{t('taskActions.descriptionLabel')} {teamMembers.length > 0 && <small className="text-muted">{t('taskActions.descriptionMention')}</small>}</Form.Label>
               {teamMembers.length > 0 ? (
                 <MentionInput
                   value={newAction.actionDescription}
@@ -374,7 +376,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
                     setNewAction((prev) => ({ ...prev, actionDescription: val }))
                   }
                   members={teamMembers}
-                  placeholder="Describe the action performed in detail... Use @username to mention"
+                  placeholder={t('taskActions.descriptionMentionPlaceholder')}
                   rows={4}
                 />
               ) : (
@@ -383,13 +385,13 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
                   name="actionDescription"
                   value={newAction.actionDescription}
                   onChange={handleInputChange}
-                  placeholder="Describe the action performed in detail..."
+                  placeholder={t('taskActions.descriptionPlaceholder')}
                   rows={4}
                 />
               )}
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Action type</Form.Label>
+              <Form.Label>{t('taskActions.actionType')}</Form.Label>
               <Form.Select
                 name="actionType"
                 value={newAction.actionType}
@@ -404,14 +406,14 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
-            Cancel
+            {t('taskActions.cancel')}
           </Button>
           <Button
             variant="primary"
             onClick={handleSaveAction}
             disabled={!newAction.actionName || !newAction.actionDescription}
           >
-            Save Action
+            {t('taskActions.saveAction')}
           </Button>
         </Modal.Footer>
       </Modal>
