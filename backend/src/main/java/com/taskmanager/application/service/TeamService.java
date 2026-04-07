@@ -73,6 +73,9 @@ public class TeamService {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private MessageService messageService;
+
     // ===== TEAM CRUD =====
 
     @Transactional
@@ -118,7 +121,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDTO getTeamById(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateMembership(team);
         return TeamDTO.fromEntity(team, true);
     }
@@ -126,7 +129,7 @@ public class TeamService {
     @Transactional
     public TeamDTO updateTeam(Long teamId, TeamDTO teamDTO) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         team.setName(teamDTO.getName());
@@ -140,7 +143,7 @@ public class TeamService {
     @Transactional
     public void deleteTeam(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         // Remove team reference from tasks
@@ -160,14 +163,14 @@ public class TeamService {
     public TeamMemberDTO addMemberByUsername(Long teamId, String username, TeamRole role)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.username", username)));
 
         if (teamMemberRepository.existsByTeamAndUser(team, user)) {
-            throw new NotPermissionException("User is already a member of this team");
+            throw new NotPermissionException(messageService.getMessage("team.user.already.member"));
         }
 
         TeamMember member = new TeamMember();
@@ -184,14 +187,14 @@ public class TeamService {
     @Transactional
     public void removeMember(Long teamId, Long memberId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         TeamMember member = teamMemberRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id " + memberId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.member.not.found", memberId)));
 
         if (!member.getTeam().getId().equals(teamId)) {
-            throw new NotPermissionException("Member does not belong to this team");
+            throw new NotPermissionException(messageService.getMessage("team.member.not.belong"));
         }
 
         // Prevent removing the last admin
@@ -200,7 +203,7 @@ public class TeamService {
                     .filter(m -> m.getRole() == TeamRole.ADMIN)
                     .count();
             if (adminCount <= 1) {
-                throw new NotPermissionException("Cannot remove the last admin from the team");
+                throw new NotPermissionException(messageService.getMessage("team.cannot.remove.last.admin"));
             }
         }
 
@@ -219,11 +222,11 @@ public class TeamService {
     @Transactional
     public void leaveTeam(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         User currentUser = authService.getCurrentUser();
 
         TeamMember member = teamMemberRepository.findByTeamAndUser(team, currentUser)
-                .orElseThrow(() -> new NotPermissionException("You are not a member of this team"));
+                .orElseThrow(() -> new NotPermissionException(messageService.getMessage("team.not.member")));
 
         // Prevent the last admin from leaving
         if (member.getRole() == TeamRole.ADMIN) {
@@ -231,7 +234,7 @@ public class TeamService {
                     .filter(m -> m.getRole() == TeamRole.ADMIN)
                     .count();
             if (adminCount <= 1) {
-                throw new NotPermissionException("Cannot leave the team as the last admin. Promote another member first.");
+                throw new NotPermissionException(messageService.getMessage("team.cannot.leave.last.admin"));
             }
         }
 
@@ -251,14 +254,14 @@ public class TeamService {
     public TeamMemberDTO updateMemberRole(Long teamId, Long memberId, TeamRole newRole)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         TeamMember member = teamMemberRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id " + memberId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.member.not.found", memberId)));
 
         if (!member.getTeam().getId().equals(teamId)) {
-            throw new NotPermissionException("Member does not belong to this team");
+            throw new NotPermissionException(messageService.getMessage("team.member.not.belong"));
         }
 
         // Prevent demoting the last admin
@@ -267,7 +270,7 @@ public class TeamService {
                     .filter(m -> m.getRole() == TeamRole.ADMIN)
                     .count();
             if (adminCount <= 1) {
-                throw new NotPermissionException("Cannot demote the last admin");
+                throw new NotPermissionException(messageService.getMessage("team.cannot.demote.last.admin"));
             }
         }
 
@@ -283,30 +286,30 @@ public class TeamService {
     public TaskDTO assignTask(Long teamId, Long taskId, String targetUsername)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         User currentUser = authService.getCurrentUser();
         TeamMember currentMember = validateMembership(team);
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("task.not.found", taskId)));
 
         User targetUser = userRepository.findByUsername(targetUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + targetUsername));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.username", targetUsername)));
 
         // Validate target is a team member
         if (!teamMemberRepository.existsByTeamAndUser(team, targetUser)) {
-            throw new NotPermissionException("Target user is not a member of this team");
+            throw new NotPermissionException(messageService.getMessage("team.target.not.member"));
         }
 
         // RBAC: Only ADMIN can reassign tasks of other members
         if (currentMember.getRole() != TeamRole.ADMIN) {
             // Members can only assign tasks to themselves
             if (!targetUser.getId().equals(currentUser.getId())) {
-                throw new NotPermissionException("Only team admins can assign tasks to other members");
+                throw new NotPermissionException(messageService.getMessage("team.admin.assign.only"));
             }
             // Members can only reassign their own tasks
             if (!task.getUser().getId().equals(currentUser.getId())) {
-                throw new NotPermissionException("You can only reassign your own tasks");
+                throw new NotPermissionException(messageService.getMessage("team.reassign.own.only"));
             }
         }
 
@@ -359,16 +362,16 @@ public class TeamService {
     public TaskDTO addTaskToTeam(Long teamId, Long taskId)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateMembership(team);
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("task.not.found", taskId)));
 
         User currentUser = authService.getCurrentUser();
         // Only task owner can add their task to a team
         if (!task.getUser().getId().equals(currentUser.getId())) {
-            throw new NotPermissionException("You can only add your own tasks to a team");
+            throw new NotPermissionException(messageService.getMessage("team.add.own.tasks.only"));
         }
 
         task.setTeam(team);
@@ -404,7 +407,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDashboardDTO getTeamDashboard(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateMembership(team);
 
         TeamDashboardDTO dashboard = new TeamDashboardDTO();
@@ -438,7 +441,7 @@ public class TeamService {
                                               StateTask state, PriorityTask priority)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         TeamMember currentMember = validateMembership(team);
 
         User ownerUser = null;
@@ -447,11 +450,11 @@ public class TeamService {
                 // Members can only see their own tasks
                 User currentUser = authService.getCurrentUser();
                 if (!ownerUsername.equals(currentUser.getUsername())) {
-                    throw new NotPermissionException("You can only filter your own tasks");
+                    throw new NotPermissionException(messageService.getMessage("team.filter.own.tasks.only"));
                 }
             }
             ownerUser = userRepository.findByUsername(ownerUsername)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + ownerUsername));
+                    .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.username", ownerUsername)));
         } else if (currentMember.getRole() != TeamRole.ADMIN) {
             // Non-admins without owner filter should only see their own tasks
             ownerUser = authService.getCurrentUser();
@@ -466,7 +469,7 @@ public class TeamService {
                                               StateTask state, PriorityTask priority, Pageable pageable)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         TeamMember currentMember = validateMembership(team);
 
         User ownerUser = null;
@@ -474,11 +477,11 @@ public class TeamService {
             if (currentMember.getRole() != TeamRole.ADMIN) {
                 User currentUser = authService.getCurrentUser();
                 if (!ownerUsername.equals(currentUser.getUsername())) {
-                    throw new NotPermissionException("You can only filter your own tasks");
+                    throw new NotPermissionException(messageService.getMessage("team.filter.own.tasks.only"));
                 }
             }
             ownerUser = userRepository.findByUsername(ownerUsername)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + ownerUsername));
+                    .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.username", ownerUsername)));
         } else if (currentMember.getRole() != TeamRole.ADMIN) {
             ownerUser = authService.getCurrentUser();
         }
@@ -490,7 +493,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<TaskDTO> getTeamTasks(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         TeamMember currentMember = validateMembership(team);
 
         List<Task> tasks;
@@ -507,7 +510,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public Page<TaskDTO> getTeamTasks(Long teamId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         TeamMember currentMember = validateMembership(team);
 
         Page<Task> tasks;
@@ -526,7 +529,7 @@ public class TeamService {
     public List<TaskAssignmentHistoryDTO> getAssignmentHistory(Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         return assignmentHistoryRepository.findAllByTeamOrderByChangedDateDesc(team)
@@ -539,7 +542,7 @@ public class TeamService {
     public Page<TaskAssignmentHistoryDTO> getAssignmentHistory(Long teamId, Pageable pageable)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         return assignmentHistoryRepository.findAllByTeamOrderByChangedDateDesc(team, pageable)
@@ -552,17 +555,17 @@ public class TeamService {
     public TeamInvitationDTO createInvitationByUsername(Long teamId, String username)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         User currentUser = authService.getCurrentUser();
 
         User targetUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.username", username)));
 
         // Check if user is already a member
         if (teamMemberRepository.existsByTeamAndUser(team, targetUser)) {
-            throw new RuntimeException("User is already a member of this team");
+            throw new RuntimeException(messageService.getMessage("team.user.already.member"));
         }
 
         TeamInvitation invitation = new TeamInvitation();
@@ -583,7 +586,7 @@ public class TeamService {
     public List<TeamInvitationDTO> getTeamInvitations(Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         return invitationRepository.findAllByTeamAndStatus(team, InvitationStatus.PENDING).stream()
@@ -595,14 +598,14 @@ public class TeamService {
     public void cancelInvitation(Long teamId, Long invitationId)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateAdminRole(team);
 
         TeamInvitation invitation = invitationRepository.findById(invitationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Invitation not found with id " + invitationId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.invitation.not.found", invitationId)));
 
         if (!invitation.getTeam().getId().equals(teamId)) {
-            throw new NotPermissionException("Invitation does not belong to this team");
+            throw new NotPermissionException(messageService.getMessage("team.invitation.not.belong"));
         }
 
         invitationRepository.delete(invitation);
@@ -637,10 +640,10 @@ public class TeamService {
     public TeamDTO respondToInvitation(String token, boolean accept)
             throws ResourceNotFoundException {
         TeamInvitation invitation = invitationRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.invitation.not.found.generic")));
 
         if (invitation.getStatus() != InvitationStatus.PENDING) {
-            throw new RuntimeException("Invitation has already been responded to");
+            throw new RuntimeException(messageService.getMessage("team.invitation.already.responded"));
         }
 
         User currentUser = authService.getCurrentUser();
@@ -675,7 +678,7 @@ public class TeamService {
     public List<TeamMemberDTO> getTeamMembersForMention(Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("team.not.found", teamId)));
         validateMembership(team);
 
         return team.getMembers().stream()
@@ -688,7 +691,7 @@ public class TeamService {
     private TeamMember validateMembership(Team team) throws NotPermissionException {
         User currentUser = authService.getCurrentUser();
         return teamMemberRepository.findByTeamAndUser(team, currentUser)
-                .orElseThrow(() -> new NotPermissionException("You are not a member of this team"));
+                .orElseThrow(() -> new NotPermissionException(messageService.getMessage("team.not.member")));
     }
 
     private TeamMember validateAdminRole(Team team) throws NotPermissionException {
@@ -700,7 +703,7 @@ public class TeamService {
         }
         TeamMember member = validateMembership(team);
         if (member.getRole() != TeamRole.ADMIN) {
-            throw new NotPermissionException("Only team admins can perform this action");
+            throw new NotPermissionException(messageService.getMessage("team.admin.action.only"));
         }
         return member;
     }
@@ -724,10 +727,10 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<TeamDTO> getTeamSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
         if (!authService.hasRole("ROLE_ADMIN")) {
-            throw new NotPermissionException("Only admins can view other users' teams");
+            throw new NotPermissionException(messageService.getMessage("team.admin.only.view"));
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.id", userId)));
         List<Team> teams = teamRepository.findAllByMemberUser(user);
         return teams.stream().map(t -> TeamDTO.fromEntity(t, false)).toList();
     }
@@ -735,10 +738,10 @@ public class TeamService {
     @Transactional(readOnly = true)
     public Page<TeamDTO> getTeamSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         if (!authService.hasRole("ROLE_ADMIN")) {
-            throw new NotPermissionException("Only admins can view other users' teams");
+            throw new NotPermissionException(messageService.getMessage("team.admin.only.view"));
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.id", userId)));
         return teamRepository.findAllByMemberUser(user, pageable).map(t -> TeamDTO.fromEntity(t, false));
     }
 }

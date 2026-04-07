@@ -42,6 +42,9 @@ public class AuthService {
     @Autowired
     private UserValidation userValidation;
 
+    @Autowired
+    private MessageService messageService;
+
     @Transactional(readOnly = true)
     public HashMap<String, String> login(LoginDTO login) throws Exception {
         logger.info("Attempting login for username: {}", login.getUsername());
@@ -51,13 +54,13 @@ public class AuthService {
             Optional<User> user = userRepository.findByUsername(login.getUsername());
             if (user.isEmpty()) {
                 logger.warn("Login failed: User not registered - {}", login.getUsername());
-                response.put("error", "User not registered!");
+                response.put("error", messageService.getMessage("auth.user.not.registered"));
                 return response;
             }
 
             if (user.get().isBlocked()) {
                 logger.warn("Login failed: User is blocked - {}", login.getUsername());
-                response.put("error", "Your account has been blocked. Contact an administrator.");
+                response.put("error", messageService.getMessage("auth.account.blocked"));
                 return response;
             }
 
@@ -68,7 +71,7 @@ public class AuthService {
                 return response;
             } else {
                 logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
-                response.put("error", "Username or password is incorrect!");
+                response.put("error", messageService.getMessage("auth.credentials.incorrect"));
                 return response;
             }
         } catch (Exception e) {
@@ -97,14 +100,14 @@ public class AuthService {
             Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
             if (existingUser.isPresent()) {
                 logger.warn("Registration failed: Username already exists - {}", user.getUsername());
-                response.addErrorMessage("User already registered!");
+                response.addErrorMessage(messageService.getMessage("auth.user.already.registered"));
                 return response;
             }
 
             Optional<User> existingEmail = userRepository.findByEmail(user.getEmail());
             if (existingEmail.isPresent()) {
                 logger.warn("Registration failed: Email already exists - {}", user.getEmail());
-                response.addErrorMessage("Email already registered!");
+                response.addErrorMessage(messageService.getMessage("auth.email.already.registered"));
                 return response;
             }
 
@@ -116,7 +119,7 @@ public class AuthService {
             user.addAuthProvider(AuthProvider.LOCAL);
             userRepository.save(user);
             logger.info("User registered successfully: {}", user.getUsername());
-            response.addSuccessMessage("User registered successfully!"); //TO-DO: Change this message
+            response.addSuccessMessage(messageService.getMessage("auth.register.success")); //TO-DO: Change this message
             return response;
 
         } catch (Exception e) {

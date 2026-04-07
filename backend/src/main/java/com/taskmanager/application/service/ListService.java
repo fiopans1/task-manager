@@ -41,6 +41,9 @@ public class ListService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private MessageService messageService;
+
     @Transactional
     public ListTM createList(ListTMDTO listDTO) {
         logger.info("Creating list: {}", listDTO.getNameOfList());
@@ -80,7 +83,7 @@ public class ListService {
         logger.info("Deleting list with ID: {}", id);
 
         ListTM list = listRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("list.not.found", id)));
         if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             for (Task task : list.getListTasks()) {
                 task.setList(null);
@@ -90,7 +93,7 @@ public class ListService {
             logger.info("Successfully deleted list with ID: {}", id);
         } else {
             logger.warn("Permission denied deleting list with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to delete this list");
+            throw new NotPermissionException(messageService.getMessage("list.no.permission.delete"));
         }
     }
 
@@ -99,7 +102,7 @@ public class ListService {
         logger.info("Updating list with ID: {}", id);
 
         ListTM listToUpdate = listRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("list.not.found", id)));
 
         if (authService.hasRole("ROLE_ADMIN") || listToUpdate.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to update list ID: {}", id);
@@ -112,7 +115,7 @@ public class ListService {
             return updatedList;
         } else {
             logger.warn("Permission denied updating list with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to update this task");
+            throw new NotPermissionException(messageService.getMessage("list.no.permission.update"));
         }
     }
 
@@ -121,7 +124,7 @@ public class ListService {
         logger.info("Retrieving list with elements for ID: {}", id);
 
         ListTM list = listRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("list.not.found", id)));
 
         if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to view list with ID: {}", id);
@@ -130,7 +133,7 @@ public class ListService {
             return result;
         } else {
             logger.warn("Permission denied viewing list with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to view this list");
+            throw new NotPermissionException(messageService.getMessage("list.no.permission.view"));
         }
     }
 
@@ -139,7 +142,7 @@ public class ListService {
         logger.info("Adding tasks to list with ID: {}", listId);
 
         ListTM list = listRepository.findById(listId)
-                .orElseThrow(() -> new ResourceNotFoundException("List not found with id " + listId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("list.not.found", listId)));
         
         if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to add tasks to list ID: {}", listId);
@@ -147,7 +150,7 @@ public class ListService {
             List<TaskDTO> addedTasks = new ArrayList<>();
             for (Long taskId : tasksListId) {
                 Task task = taskRepository.findById(taskId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+                        .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("task.not.found", taskId)));
                 list.addListTask(task);
                 addedTasks.add(TaskDTO.fromEntity(task));
             }
@@ -156,7 +159,7 @@ public class ListService {
             return addedTasks;
         } else {
             logger.warn("Permission denied adding tasks to list ID: {} for user: {}", listId, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to add tasks to this list");
+            throw new NotPermissionException(messageService.getMessage("list.no.permission.add.tasks"));
         }
     }
 
@@ -165,7 +168,7 @@ public class ListService {
         logger.info("Deleting task with ID: {}", id);
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("task.not.found", id)));
         ListTM list = task.getList();
 
         if (authService.hasRole("ROLE_ADMIN") || (list.getUser().getUsername().equals(authService.getCurrentUsername()) && task.getUser().getUsername().equals(authService.getCurrentUsername()))) {
@@ -177,7 +180,7 @@ public class ListService {
             logger.info("Successfully deleted task with ID: {}", id);
         } else {
             logger.warn("Permission denied deleting task with ID: {} for user: {}", id, authService.getCurrentUsername());
-            throw new NotPermissionException("You don't have permission to delete this task from the list");
+            throw new NotPermissionException(messageService.getMessage("list.no.permission.delete.task"));
         }
     }
 
@@ -186,10 +189,10 @@ public class ListService {
     @Transactional(readOnly = true)
     public List<ListTMDTO> getListSummariesByUserId(Long userId) throws ResourceNotFoundException, NotPermissionException {
         if (!authService.hasRole("ROLE_ADMIN")) {
-            throw new NotPermissionException("Only admins can view other users' lists");
+            throw new NotPermissionException(messageService.getMessage("list.admin.only.view"));
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.id", userId)));
         List<ListTM> lists = listRepository.findAllByUser(user);
         return lists.stream().map(l -> ListTMDTO.fromEntity(l, false)).toList();
     }
@@ -197,10 +200,10 @@ public class ListService {
     @Transactional(readOnly = true)
     public Page<ListTMDTO> getListSummariesByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         if (!authService.hasRole("ROLE_ADMIN")) {
-            throw new NotPermissionException("Only admins can view other users' lists");
+            throw new NotPermissionException(messageService.getMessage("list.admin.only.view"));
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(messageService.getMessage("user.not.found.id", userId)));
         return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
     }
 }

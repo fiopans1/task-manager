@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taskmanager.application.service.ListService;
+import com.taskmanager.application.service.MessageService;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,9 @@ public class ListRestController {
 
     @Autowired
     private ListService listService;
+
+    @Autowired
+    private MessageService messageService;
 
     @PostMapping("/create")
     public ResponseEntity<ListTMDTO> createList(@Valid @RequestBody ListTMDTO entity) {
@@ -97,7 +101,7 @@ public class ListRestController {
         try {
             listService.deleteListById(id);
             logger.info("Successfully deleted list with ID: {}", id);
-            return ResponseEntity.ok().body("List deleted successfully");
+            return ResponseEntity.ok().body(messageService.getMessage("list.deleted.success"));
         } catch (ResourceNotFoundException e) {
             logger.warn("List not found for deletion with ID: {}", id);
             throw e;
@@ -138,7 +142,7 @@ public class ListRestController {
         try {
             listService.addTasksToList(id, tasksListId);
             logger.info("Successfully added tasks to list with ID: {}", id);
-            return ResponseEntity.ok().body("Tasks added successfully");
+            return ResponseEntity.ok().body(messageService.getMessage("list.tasks.added.success"));
         } catch (ResourceNotFoundException e) {
             logger.warn("List not found when adding tasks to list ID: {}", id);
             throw e;
@@ -158,7 +162,7 @@ public class ListRestController {
         try {
             listService.deleteTaskFromList(id);
             logger.info("Successfully deleted task with ID: {}", id);
-            return ResponseEntity.ok().body("Task deleted successfully");
+            return ResponseEntity.ok().body(messageService.getMessage("list.task.deleted.success"));
         } catch (ResourceNotFoundException e) {
             logger.warn("Element not found for deletion with ID: {}", id);
             throw e;

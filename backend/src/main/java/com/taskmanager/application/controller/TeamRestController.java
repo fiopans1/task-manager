@@ -11,6 +11,7 @@ import com.taskmanager.application.model.entities.StateTask;
 import com.taskmanager.application.model.entities.TeamRole;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.service.MessageService;
 import com.taskmanager.application.service.TeamService;
 
 import jakarta.validation.Valid;
@@ -43,6 +44,9 @@ public class TeamRestController {
 
     @Autowired
     private TeamService teamService;
+
+    @Autowired
+    private MessageService messageService;
 
     // ===== TEAM CRUD =====
 
@@ -88,7 +92,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Deleting team with ID: {}", teamId);
         teamService.deleteTeam(teamId);
-        return ResponseEntity.ok("Team deleted successfully");
+        return ResponseEntity.ok(messageService.getMessage("team.deleted.success"));
     }
 
     // ===== MEMBER MANAGEMENT =====
@@ -98,7 +102,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Removing member {} from team {}", memberId, teamId);
         teamService.removeMember(teamId, memberId);
-        return ResponseEntity.ok("Member removed successfully");
+        return ResponseEntity.ok(messageService.getMessage("team.member.removed.success"));
     }
 
     @PostMapping("/{teamId}/leave")
@@ -106,7 +110,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("User leaving team {}", teamId);
         teamService.leaveTeam(teamId);
-        return ResponseEntity.ok("Left team successfully");
+        return ResponseEntity.ok(messageService.getMessage("team.left.success"));
     }
 
     @PutMapping("/{teamId}/members/{memberId}/role")
@@ -115,7 +119,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         String roleStr = body.get("role");
         if (roleStr == null || roleStr.trim().isEmpty()) {
-            throw new IllegalArgumentException("Role is required");
+            throw new IllegalArgumentException(messageService.getMessage("team.role.required"));
         }
         TeamRole newRole = TeamRole.valueOf(roleStr);
         logger.info("Updating member {} role to {} in team {}", memberId, newRole, teamId);
@@ -131,7 +135,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         String targetUsername = body.get("username");
         if (targetUsername == null || targetUsername.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username is required for task assignment");
+            throw new IllegalArgumentException(messageService.getMessage("team.username.required.assignment"));
         }
         logger.info("Assigning task {} to {} in team {}", taskId, targetUsername, teamId);
         TaskDTO task = teamService.assignTask(teamId, taskId, targetUsername);
@@ -216,7 +220,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         String username = body.get("username");
         if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username is required");
+            throw new IllegalArgumentException(messageService.getMessage("team.username.required"));
         }
         logger.info("Creating invitation for {} to team {}", username, teamId);
         TeamInvitationDTO invitation = teamService.createInvitationByUsername(teamId, username);
@@ -236,7 +240,7 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Cancelling invitation {} in team {}", invitationId, teamId);
         teamService.cancelInvitation(teamId, invitationId);
-        return ResponseEntity.ok("Invitation cancelled successfully");
+        return ResponseEntity.ok(messageService.getMessage("team.invitation.cancelled.success"));
     }
 
     @GetMapping("/invitations/pending")

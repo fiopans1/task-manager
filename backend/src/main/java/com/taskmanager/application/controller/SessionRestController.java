@@ -2,6 +2,7 @@ package com.taskmanager.application.controller;
 
 import com.taskmanager.application.service.AuthService;
 import com.taskmanager.application.service.JWTUtilityService;
+import com.taskmanager.application.service.MessageService;
 import com.taskmanager.application.model.entities.User;
 
 import java.util.HashMap;
@@ -26,6 +27,9 @@ public class SessionRestController {
     @Autowired
     private JWTUtilityService jwtUtilityService;
 
+    @Autowired
+    private MessageService messageService;
+
     @PostMapping("/refresh")
     public ResponseEntity<HashMap<String, String>> refreshToken() {
         logger.info("Token refresh requested");
@@ -35,7 +39,7 @@ public class SessionRestController {
             if (currentUser == null) {
                 logger.warn("Token refresh failed: No authenticated user found");
                 HashMap<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "No authenticated user found");
+                errorResponse.put("error", messageService.getMessage("session.no.authenticated.user"));
                 return ResponseEntity.status(401).body(errorResponse);
             }
 
@@ -48,7 +52,7 @@ public class SessionRestController {
         } catch (Exception e) {
             logger.error("Error refreshing token: {}", e.getMessage(), e);
             HashMap<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Error refreshing token");
+            errorResponse.put("error", messageService.getMessage("session.refresh.error"));
             return ResponseEntity.internalServerError().body(errorResponse);
         }
     }

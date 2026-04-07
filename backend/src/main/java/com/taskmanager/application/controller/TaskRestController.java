@@ -6,6 +6,7 @@ import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
+import com.taskmanager.application.service.MessageService;
 import com.taskmanager.application.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -40,6 +41,9 @@ public class TaskRestController {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private MessageService messageService;
 
     @PostMapping("/create")
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO task) { //TO-DO: All ResponseEntity change and put correctly messages
@@ -100,7 +104,7 @@ public class TaskRestController {
         try {
             taskService.deleteTaskById(id);
             logger.info("Task deleted successfully with ID: {}", id);
-            return ResponseEntity.ok().body("Task deleted successfully");
+            return ResponseEntity.ok().body(messageService.getMessage("task.deleted.success"));
         } catch (NotPermissionException | ResourceNotFoundException e) {
             logger.warn("Failed to delete task with ID: {} - {}", id, e.getMessage());
             throw e;
@@ -216,7 +220,7 @@ public class TaskRestController {
         try {
             taskService.deleteActionFromTask(taskId, actionId);
             logger.info("Action deleted successfully with ID: {} from task with ID: {}", actionId, taskId);
-            return ResponseEntity.ok().body("Action deleted successfully");
+            return ResponseEntity.ok().body(messageService.getMessage("action.deleted.success"));
         } catch (ResourceNotFoundException | NotPermissionException e) {
             logger.warn("Failed to delete action with ID: {} from task with ID: {} - {}", actionId, taskId, e.getMessage());
             throw e;
