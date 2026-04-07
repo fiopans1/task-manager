@@ -209,7 +209,7 @@ const ListDetails = ({ listId }) => {
         className="border-0 shadow-lg"
         style={{ borderRadius: "20px", overflow: "hidden" }}
       >
-        {/* Header del card con gradiente */}
+        {/* Card header with gradient */}
         <Card.Header
           className="border-0 text-white p-4"
           style={{

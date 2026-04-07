@@ -85,7 +85,7 @@ const Tasks = () => {
         <h2>My Tasks</h2>
       </div>
 
-      {/* Primera fila con controles */}
+      {/* First row with controls */}
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Form onSubmit={handleSearch}>
@@ -137,7 +137,7 @@ const Tasks = () => {
         </Card.Body>
       </Card>
 
-      {/* Segunda fila con la lista de tareas */}
+      {/* Second row with task list */}
       <Row>
         <Col>
           <Container
@@ -183,7 +183,7 @@ const Tasks = () => {
         </Col>
       </Row>
 
-      {/* Modales */}
+      {/* Modals */}
       <NewEditTask
         show={showNewTask}
         handleClose={handleClose}

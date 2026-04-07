@@ -34,7 +34,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
         String errorMessage = "Authentication failed";
         String errorCode = "oauth2_error";
 
-        // Manejar diferentes tipos de errores OAuth2
+        // Handle different types of OAuth2 errors
         if (exception instanceof OAuth2AuthenticationException) {
             OAuth2AuthenticationException oauth2Exception = (OAuth2AuthenticationException) exception;
             OAuth2Error error = oauth2Exception.getError();
@@ -115,7 +115,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
         }
     }
 
-    // Getter y setter para configurar la URL de fallo
+    // Getter and setter for configuring the failure URL
     public String getDefaultFailureUrl() {
         return defaultFailureUrl;
     }

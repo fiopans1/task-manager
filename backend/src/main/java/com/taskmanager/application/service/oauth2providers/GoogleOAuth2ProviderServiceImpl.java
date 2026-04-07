@@ -44,27 +44,27 @@ public class GoogleOAuth2ProviderServiceImpl implements OAuth2ProviderService {
 
             if (givenName != null || familyName != null) {
                 logger.debug("Using given name and family name from Google OIDC user");
-                // Split family name into apellido1 and apellido2 if it contains multiple parts
-                String apellido1 = "";
-                String apellido2 = "";
+                // Split family name into firstName and lastName if it contains multiple parts
+                String firstSurname = "";
+                String secondSurname = "";
                 if (familyName != null) {
                     String[] familyParts = familyName.split("\\s+", 2);
-                    apellido1 = familyParts.length > 0 ? familyParts[0] : "";
-                    apellido2 = familyParts.length > 1 ? familyParts[1] : "";
+                    firstSurname = familyParts.length > 0 ? familyParts[0] : "";
+                    secondSurname = familyParts.length > 1 ? familyParts[1] : "";
                 }
 
                 return new FullName(
                         givenName != null ? givenName : "",
-                        apellido1,
-                        apellido2
+                        firstSurname,
+                        secondSurname
                 );
             } else if (fullName != null) {
                 logger.debug("Using full name from Google OIDC user");
                 String[] parts = fullName.split("\\s+");
-                String nombre = parts.length > 0 ? parts[0] : "";
-                String apellido1 = parts.length > 1 ? parts[1] : "";
-                String apellido2 = parts.length > 2 ? parts[2] : "";
-                return new FullName(nombre, apellido1, apellido2);
+                String firstName = parts.length > 0 ? parts[0] : "";
+                String firstSurname = parts.length > 1 ? parts[1] : "";
+                String secondSurname = parts.length > 2 ? parts[2] : "";
+                return new FullName(firstName, firstSurname, secondSurname);
             }
         }
 
@@ -72,10 +72,10 @@ public class GoogleOAuth2ProviderServiceImpl implements OAuth2ProviderService {
         if (name != null) {
             logger.debug("Using name attribute from Google OAuth2 user");
             String[] parts = name.split("\\s+");
-            String nombre = parts.length > 0 ? parts[0] : "";
-            String apellido1 = parts.length > 1 ? parts[1] : "";
-            String apellido2 = parts.length > 2 ? parts[2] : "";
-            return new FullName(nombre, apellido1, apellido2);
+            String firstName = parts.length > 0 ? parts[0] : "";
+            String firstSurname = parts.length > 1 ? parts[1] : "";
+            String secondSurname = parts.length > 2 ? parts[2] : "";
+            return new FullName(firstName, firstSurname, secondSurname);
         }
 
         logger.debug("No full name available from Google user, returning empty");

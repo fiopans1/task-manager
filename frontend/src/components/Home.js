@@ -24,7 +24,7 @@ import homeService from "../services/homeService";
 /* ── helpers ─────────────────────────────────────────────────── */
 const formatDate = (d) => {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("es-ES", {
+  return new Date(d).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -33,7 +33,7 @@ const formatDate = (d) => {
 
 const formatDateTime = (d) => {
   if (!d) return "—";
-  return new Date(d).toLocaleString("es-ES", {
+  return new Date(d).toLocaleString("en-US", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -42,11 +42,11 @@ const formatDateTime = (d) => {
 };
 
 const STATE_MAP = {
-  NEW: { label: "Nuevo", bg: "info" },
-  IN_PROGRESS: { label: "En progreso", bg: "warning" },
-  COMPLETED: { label: "Completada", bg: "success" },
-  CANCELLED: { label: "Cancelada", bg: "danger" },
-  PAUSSED: { label: "Pausada", bg: "secondary" },
+  NEW: { label: "New", bg: "info" },
+  IN_PROGRESS: { label: "In Progress", bg: "warning" },
+  COMPLETED: { label: "Completed", bg: "success" },
+  CANCELLED: { label: "Cancelled", bg: "danger" },
+  PAUSSED: { label: "Paused", bg: "secondary" },
 };
 
 /* ── skeleton rows (Bootstrap Placeholder) ───────────────────── */
@@ -117,15 +117,15 @@ const Home = () => {
             Task Manager
           </h1>
           <p className="text-muted mb-4" style={{ lineHeight: 1.75 }}>
-            Organiza tus ideas, gestiona tus proyectos y recupera el enfoque.
-            Sin distracciones, sin ruido — solo tú y tu trabajo.
+            Organize your ideas, manage your projects, and regain focus.
+            No distractions, no noise — just you and your work.
           </p>
           <Button
             variant="dark"
             className="rounded-3 px-4"
             onClick={() => navigate("/home/tasks")}
           >
-            Comenzar <ArrowRight className="ms-1" size={14} />
+            Get Started <ArrowRight className="ms-1" size={14} />
           </Button>
         </Col>
       </Row>
@@ -135,26 +135,26 @@ const Home = () => {
         {[
           {
             icon: <ListTask size={22} className="text-primary" />,
-            title: "Mis tareas",
-            desc: "Gestiona y organiza todas tus tareas.",
+            title: "My Tasks",
+            desc: "Manage and organize all your tasks.",
             path: "/home/tasks",
           },
           {
             icon: <CalendarEvent size={22} className="text-success" />,
-            title: "Calendario",
-            desc: "Visualiza tus eventos y fechas límite.",
+            title: "Calendar",
+            desc: "Visualize your events and deadlines.",
             path: "/home/calendar",
           },
           {
             icon: <Kanban size={22} className="text-info" />,
-            title: "Listas",
-            desc: "Crea listas personalizadas para tus proyectos.",
+            title: "Lists",
+            desc: "Create custom lists for your projects.",
             path: "/home/lists",
           },
           {
             icon: <ListTask size={22} className="text-warning" />,
-            title: "Equipos",
-            desc: "Gestiona equipos y colabora con otros usuarios.",
+            title: "Teams",
+            desc: "Manage teams and collaborate with other users.",
             path: "/home/teams",
           },
         ].map((item, i) => (
@@ -185,17 +185,17 @@ const Home = () => {
           {
             icon: <CheckCircleFill size={18} className="text-primary mb-1" />,
             value: loading ? "—" : (summary?.totalTasks ?? 0),
-            label: "Tareas totales",
+            label: "Total Tasks",
           },
           {
             icon: <ClockHistory size={18} className="text-success mb-1" />,
             value: loading ? "—" : (summary?.totalLists ?? 0),
-            label: "Listas creadas",
+            label: "Lists Created",
           },
           {
             icon: <CalendarCheck size={18} className="text-info mb-1" />,
             value: loading ? "—" : (summary?.nextEvents?.length ?? 0),
-            label: "Próximos eventos",
+            label: "Upcoming Events",
           },
         ].map((s, i) => (
           <Col key={i} xs={12} sm={4} lg={3}>
@@ -223,13 +223,13 @@ const Home = () => {
               <Card.Body className="py-3">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <small className="text-muted fw-semibold">
-                    Progreso de tareas recientes
+                    Recent tasks progress
                   </small>
                   <Badge
                     bg={completionPct === 100 ? "success" : "primary"}
                     pill
                   >
-                    {completedCount}/{totalRecent} completadas
+                    {completedCount}/{totalRecent} completed
                   </Badge>
                 </div>
                 <ProgressBar
@@ -255,7 +255,7 @@ const Home = () => {
                   className="text-uppercase text-muted fw-semibold mb-0"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
                 >
-                  Tareas recientes
+                  Recent Tasks
                 </h6>
                 <Button
                   variant="link"
@@ -263,16 +263,16 @@ const Home = () => {
                   className="text-decoration-none p-0"
                   onClick={() => navigate("/home/tasks")}
                 >
-                  Ver todas <ArrowRight size={12} />
+                  View All <ArrowRight size={12} />
                 </Button>
               </div>
 
               {loading ? (
                 <SkeletonRows />
               ) : error ? (
-                <Empty text="Error al cargar las tareas." />
+                <Empty text="Error loading tasks." />
               ) : !summary?.recentTasks?.length ? (
-                <Empty text="Aún no has creado ninguna tarea." />
+                <Empty text="You haven't created any tasks yet." />
               ) : (
                 summary.recentTasks.map((task) => (
                   <div
@@ -323,7 +323,7 @@ const Home = () => {
                   className="text-uppercase text-muted fw-semibold mb-0"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.06em" }}
                 >
-                  Próximos eventos
+                  Upcoming Events
                 </h6>
                 <Button
                   variant="link"
@@ -338,9 +338,9 @@ const Home = () => {
               {loading ? (
                 <SkeletonRows />
               ) : error ? (
-                <Empty text="Error al cargar los eventos." />
+                <Empty text="Error loading events." />
               ) : !summary?.nextEvents?.length ? (
-                <Empty text="No hay eventos próximos programados." />
+                <Empty text="No upcoming events scheduled." />
               ) : (
                 summary.nextEvents.map((evt) => (
                   <div
@@ -379,7 +379,7 @@ const Home = () => {
               <Col md={4} className="mb-3 mb-md-0">
                 <h6 className="fw-semibold">TaskManager</h6>
                 <p className="text-muted small mb-0">
-                  Simplificando la gestión de tareas desde 2025.
+                  Simplifying task management since 2025.
                 </p>
               </Col>
               <Col md={4} className="mb-3 mb-md-0">
@@ -412,7 +412,7 @@ const Home = () => {
               </Col>
               <Col md={4} className="text-md-end">
                 <p className="text-muted small mb-0">
-                  © 2025 TaskManager · Creado por{" "}
+                  © 2025 TaskManager · Created by{" "}
                   <a
                     href="https://github.com/fiopans1"
                     target="_blank"

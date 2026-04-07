@@ -83,7 +83,7 @@ const List = () => {
       <div className="tittle-tab-container">
         <h2>My Lists</h2>
       </div>
-      {/* Primera fila con controles */}
+      {/* First row with controls */}
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Form onSubmit={handleSearch}>
@@ -135,7 +135,7 @@ const List = () => {
         </Card.Body>
       </Card>
 
-      {/* Segunda fila con la lista de tareas */}
+      {/* Second row with list */}
       <Row>
         <Col>
           <Container
@@ -180,7 +180,7 @@ const List = () => {
           </Container>
         </Col>
       </Row>
-      {/* Modales */}
+      {/* Modals */}
       <NewEditLists
         show={showNewList}
         handleClose={handleClose}

@@ -7,24 +7,24 @@ const Lists = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Estado para manejar las tarjetas
+  // State to manage cards
   const [cards, setCards] = useState([]);
   
-  // Estado para el modal de nueva tarea
+  // State for the new task modal
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
-    color: "#0d6efd" // Color azul por defecto
+    color: "#0d6efd" // Default blue color
   });
 
-  // Cargar datos iniciales
+  // Load initial data
   useEffect(() => {
     // Simulando datos iniciales
     const initialCards = Array.from({ length: 10 }, (_, index) => ({
       id: index + 1,
       title: `Proyecto ${index + 1}`,
-      description: `Tareas relacionadas con el proyecto ${index + 1}`,
+      description: `Tasks related to project ${index + 1}`,
       color: "#0d6efd",
       tasksCompleted: Math.floor(Math.random() * 3),
       totalTasks: 3
@@ -33,43 +33,43 @@ const Lists = () => {
     setCards(initialCards);
   }, []);
 
-  // Manejar clic en tarjeta para navegar
+  // Handle card click to navigate
   const handleCardClick = (id) => {
     navigate(`${location.pathname}/${id}`);
   };
 
-  // Abrir modal para nueva tarea
+  // Open modal for new task
   const handleAddNewTask = () => {
     setShowModal(true);
   };
 
-  // Cerrar modal
+  // Close modal
   const handleCloseModal = () => {
     setShowModal(false);
     setNewTask({ title: "", description: "", color: "#0d6efd" });
   };
 
-  // Manejar cambios en el formulario
+  // Handle form changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewTask(prev => ({ ...prev, [name]: value }));
   };
 
-  // Guardar nueva tarea
+  // Save new task
   const handleSaveTask = () => {
     if (newTask.title.trim() === "") return;
     
     if (newTask.id) {
-      // Actualizar tarea existente
+      // Update existing task
       setCards(prev => prev.map(card => 
         card.id === newTask.id ? { ...card, ...newTask } : card
       ));
     } else {
-      // Crear nueva tarea
+      // Create new task
       const newCard = {
         id: cards.length > 0 ? Math.max(...cards.map(c => c.id)) + 1 : 1,
         title: newTask.title,
-        description: newTask.description || "Sin descripción",
+        description: newTask.description || "No description",
         color: newTask.color,
         tasksCompleted: 0,
         totalTasks: 3
@@ -81,13 +81,13 @@ const Lists = () => {
     handleCloseModal();
   };
 
-  // Eliminar tarjeta
+  // Delete card
   const handleDeleteCard = (id, e) => {
     e.stopPropagation();
     setCards(prev => prev.filter(card => card.id !== id));
   };
 
-  // Editar tarjeta (abre el modal con datos existentes)
+  // Edit card (opens modal with existing data)
   const handleEditCard = (card, e) => {
     e.stopPropagation();
     setNewTask({
@@ -106,7 +106,7 @@ const Lists = () => {
       </div>
       
       <Row className="m-1 mb-4 mt-3">
-        {/* Card para crear nueva tarea */}
+        {/* Card to create new task */}
         <Card 
           className="border-primary text-center hover-shadow" 
           style={{ cursor: "pointer" }}
@@ -120,7 +120,7 @@ const Lists = () => {
         </Card>
       </Row>
 
-      {/* Cards dinámicos */}
+      {/* Dynamic cards */}
       {cards.map((card) => (
         <Row key={card.id} className="m-1">
           <Card 
@@ -166,7 +166,7 @@ const Lists = () => {
                   className="mb-1"
                   style={{ fontSize: "0.7rem", color: "#6b7280" }}
                 >
-                  {card.tasksCompleted} de {card.totalTasks} tareas completadas
+                  {card.tasksCompleted} of {card.totalTasks} tasks completed
                 </Card.Text>
                 <Button
                   variant="success"
@@ -182,32 +182,32 @@ const Lists = () => {
         </Row>
       ))}
 
-      {/* Modal para agregar/editar tarea */}
+      {/* Modal for adding/editing task */}
      <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{newTask.id ? 'Editar Lista' : 'Nueva Lista de Tareas'}</Modal.Title>
+          <Modal.Title>{newTask.id ? 'Edit List' : 'New Task List'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Título</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
                 name="title"
                 value={newTask.title}
                 onChange={handleInputChange}
-                placeholder="Nombre de la lista"
+                placeholder="List name"
                 autoFocus
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 name="description"
                 value={newTask.description}
                 onChange={handleInputChange}
-                placeholder="Breve descripción de la lista"
+                placeholder="Brief description of the list"
                 rows={3}
               />
             </Form.Group>
@@ -219,7 +219,7 @@ const Lists = () => {
                   name="color"
                   value={newTask.color}
                   onChange={handleInputChange}
-                  title="Elige un color para la lista"
+                  title="Choose a color for the list"
                   className="me-2"
                 />
                 <div 
@@ -232,10 +232,10 @@ const Lists = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
-            Cancelar
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleSaveTask}>
-            {newTask.id ? 'Actualizar' : 'Crear Lista'}
+            {newTask.id ? 'Update' : 'Create List'}
           </Button>
         </Modal.Footer>
       </Modal>

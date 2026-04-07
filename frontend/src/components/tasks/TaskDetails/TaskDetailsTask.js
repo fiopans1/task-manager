@@ -97,7 +97,7 @@ const TaskDetailsTask = ({ taskId }) => {
     }
   };
 
-  // Formatear fechas para mostrar
+  // Format dates for display
   const formatDate = (dateString) => {
     if (!dateString || dateString === "<None>") return "<None>";
     try {
@@ -148,9 +148,9 @@ const TaskDetailsTask = ({ taskId }) => {
         </Col>
       </Row>
 
-      {/* Card principal con diseño moderno */}
+      {/* Main card with modern design */}
       <Card className="border-0 shadow-lg" style={{ borderRadius: "20px", overflow: "hidden" }}>
-        {/* Header del card con gradiente */}
+        {/* Card header with gradient */}
           <Card.Header 
             className="border-0 text-white p-4"
             style={{
@@ -184,7 +184,7 @@ const TaskDetailsTask = ({ taskId }) => {
               </Badge>
             </Stack>
             
-            {/* Barra de progreso */}
+            {/* Progress bar */}
           <div className="mt-3">
             <small className="text-white-50">Progress</small>
             <ProgressBar 
@@ -197,7 +197,7 @@ const TaskDetailsTask = ({ taskId }) => {
         </Card.Header>
 
         <Card.Body className="p-4">
-          {/* Badges informativos mejorados */}
+          {/* Improved informational badges */}
           <Row className="mb-4">
             <Col>
               <Stack direction="horizontal" gap={2} className="flex-wrap">
@@ -259,7 +259,7 @@ const TaskDetailsTask = ({ taskId }) => {
             </Col>
           </Row>
 
-          {/* Información de fechas con cards */}
+          {/* Date information with cards */}
           <Row className="mb-4">
             <Col md={4} className="mb-3">
               <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
@@ -302,7 +302,7 @@ const TaskDetailsTask = ({ taskId }) => {
             )}
           </Row>
 
-          {/* Descripción mejorada */}
+          {/* Improved description */}
           <Card 
             className="border-0 shadow-sm bg-body-tertiary" 
             style={{ 
