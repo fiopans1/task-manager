@@ -1,5 +1,6 @@
 import { Form, Modal, Button, Spinner } from "react-bootstrap";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
 
@@ -11,6 +12,7 @@ const NewEditTeam = ({
   initialData,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -82,46 +84,46 @@ const NewEditTeam = ({
       <Modal.Header closeButton>
         <Modal.Title>
           {editOrNew ? (
-            <><i className="bi bi-pencil me-2"></i>Edit Team</>
+            <><i className="bi bi-pencil me-2"></i>{t('newEditTeam.editTeam')}</>
           ) : (
-            "Create New Team"
+            t('newEditTeam.createNewTeam')
           )}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>Team Name</Form.Label>
+            <Form.Label>{t('newEditTeam.teamName')}</Form.Label>
             <Form.Control
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter team name"
+              placeholder={t('newEditTeam.teamNamePlaceholder')}
               required
               autoFocus
               isInvalid={validated && (!formData.name || formData.name.trim() === "")}
             />
             <Form.Control.Feedback type="invalid">
-              Team name is required
+              {t('newEditTeam.teamNameRequired')}
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('newEditTeam.description')}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Team description (optional)"
+              placeholder={t('newEditTeam.descriptionPlaceholder')}
             />
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleModalClose}>
-          Cancel
+          {t('newEditTeam.cancel')}
         </Button>
         <Button
           variant="primary"
@@ -136,9 +138,9 @@ const NewEditTeam = ({
           {submitting ? (
             <Spinner size="sm" animation="border" />
           ) : editOrNew ? (
-            <><i className="bi bi-check-lg me-1"></i>Save Changes</>
+            <><i className="bi bi-check-lg me-1"></i>{t('newEditTeam.saveChanges')}</>
           ) : (
-            "Create Team"
+            t('newEditTeam.createTeam')
           )}
         </Button>
       </Modal.Footer>

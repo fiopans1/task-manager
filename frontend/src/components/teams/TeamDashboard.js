@@ -15,6 +15,7 @@ import {
   Stack,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import teamService from "../../services/teamService";
 import taskService from "../../services/taskService";
 import { successToast, errorToast } from "../common/Noty";
@@ -25,6 +26,7 @@ import InvitationsTab from "./InvitationsTab";
 import NewEditTeam from "./NewEditTeam";
 
 const TeamDashboard = () => {
+  const { t } = useTranslation();
   const { id: teamId } = useParams();
   const navigate = useNavigate();
 
@@ -72,11 +74,11 @@ const TeamDashboard = () => {
       setDashboard(dashboardData);
       setIsAdmin(adminCheck);
     } catch (err) {
-      errorToast("Error loading team data");
+      errorToast(t('teamDashboard.errorLoadingTeam'));
     } finally {
       setLoading(false);
     }
-  }, [teamId]);
+  }, [teamId, t]);
 
   const loadInvitations = useCallback(async () => {
     if (!isAdmin) return;
@@ -105,13 +107,13 @@ const TeamDashboard = () => {
     }
     try {
       await teamService.createInvitation(teamId, inviteUsername);
-      successToast("Invitation sent to " + inviteUsername);
+      successToast(t('teamDashboard.invitationSent', { username: inviteUsername }));
       setShowInviteModal(false);
       setInviteUsername("");
       setInviteValidated(false);
       if (activeTab === "invitations") loadInvitations();
     } catch (err) {
-      errorToast(err?.response?.data?.message || "Error sending invitation");
+      errorToast(err?.response?.data?.message || t('teamDashboard.errorSendingInvitation'));
     }
   };
 
@@ -119,22 +121,22 @@ const TeamDashboard = () => {
     if (!memberToRemove) return;
     try {
       await teamService.removeMember(teamId, memberToRemove.id);
-      successToast("Member removed");
+      successToast(t('teamDashboard.memberRemoved'));
       setShowRemoveModal(false);
       setMemberToRemove(null);
       loadData();
     } catch (err) {
-      errorToast("Error removing member");
+      errorToast(t('teamDashboard.errorRemovingMember'));
     }
   };
 
   const handleRoleChange = async (memberId, newRole) => {
     try {
       await teamService.updateMemberRole(teamId, memberId, newRole);
-      successToast("Role updated");
+      successToast(t('teamDashboard.roleUpdated'));
       loadData();
     } catch (err) {
-      errorToast("Error updating role");
+      errorToast(t('teamDashboard.errorUpdatingRole'));
     }
   };
 
@@ -144,14 +146,14 @@ const TeamDashboard = () => {
     if (!selectedTaskId) return;
     try {
       await teamService.addTaskToTeam(teamId, selectedTaskId);
-      successToast("Task added to team");
+      successToast(t('teamDashboard.taskAddedToTeam'));
       setShowAddTaskModal(false);
       setSelectedTaskId("");
       setAddTaskValidated(false);
       loadData();
       if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
-      errorToast("Error adding task to team");
+      errorToast(t('teamDashboard.errorAddingTask'));
     }
   };
 
@@ -162,7 +164,7 @@ const TeamDashboard = () => {
     try {
       await teamService.assignTask(teamId, reassignTask.id, reassignTarget);
       successToast(
-        `Task "${reassignTask.nameOfTask}" reassigned to ${reassignTarget}`
+        t('teamDashboard.taskReassigned', { taskName: reassignTask.nameOfTask, member: reassignTarget })
       );
       setShowReassignModal(false);
       setReassignTask(null);
@@ -171,7 +173,7 @@ const TeamDashboard = () => {
       loadData();
       if (activeTab === "tasks") setTasksRefreshKey(k => k + 1);
     } catch (err) {
-      errorToast("Error reassigning task");
+      errorToast(t('teamDashboard.errorReassigningTask'));
     }
   };
 
@@ -198,10 +200,10 @@ const TeamDashboard = () => {
   const handleDeleteTeam = async () => {
     try {
       await teamService.deleteTeam(teamId);
-      successToast("Team deleted successfully");
+      successToast(t('teamDashboard.teamDeleted'));
       navigate("/home/teams");
     } catch (err) {
-      errorToast("Error deleting team");
+      errorToast(t('teamDashboard.errorDeletingTeam'));
     }
   };
 
@@ -218,20 +220,20 @@ const TeamDashboard = () => {
   const handleLeaveTeam = async () => {
     try {
       await teamService.leaveTeam(teamId);
-      successToast("You left the team");
+      successToast(t('teamDashboard.youLeftTeam'));
       navigate("/home/teams");
     } catch (err) {
-      errorToast(err?.response?.data?.message || "Error leaving team");
+      errorToast(err?.response?.data?.message || t('teamDashboard.errorLeavingTeam'));
     }
   };
 
   const handleCancelInvitation = async (invitationId) => {
     try {
       await teamService.cancelInvitation(teamId, invitationId);
-      successToast("Invitation cancelled");
+      successToast(t('teamDashboard.invitationCancelled'));
       loadInvitations();
     } catch (err) {
-      errorToast("Error cancelling invitation");
+      errorToast(t('teamDashboard.errorCancellingInvitation'));
     }
   };
 
@@ -246,9 +248,9 @@ const TeamDashboard = () => {
   if (!team) {
     return (
       <Container className="text-center py-5">
-        <p className="text-muted">Team not found</p>
+        <p className="text-muted">{t('teamDashboard.teamNotFound')}</p>
         <Button variant="primary" onClick={() => navigate("/home/teams")}>
-          Back to Teams
+          {t('teamDashboard.backToTeams')}
         </Button>
       </Container>
     );
@@ -282,9 +284,9 @@ const TeamDashboard = () => {
             </Button>
             <div className="flex-grow-1">
               <h1 className="mb-1 fw-bold text-body" style={{ fontSize: "2rem" }}>
-                Team Details
+                {t('teamDashboard.teamDetails')}
               </h1>
-              <p className="text-muted mb-0">Team overview and management</p>
+              <p className="text-muted mb-0">{t('teamDashboard.teamOverview')}</p>
             </div>
             <div className="d-flex gap-2 flex-wrap">
               <Button
@@ -297,7 +299,7 @@ const TeamDashboard = () => {
                   if (activeTab === "invitations") loadInvitations();
                 }}
                 className="rounded-3 shadow-sm"
-                title="Refresh"
+                title={t('teamDashboard.refresh')}
               >
                 <i className="bi bi-arrow-clockwise"></i>
               </Button>
@@ -309,9 +311,9 @@ const TeamDashboard = () => {
                   loadUserTasks();
                 }}
                 className="rounded-3 shadow-sm"
-                title="Add Task"
+                title={t('teamDashboard.addTask')}
               >
-                <i className="bi bi-plus-lg"></i><span className="d-none d-sm-inline ms-1">Add Task</span>
+                <i className="bi bi-plus-lg"></i><span className="d-none d-sm-inline ms-1">{t('teamDashboard.addTask')}</span>
               </Button>
               {isAdmin && (
                 <Button
@@ -319,9 +321,9 @@ const TeamDashboard = () => {
                   size="sm"
                   onClick={() => setShowInviteModal(true)}
                   className="rounded-3 shadow-sm"
-                  title="Invite Member"
+                  title={t('teamDashboard.inviteMember')}
                 >
-                  <i className="bi bi-person-plus"></i><span className="d-none d-sm-inline ms-1">Invite</span>
+                  <i className="bi bi-person-plus"></i><span className="d-none d-sm-inline ms-1">{t('teamDashboard.invite')}</span>
                 </Button>
               )}
               {isAdmin && (
@@ -330,9 +332,9 @@ const TeamDashboard = () => {
                   size="sm"
                   onClick={openEditTeamModal}
                   className="rounded-3 shadow-sm"
-                  title="Edit Team"
+                  title={t('teamDashboard.editTeam')}
                 >
-                  <i className="bi bi-pencil"></i><span className="d-none d-sm-inline ms-1">Edit</span>
+                  <i className="bi bi-pencil"></i><span className="d-none d-sm-inline ms-1">{t('teamDashboard.edit')}</span>
                 </Button>
               )}
               {isAdmin ? (
@@ -341,9 +343,9 @@ const TeamDashboard = () => {
                   size="sm"
                   onClick={() => setShowDeleteTeamModal(true)}
                   className="rounded-3 shadow-sm"
-                  title="Delete Team"
+                  title={t('teamDashboard.deleteTeam')}
                 >
-                  <i className="bi bi-trash"></i><span className="d-none d-sm-inline ms-1">Delete</span>
+                  <i className="bi bi-trash"></i><span className="d-none d-sm-inline ms-1">{t('teamDashboard.delete')}</span>
                 </Button>
               ) : (
                 <Button
@@ -351,9 +353,9 @@ const TeamDashboard = () => {
                   size="sm"
                   onClick={() => setShowLeaveTeamModal(true)}
                   className="rounded-3 shadow-sm"
-                  title="Leave Team"
+                  title={t('teamDashboard.leaveTeam')}
                 >
-                  <i className="bi bi-box-arrow-right"></i><span className="d-none d-sm-inline ms-1">Leave</span>
+                  <i className="bi bi-box-arrow-right"></i><span className="d-none d-sm-inline ms-1">{t('teamDashboard.leave')}</span>
                 </Button>
               )}
             </div>
@@ -376,7 +378,7 @@ const TeamDashboard = () => {
               </h3>
               <Stack direction="horizontal" gap={2}>
                 <i className="bi bi-people-fill"></i>
-                <small>Team ID: #{team.id}</small>
+                <small>{t('teamDashboard.teamId', { id: team.id })}</small>
               </Stack>
             </div>
             <Badge
@@ -386,13 +388,13 @@ const TeamDashboard = () => {
               style={{ fontSize: "0.9rem", fontWeight: "600" }}
             >
               <i className="bi bi-people me-1"></i>
-              {memberCount} {memberCount === 1 ? "Member" : "Members"}
+              {memberCount} {memberCount === 1 ? t('teamDashboard.member') : t('teamDashboard.members')}
             </Badge>
           </Stack>
 
           {dashboard && dashboard.totalTasks > 0 && (
             <div className="mt-3">
-              <small className="text-white-50">Progress</small>
+              <small className="text-white-50">{t('teamDashboard.progress')}</small>
               <ProgressBar
                 now={completionPercent}
                 className="mt-1"
@@ -414,7 +416,7 @@ const TeamDashboard = () => {
                   style={{ fontSize: "0.85rem" }}
                 >
                   <i className="bi bi-people"></i>
-                  {memberCount} {memberCount === 1 ? "Member" : "Members"}
+                  {memberCount} {memberCount === 1 ? t('teamDashboard.member') : t('teamDashboard.members')}
                 </Badge>
 
                 <Badge
@@ -423,7 +425,7 @@ const TeamDashboard = () => {
                   style={{ fontSize: "0.85rem" }}
                 >
                   <i className="bi bi-shield"></i>
-                  {isAdmin ? "Admin" : "Member"}
+                  {isAdmin ? t('teamDashboard.admin') : t('teamDashboard.member')}
                 </Badge>
 
                 {dashboard && (
@@ -433,7 +435,7 @@ const TeamDashboard = () => {
                     style={{ fontSize: "0.85rem" }}
                   >
                     <i className="bi bi-list-task"></i>
-                    {dashboard.totalTasks} {dashboard.totalTasks === 1 ? "Task" : "Tasks"}
+                    {dashboard.totalTasks} {dashboard.totalTasks === 1 ? t('teamDashboard.task') : t('teamDashboard.tasks')}
                   </Badge>
                 )}
               </Stack>
@@ -447,7 +449,7 @@ const TeamDashboard = () => {
                 <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
                   <Card.Body className="text-center py-3">
                     <i className="bi bi-calendar3 text-primary mb-2 d-block" style={{ fontSize: "1.5rem" }}></i>
-                    <h6 className="mb-1 text-muted">Created</h6>
+                    <h6 className="mb-1 text-muted">{t('teamDashboard.created')}</h6>
                     <small className="fw-semibold">
                       {new Date(team.createdDate).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -470,7 +472,7 @@ const TeamDashboard = () => {
               <Stack direction="horizontal" gap={2} className="mb-3">
                 <i className="bi bi-file-text text-primary" style={{ fontSize: "1.25rem" }}></i>
                 <h5 className="mb-0 fw-semibold text-body">
-                  Description
+                  {t('teamDashboard.description')}
                 </h5>
               </Stack>
 
@@ -491,14 +493,14 @@ const TeamDashboard = () => {
                       className="p-0 text-decoration-none fw-semibold"
                       onClick={() => setShowMore(!showMore)}
                     >
-                      {!showMore ? "Show More ↓" : "Show Less ↑"}
+                      {!showMore ? t('teamDashboard.showMore') : t('teamDashboard.showLess')}
                     </Button>
                   </>
                 )
               ) : (
                 <div className="text-center py-4">
                   <i className="bi bi-file-text text-muted d-block mb-2" style={{ fontSize: "3rem" }}></i>
-                  <p className="text-muted mb-0">No description available</p>
+                  <p className="text-muted mb-0">{t('teamDashboard.noDescription')}</p>
                 </div>
               )}
             </Card.Body>
@@ -513,7 +515,7 @@ const TeamDashboard = () => {
         className="mb-3"
         fill
       >
-        <Tab eventKey="dashboard" title={<><i className="bi bi-speedometer2 me-1"></i>Dashboard</>}>
+        <Tab eventKey="dashboard" title={<><i className="bi bi-speedometer2 me-1"></i>{t('teamDashboard.dashboard')}</>}>
           <DashboardTab
             dashboard={dashboard}
             team={team}
@@ -524,7 +526,7 @@ const TeamDashboard = () => {
           />
         </Tab>
 
-        <Tab eventKey="tasks" title={<><i className="bi bi-list-task me-1"></i>Tasks</>}>
+        <Tab eventKey="tasks" title={<><i className="bi bi-list-task me-1"></i>{t('teamDashboard.tasks')}</>}>
           <TasksTab
             teamId={teamId}
             team={team}
@@ -547,13 +549,13 @@ const TeamDashboard = () => {
         </Tab>
 
         {isAdmin && (
-          <Tab eventKey="history" title={<><i className="bi bi-clock-history me-1"></i>History</>}>
+          <Tab eventKey="history" title={<><i className="bi bi-clock-history me-1"></i>{t('teamDashboard.history')}</>}>
             <HistoryTab teamId={teamId} refreshKey={historyRefreshKey} />
           </Tab>
         )}
 
         {isAdmin && (
-          <Tab eventKey="invitations" title={<><i className="bi bi-envelope me-1"></i>Invitations</>}>
+          <Tab eventKey="invitations" title={<><i className="bi bi-envelope me-1"></i>{t('teamDashboard.invitations')}</>}>
             <InvitationsTab
               invitations={invitations}
               onCancelInvitation={handleCancelInvitation}
@@ -566,36 +568,36 @@ const TeamDashboard = () => {
       <Modal show={showInviteModal} onHide={() => { setShowInviteModal(false); setInviteValidated(false); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            <i className="bi bi-person-plus me-2"></i>Invite Member
+            <i className="bi bi-person-plus me-2"></i>{t('teamDashboard.inviteMemberTitle')}
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleInvite}>
           <Modal.Body>
             <Form.Group>
-              <Form.Label>Username</Form.Label>
+              <Form.Label>{t('teamDashboard.username')}</Form.Label>
               <Form.Control
                 type="text"
                 value={inviteUsername}
                 onChange={(e) => setInviteUsername(e.target.value)}
-                placeholder="Enter username to invite"
+                placeholder={t('teamDashboard.usernamePlaceholder')}
                 required
                 autoFocus
                 isInvalid={inviteValidated && (!inviteUsername || inviteUsername.trim() === "")}
               />
               <Form.Control.Feedback type="invalid">
-                Username is required
+                {t('teamDashboard.usernameRequired')}
               </Form.Control.Feedback>
               <Form.Text className="text-muted">
-                The user will receive an in-app notification to accept or reject the invitation.
+                {t('teamDashboard.inviteHelperText')}
               </Form.Text>
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => { setShowInviteModal(false); setInviteValidated(false); }}>
-              Cancel
+              {t('teamDashboard.cancel')}
             </Button>
             <Button type="submit" variant="primary">
-              <i className="bi bi-send me-1"></i>Send Invitation
+              <i className="bi bi-send me-1"></i>{t('teamDashboard.sendInvitation')}
             </Button>
           </Modal.Footer>
         </Form>
@@ -605,7 +607,7 @@ const TeamDashboard = () => {
       <Modal show={showReassignModal} onHide={() => { setShowReassignModal(false); setReassignValidated(false); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            <i className="bi bi-arrow-left-right me-2"></i>Reassign Task
+            <i className="bi bi-arrow-left-right me-2"></i>{t('teamDashboard.reassignTask')}
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleReassign}>
@@ -613,34 +615,34 @@ const TeamDashboard = () => {
             {reassignTask && (
               <>
                 <div className="mb-3 p-2 bg-body-tertiary rounded">
-                  <small className="text-muted">Task:</small>
+                  <small className="text-muted">{t('teamDashboard.taskLabel')}</small>
                   <p className="mb-0 fw-medium">{reassignTask.nameOfTask}</p>
                   {reassignTask.user && (
                     <small className="text-muted">
-                      Current owner: <strong>{reassignTask.user}</strong>
+                      {t('teamDashboard.currentOwner')}<strong>{reassignTask.user}</strong>
                     </small>
                   )}
                 </div>
                 <Form.Group>
-                  <Form.Label>Reassign to</Form.Label>
+                  <Form.Label>{t('teamDashboard.reassignTo')}</Form.Label>
                   <Form.Select
                     value={reassignTarget}
                     onChange={(e) => setReassignTarget(e.target.value)}
                     required
                     isInvalid={reassignValidated && !reassignTarget}
                   >
-                    <option value="">Select a member...</option>
+                    <option value="">{t('teamDashboard.selectMember')}</option>
                     {team.members &&
                       team.members
                         .filter((m) => m.username !== reassignTask.user)
                         .map((m) => (
                           <option key={m.id} value={m.username}>
-                            {m.username} ({m.role === "ADMIN" ? "Admin" : "Member"})
+                            {m.username} ({m.role === "ADMIN" ? t('teamDashboard.admin') : t('teamDashboard.member')})
                           </option>
                         ))}
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">
-                    Please select a team member
+                    {t('teamDashboard.selectMemberRequired')}
                   </Form.Control.Feedback>
                 </Form.Group>
               </>
@@ -648,10 +650,10 @@ const TeamDashboard = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => { setShowReassignModal(false); setReassignValidated(false); }}>
-              Cancel
+              {t('teamDashboard.cancel')}
             </Button>
             <Button type="submit" variant="primary" disabled={!reassignTarget}>
-              <i className="bi bi-arrow-left-right me-1"></i>Reassign
+              <i className="bi bi-arrow-left-right me-1"></i>{t('teamDashboard.reassign')}
             </Button>
           </Modal.Footer>
         </Form>
@@ -661,24 +663,22 @@ const TeamDashboard = () => {
       <Modal show={showRemoveModal} onHide={() => setShowRemoveModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            <i className="bi bi-person-x me-2 text-danger"></i>Remove Member
+            <i className="bi bi-person-x me-2 text-danger"></i>{t('teamDashboard.removeMember')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {memberToRemove && (
             <p>
-              Are you sure you want to remove{" "}
-              <strong>{memberToRemove.username}</strong> from this team?
-              Their assigned tasks will be unassigned.
+              {t('teamDashboard.removeMemberConfirm', { username: memberToRemove.username })}
             </p>
           )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowRemoveModal(false)}>
-            Cancel
+            {t('teamDashboard.cancel')}
           </Button>
           <Button variant="danger" onClick={handleRemoveMember}>
-            <i className="bi bi-person-x me-1"></i>Remove
+            <i className="bi bi-person-x me-1"></i>{t('teamDashboard.remove')}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -686,39 +686,39 @@ const TeamDashboard = () => {
       {/* ===== Add Task Modal ===== */}
       <Modal show={showAddTaskModal} onHide={() => { setShowAddTaskModal(false); setAddTaskValidated(false); }} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Add Task to Team</Modal.Title>
+          <Modal.Title>{t('teamDashboard.addTaskToTeam')}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleAddTask}>
           <Modal.Body>
             <Form.Group>
-              <Form.Label>Select Task</Form.Label>
+              <Form.Label>{t('teamDashboard.selectTask')}</Form.Label>
               <Form.Select
                 value={selectedTaskId}
                 onChange={(e) => setSelectedTaskId(e.target.value)}
                 required
                 isInvalid={addTaskValidated && !selectedTaskId}
               >
-                <option value="">Select a task...</option>
-                {userTasks.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.nameOfTask}
+                <option value="">{t('teamDashboard.selectTaskPlaceholder')}</option>
+                {userTasks.map((task) => (
+                  <option key={task.id} value={task.id}>
+                    {task.nameOfTask}
                   </option>
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                Please select a task
+                {t('teamDashboard.selectTaskRequired')}
               </Form.Control.Feedback>
               <Form.Text className="text-muted">
-                Only your tasks not already in a team are shown.
+                {t('teamDashboard.addTaskHelperText')}
               </Form.Text>
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => { setShowAddTaskModal(false); setAddTaskValidated(false); }}>
-              Cancel
+              {t('teamDashboard.cancel')}
             </Button>
             <Button type="submit" variant="primary">
-              Add to Team
+              {t('teamDashboard.addToTeam')}
             </Button>
           </Modal.Footer>
         </Form>
@@ -728,26 +728,24 @@ const TeamDashboard = () => {
       <Modal show={showDeleteTeamModal} onHide={() => setShowDeleteTeamModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            <i className="bi bi-trash me-2 text-danger"></i>Delete Team
+            <i className="bi bi-trash me-2 text-danger"></i>{t('teamDashboard.deleteTeamTitle')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
-            Are you sure you want to delete <strong>{team.name}</strong>?
-            All tasks will be removed from the team but will remain in their
-            owners' task lists.
+            {t('teamDashboard.deleteTeamConfirm', { teamName: team.name })}
           </p>
           <p className="text-danger mb-0">
             <i className="bi bi-exclamation-triangle me-1"></i>
-            This action cannot be undone.
+            {t('teamDashboard.cannotBeUndone')}
           </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteTeamModal(false)}>
-            Cancel
+            {t('teamDashboard.cancel')}
           </Button>
           <Button variant="danger" onClick={handleDeleteTeam}>
-            <i className="bi bi-trash me-1"></i>Delete Team
+            <i className="bi bi-trash me-1"></i>{t('teamDashboard.deleteTeam')}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -766,21 +764,20 @@ const TeamDashboard = () => {
       <Modal show={showLeaveTeamModal} onHide={() => setShowLeaveTeamModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            <i className="bi bi-box-arrow-right me-2 text-danger"></i>Leave Team
+            <i className="bi bi-box-arrow-right me-2 text-danger"></i>{t('teamDashboard.leaveTeamTitle')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
-            Are you sure you want to leave <strong>{team.name}</strong>?
-            Your tasks will be removed from the team.
+            {t('teamDashboard.leaveTeamConfirm', { teamName: team.name })}
           </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowLeaveTeamModal(false)}>
-            Cancel
+            {t('teamDashboard.cancel')}
           </Button>
           <Button variant="danger" onClick={handleLeaveTeam}>
-            <i className="bi bi-box-arrow-right me-1"></i>Leave Team
+            <i className="bi bi-box-arrow-right me-1"></i>{t('teamDashboard.leaveTeam')}
           </Button>
         </Modal.Footer>
       </Modal>

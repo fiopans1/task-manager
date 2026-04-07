@@ -11,6 +11,7 @@ import {
   Col,
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import teamService from "../../services/teamService";
 import { successToast, errorToast } from "../common/Noty";
 import { ErrorBoundary } from "react-error-boundary";
@@ -18,6 +19,7 @@ import TeamsList from "./TeamsList";
 import NewEditTeam from "./NewEditTeam";
 
 const Teams = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
@@ -68,7 +70,7 @@ const Teams = () => {
       {/* Header */}
       <div className="tittle-tab-container mb-3">
         <h2 className="fw-bold mb-2 flex-grow-1">
-          <i className="bi bi-people me-2"></i>Teams
+          <i className="bi bi-people me-2"></i>{t('teams.title')}
         </h2>
         <div className="d-flex gap-2">
           <Button
@@ -87,7 +89,7 @@ const Teams = () => {
             className="rounded-3"
             onClick={() => setShowCreateModal(true)}
           >
-            <i className="bi bi-plus-lg me-1"></i> New Team
+            <i className="bi bi-plus-lg me-1"></i> {t('teams.newTeam')}
           </Button>
         </div>
       </div>
@@ -100,7 +102,7 @@ const Teams = () => {
               <InputGroup>
                 <Form.Control
                   className="border-end-0"
-                  placeholder="Search teams..."
+                  placeholder={t('teams.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -110,7 +112,7 @@ const Teams = () => {
                     setSearchTerm("");
                   }}
                 >
-                  Clear
+                  {t('teams.clear')}
                 </Button>
               </InputGroup>
             </Col>
@@ -122,7 +124,7 @@ const Teams = () => {
       {pendingInvitations.length > 0 && (
         <Alert variant="info" className="mb-3">
           <Alert.Heading className="fs-6">
-            <i className="bi bi-envelope me-2"></i>Pending Invitations
+            <i className="bi bi-envelope me-2"></i>{t('teams.pendingInvitations')}
           </Alert.Heading>
           {pendingInvitations.map((inv) => (
             <div
@@ -132,7 +134,7 @@ const Teams = () => {
               <div>
                 <strong>{inv.teamName}</strong>
                 <small className="text-muted ms-2">
-                  invited by {inv.invitedByUsername}
+                  {t('teams.invitedBy', { username: inv.invitedByUsername })}
                 </small>
               </div>
               <div>
@@ -142,14 +144,14 @@ const Teams = () => {
                   className="me-2"
                   onClick={() => handleRespondInvitation(inv.token, true)}
                 >
-                  Accept
+                  {t('teams.accept')}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline-danger"
                   onClick={() => handleRespondInvitation(inv.token, false)}
                 >
-                  Reject
+                  {t('teams.reject')}
                 </Button>
               </div>
             </div>
@@ -163,10 +165,10 @@ const Teams = () => {
         onError={handleErrors}
         fallback={
           <Container className="text-center mt-5">
-            <h2 style={{ color: "red" }}>Something went wrong</h2>
-            <p>There was an error loading your teams.</p>
+            <h2 style={{ color: "red" }}>{t('teams.somethingWentWrong')}</h2>
+            <p>{t('teams.errorLoadingTeams')}</p>
             <Button variant="primary" onClick={refreshTeams}>
-              Try Again
+              {t('teams.tryAgain')}
             </Button>
           </Container>
         }
@@ -175,7 +177,7 @@ const Teams = () => {
           fallback={
             <Container className="text-center mt-5">
               <Spinner animation="border" />
-              <p className="mt-2">Loading teams...</p>
+              <p className="mt-2">{t('teams.loadingTeams')}</p>
             </Container>
           }
         >

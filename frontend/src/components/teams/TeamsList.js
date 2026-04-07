@@ -1,10 +1,12 @@
 import { useCallback } from "react";
 import { Row, Col, Card, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
 const TeamsList = ({ teamsResource, searchTerm }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const fetchPage = useCallback(async (page, size) => {
@@ -29,8 +31,8 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
         ></i>
         <p className="mt-3">
           {searchTerm
-            ? "No teams found matching your search"
-            : "You don't belong to any teams yet. Create one to get started!"}
+            ? t('teams.noTeamsSearch')
+            : t('teams.noTeamsYet')}
         </p>
       </div>
     );
@@ -65,7 +67,7 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
               <div className="mt-auto d-flex align-items-center gap-2">
                 <Badge bg="secondary" pill>
                   <i className="bi bi-person me-1"></i>
-                  {team.memberCount} members
+                  {t('teams.members', { count: team.memberCount })}
                 </Badge>
               </div>
             </Card.Body>

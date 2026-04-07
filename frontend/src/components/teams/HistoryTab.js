@@ -1,9 +1,11 @@
 import React, { useCallback } from "react";
 import { Badge, ListGroup, Spinner } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
 const HistoryTab = ({ teamId, refreshKey }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     return teamService.fetchAssignmentHistoryPage(teamId, page, size);
   }, [teamId]);
@@ -16,7 +18,7 @@ const HistoryTab = ({ teamId, refreshKey }) => {
     return (
       <div className="text-center py-5">
         <Spinner animation="border" size="sm" className="me-2" />
-        <span className="text-muted">Loading history...</span>
+        <span className="text-muted">{t('historyTab.loadingHistory')}</span>
       </div>
     );
   }
@@ -24,7 +26,7 @@ const HistoryTab = ({ teamId, refreshKey }) => {
   if (history.length === 0) {
     return (
       <div className="text-center text-muted py-5">
-        <p>No assignment history yet</p>
+        <p>{t('historyTab.noHistory')}</p>
       </div>
     );
   }
@@ -47,13 +49,13 @@ const HistoryTab = ({ teamId, refreshKey }) => {
                       <i className="bi bi-arrow-right mx-1"></i>
                     </>
                   ) : (
-                    <span className="me-1">Assigned to</span>
+                    <span className="me-1">{t('historyTab.assignedTo')}</span>
                   )}
                   <Badge bg="primary" className="me-1">
                     {h.toUsername}
                   </Badge>
                   <span className="text-muted">
-                    by {h.changedByUsername}
+                    {t('historyTab.by', { username: h.changedByUsername })}
                   </span>
                 </small>
               </div>

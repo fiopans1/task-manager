@@ -8,6 +8,7 @@ import {
   Form,
   Spinner,
 } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
@@ -42,6 +43,7 @@ const TasksTab = ({
   onNavigateToTask,
   refreshKey,
 }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     const filters = {};
     if (filterMember) filters.member = filterMember;
@@ -62,13 +64,13 @@ const TasksTab = ({
           <Row className="g-2 align-items-end">
             {isAdmin && (
               <Col xs={12} sm={4}>
-                <Form.Label className="small mb-1">Member</Form.Label>
+                <Form.Label className="small mb-1">{t('tasksTab.member')}</Form.Label>
                 <Form.Select
                   size="sm"
                   value={filterMember}
                   onChange={(e) => onFilterMemberChange(e.target.value)}
                 >
-                  <option value="">All Members</option>
+                  <option value="">{t('tasksTab.allMembers')}</option>
                   {team.members &&
                     team.members.map((m) => (
                       <option key={m.id} value={m.username}>
@@ -79,31 +81,31 @@ const TasksTab = ({
               </Col>
             )}
             <Col xs={12} sm={isAdmin ? 3 : 5}>
-              <Form.Label className="small mb-1">State</Form.Label>
+              <Form.Label className="small mb-1">{t('tasksTab.state')}</Form.Label>
               <Form.Select
                 size="sm"
                 value={filterState}
                 onChange={(e) => onFilterStateChange(e.target.value)}
               >
-                <option value="">All States</option>
+                <option value="">{t('tasksTab.allStates')}</option>
                 {Object.entries(STATE_MAP).map(([key, val]) => (
                   <option key={key} value={key}>
-                    {val.label}
+                    {t('states.' + key)}
                   </option>
                 ))}
               </Form.Select>
             </Col>
             <Col xs={12} sm={isAdmin ? 3 : 5}>
-              <Form.Label className="small mb-1">Priority</Form.Label>
+              <Form.Label className="small mb-1">{t('tasksTab.priority')}</Form.Label>
               <Form.Select
                 size="sm"
                 value={filterPriority}
                 onChange={(e) => onFilterPriorityChange(e.target.value)}
               >
-                <option value="">All Priorities</option>
+                <option value="">{t('tasksTab.allPriorities')}</option>
                 {Object.entries(PRIORITY_MAP).map(([key, val]) => (
                   <option key={key} value={key}>
-                    {val.label}
+                    {t('priorities.' + key)}
                   </option>
                 ))}
               </Form.Select>
@@ -115,7 +117,7 @@ const TasksTab = ({
                 className="w-100"
                 onClick={onClearFilters}
               >
-                Clear
+                {t('tasksTab.clear')}
               </Button>
             </Col>
           </Row>
@@ -126,11 +128,11 @@ const TasksTab = ({
       {initialLoading ? (
         <div className="text-center py-5">
           <Spinner animation="border" size="sm" className="me-2" />
-          <span className="text-muted">Loading tasks...</span>
+          <span className="text-muted">{t('tasksTab.loadingTasks')}</span>
         </div>
       ) : tasks.length === 0 ? (
         <div className="text-center text-muted py-5">
-          <p>No tasks found{!isAdmin ? " assigned to you" : " with selected filters"}</p>
+          <p>{t('tasksTab.noTasksFound')}</p>
         </div>
       ) : (
         <>
@@ -157,10 +159,10 @@ const TasksTab = ({
                           </Badge>
                         )}
                         <Badge bg={STATE_MAP[task.state]?.bg || "secondary"} pill>
-                          {STATE_MAP[task.state]?.label || task.state}
+                          {t('states.' + task.state, { defaultValue: task.state })}
                         </Badge>
                         <Badge bg={PRIORITY_MAP[task.priority]?.bg || "secondary"} pill>
-                          {PRIORITY_MAP[task.priority]?.label || task.priority}
+                          {t('priorities.' + task.priority, { defaultValue: task.priority })}
                         </Badge>
                         {isAdmin && (
                           <Button
@@ -168,7 +170,7 @@ const TasksTab = ({
                             variant="outline-primary"
                             className="py-0 px-2"
                             onClick={() => onReassign(task)}
-                            title="Reassign task"
+                            title={t('tasksTab.reassignTask')}
                           >
                             <i className="bi bi-arrow-left-right"></i>
                           </Button>

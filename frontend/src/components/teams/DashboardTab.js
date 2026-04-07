@@ -8,9 +8,11 @@ import {
   ProgressBar,
   ListGroup,
 } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRemoveMember }) => {
+  const { t } = useTranslation();
   return (
     <>
       {dashboard && (
@@ -18,10 +20,10 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
           {/* Stats */}
           <Row className="g-3 mb-4">
             {[
-              { label: "Total Tasks", value: dashboard.totalTasks, bg: "primary" },
-              { label: "Completed", value: dashboard.completedTasks, bg: "success" },
-              { label: "In Progress", value: dashboard.inProgressTasks, bg: "warning" },
-              { label: "Pending", value: dashboard.pendingTasks, bg: "info" },
+              { label: t('dashboardTab.totalTasks'), value: dashboard.totalTasks, bg: "primary" },
+              { label: t('dashboardTab.completed'), value: dashboard.completedTasks, bg: "success" },
+              { label: t('dashboardTab.inProgress'), value: dashboard.inProgressTasks, bg: "warning" },
+              { label: t('dashboardTab.pending'), value: dashboard.pendingTasks, bg: "info" },
             ].map((stat, i) => (
               <Col key={i} xs={6} md={3}>
                 <Card className="text-center border rounded-3">
@@ -39,7 +41,7 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
             <Card className="border rounded-3 mb-4">
               <Card.Body className="py-3">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <small className="fw-semibold text-muted">Team Progress</small>
+                  <small className="fw-semibold text-muted">{t('dashboardTab.teamProgress')}</small>
                   <Badge bg={dashboard.completedTasks === dashboard.totalTasks ? "success" : "primary"} pill>
                     {Math.round((dashboard.completedTasks / dashboard.totalTasks) * 100)}%
                   </Badge>
@@ -56,7 +58,7 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
 
           {/* Team Workload */}
           <h5 className="fw-semibold mb-3">
-            <i className="bi bi-bar-chart me-2"></i>Team Workload
+            <i className="bi bi-bar-chart me-2"></i>{t('dashboardTab.teamWorkload')}
           </h5>
           <Row className="g-3 mb-4">
             {dashboard.members.map((member) => (
@@ -72,13 +74,13 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
                           className="ms-2"
                           pill
                         >
-                          {member.role === "ADMIN" ? "Admin" : "Member"}
+                          {member.role === "ADMIN" ? t('dashboardTab.admin') : t('dashboardTab.member')}
                         </Badge>
                       </div>
                     </div>
                     <div className="mb-2">
                       <div className="d-flex justify-content-between mb-1">
-                        <small className="text-muted">Pending tasks</small>
+                        <small className="text-muted">{t('dashboardTab.pendingTasks')}</small>
                         <small className="fw-semibold">{member.pendingTasks}</small>
                       </div>
                       <ProgressBar
@@ -102,7 +104,7 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
 
           {/* Members Management */}
           <h5 className="fw-semibold mb-3">
-            <i className="bi bi-people me-2"></i>Members
+            <i className="bi bi-people me-2"></i>{t('dashboardTab.members')}
           </h5>
           <MembersList
             members={team.members || []}
@@ -117,6 +119,7 @@ const DashboardTab = ({ dashboard, team, isAdmin, maxPending, onRoleChange, onRe
 };
 
 const MembersList = ({ members, isAdmin, onRoleChange, onRemoveMember }) => {
+  const { t } = useTranslation();
   const { displayedItems: paginatedMembers, LoadMoreSpinner } = useInfiniteScroll(members);
 
   return (
@@ -140,7 +143,7 @@ const MembersList = ({ members, isAdmin, onRoleChange, onRemoveMember }) => {
                 className="ms-2 flex-shrink-0"
                 pill
               >
-                {member.role === "ADMIN" ? "Admin" : "Member"}
+                {member.role === "ADMIN" ? t('dashboardTab.admin') : t('dashboardTab.member')}
               </Badge>
             </div>
             {isAdmin && (
@@ -155,7 +158,7 @@ const MembersList = ({ members, isAdmin, onRoleChange, onRemoveMember }) => {
                     )
                   }
                 >
-                  {member.role === "ADMIN" ? "Demote" : "Promote"}
+                  {member.role === "ADMIN" ? t('dashboardTab.demote') : t('dashboardTab.promote')}
                 </Button>
                 <Button
                   size="sm"
