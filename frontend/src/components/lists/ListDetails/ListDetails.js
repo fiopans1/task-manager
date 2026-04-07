@@ -27,6 +27,7 @@ import {
   PencilSquare,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import listService from "../../../services/listService";
 import taskService from "../../../services/taskService";
 import { successToast, errorToast } from "../../common/Noty";
@@ -35,6 +36,7 @@ import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
 const ListDetails = ({ listId }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [list, setList] = useState({
     id: null,
@@ -65,12 +67,12 @@ const ListDetails = ({ listId }) => {
         setList(fetchedList);
         setTasks(fetchedList.tasks || []);
       } catch (error) {
-        errorToast("Error when try to load the List details: " + error.message);
+        errorToast(t('listDetails.errorLoadingDetails', { message: error.message }));
       }
     };
 
     fetchData();
-  }, [listId, refreshKey]);
+  }, [listId, refreshKey, t]);
 
   const handleBack = () => {
     navigate("..");
@@ -92,7 +94,7 @@ const ListDetails = ({ listId }) => {
       const unassignedTasks = await taskService.getTasksWithoutList();
       setAvailableTasks(unassignedTasks);
     } catch (error) {
-      errorToast("Error loading tasks: " + error.message);
+      errorToast(t('listDetails.errorLoadingTasks', { message: error.message }));
     } finally {
       setLoadingAvailable(false);
     }
@@ -112,7 +114,7 @@ const ListDetails = ({ listId }) => {
         await listService.addTasksToList(listId, selectedTaskIds);
         refreshList();
         setShowAddModal(false);
-        successToast("Tasks added successfully");
+        successToast(t('listDetails.tasksAdded'));
       }
     } catch (error) {
       errorToast("Error: " + error.message);
@@ -123,7 +125,7 @@ const ListDetails = ({ listId }) => {
     try {
       await listService.deleteTaskFromList(taskId);
       refreshList();
-      successToast("Task removed from list");
+      successToast(t('listDetails.taskRemoved'));
     } catch (error) {
       errorToast("Error: " + error.message);
     }
@@ -186,10 +188,10 @@ const ListDetails = ({ listId }) => {
                   fontSize: "2rem",
                 }}
               >
-                List Management
+                {t('listDetails.listManagement')}
               </h1>
               <p className="text-muted mb-0">
-                Track and manage your tasks efficiently
+                {t('listDetails.trackTasks')}
               </p>
             </div>
             <Button
@@ -198,7 +200,7 @@ const ListDetails = ({ listId }) => {
               className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
             >
               <PencilSquare size={18} />
-              Edit
+              {t('listDetails.edit')}
             </Button>
           </Stack>
         </Col>
@@ -230,11 +232,11 @@ const ListDetails = ({ listId }) => {
           >
             <div>
               <h3 className="mb-1" style={{ fontWeight: "600" }}>
-                {list.nameOfList || "Untitled List"}
+                {list.nameOfList || t('listDetails.untitledList')}
               </h3>
               <Stack direction="horizontal" gap={2}>
                 <List size={16} />
-                <small>List ID: #{list.id}</small>
+                <small>{t('listDetails.listId', { id: list.id })}</small>
               </Stack>
             </div>
             <Badge
@@ -244,13 +246,13 @@ const ListDetails = ({ listId }) => {
               style={{ fontSize: "0.9rem", fontWeight: "600" }}
             >
               <ClipboardCheck size={16} />
-              {completedTasks}/{totalTasks} Done
+              {completedTasks}/{totalTasks} {t('listDetails.done')}
             </Badge>
           </Stack>
 
           {/* Progress Bar */}
           <div className="mt-3">
-            <small className="text-white-50">Overall Progress</small>
+            <small className="text-white-50">{t('listDetails.overallProgress')}</small>
             <ProgressBar
               now={progressPercentage}
               className="mt-1"
@@ -270,7 +272,7 @@ const ListDetails = ({ listId }) => {
               >
                 <Card.Body className="text-center py-3">
                   <List size={24} className="text-primary mb-2" />
-                  <h6 className="mb-1 text-muted">Total Tasks</h6>
+                  <h6 className="mb-1 text-muted">{t('listDetails.totalTasks')}</h6>
                   <h4 className="fw-semibold text-body">
                     {totalTasks}
                   </h4>
@@ -285,7 +287,7 @@ const ListDetails = ({ listId }) => {
               >
                 <Card.Body className="text-center py-3">
                   <CheckCircleFill size={24} className="text-success mb-2" />
-                  <h6 className="mb-1 text-muted">Completed</h6>
+                  <h6 className="mb-1 text-muted">{t('listDetails.completed')}</h6>
                   <h4 className="fw-semibold text-body">
                     {completedTasks}
                   </h4>
@@ -300,7 +302,7 @@ const ListDetails = ({ listId }) => {
               >
                 <Card.Body className="text-center py-3">
                   <Trophy size={24} className="text-warning mb-2" />
-                  <h6 className="mb-1 text-muted">Progress</h6>
+                  <h6 className="mb-1 text-muted">{t('listDetails.progress')}</h6>
                   <h4 className="fw-semibold text-body">
                     {Math.round(progressPercentage)}%
                   </h4>
@@ -322,7 +324,7 @@ const ListDetails = ({ listId }) => {
                 <h5
                   className="mb-0 fw-semibold text-body"
                 >
-                  Description
+                  {t('listDetails.description')}
                 </h5>
               </Stack>
 
@@ -349,14 +351,14 @@ const ListDetails = ({ listId }) => {
                       className="p-0 text-decoration-none fw-semibold"
                       onClick={() => setShowMore(!showMore)}
                     >
-                      {!showMore ? "Show More ↓" : "Show Less ↑"}
+                      {!showMore ? t('listDetails.showMore') : t('listDetails.showLess')}
                     </Button>
                   </>
                 )
               ) : (
                 <div className="text-center py-4">
                   <FileText size={48} className="text-muted mb-2" />
-                  <p className="text-muted mb-0">No description available</p>
+                  <p className="text-muted mb-0">{t('listDetails.noDescription')}</p>
                 </div>
               )}
             </Card.Body>
@@ -379,7 +381,7 @@ const ListDetails = ({ listId }) => {
                 }}
               >
                 <PlusCircle className="me-2" size={20} />
-                Add Task
+                {t('listDetails.addTask')}
               </Button>
             </Card.Body>
           </Card>
@@ -397,16 +399,16 @@ const ListDetails = ({ listId }) => {
                 <h5
                   className="mb-0 fw-semibold text-body"
                 >
-                  Task List
+                  {t('listDetails.taskList')}
                 </h5>
               </Stack>
 
               {!tasks || tasks.length === 0 ? (
                 <div className="text-center py-5">
                   <List size={48} className="text-muted mb-3" />
-                  <h5 className="text-muted mb-2">No tasks in this list</h5>
+                  <h5 className="text-muted mb-2">{t('listDetails.noTasksInList')}</h5>
                   <p className="text-muted mb-3">
-                    Add existing tasks to get started
+                    {t('listDetails.addExistingTasks')}
                   </p>
                   <Button
                     variant="outline-primary"
@@ -414,7 +416,7 @@ const ListDetails = ({ listId }) => {
                     style={{ borderRadius: "10px", fontWeight: "600" }}
                   >
                     <PlusCircle className="me-2" size={16} />
-                    Add the first task
+                    {t('listDetails.addFirstTask')}
                   </Button>
                 </div>
               ) : (
@@ -465,7 +467,7 @@ const ListDetails = ({ listId }) => {
                               handleGoToTask(task.id);
                             }}
                             style={{ borderRadius: "8px" }}
-                            title="Open task details"
+                            title={t('listDetails.openTaskDetails')}
                           >
                             <BoxArrowUpRight size={14} />
                           </Button>
@@ -477,7 +479,7 @@ const ListDetails = ({ listId }) => {
                               handleRemoveTask(task.id);
                             }}
                             style={{ borderRadius: "8px" }}
-                            title="Remove from list"
+                            title={t('listDetails.removeFromList')}
                           >
                             <Trash size={14} />
                           </Button>
@@ -498,14 +500,14 @@ const ListDetails = ({ listId }) => {
         <Modal.Header closeButton>
           <Modal.Title className="fw-semibold text-body">
             <PlusCircle className="me-2" size={20} />
-            Add Tasks to List
+            {t('listDetails.addTasksToList')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form.Group className="mb-3">
             <Form.Control
               type="text"
-              placeholder="Search tasks..."
+              placeholder={t('listDetails.searchTasks')}
               value={searchAvailable}
               onChange={(e) => setSearchAvailable(e.target.value)}
               className="rounded-3"
@@ -514,13 +516,13 @@ const ListDetails = ({ listId }) => {
           {loadingAvailable ? (
             <div className="text-center py-4">
               <Spinner animation="border" />
-              <p className="mt-2 text-muted">Loading available tasks...</p>
+              <p className="mt-2 text-muted">{t('listDetails.loadingAvailable')}</p>
             </div>
           ) : filteredAvailableTasks.length === 0 ? (
             <div className="text-center py-4">
               <List size={48} className="text-muted mb-2" />
-              <p className="text-muted mb-0">No unassigned tasks available</p>
-              <small className="text-muted">All tasks already belong to a list</small>
+              <p className="text-muted mb-0">{t('listDetails.noUnassignedTasks')}</p>
+              <small className="text-muted">{t('listDetails.allTasksBelong')}</small>
             </div>
           ) : (
             <ListGroup style={{ maxHeight: "400px", overflow: "auto" }}>
@@ -551,7 +553,7 @@ const ListDetails = ({ listId }) => {
           )}
           {selectedTaskIds.length > 0 && (
             <div className="mt-3 text-muted">
-              {selectedTaskIds.length} task(s) selected
+              {t('listDetails.tasksSelected', { count: selectedTaskIds.length })}
             </div>
           )}
         </Modal.Body>
@@ -560,7 +562,7 @@ const ListDetails = ({ listId }) => {
             variant="secondary"
             onClick={() => setShowAddModal(false)}
           >
-            Cancel
+            {t('listDetails.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -568,7 +570,7 @@ const ListDetails = ({ listId }) => {
             disabled={selectedTaskIds.length === 0}
             className="fw-semibold"
           >
-            Add Selected Tasks
+            {t('listDetails.addSelectedTasks')}
           </Button>
         </Modal.Footer>
       </Modal>

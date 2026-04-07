@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Modal, Form } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import listService from "../../services/listService";
 
 const Lists = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -69,7 +71,7 @@ const Lists = () => {
       const newCard = {
         id: cards.length > 0 ? Math.max(...cards.map(c => c.id)) + 1 : 1,
         title: newTask.title,
-        description: newTask.description || "No description",
+        description: newTask.description || t('listsExample.noDescription'),
         color: newTask.color,
         tasksCompleted: 0,
         totalTasks: 3
@@ -102,7 +104,7 @@ const Lists = () => {
   return (
     <Container fluid className="overflow-auto" style={{ height: "100vh" }}>
       <div className="tittle-tab-container">
-        <h2>Lists</h2>
+        <h2>{t('listsExample.title')}</h2>
       </div>
       
       <Row className="m-1 mb-4 mt-3">
@@ -114,7 +116,7 @@ const Lists = () => {
         >
           <Card.Body className="py-4">
             <Card.Title>
-              <i className="bi bi-plus-lg"></i> Create New Task
+              <i className="bi bi-plus-lg"></i> {t('listsExample.createNewTask')}
             </Card.Title>
           </Card.Body>
         </Card>
@@ -166,7 +168,7 @@ const Lists = () => {
                   className="mb-1"
                   style={{ fontSize: "0.7rem", color: "#6b7280" }}
                 >
-                  {card.tasksCompleted} of {card.totalTasks} tasks completed
+                  {t('listsExample.completedTasks', { completed: card.tasksCompleted, total: card.totalTasks })}
                 </Card.Text>
                 <Button
                   variant="success"
@@ -174,7 +176,7 @@ const Lists = () => {
                   onClick={() => handleCardClick(card.id)}
                 >
                   <i className="bi bi-card-checklist me-1"></i>
-                  See List
+                  {t('listsExample.seeList')}
                 </Button>
               </Row>
             </Card.Body>
@@ -185,41 +187,41 @@ const Lists = () => {
       {/* Modal for adding/editing task */}
      <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{newTask.id ? 'Edit List' : 'New Task List'}</Modal.Title>
+          <Modal.Title>{newTask.id ? t('listsExample.editList') : t('listsExample.newTaskList')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('listsExample.titleLabel')}</Form.Label>
               <Form.Control
                 type="text"
                 name="title"
                 value={newTask.title}
                 onChange={handleInputChange}
-                placeholder="List name"
+                placeholder={t('listsExample.titlePlaceholder')}
                 autoFocus
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('listsExample.descriptionLabel')}</Form.Label>
               <Form.Control
                 as="textarea"
                 name="description"
                 value={newTask.description}
                 onChange={handleInputChange}
-                placeholder="Brief description of the list"
+                placeholder={t('listsExample.descriptionPlaceholder')}
                 rows={3}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
+              <Form.Label>{t('listsExample.colorLabel')}</Form.Label>
               <div className="d-flex">
                 <Form.Control
                   type="color"
                   name="color"
                   value={newTask.color}
                   onChange={handleInputChange}
-                  title="Choose a color for the list"
+                  title={t('listsExample.colorTooltip')}
                   className="me-2"
                 />
                 <div 
@@ -232,10 +234,10 @@ const Lists = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
-            Cancel
+            {t('listsExample.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSaveTask}>
-            {newTask.id ? 'Update' : 'Create List'}
+            {newTask.id ? t('listsExample.update') : t('listsExample.createList')}
           </Button>
         </Modal.Footer>
       </Modal>

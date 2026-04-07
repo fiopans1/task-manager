@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import listService from "../../services/listService";
 import { errorToast } from "../common/Noty";
 import { ErrorBoundary } from "react-error-boundary";
@@ -18,6 +19,7 @@ import ListsList from "./ListsList";
 import NewEditLists from "./NewEditLists";
 
 const List = () => {
+  const { t } = useTranslation();
   const [showNewList, setshowNewList] = useState(false);
   const [showEditList, setshowEditList] = useState(false);
   const [formEditData, setFormEditData] = useState({});
@@ -81,7 +83,7 @@ const List = () => {
   return (
     <Container fluid className="px-3">
       <div className="tittle-tab-container">
-        <h2>My Lists</h2>
+        <h2>{t('lists.title')}</h2>
       </div>
       {/* First row with controls */}
       <Card className="mb-4 shadow-sm">
@@ -92,12 +94,12 @@ const List = () => {
                 <InputGroup>
                   <Form.Control
                     className="border-end-0"
-                    placeholder="Search lists..."
+                    placeholder={t('lists.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <Button variant="outline-primary" type="submit">
-                    Search
+                    {t('lists.search')}
                   </Button>
                 </InputGroup>
               </Col>
@@ -111,7 +113,7 @@ const List = () => {
                   className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
-                  Clear Filter
+                  {t('lists.clearFilter')}
                 </Button>
                 <Button
                   variant="outline-info"
@@ -119,7 +121,7 @@ const List = () => {
                   onClick={refreshLists}
                   size={isMobile ? "sm" : ""}
                 >
-                  Refresh
+                  {t('lists.refresh')}
                 </Button>
                 <Button
                   variant="outline-primary"
@@ -127,7 +129,7 @@ const List = () => {
                   className="flex-fill flex-md-grow-0"
                   size={isMobile ? "sm" : ""}
                 >
-                  <span className="me-1">+</span> New List
+                  <span className="me-1">+</span> {t('lists.newList')}
                 </Button>
               </Col>
             </Row>
@@ -151,10 +153,10 @@ const List = () => {
               onError={handleErrors}
               fallback={
                 <Container className="text-center mt-5">
-                  <h2 style={{ color: "red" }}>Something went wrong</h2>
-                  <p>There was an error loading your lists.</p>
+                  <h2 style={{ color: "red" }}>{t('lists.somethingWentWrong')}</h2>
+                  <p>{t('lists.errorLoadingLists')}</p>
                   <Button variant="primary" onClick={refreshLists}>
-                    Try Again
+                    {t('lists.tryAgain')}
                   </Button>
                 </Container>
               }
@@ -163,7 +165,7 @@ const List = () => {
                 fallback={
                   <Container className="text-center mt-5">
                     <Spinner animation="border" />
-                    <p className="mt-2">Loading lists...</p>
+                    <p className="mt-2">{t('lists.loadingLists')}</p>
                   </Container>
                 }
               >

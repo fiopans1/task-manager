@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Row, Card, Button, Modal } from "react-bootstrap";
+import { useTranslation } from 'react-i18next';
 import { successToast, errorToast } from "../common/Noty";
 import listService from "../../services/listService";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
@@ -10,6 +11,7 @@ const ListsList = ({
   refreshLists,
   searchTerm,
 }) => {
+  const { t } = useTranslation();
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
@@ -28,8 +30,8 @@ const ListsList = ({
             style={{ fontSize: "2.5rem" }}
           ></i>
         </div>
-        <Card.Title>No lists available</Card.Title>
-        <Card.Text className="text-muted">Please create a new list</Card.Text>
+        <Card.Title>{t('lists.noLists')}</Card.Title>
+        <Card.Text className="text-muted">{t('lists.createNewList')}</Card.Text>
       </Card.Body>
     </Card>
   );
@@ -113,8 +115,7 @@ const ListsList = ({
                   className="mb-1 text-body-secondary"
                   style={{ fontSize: "0.7rem" }}
                 >
-                  {card.completedElements} of {card.totalElements} completed
-                  tasks
+                  {t('lists.completedTasks', { completed: card.completedElements, total: card.totalElements })}
                 </Card.Text>
                 <Button
                   variant="success"
@@ -122,7 +123,7 @@ const ListsList = ({
                   onClick={() => handleOpenList(card.id)}
                 >
                   <i className="bi bi-card-checklist me-1"></i>
-                  See List
+                  {t('lists.seeList')}
                 </Button>
               </Row>
             </Card.Body>
@@ -140,11 +141,10 @@ const ListsList = ({
         backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
+          <Modal.Title>{t('lists.confirmDeletion')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete this list? This action cannot be
-          undone.
+          {t('lists.deleteListConfirm')}
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -154,7 +154,7 @@ const ListsList = ({
               setIdToDelete(null);
             }}
           >
-            Cancel
+            {t('lists.cancel')}
           </Button>
           <Button
             variant="danger"
@@ -163,7 +163,7 @@ const ListsList = ({
               deleteList();
             }}
           >
-            Delete List
+            {t('lists.deleteList')}
           </Button>
         </Modal.Footer>
       </Modal>

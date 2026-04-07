@@ -1,5 +1,6 @@
 import { Container, Form, Modal, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import listService from "../../services/listService";
 import { successToast, errorToast } from "../common/Noty";
 
@@ -11,6 +12,7 @@ const NewEditLists = ({
   initialData,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     id: null,
     nameOfList: "",
@@ -75,46 +77,46 @@ const NewEditLists = ({
     <Container>
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{editOrNew ? "Edit List" : "New List"}</Modal.Title>
+          <Modal.Title>{editOrNew ? t('newEditList.editList') : t('newEditList.newList')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('newEditList.title')}</Form.Label>
               <Form.Control
                 type="text"
                 name="nameOfList"
                 value={formData.nameOfList}
                 onChange={handleChange}
-                placeholder="Name of the list"
+                placeholder={t('newEditList.titlePlaceholder')}
                 autoFocus
                 required
                 isInvalid={validated && (!formData.nameOfList || formData.nameOfList.trim() === "")}
               />
               <Form.Control.Feedback type="invalid">
-                List name is required
+                {t('newEditList.titleRequired')}
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('newEditList.description')}</Form.Label>
               <Form.Control
                 as="textarea"
                 name="descriptionOfList"
                 value={formData.descriptionOfList}
                 onChange={handleChange}
-                placeholder="Description of the list"
+                placeholder={t('newEditList.descriptionPlaceholder')}
                 rows={3}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
+              <Form.Label>{t('newEditList.color')}</Form.Label>
               <div className="d-flex">
                 <Form.Control
                   type="color"
                   name="color"
                   value={formData.color}
                   onChange={handleChange}
-                  title="Choose a color for the list"
+                  title={t('newEditList.colorTooltip')}
                   className="me-2"
                 />
                 <div
@@ -127,7 +129,7 @@ const NewEditLists = ({
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Cancel
+            {t('newEditList.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -138,7 +140,7 @@ const NewEditLists = ({
               }
             }}
           >
-            {editOrNew ? "Update" : "Create List"}
+            {editOrNew ? t('newEditList.update') : t('newEditList.createList')}
           </Button>
         </Modal.Footer>
       </Modal>
