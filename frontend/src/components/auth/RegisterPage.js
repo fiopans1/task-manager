@@ -5,8 +5,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
+import { useTranslation } from 'react-i18next';
 
 function RegisterPage() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -55,7 +57,7 @@ function RegisterPage() {
         </h1>
 
         <p className="auth-heading text-center mb-5">
-          Create your account
+          {t('auth.createAccount')}
         </p>
 
         <Form onSubmit={handleSubmit}>
@@ -64,12 +66,12 @@ function RegisterPage() {
               className="fw-medium mb-2"
               style={{ fontSize: "0.875rem" }}
             >
-              First Name
+              {t('auth.firstName')}
             </Form.Label>
             <Form.Control
               className="auth-input"
               type="text"
-              placeholder="John"
+              placeholder={t('auth.firstNamePlaceholder')}
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -83,12 +85,12 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Surname 1
+                  {t('auth.surname1')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
                   type="text"
-                  placeholder="Doe"
+                  placeholder={t('auth.surname1Placeholder')}
                   name="surname1"
                   value={formData.surname1}
                   onChange={handleChange}
@@ -101,12 +103,12 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Surname 2
+                  {t('auth.surname2')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
                   type="text"
-                  placeholder="Optional"
+                  placeholder={t('auth.surname2Placeholder')}
                   name="surname2"
                   value={formData.surname2}
                   onChange={handleChange}
@@ -122,7 +124,7 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Username
+                  {t('auth.username')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
@@ -141,12 +143,12 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Email
+                  {t('auth.email')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
@@ -163,12 +165,12 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Password
+                  {t('auth.password')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -182,12 +184,12 @@ function RegisterPage() {
                   className="fw-medium mb-2"
                   style={{ fontSize: "0.875rem" }}
                 >
-                  Confirm Password
+                  {t('auth.confirmPassword')}
                 </Form.Label>
                 <Form.Control
                   className="auth-input"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -206,10 +208,10 @@ function RegisterPage() {
             {loading ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
-                Creating account…
+                {t('auth.creatingAccount')}
               </>
             ) : (
-              "Create account"
+              t('auth.createAccountBtn')
             )}
           </Button>
         </Form>
@@ -218,9 +220,9 @@ function RegisterPage() {
           className="text-center mt-4 mb-0"
           style={{ fontSize: "0.875rem", color: "#64748b" }}
         >
-          Already have an account?{" "}
+          {t('auth.alreadyHaveAccount')}{" "}
           <Link to="/login" className="auth-link">
-            Sign in
+            {t('auth.signIn')}
           </Link>
         </p>
       </div>

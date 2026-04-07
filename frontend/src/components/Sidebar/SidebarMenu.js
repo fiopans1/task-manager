@@ -19,42 +19,44 @@ import adminService from "../../services/adminService";
 import taskService from "../../services/taskService";
 import listService from "../../services/listService";
 import teamService from "../../services/teamService";
+import { useTranslation } from 'react-i18next';
 
 // Constant for navigation routes
 const NAVIGATION_ITEMS = [
   {
     path: "/home/tasks",
     icon: "bi bi-list-task",
-    label: "My Tasks",
+    labelKey: "sidebar.myTasks",
     featureKey: "tasks",
   },
   {
     path: "/home/calendar",
     icon: "bi bi-calendar-date",
-    label: "Calendar",
+    labelKey: "sidebar.calendar",
     featureKey: "calendar",
   },
   {
     path: "/home/lists",
     icon: "bi bi-card-checklist",
-    label: "Lists",
+    labelKey: "sidebar.lists",
     featureKey: "lists",
   },
   {
     path: "/home/teams",
     icon: "bi bi-people",
-    label: "Teams",
+    labelKey: "sidebar.teams",
     featureKey: "teams",
   },
   {
     path: "/home/admin",
     icon: "bi bi-shield-lock",
-    label: "Admin Panel",
+    labelKey: "sidebar.adminPanel",
     adminOnly: true,
   },
 ];
 
 function SidebarMenu({ onLogOut }) {
+  const { t, i18n } = useTranslation();
   const [showAbout, setShowAbout] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -204,7 +206,7 @@ function SidebarMenu({ onLogOut }) {
                           }`}
                         >
                           {""}
-                          {item.label}
+                          {t(item.labelKey)}
                         </span>
                         {item.badge && (
                           <Badge
@@ -247,7 +249,7 @@ function SidebarMenu({ onLogOut }) {
                               isMobile ? "" : "d-none d-sm-inline"
                             }`}
                           >
-                            Help
+                            {t('sidebar.help')}
                           </span>
                           <i className="bi bi-chevron-down ms-auto fs-6"></i>
                         </>
@@ -258,7 +260,7 @@ function SidebarMenu({ onLogOut }) {
                 <Dropdown.Menu className="shadow z-index-high">
                   <Dropdown.Item onClick={() => setShowAbout(true)}>
                     <i className="bi bi-box-info me-2"></i>
-                    About
+                    {t('sidebar.about')}
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -318,17 +320,31 @@ function SidebarMenu({ onLogOut }) {
                   label={
                     <span>
                       <i className={`bi ${darkMode ? "bi-moon-fill" : "bi-sun-fill"} me-2`}></i>
-                      Dark Mode
+                      {t('sidebar.darkMode')}
                     </span>
                   }
                   checked={darkMode}
                   onChange={toggleDarkMode}
                 />
               </Dropdown.ItemText>
+              <Dropdown.ItemText className="py-2">
+                <Form.Check
+                  type="switch"
+                  id="language-switch"
+                  label={
+                    <span>
+                      <i className="bi bi-translate me-2"></i>
+                      {t('sidebar.language')}
+                    </span>
+                  }
+                  checked={i18n.language === 'es'}
+                  onChange={() => i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en')}
+                />
+              </Dropdown.ItemText>
               <Dropdown.Divider />
               <Dropdown.Item onClick={onLogOut} className="text-danger py-2">
                 <i className="bi bi-box-arrow-right me-2"></i>
-                Log Out
+                {t('sidebar.logOut')}
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>

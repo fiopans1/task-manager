@@ -8,8 +8,10 @@ import {
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
 import { successToast, errorToast } from "../common/Noty";
+import { useTranslation } from 'react-i18next';
 
 const SystemMessageTab = () => {
+  const { t } = useTranslation();
   const [message, setMessage] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [showBeforeLogin, setShowBeforeLogin] = useState(false);
@@ -62,50 +64,49 @@ const SystemMessageTab = () => {
     <Card className="border-0 shadow-sm">
       <Card.Header className="bg-white">
         <h5 className="mb-0">
-          <i className="bi bi-megaphone me-2"></i>System Message
+          <i className="bi bi-megaphone me-2"></i>{t('systemMessage.title')}
         </h5>
       </Card.Header>
       <Card.Body>
         <p className="text-muted mb-3">
-          Configure a message that will be displayed to users. You can choose
-          to show it before login (on the login/home page), after login, or both.
+          {t('systemMessage.description')}
         </p>
 
         <Form.Group className="mb-3">
-          <Form.Label className="fw-semibold">Enable Message</Form.Label>
+          <Form.Label className="fw-semibold">{t('systemMessage.enableMessage')}</Form.Label>
           <Form.Check
             type="switch"
             id="system-message-switch"
-            label={enabled ? "Message is active" : "Message is inactive"}
+            label={enabled ? t('systemMessage.messageActive') : t('systemMessage.messageInactive')}
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
           />
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label className="fw-semibold">Visibility</Form.Label>
+          <Form.Label className="fw-semibold">{t('systemMessage.visibility')}</Form.Label>
           <Form.Check
             type="checkbox"
             id="show-before-login"
-            label="Show before login (on login/home page)"
+            label={t('systemMessage.showBeforeLogin')}
             checked={showBeforeLogin}
             onChange={(e) => setShowBeforeLogin(e.target.checked)}
           />
           <Form.Check
             type="checkbox"
             id="show-after-login"
-            label="Show after login (inside application)"
+            label={t('systemMessage.showAfterLogin')}
             checked={showAfterLogin}
             onChange={(e) => setShowAfterLogin(e.target.checked)}
           />
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label className="fw-semibold">Message Content</Form.Label>
+          <Form.Label className="fw-semibold">{t('systemMessage.messageContent')}</Form.Label>
           <Form.Control
             as="textarea"
             rows={4}
-            placeholder="Enter the message to display to users..."
+            placeholder={t('systemMessage.messagePlaceholder')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
@@ -114,7 +115,7 @@ const SystemMessageTab = () => {
         {message && (
           <Alert variant="info" className="mb-3">
             <Alert.Heading className="h6">
-              <i className="bi bi-eye me-2"></i>Preview
+              <i className="bi bi-eye me-2"></i>{t('systemMessage.preview')}
             </Alert.Heading>
             {message}
           </Alert>
@@ -128,12 +129,12 @@ const SystemMessageTab = () => {
           {saving ? (
             <>
               <Spinner size="sm" animation="border" className="me-2" />
-              Saving...
+              {t('systemMessage.saving')}
             </>
           ) : (
             <>
               <i className="bi bi-check-lg me-2"></i>
-              Save Message
+              {t('systemMessage.saveMessage')}
             </>
           )}
         </Button>

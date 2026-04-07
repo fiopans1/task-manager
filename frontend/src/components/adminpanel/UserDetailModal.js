@@ -18,6 +18,7 @@ import NewEditTask from "../tasks/NewEditTask";
 import NewEditLists from "../lists/NewEditLists";
 import NewEditTeam from "../teams/NewEditTeam";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { useTranslation } from 'react-i18next';
 
 const getStateBadge = (state) => {
   const variants = {
@@ -42,6 +43,7 @@ const getPriorityBadge = (priority) => {
 };
 
 const UserDetailModal = ({ show, onHide, user }) => {
+  const { t } = useTranslation();
   const [detailTab, setDetailTab] = useState("tasks");
   const [tasksRefreshKey, setTasksRefreshKey] = useState(0);
   const [listsRefreshKey, setListsRefreshKey] = useState(0);
@@ -170,25 +172,25 @@ const UserDetailModal = ({ show, onHide, user }) => {
             <i className="bi bi-person-circle me-2"></i>
             {user.username}
             {user.blocked && (
-              <Badge bg="danger" className="ms-2">Blocked</Badge>
+              <Badge bg="danger" className="ms-2">{t('admin.blocked')}</Badge>
             )}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {/* User info summary */}
           <div className="d-flex flex-wrap gap-3 mb-3">
-            <div><strong>Email:</strong> {user.email}</div>
+            <div><strong>{t('admin.email')}</strong> {user.email}</div>
             <div>
-              <strong>Roles:</strong>{" "}
+              <strong>{t('admin.roles')}</strong>{" "}
               {user.roles?.map((r, i) => (
                 <Badge key={i} bg={r === "ADMIN" ? "danger" : "primary"} className="me-1">{r}</Badge>
               ))}
             </div>
-            <div><strong>Created:</strong> {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : "—"}</div>
+            <div><strong>{t('admin.created')}</strong> {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : "—"}</div>
           </div>
 
           <Tabs activeKey={detailTab} onSelect={setDetailTab} className="mb-3">
-            <Tab eventKey="tasks" title="Tasks">
+            <Tab eventKey="tasks" title={t('admin.tasks')}>
               <AdminTasksTabContent
                 userId={user.id}
                 refreshKey={tasksRefreshKey}
@@ -197,7 +199,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
               />
             </Tab>
 
-            <Tab eventKey="lists" title="Lists">
+            <Tab eventKey="lists" title={t('admin.lists')}>
               <AdminListsTabContent
                 userId={user.id}
                 refreshKey={listsRefreshKey}
@@ -206,7 +208,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
               />
             </Tab>
 
-            <Tab eventKey="teams" title="Teams">
+            <Tab eventKey="teams" title={t('admin.teams')}>
               <AdminTeamsTabContent
                 userId={user.id}
                 refreshKey={teamsRefreshKey}
@@ -262,6 +264,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 // ===== Paginated sub-components for admin tabs =====
 
 const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     return adminService.fetchUserTasksPage(userId, page, size);
   }, [userId]);
@@ -280,12 +283,12 @@ const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) 
         <Table responsive hover size="sm">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>State</th>
-              <th>Priority</th>
-              <th>List</th>
-              <th>Team</th>
-              <th>Actions</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.state')}</th>
+              <th>{t('admin.priority')}</th>
+              <th>{t('admin.list')}</th>
+              <th>{t('admin.team')}</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -307,7 +310,7 @@ const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) 
               </tr>
             ))}
             {tasks.length === 0 && (
-              <tr><td colSpan="6" className="text-center text-muted py-3">No tasks</td></tr>
+              <tr><td colSpan="6" className="text-center text-muted py-3">{t('admin.noTasks')}</td></tr>
             )}
           </tbody>
         </Table>
@@ -334,7 +337,7 @@ const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) 
             </div>
           </div>
         ))}
-        {tasks.length === 0 && <p className="text-center text-muted py-3">No tasks</p>}
+        {tasks.length === 0 && <p className="text-center text-muted py-3">{t('admin.noTasks')}</p>}
       </div>
       <LoadMoreSpinner />
     </>
@@ -342,6 +345,7 @@ const AdminTasksTabContent = ({ userId, refreshKey, onEditTask, onDeleteTask }) 
 };
 
 const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     return adminService.fetchUserListsPage(userId, page, size);
   }, [userId]);
@@ -360,11 +364,11 @@ const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) 
         <Table responsive hover size="sm">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Total Tasks</th>
-              <th>Completed</th>
-              <th>Actions</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.description')}</th>
+              <th>{t('admin.totalTasks')}</th>
+              <th>{t('admin.completed')}</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -388,7 +392,7 @@ const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) 
               </tr>
             ))}
             {lists.length === 0 && (
-              <tr><td colSpan="5" className="text-center text-muted py-3">No lists</td></tr>
+              <tr><td colSpan="5" className="text-center text-muted py-3">{t('admin.noLists')}</td></tr>
             )}
           </tbody>
         </Table>
@@ -413,7 +417,7 @@ const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) 
             <small className="text-muted">{list.totalElements} tasks, {list.completedElements} completed</small>
           </div>
         ))}
-        {lists.length === 0 && <p className="text-center text-muted py-3">No lists</p>}
+        {lists.length === 0 && <p className="text-center text-muted py-3">{t('admin.noLists')}</p>}
       </div>
       <LoadMoreSpinner />
     </>
@@ -421,6 +425,7 @@ const AdminListsTabContent = ({ userId, refreshKey, onEditList, onDeleteList }) 
 };
 
 const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     return adminService.fetchUserTeamsPage(userId, page, size);
   }, [userId]);
@@ -439,11 +444,11 @@ const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) 
         <Table responsive hover size="sm">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Members</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.description')}</th>
+              <th>{t('admin.members')}</th>
+              <th>{t('admin.created')}</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -464,7 +469,7 @@ const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) 
               </tr>
             ))}
             {teams.length === 0 && (
-              <tr><td colSpan="5" className="text-center text-muted py-3">No teams</td></tr>
+              <tr><td colSpan="5" className="text-center text-muted py-3">{t('admin.noTeams')}</td></tr>
             )}
           </tbody>
         </Table>
@@ -486,7 +491,7 @@ const AdminTeamsTabContent = ({ userId, refreshKey, onEditTeam, onDeleteTeam }) 
             <small className="text-muted">{team.memberCount} members</small>
           </div>
         ))}
-        {teams.length === 0 && <p className="text-center text-muted py-3">No teams</p>}
+        {teams.length === 0 && <p className="text-center text-muted py-3">{t('admin.noTeams')}</p>}
       </div>
       <LoadMoreSpinner />
     </>

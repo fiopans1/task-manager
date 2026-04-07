@@ -3,8 +3,10 @@ import { Container, Tab, Tabs } from "react-bootstrap";
 import UserManagementTab from "./UserManagementTab";
 import FeatureFlagsTab from "./FeatureFlagsTab";
 import SystemMessageTab from "./SystemMessageTab";
+import { useTranslation } from 'react-i18next';
 
 const AdminPanel = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("users");
 
   return (
@@ -18,10 +20,10 @@ const AdminPanel = () => {
         <div className="mb-4">
           <h2 className="fw-bold">
             <i className="bi bi-shield-lock me-2"></i>
-            Administration Panel
+            {t('admin.title')}
           </h2>
           <p className="text-muted mb-0">
-            Manage users, feature flags, and system settings
+            {t('admin.subtitle')}
           </p>
         </div>
 
@@ -32,7 +34,7 @@ const AdminPanel = () => {
             title={
               <span>
                 <i className="bi bi-people me-1"></i>
-                <span className="d-none d-sm-inline">Users</span>
+                <span className="d-none d-sm-inline">{t('admin.usersTab')}</span>
               </span>
             }
           >
@@ -45,7 +47,7 @@ const AdminPanel = () => {
             title={
               <span>
                 <i className="bi bi-toggles me-1"></i>
-                <span className="d-none d-sm-inline">Features</span>
+                <span className="d-none d-sm-inline">{t('admin.featuresTab')}</span>
               </span>
             }
           >
@@ -58,7 +60,7 @@ const AdminPanel = () => {
             title={
               <span>
                 <i className="bi bi-megaphone me-1"></i>
-                <span className="d-none d-sm-inline">System Message</span>
+                <span className="d-none d-sm-inline">{t('admin.systemMessageTab')}</span>
               </span>
             }
           >

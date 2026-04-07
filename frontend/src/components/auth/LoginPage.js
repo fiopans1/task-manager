@@ -6,8 +6,10 @@ import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
 import SystemMessageModal from "../common/SystemMessageModal";
+import { useTranslation } from 'react-i18next';
 
 function LoginPage({ onLogin }) {
+  const { t } = useTranslation();
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ function LoginPage({ onLogin }) {
         </h1>
 
         <p className="auth-heading text-center mb-5">
-          Welcome back
+          {t('auth.welcomeBack')}
         </p>
 
         <Form onSubmit={handleSubmit}>
@@ -46,13 +48,13 @@ function LoginPage({ onLogin }) {
               className="fw-medium mb-2"
               style={{ fontSize: "0.875rem" }}
             >
-              Username
+              {t('auth.username')}
             </Form.Label>
             <Form.Control
               size="lg"
               className="auth-input"
               type="text"
-              placeholder="Your username"
+              placeholder={t('auth.usernamePlaceholder')}
               value={username}
               onChange={(e) => setusername(e.target.value)}
               required
@@ -64,13 +66,13 @@ function LoginPage({ onLogin }) {
               className="fw-medium mb-2"
               style={{ fontSize: "0.875rem" }}
             >
-              Password
+              {t('auth.password')}
             </Form.Label>
             <Form.Control
               size="lg"
               className="auth-input"
               type="password"
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -86,10 +88,10 @@ function LoginPage({ onLogin }) {
             {loading ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
-                Signing in…
+                {t('auth.signingIn')}
               </>
             ) : (
-              "Sign in"
+              t('auth.signIn')
             )}
           </Button>
         </Form>
@@ -98,9 +100,9 @@ function LoginPage({ onLogin }) {
           className="text-center mt-4 mb-0"
           style={{ fontSize: "0.875rem", color: "#64748b" }}
         >
-          Don't have an account?{" "}
+          {t('auth.noAccount')}{" "}
           <Link to="/register" className="auth-link">
-            Create one
+            {t('auth.createOne')}
           </Link>
         </p>
       </div>

@@ -2,8 +2,10 @@ import React, { useCallback } from "react";
 import { Card, Button, Badge, Spinner } from "react-bootstrap";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import adminService from "../../services/adminService";
+import { useTranslation } from 'react-i18next';
 
 const UserSearchResults = ({ query, refreshKey, onViewUser, onToggleBlock }) => {
+  const { t } = useTranslation();
   const fetchPage = useCallback(async (page, size) => {
     return adminService.fetchUserSearchPage(query, page, size);
   }, [query]);
@@ -16,7 +18,7 @@ const UserSearchResults = ({ query, refreshKey, onViewUser, onToggleBlock }) => 
     return (
       <div className="text-center py-5">
         <Spinner animation="border" size="sm" className="me-2" />
-        <span className="text-muted">Searching users...</span>
+        <span className="text-muted">{t('admin.searchingUsers')}</span>
       </div>
     );
   }
@@ -25,7 +27,7 @@ const UserSearchResults = ({ query, refreshKey, onViewUser, onToggleBlock }) => 
     return (
       <div className="text-center text-muted py-5">
         <i className="bi bi-person-x fs-1 d-block mb-2"></i>
-        <p>No users found</p>
+        <p>{t('admin.noUsersFound')}</p>
       </div>
     );
   }
@@ -42,14 +44,14 @@ const UserSearchResults = ({ query, refreshKey, onViewUser, onToggleBlock }) => 
               <div className="min-w-0">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   <strong className="text-truncate">{user.username}</strong>
-                  {user.blocked && <Badge bg="danger">Blocked</Badge>}
+                  {user.blocked && <Badge bg="danger">{t('admin.blocked')}</Badge>}
                   {user.roles?.map((r, i) => (
                     <Badge key={i} bg={r === "ADMIN" ? "danger" : "primary"} className="opacity-75" style={{ fontSize: "0.7em" }}>{r}</Badge>
                   ))}
                 </div>
                 <small className="text-muted text-truncate d-block">{user.email}</small>
                 <small className="text-muted">
-                  {user.taskCount} tasks · {user.listCount} lists · {user.teamCount} teams
+                  {t('admin.userStats', { tasks: user.taskCount, lists: user.listCount, teams: user.teamCount })}
                 </small>
               </div>
             </div>

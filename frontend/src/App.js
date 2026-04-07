@@ -20,7 +20,9 @@ import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
 import TeamDashboard from "./components/teams/TeamDashboard";
+import { useTranslation } from 'react-i18next';
 function App() {
+  const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -31,7 +33,7 @@ function App() {
         const oauth2Token = authService.checkForOAuth2Token();
         if (oauth2Token) {
           setIsAuthenticated(true);
-          successToast("Login successfully with OAuth2");
+          successToast(t('auth.loginSuccess'));
           navigate("/home", { replace: true });
           return;
         }
@@ -46,7 +48,7 @@ function App() {
             // Token expired - clear it and redirect to login
             authService.logout();
             setIsAuthenticated(false);
-            infoToast("Your session has expired. Please log in again.");
+            infoToast(t('auth.sessionExpired'));
           }
         }
       } catch (error) {
@@ -61,7 +63,7 @@ function App() {
     };
 
     initializeAuth();
-  }, [navigate]);
+  }, [navigate, t]);
 
   const handleLogin = (token) => {
     setIsAuthenticated(true);
@@ -70,7 +72,7 @@ function App() {
 
   const handleLogout = () => {
     authService.logout();
-    infoToast("Logged out");
+    infoToast(t('common.loggedOut'));
     setIsAuthenticated(false);
   };
 
@@ -79,7 +81,7 @@ function App() {
       <div className="app-loading">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Verifying authentication...</p>
+          <p>{t('app.verifyingAuth')}</p>
         </div>
       </div>
     );

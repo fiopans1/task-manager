@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import adminService from "../../services/adminService";
+import { useTranslation } from 'react-i18next';
 
 const SystemMessageModal = ({ context = "afterLogin" }) => {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -36,7 +38,7 @@ const SystemMessageModal = ({ context = "afterLogin" }) => {
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title>
           <i className="bi bi-megaphone-fill text-primary me-2"></i>
-          System Notification
+          {t('systemNotification.title')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -49,7 +51,7 @@ const SystemMessageModal = ({ context = "afterLogin" }) => {
       </Modal.Body>
       <Modal.Footer className="border-0 pt-0">
         <Button variant="primary" onClick={() => setShow(false)}>
-          OK
+          {t('systemNotification.ok')}
         </Button>
       </Modal.Footer>
     </Modal>

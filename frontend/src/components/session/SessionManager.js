@@ -3,12 +3,14 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import { warningToast, infoToast } from "../common/Noty";
+import { useTranslation } from 'react-i18next';
 
 const SESSION_CHECK_INTERVAL = 30 * 1000; // Check every 30 seconds
 const WARNING_THRESHOLD = 5 * 60; // 5 minutes in seconds
 const COUNTDOWN_DURATION = 60; // 60 seconds countdown in the modal
 
 const SessionManager = ({ onLogOut }) => {
+  const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
   const navigate = useNavigate();
@@ -129,26 +131,26 @@ const SessionManager = ({ onLogOut }) => {
       <Modal.Header>
         <Modal.Title>
           <i className="bi bi-exclamation-triangle-fill text-warning me-2"></i>
-          Session Expiring
+          {t('session.expiring')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>Your session is about to expire. Do you want to extend it?</p>
+        <p>{t('session.expiringMessage')}</p>
         <p className="text-center">
           <span className="fs-3 fw-bold text-danger">
             {formatTime(countdown)}
           </span>
         </p>
         <p className="text-muted text-center small">
-          You will be automatically logged out when the timer reaches zero.
+          {t('session.autoLogout')}
         </p>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="outline-secondary" onClick={handleForceLogout}>
-          Logout
+          {t('session.logout')}
         </Button>
         <Button variant="primary" onClick={handleExtendSession}>
-          Extend Session
+          {t('session.extendSession')}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -10,8 +10,10 @@ import { successToast, errorToast } from "../common/Noty";
 import UserDetailModal from "./UserDetailModal";
 import ConfirmModal from "./ConfirmModal";
 import UserSearchResults from "./UserSearchResults";
+import { useTranslation } from 'react-i18next';
 
 const UserManagementTab = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
   const [searched, setSearched] = useState(false);
@@ -63,13 +65,13 @@ const UserManagementTab = () => {
             <InputGroup>
               <Form.Control
                 type="text"
-                placeholder="Search users by username..."
+                placeholder={t('admin.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button variant="primary" type="submit">
                 <i className="bi bi-search"></i>
-                <span className="d-none d-sm-inline ms-2">Search</span>
+                <span className="d-none d-sm-inline ms-2">{t('admin.search')}</span>
               </Button>
             </InputGroup>
           </Form>
@@ -80,7 +82,7 @@ const UserManagementTab = () => {
       {!searched && (
         <div className="text-center text-muted py-5">
           <i className="bi bi-search fs-1 d-block mb-2"></i>
-          <p>Search for users by their username</p>
+          <p>{t('admin.searchHint')}</p>
         </div>
       )}
 
