@@ -17,7 +17,7 @@ const CalendarComponent = () => {
       title: task.nameOfTask,
       start: new Date(task.startTime),
       end: new Date(task.endTime),
-      category: task.category || "work", // Valor por defecto "work" si no tiene categoría
+      category: task.category || "work", // Default value "work" if no category
     }));
   };
 
@@ -34,7 +34,7 @@ const CalendarComponent = () => {
         }
       } catch (error) {
         if (isMounted) {
-          errorToast("Error al cargar eventos: " + error.message);
+          errorToast("Error loading events: " + error.message);
         }
       } finally {
         if (isMounted) {
@@ -87,7 +87,7 @@ const CalendarComponent = () => {
     };
   };
 
-  // Componente personalizado para la barra de herramientas
+  // Custom toolbar component
   const CustomToolbar = (props) => {
     return (
       <div className="rbc-toolbar">
@@ -97,21 +97,21 @@ const CalendarComponent = () => {
             className="mx-1" 
             onClick={() => props.onNavigate('PREV')}
           >
-            &#8249; {/* Símbolo de flecha izquierda HTML */}
+            &#8249; {/* Left arrow HTML symbol */}
           </Button>
           <Button 
             variant="primary" 
             className="mx-1" 
             onClick={() => props.onNavigate('TODAY')}
           >
-            Hoy
+            Today
           </Button>
           <Button 
             variant="outline-secondary" 
             className="mx-1" 
             onClick={() => props.onNavigate('NEXT')}
           >
-            &#8250; {/* Símbolo de flecha derecha HTML */}
+            &#8250; {/* Right arrow HTML symbol */}
           </Button>
         </div>
         
@@ -127,9 +127,9 @@ const CalendarComponent = () => {
               className="mx-1"
               onClick={() => props.onView(view)}
             >
-              {view === 'month' && 'Mes'}
-              {view === 'week' && 'Semana'}
-              {view === 'day' && 'Día'}
+              {view === 'month' && 'Month'}
+              {view === 'week' && 'Week'}
+              {view === 'day' && 'Day'}
               {view === 'agenda' && 'Agenda'}
             </Button>
           ))}
@@ -138,20 +138,20 @@ const CalendarComponent = () => {
     );
   };
 
-  // Formateador de fechas personalizado
+  // Custom date formatter
   const formats = {
     dayFormat: (date, culture, localizer) =>
       localizer.format(date, 'ddd D', culture),
     
     dayHeaderFormat: (date, culture, localizer) =>
-      localizer.format(date, 'dddd, D [de] MMMM', culture),
+      localizer.format(date, 'dddd, MMMM D', culture),
     
     dayRangeHeaderFormat: ({ start, end }, culture, localizer) =>
-      localizer.format(start, 'D MMMM', culture) + ' - ' + 
-      localizer.format(end, 'D MMMM', culture)
+      localizer.format(start, 'MMMM D', culture) + ' - ' + 
+      localizer.format(end, 'MMMM D', culture)
   };
 
-  // Componentes personalizados
+  // Custom components
   const customComponents = {
     toolbar: CustomToolbar
   };
@@ -159,7 +159,7 @@ const CalendarComponent = () => {
   return (
     <Container fluid className="py-4 overflow-auto" style={{ height: "100%" }}>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Calendario</h2>
+        <h2 className="mb-0">Calendar</h2>
         <div className="d-flex gap-4">
           {Object.entries({
             work: { label: "Work", color: "#4361ee" },

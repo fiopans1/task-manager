@@ -58,9 +58,9 @@ public class WebSecurityConfig {
         http.sessionManagement(sessionManager
                 -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-        //sino desabilitamos el csrf no podremos usar la aplicacion como api
+        //if we don't disable csrf we won't be able to use the application as an api
         http.csrf(csrf -> csrf.disable());
-        http.httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
+        http.httpBasic(Customizer.withDefaults()); // Enables basic authentication
 
         if (oAuth2IsEnabled) {
             logger.info("OAuth2 is enabled, configuring OAuth2 login");
@@ -76,7 +76,7 @@ public class WebSecurityConfig {
             logger.info("OAuth2 is disabled");
         }
 
-        http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check sino necesitamos el constructor
+        http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check if we still need the constructor
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
             logger.warn("Unauthorized access attempt from: {}", request.getRemoteAddr());

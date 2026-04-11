@@ -148,7 +148,7 @@ const TaskDetailsTask = ({ taskId }) => {
         </Col>
       </Row>
 
-      {/* Card principal con diseño moderno */}
+      {/* Main card with modern design */}
       <Card className="border-0 shadow-lg" style={{ borderRadius: "20px", overflow: "hidden" }}>
         {/* Header del card con gradiente */}
           <Card.Header 
@@ -259,7 +259,7 @@ const TaskDetailsTask = ({ taskId }) => {
             </Col>
           </Row>
 
-          {/* Información de fechas con cards */}
+          {/* Date information with cards */}
           <Row className="mb-4">
             <Col md={4} className="mb-3">
               <Card className="border-0 bg-body-tertiary h-100" style={{ borderRadius: "15px" }}>
@@ -302,7 +302,7 @@ const TaskDetailsTask = ({ taskId }) => {
             )}
           </Row>
 
-          {/* Descripción mejorada */}
+          {/* Enhanced description */}
           <Card 
             className="border-0 shadow-sm bg-body-tertiary" 
             style={{ 
