@@ -45,6 +45,7 @@ taskmanager.oauth2.enabled=false
 To enable OAuth2 authentication, uncomment and configure the appropriate provider section:
 
 **Google:**
+
 ```properties
 taskmanager.oauth2.google.enabled=true
 spring.security.oauth2.client.registration.google.client-id=YOUR_CLIENT_ID
@@ -52,6 +53,7 @@ spring.security.oauth2.client.registration.google.client-secret=YOUR_CLIENT_SECR
 ```
 
 **GitHub:**
+
 ```properties
 taskmanager.oauth2.github.enabled=true
 spring.security.oauth2.client.registration.github.client-id=YOUR_CLIENT_ID
@@ -59,6 +61,7 @@ spring.security.oauth2.client.registration.github.client-secret=YOUR_CLIENT_SECR
 ```
 
 **Authentik:**
+
 ```properties
 taskmanager.oauth2.authentik.enabled=true
 spring.security.oauth2.client.registration.authentik.client-id=YOUR_CLIENT_ID
@@ -79,27 +82,27 @@ spring.security.oauth2.client.provider.authentik.user-info-uri=https://YOUR_DOMA
 window.APP_CONFIG = {
   api: {
     // Backend API base URL
-    baseUrl: 'http://localhost:8080'
+    baseUrl: "http://localhost:8080",
   },
   oauth2: {
     // Enable OAuth2 globally
     enabled: false,
-    
+
     // Provider-specific settings
     google: { enabled: false },
     github: { enabled: false },
-    authentik: { enabled: false }
+    authentik: { enabled: false },
   },
   app: {
-    name: 'Task Manager',
-    version: '1.0.0',
-    debug: false
+    name: "Task Manager",
+    version: "1.0.0",
+    debug: false,
   },
   features: {
     calendar: true,
     lists: true,
-    timeTracking: true
-  }
+    timeTracking: true,
+  },
 };
 ```
 
@@ -114,11 +117,13 @@ The frontend loads configuration from `config.js` before the React app initializ
 #### Development vs Production
 
 **Development:**
+
 - Edit `client/public/config.js` directly
 - Changes take effect immediately (no rebuild needed)
 - File is `.gitignore`d to prevent committing local settings
 
 **Production:**
+
 - Configuration is copied from template during build
 - Edit the deployed `config.js` file to change settings
 - No frontend rebuild required
@@ -139,6 +144,7 @@ The frontend loads configuration from `config.js` before the React app initializ
 #### Customization
 
 Change the listening port:
+
 ```caddyfile
 :3000 {  # Change this to your desired port
     root * ../lib/frontend
@@ -147,6 +153,7 @@ Change the listening port:
 ```
 
 For production with HTTPS:
+
 ```caddyfile
 yourdomain.com {
     root * ../lib/frontend
@@ -165,9 +172,10 @@ python3 compile.py --action deploy
 ```
 
 This will:
+
 1. Build the backend with Maven
 2. Copy `config.template.js` to `client/public/config.js`
-3. Build the frontend with npm
+3. Build the frontend with pnpm
 4. Download Caddy server
 5. Copy all configuration templates to `task-manager/config/`
 6. Create deployment package `TaskManager.zip`
