@@ -57,13 +57,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect(redirectUrl);
 
         } catch (Exception e) {
-            logger.error("Error durante la generación del token JWT", e);
+            logger.error("Error during JWT token generation", e);
             handleAuthenticationError(response, e);
         }
     }
 
     /**
-     * Crea un objeto User a partir del UserPrincipal para generar el JWT
+     * Creates a User object from the UserPrincipal to generate the JWT
      */
     private User createUserFromPrincipal(UserPrincipal userPrincipal) {
         User user = new User();
@@ -76,7 +76,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     /**
-     * Construye la URL de redirección con el token
+     * Builds the redirect URL with the token
      */
     private String buildRedirectUrl(String token) {
         return authorizedRedirectUri + "?token=" + token;

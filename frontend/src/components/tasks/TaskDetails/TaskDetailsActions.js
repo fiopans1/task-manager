@@ -146,7 +146,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
     if (!actionDate) return "Date not available";
 
     try {
-      return new Date(actionDate).toLocaleString("es-ES", {
+      return new Date(actionDate).toLocaleString("en-US", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -154,7 +154,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         minute: "2-digit",
       });
     } catch (error) {
-      return "Fecha inválida";
+      return "Invalid date";
     }
   };
 

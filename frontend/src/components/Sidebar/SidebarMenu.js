@@ -65,7 +65,7 @@ function SidebarMenu({ onLogOut }) {
   const { darkMode, toggleDarkMode } = useTheme();
   const [featureFlags, setFeatureFlags] = useState({});
 
-  // Manejador para alternar el estado de colapso de la barra lateral
+  // Handler to toggle sidebar collapsed state
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
@@ -341,7 +341,7 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        {/* Botón flotante en esquina para móvil - Top bar layout */}
+        {/* Floating button in corner for mobile - Top bar layout */}
         <div
           className="mobile-top-bar bg-dark position-fixed w-100 d-flex align-items-center justify-content-between px-3 py-2"
           onClick={toggleMobileMenu}
@@ -375,7 +375,7 @@ function SidebarMenu({ onLogOut }) {
           <div style={{ width: "44px" }}></div>
         </div>
 
-        {/* Menú lateral como Offcanvas en móvil */}
+        {/* Sidebar menu as Offcanvas on mobile */}
         <Offcanvas
           id="sidebar-menu"
           show={showMobileMenu}
@@ -424,7 +424,7 @@ function SidebarMenu({ onLogOut }) {
           flexShrink: 0,
         }}
       >
-        {/* Botón flotante para colapsar/expandir */}
+        {/* Floating button to collapse/expand */}
         {!isMobile && (
           <Button
             variant="dark"

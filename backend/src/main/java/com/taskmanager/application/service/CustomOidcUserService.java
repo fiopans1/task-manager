@@ -118,7 +118,7 @@ public class CustomOidcUserService extends OidcUserService {
             existingUser.addAuthProvider(provider);
         }
 
-        // Actualizar información del usuario si es necesario
+        // Update user information if necessary
         FullName fullName = provider.extractFullName(oidcUser);
         if (fullName != null && !fullName.getFullName().isEmpty() && existingUser.getName() == null) {
             logger.debug("Updating user full name: {}", fullName.getFullName());
@@ -134,7 +134,7 @@ public class CustomOidcUserService extends OidcUserService {
             existingUser.setUsername(username);
         }
 
-        // Actualizar timestamp de último login
+        // Update last login timestamp
         // existingUser.setLastLoginDate(new Date());
         User savedUser = userRepository.save(existingUser);
         logger.info("Successfully updated existing user: {}", savedUser.getEmail());

@@ -80,14 +80,14 @@
   width: calc(100% + 30px);
 }
 
-/* Estilos para el SidebarMenu */
+/* Styles for SidebarMenu */
 
 /* Mobile Top Bar */
 .mobile-top-bar {
   transition: all 0.3s ease;
 }
 
-/* Animación para el botón de toggle */
+/* Animation for toggle button */
 .toggle-button {
   transition: all 0.3s ease;
 }
@@ -97,7 +97,7 @@
   transform: scale(1.1);
 }
 
-/* Botón flotante para móvil */
+/* Floating button for mobile */
 .mobile-menu-button {
   transition: all 0.3s ease;
 }
@@ -111,12 +111,12 @@
   transform: scale(0.95);
 }
 
-/* Estilos para el menú lateral */
+/* Styles for sidebar menu */
 .sidebar-menu {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Animación para elementos del menú */
+/* Animation for menu items */
 .nav-pills .nav-link {
   transition: all 0.2s ease;
   border-radius: 0;
@@ -134,7 +134,7 @@
   border-left: 4px solid #0d6efd;
 }
 
-/* Estilo para el modo colapsado */
+/* Style for collapsed mode */
 .sidebar-menu.collapsed .nav-link {
   display: flex;
   justify-content: center;
@@ -154,7 +154,7 @@
   border-right: 4px solid #0d6efd;
 }
 
-/* Mejoras para el menú móvil */
+/* Improvements for mobile menu */
 .offcanvas-header .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%);
 }
@@ -195,13 +195,13 @@
     align-items: center;
   }
 
-  /* Mostrar textos en el menú móvil */
+  /* Show text in mobile menu */
   .offcanvas .nav-link span {
     display: inline-block !important;
     margin-left: 10px !important;
   }
 
-  /* Asegurar que los íconos estén alineados */
+  /* Ensure icons are aligned */
   .offcanvas .nav-link i {
     width: 24px;
     text-align: center;

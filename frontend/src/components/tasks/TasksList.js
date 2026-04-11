@@ -207,7 +207,7 @@ const TasksList = ({
 
       <LoadMoreSpinner />
 
-      {/* Modal de confirmación para eliminar */}
+      {/* Delete confirmation modal */}
       <Modal
         show={showDelete}
         onHide={() => setShowDelete(false)}
