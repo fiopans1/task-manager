@@ -23,6 +23,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
+
 #Create output directory
 RUN mkdir -p /output
 

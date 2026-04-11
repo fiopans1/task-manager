@@ -4,7 +4,7 @@
 # Esta etapa:
 # 1. Clona el repositorio desde GitHub (configurable con build args)
 # 2. Compila el backend (Maven + Java)
-# 3. Compila el frontend (npm + React)
+# 3. Compila el frontend (pnpm + React)
 # 4. Genera el archivo TaskManager.zip listo para desplegar
 # ============================================================================
 FROM eclipse-temurin:23-jdk AS builder
@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     maven \
     git \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
 
 # Argumentos de build para configuración del repositorio
 ARG GIT_REPO=https://github.com/fiopans1/task-manager.git

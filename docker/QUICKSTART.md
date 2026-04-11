@@ -122,7 +122,7 @@ docker build \
 │  3. Compilar backend                    │
 │     - mvn clean package                 │
 │  4. Compilar frontend                   │
-│     - npm install && npm run build      │
+│     - pnpm install && pnpm run build    │
 │  5. Generar TaskManager.zip             │
 └─────────────────────────────────────────┘
               ↓

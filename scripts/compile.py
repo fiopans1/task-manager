@@ -177,10 +177,10 @@ class BuildTaskManager:
             sys.exit(1)
         
         try:
-            subprocess.run(['npm', '-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            logger.info("Node.js and npm are installed.")
+            subprocess.run(['pnpm', '-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logger.info("Node.js and pnpm are installed.")
         except (subprocess.CalledProcessError, FileNotFoundError):
-            logger.error("Node.js and npm are not installed or not found in PATH.")
+            logger.error("Node.js and pnpm are not installed or not found in PATH.")
             sys.exit(1)
 
     def build_backend(self):
@@ -194,7 +194,7 @@ class BuildTaskManager:
             sys.exit(1)
 
     def build_frontend(self):
-        """Compiles the frontend with npm."""
+        """Compiles the frontend with pnpm."""
         logger.info("Compiling frontend...")
         try:
             # Copy config template to public directory before building
@@ -206,8 +206,8 @@ class BuildTaskManager:
                 logger.info(f"✓ Copied config template to: {config_dest}")
             else:
                 logger.warning(f"✗ Config template not found: {config_template}")
-            subprocess.run(['npm', 'install'], cwd=self.frontend_dir, check=True)
-            subprocess.run(['npm', 'run', 'build'], cwd=self.frontend_dir, check=True)
+            subprocess.run(['pnpm', 'install'], cwd=self.frontend_dir, check=True)
+            subprocess.run(['pnpm', 'run', 'build'], cwd=self.frontend_dir, check=True)
             logger.info("Frontend compiled successfully.")
         except subprocess.CalledProcessError as e:
             logger.error(f"Error compiling frontend: {e}")

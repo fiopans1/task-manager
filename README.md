@@ -17,7 +17,7 @@ A professional task management application with calendar integration, custom lis
 
 - Java 17 or higher
 - Maven 3.6+
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm
 - Python 3.8+
 
 ### Building the Application
@@ -77,8 +77,8 @@ mvn spring-boot:run
 
 ```bash
 cd frontend
-npm install
-npm start
+pnpm install
+pnpm start
 ```
 
 Don't forget to create a `frontend/public/config.js` file for development (see template in `scripts/config_templates/config.template.js`).
