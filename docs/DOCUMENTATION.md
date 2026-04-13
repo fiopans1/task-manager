@@ -13,19 +13,26 @@
    - 2.1 [Autenticación y Registro](#21-autenticación-y-registro)
    - 2.2 [Panel Principal (Home)](#22-panel-principal-home)
    - 2.3 [Gestión de Tareas](#23-gestión-de-tareas)
-   - 2.4 [Acciones y Comentarios en Tareas](#24-acciones-y-comentarios-en-tareas)
-   - 2.5 [Calendario de Eventos](#25-calendario-de-eventos)
-   - 2.6 [Gestión de Listas](#26-gestión-de-listas)
-   - 2.7 [Gestión de Equipos](#27-gestión-de-equipos)
-   - 2.8 [Invitaciones a Equipos](#28-invitaciones-a-equipos)
-   - 2.9 [Panel de Administración](#29-panel-de-administración)
-   - 2.10 [Gestión de Sesión](#210-gestión-de-sesión)
+   - 2.4 [Vista Detallada de Tarea](#24-vista-detallada-de-tarea)
+   - 2.5 [Acciones y Comentarios en Tareas](#25-acciones-y-comentarios-en-tareas)
+   - 2.6 [Calendario de Eventos](#26-calendario-de-eventos)
+   - 2.7 [Gestión de Listas](#27-gestión-de-listas)
+   - 2.8 [Vista Detallada de Lista](#28-vista-detallada-de-lista)
+   - 2.9 [Gestión de Equipos](#29-gestión-de-equipos)
+   - 2.10 [Panel del Equipo (Dashboard)](#210-panel-del-equipo-dashboard)
+   - 2.11 [Invitaciones a Equipos](#211-invitaciones-a-equipos)
+   - 2.12 [Panel de Administración](#212-panel-de-administración)
+   - 2.13 [Gestión de Sesión](#213-gestión-de-sesión)
+   - 2.14 [Tema Oscuro/Claro](#214-tema-oscuroclaro)
+   - 2.15 [Mensajes del Sistema](#215-mensajes-del-sistema)
 3. [Roles y Permisos](#3-roles-y-permisos)
 4. [Especificaciones Técnicas (Diccionario de Propiedades)](#4-especificaciones-técnicas-diccionario-de-propiedades)
    - 4.1 [Backend — Entidades y Endpoints](#41-backend--entidades-y-endpoints)
    - 4.2 [Frontend — Estados y Componentes](#42-frontend--estados-y-componentes)
 5. [Guía de Estilos y Formato](#5-guía-de-estilos-y-formato)
 6. [Arquitectura del Sistema](#6-arquitectura-del-sistema)
+7. [Referencia de Configuración](#7-referencia-de-configuración)
+8. [Manejo de Errores](#8-manejo-de-errores)
 
 ---
 
@@ -84,20 +91,47 @@ Permite a los usuarios crear una cuenta, iniciar sesión con credenciales locale
 2. Complete todos los campos obligatorios del formulario.
 3. Verifique que la contraseña y su confirmación coincidan.
 4. Haga clic en **Registrarse**.
-5. Si el registro es exitoso, será redirigido a la página de inicio de sesión.
+5. El backend valida los datos:
+   - Comprueba que el nombre de usuario y el correo electrónico no estén ya registrados.
+   - Cifra la contraseña mediante BCrypt (factor de coste 12).
+   - Asigna el rol `BASIC` con la autoridad `READ_PRIVILEGES`.
+   - Establece `LOCAL` como proveedor de autenticación.
+6. Si el registro es exitoso, se muestra una notificación y será redirigido a la página de inicio de sesión.
+7. En caso de error (nombre de usuario/email duplicado, error de validación), se muestra un toast con el detalle del problema.
 
 #### Flujo paso a paso — Inicio de sesión local
 
 1. Acceda a la página de inicio y haga clic en **Iniciar sesión**.
 2. Introduzca su **nombre de usuario** y **contraseña**.
 3. Haga clic en **Iniciar sesión**.
-4. Si las credenciales son válidas, será redirigido al panel principal.
+4. El backend realiza las siguientes operaciones:
+   - Valida la existencia del usuario en la base de datos.
+   - Comprueba si la cuenta está bloqueada (los usuarios bloqueados reciben HTTP 403).
+   - Verifica la contraseña contra el hash BCrypt almacenado.
+   - Genera un token JWT firmado con RSA-256, válido durante 4 horas.
+   - El payload del token incluye: `sub` (nombre de usuario), `roles` (autoridades separadas por comas), `exp` (marca temporal de expiración).
+5. El frontend almacena el token en Redux (persistido en `localStorage` mediante Redux Persist).
+6. Será redirigido al panel principal.
 
 #### Flujo paso a paso — Inicio de sesión con OAuth2
 
 1. En la página de inicio de sesión, haga clic en el botón del proveedor deseado (**Google**, **GitHub** o **Authentik**).
+   - Los botones de proveedor solo se muestran si están habilitados en la configuración del sistema.
+   - Se muestra un spinner de carga en el botón mientras se conecta.
 2. Será redirigido al proveedor externo para autenticarse.
-3. Una vez autenticado, será redirigido automáticamente a la aplicación con la sesión iniciada.
+3. Conceda los permisos solicitados en la página del proveedor.
+4. El proveedor redirige de vuelta al backend con un código de autorización.
+5. El backend intercambia el código por tokens de acceso y recupera su perfil:
+   - **Extracción de email**: El sistema extrae su email de la respuesta del proveedor.
+   - **Búsqueda de usuario**: Busca en la base de datos por email.
+   - **Usuario existente**: Añade el nuevo proveedor OAuth2 a su cuenta (enlace de proveedores). Actualiza nombre/username si están vacíos.
+   - **Usuario nuevo**: Crea una nueva cuenta automáticamente:
+     - El username se deriva de su perfil del proveedor (ej. login de GitHub) o se genera a partir del prefijo del email.
+     - Si el username ya existe, se añade un sufijo numérico (ej. `juan1`, `juan2`).
+     - Se asigna el rol `BASIC` por defecto.
+6. El backend genera un token JWT y redirige al frontend con `?token=<jwt>` en la URL.
+7. El frontend detecta el token en la URL, lo almacena y navega al panel principal.
+8. Si la autenticación falla, se muestra un toast de error con el mensaje específico del error.
 
 > **Nota:** Los proveedores OAuth2 solo aparecen si están habilitados en la configuración del sistema.
 
@@ -203,7 +237,48 @@ Permite crear, editar, eliminar y hacer seguimiento de tareas individuales con d
 
 ---
 
-### 2.4 Acciones y Comentarios en Tareas
+### 2.4 Vista Detallada de Tarea
+
+#### Propósito
+
+Proporciona una vista completa de una tarea individual con todos los metadatos, indicadores visuales, información de eventos y acceso al historial de acciones.
+
+#### Composición
+
+La vista detallada (`/home/tasks/:id`) se compone de dos secciones principales:
+
+1. **Información de la Tarea (TaskDetailsTask)** — muestra todos los metadatos de la tarea
+2. **Acciones de la Tarea (TaskDetailsActions)** — muestra el historial de acciones/comentarios
+
+#### Sección de Información
+
+| Elemento | Descripción |
+|---|---|
+| **Botón Volver** | Navega de vuelta a la lista de tareas |
+| **Botón Editar** | Abre el modal de edición con los datos actuales de la tarea |
+| **Tarjeta con encabezado degradado** | Color del degradado basado en el estado de la tarea. Muestra nombre, ID, badge de estado y barra de progreso |
+| **Badges informativos** | Badge de prioridad (coloreado), badge Evento/Tarea, usuario asignado, nombre de lista (enlace navegable a la lista), nombre de equipo (enlace navegable al equipo) |
+| **Tarjetas de fecha** | Fecha de creación siempre visible. Fecha de inicio y fecha de fin solo visibles para tareas tipo evento |
+| **Descripción** | Descripción completa con toggle "Mostrar más/menos". Se muestran los primeros 100 caracteres por defecto. Icono de estado vacío si no hay descripción |
+
+#### Colores de degradado del encabezado
+
+| Estado de tarea | Estilo de degradado |
+|---|---|
+| `COMPLETED` | Degradado verde |
+| `IN_PROGRESS` | Degradado azul-púrpura |
+| `CANCELLED` | Degradado rojo |
+| `NEW` | Degradado azul claro |
+| `PAUSSED` | Degradado amarillo-naranja |
+
+#### Enlaces de navegación
+
+- **Badge de lista:** Si la tarea pertenece a una lista, al hacer clic en el nombre de la lista se navega a `/home/lists/{listId}`.
+- **Badge de equipo:** Si la tarea pertenece a un equipo, al hacer clic en el nombre del equipo se navega a `/home/teams/{teamId}`.
+
+---
+
+### 2.5 Acciones y Comentarios en Tareas
 
 #### Propósito
 
@@ -231,9 +306,34 @@ Permite registrar acciones, comentarios y ediciones sobre una tarea para mantene
 - **Eliminar acción:** Haga clic en el icono de eliminación y confirme.
 - **Menciones (@):** En equipos, utilice `@nombre_usuario` para mencionar a miembros del equipo en los comentarios.
 
+#### Funcionalidad de @Menciones
+
+Cuando una tarea pertenece a un equipo, el campo de descripción de la acción soporta menciones:
+
+1. Escriba `@` seguido del nombre de usuario del miembro del equipo.
+2. Aparece una lista de sugerencias con los miembros que coinciden (hasta 5 sugerencias).
+3. Haga clic en el nombre del miembro o presione **Enter** para insertar la mención.
+4. La mención se muestra como `@username` con resaltado azul en el historial de acciones.
+5. Presione **Escape** para cerrar la lista de sugerencias sin seleccionar.
+
+El sistema de menciones:
+- Filtra miembros en tiempo real mientras escribe (insensible a mayúsculas).
+- Preserva la posición del cursor tras insertar una mención.
+- Solo se activa cuando no hay espacios después del símbolo `@`.
+- Se cierra automáticamente al hacer clic fuera del dropdown.
+
+#### Búsqueda y Ordenación
+
+- **Búsqueda:** Escriba en el campo de búsqueda para filtrar acciones por título, descripción o autor. El filtrado se aplica en el lado del cliente.
+- **Ordenación:** Alterne entre "Más recientes" y "Más antiguas" para cambiar el orden de visualización.
+
+#### Paginación
+
+Las acciones utilizan paginación del servidor con scroll infinito mediante `GET /api/tasks/{taskId}/actions/paged?page=N&size=50`. Se cargan más acciones automáticamente al desplazarse hacia abajo.
+
 ---
 
-### 2.5 Calendario de Eventos
+### 2.6 Calendario de Eventos
 
 #### Propósito
 
@@ -256,7 +356,7 @@ Visualiza las tareas programadas como eventos en un calendario interactivo con v
 
 ---
 
-### 2.6 Gestión de Listas
+### 2.7 Gestión de Listas
 
 #### Propósito
 
@@ -306,7 +406,65 @@ Permite crear listas personalizadas para organizar y agrupar tareas relacionadas
 
 ---
 
-### 2.7 Gestión de Equipos
+### 2.8 Vista Detallada de Lista
+
+#### Propósito
+
+Muestra información detallada de una lista incluyendo todas las tareas contenidas, una barra de progreso y herramientas para añadir/eliminar tareas de la lista.
+
+#### Composición
+
+La vista detallada de lista (`/home/lists/:id`) contiene:
+
+| Sección | Descripción |
+|---|---|
+| **Encabezado** | Botón volver, título "Gestión de Lista" y botón Editar |
+| **Tarjeta principal** | Encabezado con degradado (cambia según porcentaje de completado), nombre de lista, ID y badge de completado mostrando `{completadas}/{total} Completadas` |
+| **Tarjetas de estadísticas** | Tres tarjetas: Total de Tareas, Tareas Completadas y Porcentaje de Progreso |
+| **Descripción** | Descripción completa con toggle "Mostrar más/menos" |
+| **Botón Añadir Tareas** | Botón para abrir el modal de añadir tareas |
+| **Lista de Tareas** | Todas las tareas de la lista con badges de estado/prioridad, indicadores de completado y botones de acción |
+
+#### Colores de degradado del encabezado (por % de completado)
+
+| Rango de completado | Estilo de degradado |
+|---|---|
+| 100% | Degradado verde |
+| 60% – 99% | Degradado azul-púrpura |
+| 30% – 59% | Degradado naranja-amarillo |
+| 0% – 29% | Degradado gris |
+
+#### Flujo paso a paso — Añadir tareas a una lista
+
+1. En la vista detallada de la lista, haga clic en el botón **Añadir Tareas**.
+2. Aparece un modal con todas sus tareas que **no están actualmente asignadas a ninguna lista**.
+   - Las tareas disponibles se obtienen mediante `GET /api/tasks/getTasksResumeWithoutList`.
+3. Use el campo de búsqueda del modal para filtrar las tareas disponibles por nombre.
+4. Seleccione tareas marcando las casillas de verificación junto a cada tarea.
+5. Haga clic en **Añadir seleccionadas**.
+6. Las tareas se añaden mediante `POST /api/lists/{listId}/tasks/{taskId}` (una por tarea).
+7. Se muestra un toast de éxito y el detalle de la lista se actualiza.
+
+#### Flujo paso a paso — Eliminar tarea de una lista
+
+1. En la vista detallada de la lista, localice la tarea que desea eliminar.
+2. Haga clic en el botón de **eliminación** (icono X) junto a la tarea.
+3. La tarea se elimina de la lista mediante `DELETE /api/lists/{listId}/tasks/{taskId}`.
+4. **Nota:** La tarea no se elimina — solo pierde su asociación con la lista.
+
+#### Visualización de tareas en la lista
+
+Cada tarea muestra:
+- **Indicador de completado:** Círculo relleno (check verde) para tareas completadas, círculo vacío en caso contrario.
+- **Nombre de la tarea:** Con estilo tachado si la tarea está completada.
+- **Badge de estado:** Badge coloreado según el estado.
+- **Badge de prioridad:** Badge coloreado según la prioridad.
+- **Botón abrir:** Navega a la vista de detalle de la tarea en `/home/tasks/{taskId}`.
+- **Botón eliminar:** Elimina la tarea de la lista (no borra la tarea).
+
+---
+
+### 2.9 Gestión de Equipos
 
 #### Propósito
 
@@ -336,44 +494,91 @@ Permite crear equipos de trabajo, gestionar miembros con roles diferenciados, as
 4. Haga clic en **Crear**.
 5. Será asignado automáticamente como administrador del equipo.
 
-#### Flujo paso a paso — Panel del equipo (Dashboard)
-
-1. Haga clic en el nombre de un equipo para acceder a su panel.
-2. El panel presenta cuatro pestañas:
-
-| Pestaña | Contenido |
-|---|---|
-| **Dashboard** | Estadísticas del equipo (total, completadas, en progreso, pendientes), barra de progreso, carga de trabajo por miembro |
-| **Tareas** | Lista de tareas del equipo con filtros por miembro, estado y prioridad. Permite reasignación |
-| **Historial** | Registro de asignaciones de tareas con fechas y usuarios implicados |
-| **Invitaciones** | Gestión de invitaciones pendientes (solo visible para ADMIN del equipo) |
-
-#### Flujo paso a paso — Gestionar miembros (ADMIN del equipo)
-
-1. En el panel del equipo, pestaña **Dashboard**.
-2. En la sección de miembros:
-   - **Promover a ADMIN:** Haga clic en el botón de promoción del miembro deseado.
-   - **Degradar a MEMBER:** Haga clic en el botón de degradación (no permitido para el último ADMIN).
-   - **Eliminar miembro:** Haga clic en el botón de eliminación del miembro.
-
-#### Flujo paso a paso — Asignar tarea a un miembro (ADMIN del equipo)
-
-1. En la pestaña **Tareas** del panel del equipo.
-2. Localice la tarea que desea reasignar.
-3. Haga clic en el botón de asignación.
-4. Seleccione el miembro al que desea asignar la tarea.
-5. Confirme la asignación.
-
 #### Flujo paso a paso — Abandonar equipo
 
 1. En el panel del equipo, haga clic en **Abandonar equipo**.
 2. Confirme en el diálogo de confirmación.
 
-> **Nota:** El último ADMIN del equipo no puede abandonarlo. Debe promover a otro miembro antes de salir.
+> **Importante:** El último ADMIN del equipo no puede abandonarlo. Debe promover a otro miembro antes de salir. Esto previene equipos huérfanos sin administrador.
+
+#### Invitaciones pendientes
+
+Al navegar a la sección **Equipos**, las invitaciones pendientes se muestran en la parte superior de la vista con botones **Aceptar** y **Rechazar**. Véase [Invitaciones a Equipos](#211-invitaciones-a-equipos) para más detalles.
 
 ---
 
-### 2.8 Invitaciones a Equipos
+### 2.10 Panel del Equipo (Dashboard)
+
+#### Propósito
+
+Proporciona una interfaz completa de gestión de equipo con estadísticas, gestión de tareas, historial de asignaciones y gestión de invitaciones. El panel se adapta según el rol del usuario dentro del equipo (ADMIN vs. MEMBER).
+
+#### Pestañas del panel
+
+| Pestaña | Contenido | Accesible por |
+|---|---|---|
+| **Dashboard** | Estadísticas del equipo, barra de progreso, carga de trabajo por miembro, gestión de miembros | Todos los miembros (acciones de gestión solo ADMIN) |
+| **Tareas** | Lista filtrable de tareas del equipo con capacidad de asignación | Todos los miembros (asignación solo ADMIN) |
+| **Historial** | Registro cronológico de asignaciones y reasignaciones de tareas | Todos los miembros |
+| **Invitaciones** | Envío, visualización y cancelación de invitaciones al equipo | Solo ADMIN |
+
+#### Pestaña Dashboard — Estadísticas
+
+| Estadística | Descripción |
+|---|---|
+| Total de Tareas | Número total de tareas asignadas al equipo |
+| Completadas | Número de tareas en estado `COMPLETED` |
+| En Progreso | Número de tareas en estado `IN_PROGRESS` |
+| Pendientes | Número de tareas sin iniciar (estado `NEW`) |
+| Barra de Progreso | Indicador visual del porcentaje de completado |
+| Carga por Miembro | Desglose por miembro mostrando cuántas tareas pendientes tiene cada uno |
+
+#### Flujo paso a paso — Gestionar miembros (ADMIN del equipo)
+
+1. En la pestaña **Dashboard**, desplácese a la sección de miembros.
+2. Cada miembro se muestra con su nombre de usuario, badge de rol, fecha de incorporación y número de tareas pendientes.
+3. Acciones disponibles para cada miembro:
+   - **Promover a ADMIN:** Haga clic en el botón de promoción para cambiar un MEMBER a ADMIN.
+   - **Degradar a MEMBER:** Haga clic en el botón de degradación para cambiar un ADMIN a MEMBER.
+     - ⚠️ No permitido si es el último ADMIN — el sistema previene dejar al equipo sin administrador.
+   - **Eliminar miembro:** Haga clic en el botón de eliminación para eliminar a un miembro del equipo.
+     - ⚠️ No permitido si el miembro es el último ADMIN.
+4. Los cambios de rol se aplican mediante `PUT /api/teams/{teamId}/members/{memberId}/role`.
+5. La eliminación se realiza mediante `DELETE /api/teams/{teamId}/members/{memberId}`.
+
+#### Pestaña Tareas — Filtros y Asignación
+
+| Filtro | Opciones | Descripción |
+|---|---|---|
+| Miembro | Todos los miembros del equipo | Mostrar solo tareas asignadas a un miembro específico |
+| Estado | `NEW`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`, `PAUSSED` | Filtrar por estado de la tarea |
+| Prioridad | `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, `MIN` | Filtrar por prioridad de la tarea |
+
+**Flujo — Asignar/Reasignar tarea (solo ADMIN):**
+
+1. En la pestaña **Tareas**, localice la tarea que desea asignar.
+2. Haga clic en el botón de **asignación** de la tarea.
+3. Seleccione el miembro destino del dropdown.
+4. Confirme la asignación.
+5. La asignación se registra mediante `POST /api/teams/{teamId}/tasks/{taskId}/assign` y se crea una entrada en el historial de asignaciones.
+
+#### Pestaña Historial
+
+Muestra un registro cronológico de todas las asignaciones y reasignaciones de tareas dentro del equipo. Cada entrada muestra:
+
+| Campo | Descripción |
+|---|---|
+| Nombre de Tarea | Nombre de la tarea asignada/reasignada |
+| De | Asignatario anterior (vacío para asignaciones iniciales) |
+| A | Nuevo asignatario |
+| Cambiado Por | Usuario que realizó la asignación |
+| Fecha | Fecha y hora del cambio |
+
+El historial utiliza paginación del servidor con scroll infinito.
+
+---
+
+### 2.11 Invitaciones a Equipos
 
 #### Propósito
 
@@ -413,7 +618,7 @@ Sistema de invitaciones con tokens únicos para añadir nuevos miembros a un equ
 
 ---
 
-### 2.9 Panel de Administración
+### 2.12 Panel de Administración
 
 #### Propósito
 
@@ -421,7 +626,7 @@ Permite a los administradores del sistema gestionar usuarios, configurar feature
 
 #### Pestañas del panel
 
-##### 2.9.1 Gestión de Usuarios
+##### 2.12.1 Gestión de Usuarios
 
 | Acción | Descripción |
 |---|---|
@@ -440,7 +645,7 @@ Permite a los administradores del sistema gestionar usuarios, configurar feature
 
 > **Nota:** Los usuarios bloqueados son rechazados a nivel del filtro JWT (código HTTP 403), incluso si poseen un token válido.
 
-##### 2.9.2 Feature Flags (Funcionalidades)
+##### 2.12.2 Feature Flags (Funcionalidades)
 
 Permite habilitar o deshabilitar funcionalidades completas de la aplicación.
 
@@ -458,7 +663,7 @@ Permite habilitar o deshabilitar funcionalidades completas de la aplicación.
 3. Los cambios se aplican inmediatamente a todos los usuarios.
 4. Las rutas y elementos de navegación de las funcionalidades deshabilitadas quedan ocultos y protegidos.
 
-##### 2.9.3 Mensaje del Sistema
+##### 2.12.3 Mensaje del Sistema
 
 Permite configurar un mensaje que se mostrará a todos los usuarios.
 
@@ -479,7 +684,7 @@ Permite configurar un mensaje que se mostrará a todos los usuarios.
 
 ---
 
-### 2.10 Gestión de Sesión
+### 2.13 Gestión de Sesión
 
 #### Propósito
 
@@ -493,6 +698,83 @@ La sesión del usuario se gestiona mediante tokens JWT con una duración de 4 ho
 | **Aviso de expiración** | Cuando quedan menos de 5 minutos, se muestra un modal con cuenta regresiva de 60 segundos |
 | **Extender sesión** | El usuario puede hacer clic en **Extender sesión** para renovar el token |
 | **Cierre automático** | Si no se extiende la sesión, el usuario será desconectado automáticamente al agotarse la cuenta regresiva |
+
+#### Ciclo de vida de la sesión
+
+```
+Token emitido (login)
+    │
+    │  Válido por 4 horas
+    │
+    ├── Cada 30 segundos: Comprobación del tiempo restante del token
+    │
+    ├── Tiempo restante > 5 minutos: Sin acción
+    │
+    ├── Tiempo restante ≤ 5 minutos: Mostrar modal de advertencia
+    │       │
+    │       ├── Comienza cuenta regresiva de 60 segundos
+    │       │
+    │       ├── Usuario hace clic en "Extender sesión":
+    │       │       → POST /api/session/refresh
+    │       │       → Nuevo JWT generado con 4 horas de validez
+    │       │       → Modal se cierra, cuenta regresiva se reinicia
+    │       │       → Toast informativo: "Sesión extendida"
+    │       │
+    │       ├── Usuario hace clic en "Cerrar sesión":
+    │       │       → Sesión terminada, redirección a /login
+    │       │
+    │       └── Cuenta regresiva llega a 0:
+    │               → Toast de advertencia: "Sesión expirada"
+    │               → Auto-logout, redirección a /login
+    │
+    └── Token expirado (tiempo restante ≤ 0): Forzar logout inmediato
+```
+
+#### Comportamiento del modal de advertencia
+
+| Aspecto | Detalle |
+|---|---|
+| **Fondo** | Estático — no se puede cerrar haciendo clic fuera del modal |
+| **Teclado** | Tecla Escape deshabilitada — el usuario debe elegir una acción |
+| **Visualización de cuenta** | Temporizador grande en formato MM:SS (ej. "00:45") |
+| **Botones** | "Cerrar sesión" (rojo) y "Extender sesión" (azul) |
+| **Frecuencia** | Solo se muestra una vez por token (un flag previene avisos repetidos) |
+
+---
+
+### 2.14 Tema Oscuro/Claro
+
+#### Propósito
+
+Proporciona un toggle persistente de tema oscuro/claro que se aplica en toda la aplicación.
+
+#### Funcionamiento
+
+1. El estado del tema se gestiona mediante `ThemeContext` usando la API de Context de React.
+2. La preferencia actual se almacena en `localStorage` con la clave `app-theme`.
+3. Al cargar la aplicación, se restaura la preferencia guardada.
+4. Para cambiar el tema:
+   - Use el **botón flotante** en la esquina inferior izquierda (icono de sol/luna) — disponible en todas las páginas incluida la de login.
+   - Use el **toggle de tema** en el menú de configuración de la barra lateral — disponible una vez autenticado.
+5. Al alternar:
+   - El atributo `data-bs-theme` en `<html>` se establece a `"dark"` o `"light"`.
+   - La meta etiqueta `theme-color` se actualiza (para la barra del navegador móvil).
+   - Los componentes de React Bootstrap se adaptan automáticamente al tema.
+
+---
+
+### 2.15 Mensajes del Sistema
+
+#### Propósito
+
+Los mensajes del sistema son anuncios configurados por administradores que se muestran como modales a los usuarios. Pueden mostrarse antes del login (en la página de inicio) o después del login (dentro de la aplicación), o ambos.
+
+#### Cómo se muestran los mensajes
+
+1. El componente `SystemMessageModal` obtiene la configuración pública desde `GET /api/config` (sin autenticación requerida).
+2. Comprueba si un mensaje está habilitado y si debe mostrarse en el contexto actual (`beforeLogin` o `afterLogin`).
+3. Si aplica, aparece un modal de Bootstrap con el contenido del mensaje.
+4. Los usuarios pueden cerrar el modal haciendo clic en el botón de cierre.
 
 ---
 
@@ -1005,7 +1287,107 @@ task-manager/
 | Motor | SQLite |
 | ORM | Hibernate (JPA) |
 | Estrategia DDL | `update` (auto-migración) |
-| Tablas principales | `app_user`, `task`, `list_tm`, `team`, `team_member`, `team_invitation`, `action_task`, `event_task`, `task_assignment_history`, `app_config` |
+| Tablas principales | `app_user`, `task`, `list_tm`, `team`, `team_member`, `team_invitation`, `action_task`, `event_task`, `task_assignment_history`, `app_config`, `role_of_user`, `authority_of_role`, `user_roles`, `user_auth_providers` |
+
+---
+
+## 7. Referencia de Configuración
+
+### Configuración del Backend (`application.properties`)
+
+| Propiedad | Tipo | Valor por defecto | Descripción |
+|---|---|---|---|
+| `server.port` | Integer | `8080` | Puerto del servidor backend |
+| `taskmanager.frontend.base-url` | String | `http://localhost:3000` | URL del frontend para CORS y redirecciones OAuth2 |
+| `jwtKeys.privateKeyPath` | String | — | Ruta al archivo PEM de clave privada RSA para firma JWT |
+| `jwtKeys.publicKeyPath` | String | — | Ruta al archivo PEM de clave pública RSA para verificación JWT |
+| `taskmanager.oauth2.enabled` | Boolean | `true` | Habilitar/deshabilitar autenticación OAuth2 globalmente |
+| `taskmanager.create-admin-user` | Boolean | `false` | Auto-crear un usuario admin al arrancar |
+| `taskmanager.default-admin-username` | String | `admin` | Nombre de usuario admin por defecto |
+| `taskmanager.default-admin-password` | String | `admin` | Contraseña admin por defecto (se codifica con BCrypt al crear) |
+| `taskmanager.default-admin-email` | String | `admin@example.com` | Email admin por defecto |
+| `taskmanager.create-basic-user` | Boolean | `false` | Auto-crear un usuario básico al arrancar |
+| `spring.datasource.url` | String | Ruta SQLite | URL de conexión a la base de datos |
+| `spring.jpa.hibernate.ddl-auto` | String | `update` | Estrategia de esquema de base de datos |
+
+### Configuración del Frontend (`config.js`)
+
+```javascript
+window.APP_CONFIG = {
+  api: {
+    baseUrl: "http://localhost:8080"    // URL de la API del backend
+  },
+  oauth2: {
+    enabled: false,                     // Habilitar OAuth2 globalmente
+    google: { enabled: false },         // Proveedor Google
+    github: { enabled: false },         // Proveedor GitHub
+    authentik: { enabled: false }       // Proveedor Authentik
+  },
+  app: {
+    name: "Task Manager",              // Nombre visible de la aplicación
+    version: "1.0.0",                  // Versión de la aplicación
+    license: "AGPL-3.0",              // Tipo de licencia
+    debug: false                       // Modo depuración
+  },
+  features: {
+    tasks: true,                       // Habilitar funcionalidad de tareas
+    calendar: true,                    // Habilitar funcionalidad de calendario
+    lists: true,                       // Habilitar funcionalidad de listas
+    teams: true                        // Habilitar funcionalidad de equipos
+  }
+};
+```
+
+> **Nota:** La configuración del frontend se carga en tiempo de ejecución desde `config.js` (no se compila en el build). Los cambios surten efecto inmediatamente sin necesidad de reconstruir el frontend.
+
+### Inicialización de Datos (DataLoader)
+
+Al arrancar la aplicación, el `DataLoader` se ejecuta automáticamente para garantizar que existan los datos mínimos requeridos:
+
+1. Se crea el **rol ADMIN** si no existe (sin autoridades específicas).
+2. Se crea el **rol BASIC** si no existe, con la autoridad `READ_PRIVILEGES`.
+3. Se crea un **usuario Admin** si `taskmanager.create-admin-user=true` y no existe usuario con el username configurado. La contraseña se codifica con BCrypt.
+4. Se crea un **usuario Basic** si `taskmanager.create-basic-user=true` y no existe usuario con username "basic".
+
+Todas las operaciones son idempotentes — seguras de ejecutar en cada arranque.
+
+> ⚠️ **Seguridad:** Las credenciales por defecto NO deben usarse en producción. Cámbielas o deshabilítelas antes del despliegue.
+
+---
+
+## 8. Manejo de Errores
+
+### Manejo de Errores en el Backend
+
+El `GlobalExceptionHandler` (`@RestControllerAdvice`) proporciona manejo centralizado de errores para todos los controladores REST:
+
+| Excepción | Código HTTP | Formato de Respuesta | Disparador |
+|---|---|---|---|
+| `MethodArgumentNotValidException` | 400 Bad Request | `{message: "Validation failed", errors: {campo: "mensaje"}}` | La anotación `@Valid` falla en el body de la petición |
+| `IllegalArgumentException` | 400 Bad Request | `{message: "descripción del error"}` | Lanzada en la lógica de negocio |
+| `NotPermissionException` | 403 Forbidden | `{message: "descripción de permiso denegado"}` | El usuario carece de los permisos necesarios |
+| `ResourceNotFoundException` | 404 Not Found | `{message: "recurso no encontrado"}` | El recurso solicitado no existe |
+
+### Manejo de Errores en el Frontend
+
+| Escenario | Comportamiento |
+|---|---|
+| Fallo en llamada API | Toast de error con mensaje del servidor o genérico "Error de conexión con el servidor" |
+| Token expirado | El gestor de sesión detecta y solicita extensión o auto-logout |
+| Funcionalidad deshabilitada | `FeatureGuard` redirige a `/home` |
+| Fallo al obtener configuración | Acceso a funcionalidad denegado (fallo cerrado) |
+| Error OAuth2 | Toast de error con mensaje del proveedor, usuario permanece en la página de login |
+
+### Códigos de Estado HTTP
+
+| Código | Significado | Escenario Común |
+|---|---|---|
+| 200 | Éxito | Operación API exitosa |
+| 400 | Bad Request | Fallo de validación o entrada inválida |
+| 401 | Unauthorized | Token JWT ausente o inválido |
+| 403 | Forbidden | Permisos insuficientes o usuario bloqueado |
+| 404 | Not Found | El recurso no existe |
+| 500 | Internal Server Error | Error inesperado del servidor |
 
 ---
 
