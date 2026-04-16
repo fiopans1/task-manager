@@ -20,4 +20,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @Query("SELECT DISTINCT t FROM Team t JOIN t.members m WHERE m.user = :user")
     Page<Team> findAllByMemberUser(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT DISTINCT t FROM Team t JOIN t.members m WHERE m.user = :user AND LOWER(t.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    Page<Team> findByMemberUserAndNameContaining(@Param("user") User user, @Param("name") String name, Pageable pageable);
 }

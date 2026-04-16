@@ -61,7 +61,13 @@ public class TeamRestController {
     }
 
     @GetMapping("/my-teams/paged")
-    public ResponseEntity<Page<TeamDTO>> getMyTeamsPaged(@PageableDefault(size = 50) Pageable pageable) {
+    public ResponseEntity<Page<TeamDTO>> getMyTeamsPaged(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 50) Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            logger.debug("Searching paged teams for current user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
+            return ResponseEntity.ok(teamService.searchTeamsForCurrentUser(search.trim(), pageable));
+        }
         logger.debug("Retrieving paged teams for current user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<TeamDTO> teams = teamService.getTeamsForCurrentUser(pageable);
         return ResponseEntity.ok(teams);

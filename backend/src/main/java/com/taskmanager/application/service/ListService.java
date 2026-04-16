@@ -75,6 +75,12 @@ public class ListService {
         return listRepository.findAllByUser(user, pageable).map(l -> ListTMDTO.fromEntity(l, false));
     }
 
+    @Transactional(readOnly = true)
+    public Page<ListTMDTO> searchListsForLoggedUser(String name, Pageable pageable) {
+        User user = authService.getCurrentUser();
+        return listRepository.findByUserAndNameContaining(user, name, pageable).map(l -> ListTMDTO.fromEntity(l, false));
+    }
+
     @Transactional
     public void deleteListById(Long id) throws NotPermissionException, ResourceNotFoundException {
         logger.info("Deleting list with ID: {}", id);
