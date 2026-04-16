@@ -28,6 +28,7 @@ const Tasks = () => {
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
   // Check if viewport is mobile size
@@ -70,9 +71,10 @@ const Tasks = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search if the service supports it
-    // For now, simply refresh the tasks
-    refreshTasks();
+    setActiveSearchTerm(searchTerm);
+    taskService.invalidateTasksCache();
+    setTasksResource(taskService.getTasks());
+    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const handleErrors = (error, info) => {
@@ -108,6 +110,7 @@ const Tasks = () => {
                   variant="outline-secondary"
                   onClick={() => {
                     setSearchTerm("");
+                    setActiveSearchTerm("");
                     refreshTasks();
                   }}
                   className="flex-fill flex-md-grow-0"
@@ -175,7 +178,7 @@ const Tasks = () => {
                   handleOpenTask={handleOpenTask}
                   handleEditTask={handleshowEditTask}
                   refreshTasks={refreshTasks}
-                  searchTerm={searchTerm}
+                  searchTerm={activeSearchTerm}
                 />
               </Suspense>
             </ErrorBoundary>

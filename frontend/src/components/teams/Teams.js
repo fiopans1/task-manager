@@ -23,6 +23,7 @@ const Teams = () => {
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
   const [teamsResource, setTeamsResource] = useState(() => teamService.getTeams());
 
@@ -95,26 +96,39 @@ const Teams = () => {
       {/* Search */}
       <Card className="mb-4 shadow-sm">
         <Card.Body>
-          <Row className="g-2">
-            <Col xs={12}>
-              <InputGroup>
-                <Form.Control
-                  className="border-end-0"
-                  placeholder="Search teams..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => {
-                    setSearchTerm("");
-                  }}
-                >
-                  Clear
-                </Button>
-              </InputGroup>
-            </Col>
-          </Row>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            setActiveSearchTerm(searchTerm);
+            teamService.invalidateTeamsCache();
+            setTeamsResource(teamService.getTeams());
+            setRefreshKey((prevKey) => prevKey + 1);
+          }}>
+            <Row className="g-2">
+              <Col xs={12}>
+                <InputGroup>
+                  <Form.Control
+                    className="border-end-0"
+                    placeholder="Search teams..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Button variant="outline-primary" type="submit">
+                    Search
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setActiveSearchTerm("");
+                      refreshTeams();
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </InputGroup>
+              </Col>
+            </Row>
+          </Form>
         </Card.Body>
       </Card>
 
@@ -182,7 +196,7 @@ const Teams = () => {
           <TeamsList
             key={`teams-list-${refreshKey}`}
             teamsResource={teamsResource}
-            searchTerm={searchTerm}
+            searchTerm={activeSearchTerm}
           />
         </Suspense>
       </ErrorBoundary>

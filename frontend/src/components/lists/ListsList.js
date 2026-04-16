@@ -14,10 +14,10 @@ const ListsList = ({
   const [idToDelete, setIdToDelete] = useState(null);
 
   const fetchPage = useCallback(async (page, size) => {
-    return listService.fetchListsPage(page, size);
-  }, []);
+    return listService.fetchListsPage(page, size, searchTerm);
+  }, [searchTerm]);
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [listsResource]);
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [listsResource, searchTerm]);
 
   const EmptyState = () => (
     <Card className="text-center shadow-sm py-5">
@@ -55,18 +55,11 @@ const ListsList = ({
     setShowDelete(true);
   };
 
-  // Filter data client-side for search
-  const filteredData = searchTerm
-    ? data.filter((list) =>
-        list.nameOfList.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : data;
-
-  return !filteredData || filteredData.length === 0 ? (
+  return !data || data.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="list-list">
-      {filteredData.map((card) => (
+      {data.map((card) => (
         <Row key={card.id} className="m-1">
           <Card
             style={{ borderTop: `6px solid ${card.color}` }}

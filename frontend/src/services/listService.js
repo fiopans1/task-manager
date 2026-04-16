@@ -173,15 +173,17 @@ const getListById = async (id) => {
   }
 };
 
-const fetchListsPage = async (page = 0, size = 50) => {
+const fetchListsPage = async (page = 0, size = 50, search = "") => {
   const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
+  const params = { page, size };
+  if (search) params.search = search;
   const response = await axios.get(serverUrl + "/api/lists/lists/paged", {
     headers: {
       "Content-Type": "application/json",
       Authorization: token,
     },
-    params: { page, size },
+    params,
   });
   return response.data;
 };

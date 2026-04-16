@@ -274,10 +274,12 @@ const isCurrentUserAdmin = async (teamId) => {
 
 // ===== PAGINATED FETCHERS =====
 
-const fetchTeamsPage = async (page = 0, size = 50) => {
+const fetchTeamsPage = async (page = 0, size = 50, search = "") => {
+  const params = { page, size };
+  if (search) params.search = search;
   const response = await axios.get(getBaseUrl() + "/my-teams/paged", {
     headers: getAuthHeaders(),
-    params: { page, size },
+    params,
   });
   return response.data;
 };

@@ -8,19 +8,12 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
   const navigate = useNavigate();
 
   const fetchPage = useCallback(async (page, size) => {
-    return teamService.fetchTeamsPage(page, size);
-  }, []);
+    return teamService.fetchTeamsPage(page, size, searchTerm);
+  }, [searchTerm]);
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [teamsResource]);
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [teamsResource, searchTerm]);
 
-  // Filter data client-side for search
-  const filteredData = searchTerm
-    ? data.filter((team) =>
-        team.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : data;
-
-  if (!filteredData || filteredData.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="text-center text-muted py-5">
         <i
@@ -39,7 +32,7 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
   return (
     <>
       <Row className="g-3">
-        {filteredData.map((team) => (
+        {data.map((team) => (
         <Col key={team.id} xs={12} sm={6} lg={4}>
           <Card
             className="h-100 border rounded-3 task-card"
