@@ -12,19 +12,27 @@
     <artifactId>taskmanager</artifactId>
     <version>0.0.1-Alpha</version>
     <name>TaskManager</name>
-    <description>My personal taskmanager</description>
-    <url/>
+    <description>Self-hosted task management application with calendar, custom lists, teams, time tracking, and OAuth2 authentication.</description>
+    <url>https://github.com/fiopans1/task-manager</url>
     <licenses>
-        <license/>
+        <license>
+            <name>GNU Affero General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>fiopans1</id>
+            <name>Diego Suárez Ramos</name>
+            <url>https://github.com/fiopans1</url>
+        </developer>
     </developers>
     <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+        <connection>scm:git:https://github.com/fiopans1/task-manager.git</connection>
+        <developerConnection>scm:git:git@github.com:fiopans1/task-manager.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/fiopans1/task-manager</url>
     </scm>
     <properties>
         <java.version>23</java.version>
