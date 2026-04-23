@@ -25,6 +25,7 @@ import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/lists")
@@ -64,7 +65,13 @@ public class ListRestController {
     }
 
     @GetMapping("/lists/paged")
-    public ResponseEntity<Page<ListTMDTO>> getAllListForUserPaged(@PageableDefault(size = 50) Pageable pageable) {
+    public ResponseEntity<Page<ListTMDTO>> getAllListForUserPaged(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 50) Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            logger.debug("Searching paged lists for logged user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
+            return ResponseEntity.ok(listService.searchListsForLoggedUser(search.trim(), pageable));
+        }
         logger.debug("Retrieving paged lists for logged user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<ListTMDTO> lists = listService.findAllListsForLoggedUser(pageable);
         return ResponseEntity.ok(lists);

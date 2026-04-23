@@ -15,10 +15,10 @@ const TasksList = ({
   const [idToDelete, setIdToDelete] = useState(null);
 
   const fetchPage = useCallback(async (page, size) => {
-    return taskService.fetchTasksPage(page, size);
-  }, []);
+    return taskService.fetchTasksPage(page, size, searchTerm);
+  }, [searchTerm]);
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [tasksResource]);
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [tasksResource, searchTerm]);
 
   const deleteTask = async () => {
     try {
@@ -96,18 +96,11 @@ const TasksList = ({
     </Card>
   );
 
-  // Filter data client-side for search
-  const filteredData = searchTerm
-    ? data.filter((task) =>
-        task.nameOfTask.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : data;
-
-  return !filteredData || filteredData.length === 0 ? (
+  return !data || data.length === 0 ? (
     <EmptyState />
   ) : (
     <div className="task-list">
-      {filteredData.map((task) => (
+      {data.map((task) => (
         <Card key={task.id} className="mb-3 shadow-sm task-card">
           <Card.Body>
             <Row className="align-items-center">

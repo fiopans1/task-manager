@@ -131,10 +131,12 @@ const getUserTeams = async (userId) => {
 
 // ===== PAGINATED FETCHERS =====
 
-const fetchUserSearchPage = async (query, page = 0, size = 50) => {
+const fetchUserSearchPage = async (query = "", page = 0, size = 50) => {
+  const params = { page, size };
+  if (query) params.query = query;
   const response = await axios.get(getBaseUrl() + "/api/admin/users/paged", {
     headers: getAuthHeaders(),
-    params: { query, page, size },
+    params,
   });
   return response.data;
 };

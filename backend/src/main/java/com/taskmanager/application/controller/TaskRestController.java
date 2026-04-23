@@ -70,7 +70,13 @@ public class TaskRestController {
     }
 
     @GetMapping("/tasks/paged")
-    public ResponseEntity<Page<TaskDTO>> getAllTasksForUserPaged(@PageableDefault(size = 50) Pageable pageable) {
+    public ResponseEntity<Page<TaskDTO>> getAllTasksForUserPaged(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 50) Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            logger.debug("Searching paged tasks for logged user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
+            return ResponseEntity.ok(taskService.searchTasksForLoggedUser(search.trim(), pageable));
+        }
         logger.debug("Retrieving paged tasks for logged user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<TaskDTO> tasks = taskService.findAllTasksForLoggedUser(pageable);
         return ResponseEntity.ok(tasks);

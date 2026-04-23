@@ -178,15 +178,17 @@ const getActionsTask = (taskId) => {
   }).then((response) => response.data);
 };
 
-const fetchTasksPage = async (page = 0, size = 50) => {
+const fetchTasksPage = async (page = 0, size = 50, search = "") => {
   const serverUrl = configService.getApiBaseUrl();
   const token = "Bearer " + store.getState().auth.token;
+  const params = { page, size };
+  if (search) params.search = search;
   const response = await axios.get(serverUrl + "/api/tasks/tasks/paged", {
     headers: {
       "Content-Type": "application/json",
       Authorization: token,
     },
-    params: { page, size },
+    params,
   });
   return response.data;
 };

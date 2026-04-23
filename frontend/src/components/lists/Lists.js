@@ -23,6 +23,7 @@ const List = () => {
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const navigateTo = useNavigate();
   const location = useLocation();
@@ -69,9 +70,10 @@ const List = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search if the service supports it
-    // For now, simply refresh the lists
-    refreshLists();
+    setActiveSearchTerm(searchTerm);
+    listService.invalidateListsCache();
+    setListsResource(listService.getLists());
+    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const handleErrors = (error, info) => {
@@ -106,6 +108,7 @@ const List = () => {
                   variant="outline-secondary"
                   onClick={() => {
                     setSearchTerm("");
+                    setActiveSearchTerm("");
                     refreshLists();
                   }}
                   className="flex-fill flex-md-grow-0"
@@ -173,7 +176,7 @@ const List = () => {
                   handleOpenList={handleOpenList}
                   handleEditList={handleshowEditList}
                   refreshLists={refreshLists}
-                  searchTerm={searchTerm}
+                  searchTerm={activeSearchTerm}
                 />
               </Suspense>
             </ErrorBoundary>
