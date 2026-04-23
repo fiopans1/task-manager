@@ -6,7 +6,6 @@ import com.taskmanager.application.service.AdminService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
+import com.taskmanager.application.model.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -27,7 +28,6 @@ public class AdminRestController {
     private AdminService adminService;
 
     // ===== USER MANAGEMENT =====
-
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> searchUsers(@RequestParam(required = false) String query) {
         logger.info("Admin searching users, query: {}", query);
@@ -35,11 +35,11 @@ public class AdminRestController {
     }
 
     @GetMapping("/users/paged")
-    public ResponseEntity<Page<Map<String, Object>>> searchUsersPaged(
+    public ResponseEntity<PagedResponseDTO<Map<String, Object>>> searchUsersPaged(
             @RequestParam(required = false) String query,
             @PageableDefault(size = 50) Pageable pageable) {
         logger.info("Admin searching users paged, query: {}", query);
-        return ResponseEntity.ok(adminService.searchUsers(query, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(adminService.searchUsers(query, pageable)));
     }
 
     @GetMapping("/users/{userId}")
@@ -53,7 +53,6 @@ public class AdminRestController {
     }
 
     // ===== FEATURE FLAGS =====
-
     @GetMapping("/features")
     public ResponseEntity<Map<String, Boolean>> getFeatureFlags() {
         return ResponseEntity.ok(adminService.getAllFeatureFlags());
@@ -61,13 +60,12 @@ public class AdminRestController {
 
     @PutMapping("/features/{featureName}")
     public ResponseEntity<Map<String, Boolean>> updateFeatureFlag(@PathVariable String featureName,
-                                                                    @RequestBody Map<String, Boolean> body) {
+            @RequestBody Map<String, Boolean> body) {
         boolean enabled = body.getOrDefault("enabled", false);
         return ResponseEntity.ok(adminService.updateFeatureFlag(featureName, enabled));
     }
 
     // ===== SYSTEM MESSAGE =====
-
     @GetMapping("/system-message")
     public ResponseEntity<Map<String, Object>> getSystemMessage() {
         return ResponseEntity.ok(adminService.getSystemMessage());

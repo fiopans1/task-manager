@@ -1,5 +1,6 @@
 package com.taskmanager.application.controller;
 
+import com.taskmanager.application.model.dto.PagedResponseDTO;
 import com.taskmanager.application.model.dto.TaskAssignmentHistoryDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
 import com.taskmanager.application.model.dto.TeamDashboardDTO;
@@ -18,7 +19,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +45,6 @@ public class TeamRestController {
     private TeamService teamService;
 
     // ===== TEAM CRUD =====
-
     @PostMapping("/create")
     public ResponseEntity<TeamDTO> createTeam(@Valid @RequestBody TeamDTO teamDTO) {
         logger.info("Creating team: {}", teamDTO.getName());
@@ -61,16 +60,15 @@ public class TeamRestController {
     }
 
     @GetMapping("/my-teams/paged")
-    public ResponseEntity<Page<TeamDTO>> getMyTeamsPaged(
+    public ResponseEntity<PagedResponseDTO<TeamDTO>> getMyTeamsPaged(
             @RequestParam(required = false) String search,
             @PageableDefault(size = 50) Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             logger.debug("Searching paged teams for current user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
-            return ResponseEntity.ok(teamService.searchTeamsForCurrentUser(search.trim(), pageable));
+            return ResponseEntity.ok(PagedResponseDTO.from(teamService.searchTeamsForCurrentUser(search.trim(), pageable)));
         }
         logger.debug("Retrieving paged teams for current user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<TeamDTO> teams = teamService.getTeamsForCurrentUser(pageable);
-        return ResponseEntity.ok(teams);
+        return ResponseEntity.ok(PagedResponseDTO.from(teamService.getTeamsForCurrentUser(pageable)));
     }
 
     @GetMapping("/{teamId}")
@@ -98,7 +96,6 @@ public class TeamRestController {
     }
 
     // ===== MEMBER MANAGEMENT =====
-
     @DeleteMapping("/{teamId}/members/{memberId}")
     public ResponseEntity<String> removeMember(@PathVariable Long teamId, @PathVariable Long memberId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -117,7 +114,7 @@ public class TeamRestController {
 
     @PutMapping("/{teamId}/members/{memberId}/role")
     public ResponseEntity<TeamMemberDTO> updateMemberRole(@PathVariable Long teamId, @PathVariable Long memberId,
-                                                           @RequestBody Map<String, String> body)
+            @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
         String roleStr = body.get("role");
         if (roleStr == null || roleStr.trim().isEmpty()) {
@@ -130,10 +127,9 @@ public class TeamRestController {
     }
 
     // ===== TASK ASSIGNMENT =====
-
     @PostMapping("/{teamId}/tasks/{taskId}/assign")
     public ResponseEntity<TaskDTO> assignTask(@PathVariable Long teamId, @PathVariable Long taskId,
-                                               @RequestBody Map<String, String> body)
+            @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
         String targetUsername = body.get("username");
         if (targetUsername == null || targetUsername.trim().isEmpty()) {
@@ -153,7 +149,6 @@ public class TeamRestController {
     }
 
     // ===== DASHBOARD =====
-
     @GetMapping("/{teamId}/dashboard")
     public ResponseEntity<TeamDashboardDTO> getTeamDashboard(@PathVariable Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -163,7 +158,6 @@ public class TeamRestController {
     }
 
     // ===== FILTERED TASKS =====
-
     @GetMapping("/{teamId}/tasks")
     public ResponseEntity<List<TaskDTO>> getTeamTasks(
             @PathVariable Long teamId,
@@ -181,7 +175,7 @@ public class TeamRestController {
     }
 
     @GetMapping("/{teamId}/tasks/paged")
-    public ResponseEntity<Page<TaskDTO>> getTeamTasksPaged(
+    public ResponseEntity<PagedResponseDTO<TaskDTO>> getTeamTasksPaged(
             @PathVariable Long teamId,
             @RequestParam(required = false) String member,
             @RequestParam(required = false) StateTask state,
@@ -190,13 +184,12 @@ public class TeamRestController {
             throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving paged filtered tasks for team {}", teamId);
         if (member != null || state != null || priority != null) {
-            return ResponseEntity.ok(teamService.getTeamTasksFiltered(teamId, member, state, priority, pageable));
+            return ResponseEntity.ok(PagedResponseDTO.from(teamService.getTeamTasksFiltered(teamId, member, state, priority, pageable)));
         }
-        return ResponseEntity.ok(teamService.getTeamTasks(teamId, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(teamService.getTeamTasks(teamId, pageable)));
     }
 
     // ===== ASSIGNMENT HISTORY =====
-
     @GetMapping("/{teamId}/assignment-history")
     public ResponseEntity<List<TaskAssignmentHistoryDTO>> getAssignmentHistory(@PathVariable Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -206,19 +199,18 @@ public class TeamRestController {
     }
 
     @GetMapping("/{teamId}/assignment-history/paged")
-    public ResponseEntity<Page<TaskAssignmentHistoryDTO>> getAssignmentHistoryPaged(
+    public ResponseEntity<PagedResponseDTO<TaskAssignmentHistoryDTO>> getAssignmentHistoryPaged(
             @PathVariable Long teamId,
             @PageableDefault(size = 50) Pageable pageable)
             throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving paged assignment history for team {}", teamId);
-        return ResponseEntity.ok(teamService.getAssignmentHistory(teamId, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(teamService.getAssignmentHistory(teamId, pageable)));
     }
 
     // ===== INVITATIONS =====
-
     @PostMapping("/{teamId}/invitations")
     public ResponseEntity<TeamInvitationDTO> createInvitation(@PathVariable Long teamId,
-                                                               @RequestBody Map<String, String> body)
+            @RequestBody Map<String, String> body)
             throws ResourceNotFoundException, NotPermissionException {
         String username = body.get("username");
         if (username == null || username.trim().isEmpty()) {
@@ -254,7 +246,7 @@ public class TeamRestController {
 
     @PostMapping("/invitations/{token}/respond")
     public ResponseEntity<TeamDTO> respondToInvitation(@PathVariable String token,
-                                                        @RequestBody Map<String, Boolean> body)
+            @RequestBody Map<String, Boolean> body)
             throws ResourceNotFoundException {
         boolean accept = body.getOrDefault("accept", false);
         logger.info("Responding to invitation {} - accept: {}", token, accept);
@@ -263,7 +255,6 @@ public class TeamRestController {
     }
 
     // ===== MENTIONS =====
-
     @GetMapping("/{teamId}/members/mentions")
     public ResponseEntity<List<TeamMemberDTO>> getMembersForMention(@PathVariable Long teamId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -273,7 +264,6 @@ public class TeamRestController {
     }
 
     // ===== ADMIN CHECK =====
-
     @GetMapping("/{teamId}/is-admin")
     public ResponseEntity<Map<String, Boolean>> isCurrentUserAdmin(@PathVariable Long teamId) {
         boolean isAdmin = teamService.isCurrentUserAdminOfTeam(teamId);
@@ -281,7 +271,6 @@ public class TeamRestController {
     }
 
     // ===== ADMIN: Get team summaries for a specific user =====
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TeamDTO>> getTeamsByUserId(@PathVariable Long userId)
             throws ResourceNotFoundException, NotPermissionException {
@@ -291,11 +280,11 @@ public class TeamRestController {
     }
 
     @GetMapping("/user/{userId}/paged")
-    public ResponseEntity<Page<TeamDTO>> getTeamsByUserIdPaged(
+    public ResponseEntity<PagedResponseDTO<TeamDTO>> getTeamsByUserIdPaged(
             @PathVariable Long userId,
             @PageableDefault(size = 50) Pageable pageable)
             throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Admin retrieving paged team summaries for user ID: {}", userId);
-        return ResponseEntity.ok(teamService.getTeamSummariesByUserId(userId, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(teamService.getTeamSummariesByUserId(userId, pageable)));
     }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.taskmanager.application.model.dto.PagedResponseDTO;
 import com.taskmanager.application.model.dto.TaskResumeDTO;
 import com.taskmanager.application.model.dto.TaskSummaryDTO;
-
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -70,16 +69,15 @@ public class TaskRestController {
     }
 
     @GetMapping("/tasks/paged")
-    public ResponseEntity<Page<TaskDTO>> getAllTasksForUserPaged(
+    public ResponseEntity<PagedResponseDTO<TaskDTO>> getAllTasksForUserPaged(
             @RequestParam(required = false) String search,
             @PageableDefault(size = 50) Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             logger.debug("Searching paged tasks for logged user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
-            return ResponseEntity.ok(taskService.searchTasksForLoggedUser(search.trim(), pageable));
+            return ResponseEntity.ok(PagedResponseDTO.from(taskService.searchTasksForLoggedUser(search.trim(), pageable)));
         }
         logger.debug("Retrieving paged tasks for logged user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<TaskDTO> tasks = taskService.findAllTasksForLoggedUser(pageable);
-        return ResponseEntity.ok(tasks);
+        return ResponseEntity.ok(PagedResponseDTO.from(taskService.findAllTasksForLoggedUser(pageable)));
     }
 
     @GetMapping("/{id}")
@@ -148,9 +146,8 @@ public class TaskRestController {
     }
 
     // ===== ACTION ENDPOINTS =====
-
     @PostMapping("/{taskId}/actions")
-    public ResponseEntity<ActionTaskDTO> addActionToTask(@PathVariable Long taskId, @Valid @RequestBody ActionTaskDTO actionTaskDTO) 
+    public ResponseEntity<ActionTaskDTO> addActionToTask(@PathVariable Long taskId, @Valid @RequestBody ActionTaskDTO actionTaskDTO)
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Adding action to task with ID: {}", taskId);
 
@@ -168,7 +165,7 @@ public class TaskRestController {
     }
 
     @GetMapping("/{taskId}/actions")
-    public ResponseEntity<List<ActionTaskDTO>> getAllActionsForTask(@PathVariable Long taskId) 
+    public ResponseEntity<List<ActionTaskDTO>> getAllActionsForTask(@PathVariable Long taskId)
             throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving all actions for task with ID: {}", taskId);
 
@@ -188,16 +185,15 @@ public class TaskRestController {
     }
 
     @GetMapping("/{taskId}/actions/paged")
-    public ResponseEntity<Page<ActionTaskDTO>> getAllActionsForTaskPaged(
+    public ResponseEntity<PagedResponseDTO<ActionTaskDTO>> getAllActionsForTaskPaged(
             @PathVariable Long taskId,
             @PageableDefault(size = 50) Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving paged actions for task with ID: {}", taskId);
-        Page<ActionTask> actions = taskService.getAllActionsForTask(taskId, pageable);
-        return ResponseEntity.ok(actions.map(ActionTaskDTO::fromEntity));
+        return ResponseEntity.ok(PagedResponseDTO.from(taskService.getAllActionsForTask(taskId, pageable).map(ActionTaskDTO::fromEntity)));
     }
 
     @PutMapping("/{taskId}/actions/{actionId}")
-    public ResponseEntity<ActionTaskDTO> updateActionTask(@PathVariable Long taskId, @PathVariable Long actionId, 
+    public ResponseEntity<ActionTaskDTO> updateActionTask(@PathVariable Long taskId, @PathVariable Long actionId,
             @Valid @RequestBody ActionTaskDTO actionTaskDTO) throws ResourceNotFoundException, NotPermissionException {
         logger.info("Updating action with ID: {} for task with ID: {}", actionId, taskId);
 
@@ -215,7 +211,7 @@ public class TaskRestController {
     }
 
     @DeleteMapping("/{taskId}/actions/{actionId}")
-    public ResponseEntity<String> deleteActionFromTask(@PathVariable Long taskId, @PathVariable Long actionId) 
+    public ResponseEntity<String> deleteActionFromTask(@PathVariable Long taskId, @PathVariable Long actionId)
             throws ResourceNotFoundException, NotPermissionException {
         logger.info("Deleting action with ID: {} from task with ID: {}", actionId, taskId);
 
@@ -245,10 +241,8 @@ public class TaskRestController {
             throw e;
         }
     }
-    
 
     // ===== ADMIN: Get task summaries for a specific user =====
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TaskSummaryDTO>> getTasksByUserId(@PathVariable Long userId) throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Admin retrieving task summaries for user ID: {}", userId);
@@ -257,11 +251,11 @@ public class TaskRestController {
     }
 
     @GetMapping("/user/{userId}/paged")
-    public ResponseEntity<Page<TaskSummaryDTO>> getTasksByUserIdPaged(
+    public ResponseEntity<PagedResponseDTO<TaskSummaryDTO>> getTasksByUserIdPaged(
             @PathVariable Long userId,
             @PageableDefault(size = 50) Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Admin retrieving paged task summaries for user ID: {}", userId);
-        return ResponseEntity.ok(taskService.getTaskSummariesByUserId(userId, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(taskService.getTaskSummariesByUserId(userId, pageable)));
     }
 
 }

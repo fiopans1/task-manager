@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.taskmanager.application.model.dto.ListTMDTO;
+import com.taskmanager.application.model.dto.PagedResponseDTO;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 
@@ -65,16 +65,15 @@ public class ListRestController {
     }
 
     @GetMapping("/lists/paged")
-    public ResponseEntity<Page<ListTMDTO>> getAllListForUserPaged(
+    public ResponseEntity<PagedResponseDTO<ListTMDTO>> getAllListForUserPaged(
             @RequestParam(required = false) String search,
             @PageableDefault(size = 50) Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             logger.debug("Searching paged lists for logged user, search: {}, page: {}, size: {}", search, pageable.getPageNumber(), pageable.getPageSize());
-            return ResponseEntity.ok(listService.searchListsForLoggedUser(search.trim(), pageable));
+            return ResponseEntity.ok(PagedResponseDTO.from(listService.searchListsForLoggedUser(search.trim(), pageable)));
         }
         logger.debug("Retrieving paged lists for logged user, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<ListTMDTO> lists = listService.findAllListsForLoggedUser(pageable);
-        return ResponseEntity.ok(lists);
+        return ResponseEntity.ok(PagedResponseDTO.from(listService.findAllListsForLoggedUser(pageable)));
     }
 
     @GetMapping("/getList/{id}")
@@ -179,7 +178,6 @@ public class ListRestController {
     }
 
     // ===== ADMIN: Get list summaries for a specific user =====
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ListTMDTO>> getListsByUserId(@PathVariable Long userId) throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Admin retrieving list summaries for user ID: {}", userId);
@@ -188,11 +186,11 @@ public class ListRestController {
     }
 
     @GetMapping("/user/{userId}/paged")
-    public ResponseEntity<Page<ListTMDTO>> getListsByUserIdPaged(
+    public ResponseEntity<PagedResponseDTO<ListTMDTO>> getListsByUserIdPaged(
             @PathVariable Long userId,
             @PageableDefault(size = 50) Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Admin retrieving paged list summaries for user ID: {}", userId);
-        return ResponseEntity.ok(listService.getListSummariesByUserId(userId, pageable));
+        return ResponseEntity.ok(PagedResponseDTO.from(listService.getListSummariesByUserId(userId, pageable)));
     }
 
 }
