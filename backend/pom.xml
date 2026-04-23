@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.taskmanager</groupId>
     <artifactId>taskmanager</artifactId>
-    <version>0.0.1-Alpha</version>
+    <version>0.6-beta</version>
     <name>TaskManager</name>
     <description>My personal taskmanager</description>
     <url/>

@@ -52,7 +52,7 @@ window.APP_CONFIG = {
     name: "Task Manager",
 
     // Application version
-    version: "0.0.1",
+    version: "0.6-beta",
 
     // Enable debug mode (shows additional logging)
     debug: false,
