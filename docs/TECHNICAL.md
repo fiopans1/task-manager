@@ -1159,23 +1159,31 @@ Landing page para usuarios no autenticados:
 
 ### 4.16 Estilos CSS
 
+> Guías ampliadas: [React Bootstrap](./REACT_BOOTSTRAP_GUIDE.md) · [CSS](./CSS_GUIDE.md)
+
 #### `index.css`
-Estilos globales:
-- Fixes para viewport en Safari iOS.
-- Restricciones de altura para body/html.
-- Tamaño de fuente en inputs para prevenir zoom automático en iOS.
+Estilos globales y fundacionales:
+- Fixes para viewport en Safari iOS con `-webkit-fill-available`.
+- Restricciones de altura y estructura base para `html`, `body` y `#root`.
+- Prevención de scroll horizontal accidental en mobile.
+- Tamaño mínimo de fuente en `input`, `select` y `textarea` para evitar zoom automático en iOS.
 
 #### `styles.css`
-Estilos específicos de la aplicación:
-- Animaciones de gradiente.
-- Utilidades de truncado de texto.
-- Fixes de overflow para cards.
-- Estilos del sidebar.
-- Transiciones del top bar en mobile.
-- Botones flotantes.
+Estilos específicos de la aplicación y overrides controlados sobre Bootstrap:
+- Animaciones de gradiente para pantallas de autenticación/landing.
+- Utilidades de truncado de texto y fixes de overflow para cards de tareas y listas.
+- Reglas del sidebar (`.sidebar-menu`, `nav-pills`, modo colapsado, hover y activo).
+- Ajustes del layout principal (`.main-app-row`, `.outlet-col`) para escritorio y móvil.
+- Mejoras de interacción para top bar y botones móviles.
+- Media queries orientadas a responsive real del layout principal.
+
+#### Uso recomendado
+- Priorizar utilidades Bootstrap (`d-flex`, `gap-*`, `px-*`, `text-*`, `rounded-*`, `shadow-*`) para layout y spacing.
+- Añadir CSS propio cuando el estilo represente una pieza estable de la app o requiera reglas complejas.
+- Reutilizar tokens compatibles con `data-bs-theme` siempre que sea posible para no romper el tema oscuro.
 
 #### `App.css`
-Estilos mínimos del template Create React App (animación del logo, header).
+Estilos mínimos heredados del template Create React App (animación del logo y header). Actualmente tiene relevancia baja frente a `index.css` y `styles.css`.
 
 ### 4.17 Archivos públicos (`public/`)
 

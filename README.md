@@ -52,6 +52,15 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8080
 
+## Documentation
+
+Additional frontend styling guides:
+
+- [React Bootstrap Guide (Spanish)](docs/REACT_BOOTSTRAP_GUIDE.md)
+- [CSS Guide (Spanish)](docs/CSS_GUIDE.md)
+- [Technical Documentation (Spanish)](docs/TECHNICAL.md)
+- [Technical Documentation (English)](docs/TECHNICAL_EN.md)
+
 ## Configuration
 
 The application uses a professional configuration system with separate files for backend, frontend, and web server.
