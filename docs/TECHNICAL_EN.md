@@ -95,7 +95,7 @@ task-manager/
 ├── frontend/                   # React SPA application
 │   ├── src/                    # JavaScript source code
 │   ├── public/                 # Static files
-│   └── package.json            # npm dependencies
+│   └── package.json            # pnpm dependencies
 ├── scripts/                    # Build and deployment scripts
 │   ├── compile.py              # Main build orchestrator
 │   ├── bin_files/              # Runtime executable scripts
@@ -1194,7 +1194,7 @@ Minimal Create React App template styles (logo animation, header).
 
 | Category | Packages |
 |---|---|
-| **Core React** | `react` 18, `react-dom` 18, `react-scripts` 5.0.1 |
+| **Core React** | `react` 18, `react-dom` 18, `vite` 8, `@vitejs/plugin-react` 6 |
 | **Routing** | `react-router-dom` 7.1.5 |
 | **State Management** | `@reduxjs/toolkit` 2.5.1, `react-redux` 9.2.0, `redux-persist` 6.0.0 |
 | **UI Framework** | `bootstrap` 5.3.5, `react-bootstrap` 2.10.9 |
@@ -1521,18 +1521,12 @@ cd frontend
 
 # Install dependencies
 pnpm install
-# Or with npm:
-npm install --legacy-peer-deps
 
 # Build
 pnpm build
-# Or with npm:
-CI=false npx react-scripts build
 ```
 
 Static files are generated in `frontend/build/`.
-
-> **Note:** `CI=false` is needed with npm so that warnings are not treated as errors.
 
 ### 7.3 Docker Build
 
