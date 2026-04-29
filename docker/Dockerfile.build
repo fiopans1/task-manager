@@ -18,13 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     nano \
     nodejs \
-    npm \
     maven \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar pnpm globalmente
-RUN npm install -g pnpm
+# Activar pnpm con corepack
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
 
 #Create output directory
 RUN mkdir -p /output

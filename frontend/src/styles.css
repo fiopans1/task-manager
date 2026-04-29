@@ -258,30 +258,30 @@
   }
 }
 
-:global(.task-modal .modal-content) {
+.task-modal .modal-content {
   border-radius: 12px;
   border: none;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-:global(.form-switch-lg .form-check-input) {
+.form-switch-lg .form-check-input {
   width: 3em;
   height: 1.5em;
   margin-top: 0.1em;
 }
 
-:global(.form-control:focus),
-:global(.form-select:focus) {
+.form-control:focus,
+.form-select:focus {
   border-color: #8abfff;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
 }
 
 @media (max-width: 767px) {
-  :global(.task-modal .modal-dialog) {
+  .task-modal .modal-dialog {
     margin: 0.5rem;
   }
 
-  :global(.task-modal .row) {
+  .task-modal .row {
     --bs-gutter-y: 0.75rem;
   }
 }
@@ -341,7 +341,7 @@
 }
 
 /* Calendar styling */
-:global(.rbc-calendar) {
+.rbc-calendar {
   height: 70vh; /* keep it responsive */
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
@@ -349,7 +349,7 @@
 }
 
 /* toolbar */
-:global(.rbc-toolbar) {
+.rbc-toolbar {
   background: #ffffff;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
@@ -360,7 +360,7 @@
 }
 
 /* week + month headers */
-:global(.rbc-header) {
+.rbc-header {
   background: #f9fafb;
   padding: 0.75rem;
   font-weight: 600;
@@ -368,7 +368,7 @@
 }
 
 /* events */
-:global(.rbc-event) {
+.rbc-event {
   border: none;
   border-radius: 0.5rem;
   padding: 2px 4px;
@@ -378,12 +378,12 @@
   transition: filter 0.15s ease;
 }
 
-:global(.rbc-event:hover) {
+.rbc-event:hover {
   filter: brightness(0.9);
 }
 
 /* today indicator */
-:global(.rbc-today) {
+.rbc-today {
   background: rgba(59, 130, 246, 0.05);
 }
 
@@ -393,12 +393,12 @@
 }
 
 /* Remove default focus styles on calendar toolbar buttons; show ring only for keyboard nav */
-:global(.rbc-btn-group button:focus) {
+.rbc-btn-group button:focus {
   outline: none;
   box-shadow: none;
   background-color: transparent;
 }
-:global(.rbc-btn-group button:focus-visible) {
+.rbc-btn-group button:focus-visible {
   box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
 }
 
