@@ -36,7 +36,7 @@ const NewEditLists = ({
   };
 
   const validateForm = () =>
-    Boolean(formData.nameOfList?.trim()) && Boolean(formData.color?.trim());
+    Boolean(formData.nameOfList?.trim()) && Boolean(formData.color);
 
   const handleSubmit = async () => {
     setValidated(true);
