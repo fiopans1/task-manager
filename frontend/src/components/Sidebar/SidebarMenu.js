@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Col,
-  Nav,
-  Dropdown,
-  NavLink,
-  Button,
   Badge,
-  Offcanvas,
+  Button,
+  Col,
+  Dropdown,
   Form,
+  Nav,
+  NavLink,
+  Offcanvas,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import authService from "../../services/authService";
 import About from "./About";
-import configService from "../../services/configService";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
-import taskService from "../../services/taskService";
+import authService from "../../services/authService";
+import configService from "../../services/configService";
 import listService from "../../services/listService";
+import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
 
-// Constant for navigation routes
 const NAVIGATION_ITEMS = [
   {
     path: "/home/tasks",
@@ -56,45 +55,29 @@ const NAVIGATION_ITEMS = [
 
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const { darkMode, toggleDarkMode } = useTheme();
   const [featureFlags, setFeatureFlags] = useState({});
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { darkMode, toggleDarkMode } = useTheme();
 
-  // Handler to toggle sidebar collapsed state
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
-  // Handler to toggle mobile menu
-  const toggleMobileMenu = () => {
-    setShowMobileMenu(!showMobileMenu);
-  };
-
-  // Detect window size changes
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-
-      // If switching from mobile to desktop, close mobile menu
-      if (!mobile && showMobileMenu) {
+      if (!mobile) {
         setShowMobileMenu(false);
       }
     };
 
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [showMobileMenu]);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
-    // Verificar si el usuario es administrador
     const checkAdminStatus = async () => {
       try {
         const userRole = await authService.getRoles();
@@ -104,7 +87,6 @@ function SidebarMenu({ onLogOut }) {
       }
     };
 
-    // Load feature flags from backend
     const loadFeatureFlags = async () => {
       try {
         const config = await adminService.getPublicConfig();
@@ -120,20 +102,15 @@ function SidebarMenu({ onLogOut }) {
     loadFeatureFlags();
   }, []);
 
-  // Filter navigation items based on user role and feature flags
   const filteredNavItems = NAVIGATION_ITEMS.filter((item) => {
-    // Admin-only items: only show to admins
     if (item.adminOnly) return isAdmin;
-    // Feature-gated items: hide if feature is explicitly disabled
     if (item.featureKey && featureFlags[item.featureKey] === false) return false;
     return true;
   });
 
-  // Invalidate cache for the feature being navigated to
   const handleNavClick = (item, e) => {
-    // Prevent default Link navigation so we can force a new navigation
-    // even when already on the same path (ensures location.key changes)
     e.preventDefault();
+
     if (item.featureKey === "tasks") {
       taskService.invalidateTasksCache();
     } else if (item.featureKey === "lists") {
@@ -141,121 +118,87 @@ function SidebarMenu({ onLogOut }) {
     } else if (item.featureKey === "teams") {
       teamService.invalidateTeamsCache();
     }
+
     navigate(item.path);
     if (isMobile) {
-      toggleMobileMenu();
+      setShowMobileMenu(false);
     }
   };
 
-  // Main sidebar content
+  const isItemActive = (itemPath) =>
+    location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
+
   const renderSidebarContent = () => {
-    // On mobile, always show expanded, regardless of collapsed state
     const effectiveCollapsed = isMobile ? false : collapsed;
 
     return (
       <>
-        <div>
-          {!isMobile && (
-            <div
-              className={`d-flex align-items-center pt-3 ${
-                effectiveCollapsed ? "justify-content-center px-0" : "px-3"
+        <div className="p-3 d-flex flex-column gap-3">
+          <div
+            className={`d-flex align-items-center ${
+              effectiveCollapsed ? "justify-content-center" : "justify-content-between"
+            }`}
+          >
+            <Button
+              as={Link}
+              to="/home"
+              variant="link"
+              className={`text-decoration-none text-reset d-flex align-items-center gap-2 px-0 ${
+                effectiveCollapsed ? "justify-content-center" : ""
               }`}
             >
-              <NavLink
-                as={Link}
-                to="/home"
-                className={`text-decoration-none text-white d-flex align-items-center ${
-                  effectiveCollapsed ? "justify-content-center w-100" : ""
-                }`}
-              >
-                <i className="fs-4 bi bi-speedometer"></i>
-                {!effectiveCollapsed && (
-                  <span className="ms-2 fs-4 d-none d-sm-inline">
-                    {configService.getAppName()}
-                  </span>
-                )}
-              </NavLink>
-            </div>
-          )}
-          <hr className="text-secondary mt-3" />
-          {/* Sidebar Menu */}
-          <Nav className="nav-pills flex-column">
-            {filteredNavItems.map((item, index) => (
-              <Nav.Item key={index} className="my-1">
+              <span className="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary" style={{ width: 40, height: 40 }}>
+                <i className="bi bi-check2-square fs-5"></i>
+              </span>
+              {!effectiveCollapsed && (
+                <div>
+                  <div className="fw-semibold lh-sm">{configService.getAppName()}</div>
+                  <small className="text-body-secondary">Focus on what matters</small>
+                </div>
+              )}
+            </Button>
+          </div>
+
+          <Nav className="flex-column gap-1">
+            {filteredNavItems.map((item) => (
+              <Nav.Item key={item.path}>
                 <NavLink
                   as={Link}
                   to={item.path}
-                  className={`hover-custom text-white fs-5 py-2 d-flex align-items-center ${
-                    location.pathname === item.path ? "active" : ""
+                  className={`sidebar-nav-link text-decoration-none d-flex align-items-center gap-3 ${
+                    isItemActive(item.path) ? "active" : ""
                   }`}
                   onClick={(e) => handleNavClick(item, e)}
                 >
-                  <div className="d-flex align-items-center position-relative w-100">
-                    <i
-                      className={`${item.icon} ${
-                        effectiveCollapsed ? "fs-4 ps-2" : ""
-                      }`}
-                    ></i>
-                    {!effectiveCollapsed && (
-                      <>
-                        <span
-                          className={`fs-5 ms-3 ${
-                            isMobile ? "" : "d-none d-sm-inline"
-                          }`}
-                        >
-                          {""}
-                          {item.label}
-                        </span>
-                        {item.badge && (
-                          <Badge
-                            bg="danger"
-                            pill
-                            className="ms-auto position-absolute end-0"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </>
-                    )}
-                  </div>
+                  <i className={`${item.icon} fs-5`}></i>
+                  {!effectiveCollapsed && (
+                    <>
+                      <span className="fw-medium">{item.label}</span>
+                      {item.badge && (
+                        <Badge bg="danger" pill className="ms-auto">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </>
+                  )}
                 </NavLink>
               </Nav.Item>
             ))}
-            <Nav.Item className="my-1">
-              <Dropdown
-                drop={effectiveCollapsed ? "end" : "down"}
-                container="body"
-              >
-                <Dropdown.Toggle
-                  as="div"
-                  bsPrefix="custom-toggle"
-                  id="dropdown-basic"
-                  className="cursor-pointer"
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="nav-link hover-custom text-white fs-5 py-2 d-flex align-items-center">
-                    <div className="d-flex align-items-center position-relative w-100">
-                      <i
-                        className={`bi bi-question-circle ${
-                          effectiveCollapsed ? "fs-4 ps-2" : ""
-                        }`}
-                      ></i>
-                      {!effectiveCollapsed && (
-                        <>
-                          <span
-                            className={`fs-5 ms-3 ${
-                              isMobile ? "" : "d-none d-sm-inline"
-                            }`}
-                          >
-                            Help
-                          </span>
-                          <i className="bi bi-chevron-down ms-auto fs-6"></i>
-                        </>
-                      )}
-                    </div>
+
+            <Nav.Item>
+              <Dropdown drop={effectiveCollapsed ? "end" : "down"} container="body">
+                <Dropdown.Toggle as="div" bsPrefix="custom-toggle" className="cursor-pointer">
+                  <div className="sidebar-nav-link d-flex align-items-center gap-3">
+                    <i className="bi bi-question-circle fs-5"></i>
+                    {!effectiveCollapsed && (
+                      <>
+                        <span className="fw-medium">Help</span>
+                        <i className="bi bi-chevron-down ms-auto small"></i>
+                      </>
+                    )}
                   </div>
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="shadow z-index-high">
+                <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
                   <Dropdown.Item onClick={() => setShowAbout(true)}>
                     <i className="bi bi-box-info me-2"></i>
                     About
@@ -266,51 +209,31 @@ function SidebarMenu({ onLogOut }) {
           </Nav>
         </div>
 
-        {/* Dropdown Menu */}
-        <div className={`${!effectiveCollapsed ? "px-3 py-2" : ""}`}>
-          <Dropdown
-            drop={effectiveCollapsed ? "end" : "up"}
-            align={effectiveCollapsed ? "start" : "end"}
-            container="body"
-          >
+        <div className={`p-3 pt-0 ${effectiveCollapsed ? "text-center" : ""}`}>
+          <Dropdown drop={effectiveCollapsed ? "end" : "up"} align={effectiveCollapsed ? "start" : "end"} container="body">
             <Dropdown.Toggle
-              variant="dark"
-              id="dropdown-basic"
-              className={`no-caret text-white text-decoration-none d-flex align-items-center ${
-                effectiveCollapsed ? "justify-content-center w-100 px-0" : ""
+              variant="light"
+              id="user-menu"
+              className={`no-caret w-100 rounded-4 border d-flex align-items-center ${
+                effectiveCollapsed ? "justify-content-center px-0" : "justify-content-between"
               }`}
             >
-              <i
-                className={`${
-                  !effectiveCollapsed
-                    ? "bi bi-person-circle fs-4"
-                    : "bi bi-person-circle fs-4"
-                }`}
-              ></i>
-              {!effectiveCollapsed && (
-                <>
-                  <span
-                    className={`ms-2 text-truncate ${
-                      isMobile ? "" : "d-none d-sm-inline"
-                    }`}
-                    style={{ maxWidth: "150px" }}
-                  >
-                    {authService.getUsername()}
-                  </span>
-                  <i className="bi bi-chevron-up ms-2 fs-6"></i>
-                </>
-              )}
+              <div className="d-flex align-items-center gap-2 text-start">
+                <span className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body-tertiary" style={{ width: 36, height: 36 }}>
+                  <i className="bi bi-person"></i>
+                </span>
+                {!effectiveCollapsed && (
+                  <div className="d-flex flex-column">
+                    <span className="fw-medium text-truncate" style={{ maxWidth: 130 }}>
+                      {authService.getUsername()}
+                    </span>
+                    <small className="text-body-secondary">Account</small>
+                  </div>
+                )}
+              </div>
+              {!effectiveCollapsed && <i className="bi bi-chevron-up small"></i>}
             </Dropdown.Toggle>
-            <Dropdown.Menu className="shadow z-index-high">
-              {/* <Dropdown.Item as={Link} to="/profile" className="py-2">
-              <i className="bi bi-person me-2"></i>
-              Profile
-            </Dropdown.Item>
-            <Dropdown.Item as={Link} to="/settings" className="py-2">
-              <i className="bi bi-gear me-2"></i>
-              Settings
-            </Dropdown.Item>
-            <Dropdown.Divider /> */}
+            <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
               <Dropdown.ItemText className="py-2">
                 <Form.Check
                   type="switch"
@@ -337,66 +260,25 @@ function SidebarMenu({ onLogOut }) {
     );
   };
 
-  // Conditional rendering based on mobile or desktop
   if (isMobile) {
     return (
       <>
-        {/* Floating button in corner for mobile - Top bar layout */}
-        <div
-          className="mobile-top-bar bg-dark position-fixed w-100 d-flex align-items-center justify-content-between px-3 py-2"
-          onClick={toggleMobileMenu}
-          aria-controls="sidebar-menu"
-          style={{
-            top: 0,
-            left: 0,
-            zIndex: 1000,
-            height: "60px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
-          }}
-        >
-          <Button
-            variant="dark"
-            className="d-flex align-items-center justify-content-center mobile-menu-button p-0"
-            onClick={toggleMobileMenu}
-            aria-controls="sidebar-menu"
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "8px",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            }}
-          >
+        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040, height: 64 }}>
+          <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
             <i className="bi bi-list fs-4"></i>
           </Button>
-
-          <span className="text-white fw-bold">{configService.getAppName()}</span>
-
-          {/* Spacer for balance */}
-          <div style={{ width: "44px" }}></div>
+          <div className="fw-semibold">{configService.getAppName()}</div>
+          <div style={{ width: 44 }}></div>
         </div>
-
-        {/* Sidebar menu as Offcanvas on mobile */}
         <Offcanvas
           id="sidebar-menu"
           show={showMobileMenu}
-          onHide={toggleMobileMenu}
+          onHide={() => setShowMobileMenu(false)}
           placement="start"
-          backdrop={true}
-          className="bg-dark text-white w-75"
+          className="bg-body"
         >
-          <Offcanvas.Header closeButton closeVariant="white">
-            <Offcanvas.Title
-              as={Link}
-              to="/home"
-              className="text-white text-decoration-none"
-            >
-              <i className="fs-4 bi bi-speedometer"></i>{" "}
-              <span
-                className={`fs-5 ms-3 ${isMobile ? "" : "d-none d-sm-inline"}`}
-              >
-                {configService.getAppName()}
-              </span>
-            </Offcanvas.Title>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title className="fw-semibold">Menu</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="d-flex flex-column justify-content-between p-0">
             {renderSidebarContent()}
@@ -407,50 +289,17 @@ function SidebarMenu({ onLogOut }) {
     );
   }
 
-  // Desktop version with collapsible sidebar
   return (
     <>
-      <Col
-        className={`bg-dark vh-100 d-flex justify-content-between flex-column sidebar-menu ${
-          collapsed ? "collapsed" : ""
-        }`}
-        xs="auto"
-        md={collapsed ? 1 : 3}
-        style={{
-          transition: "all 0.3s ease",
-          minWidth: collapsed ? "60px" : "200px",
-          maxWidth: collapsed ? "60px" : "250px",
-          position: "relative",
-          flexShrink: 0,
-        }}
-      >
-        {/* Floating button to collapse/expand */}
-        {!isMobile && (
-          <Button
-            variant="dark"
-            size="sm"
-            className="position-absolute toggle-button d-flex align-items-center justify-content-center"
-            onClick={toggleSidebar}
-            style={{
-              width: "24px",
-              height: "24px",
-              right: "-12px",
-              top: "50vh",
-              zIndex: 100,
-              borderRadius: "50%",
-              boxShadow: "0 0 5px rgba(0,0,0,0.3)",
-              padding: 0,
-              border: "1px solid #6c757d",
-            }}
-          >
-            <i
-              className={`bi ${
-                collapsed ? "bi-chevron-right" : "bi-chevron-left"
-              }`}
-              style={{ fontSize: "12px" }}
-            ></i>
-          </Button>
-        )}
+      <Col className={`sidebar-shell border-end d-flex flex-column justify-content-between position-relative ${collapsed ? "collapsed" : ""}`} xs="auto">
+        <Button
+          variant="light"
+          size="sm"
+          className="sidebar-toggle position-absolute top-50 translate-middle-y end-0 translate-middle-x border shadow-sm"
+          onClick={() => setCollapsed((prev) => !prev)}
+        >
+          <i className={`bi ${collapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
+        </Button>
         {renderSidebarContent()}
       </Col>
       <About show={showAbout} handleClose={() => setShowAbout(false)} />

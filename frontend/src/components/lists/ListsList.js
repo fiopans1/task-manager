@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
-import { Row, Card, Button, Modal } from "react-bootstrap";
-import { successToast, errorToast } from "../common/Noty";
-import listService from "../../services/listService";
+import { useCallback, useState } from "react";
+import { Badge, Button, Card, Col, Modal, Row } from "react-bootstrap";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import listService from "../../services/listService";
+import { errorToast, successToast } from "../common/Noty";
+
 const ListsList = ({
   listsResource,
   handleOpenList,
@@ -13,135 +14,106 @@ const ListsList = ({
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
-  const fetchPage = useCallback(async (page, size) => {
-    return listService.fetchListsPage(page, size, searchTerm);
-  }, [searchTerm]);
-
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [listsResource, searchTerm]);
-
-  const EmptyState = () => (
-    <Card className="text-center shadow-sm py-5">
-      <Card.Body>
-        <div className="mb-4">
-          <i
-            className="bi bi-clipboard text-muted"
-            style={{ fontSize: "2.5rem" }}
-          ></i>
-        </div>
-        <Card.Title>No lists available</Card.Title>
-        <Card.Text className="text-muted">Please create a new list</Card.Text>
-      </Card.Body>
-    </Card>
+  const fetchPage = useCallback(
+    async (page, size) => listService.fetchListsPage(page, size, searchTerm),
+    [searchTerm]
   );
+
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
+    listsResource,
+    searchTerm,
+  ]);
 
   const deleteList = async () => {
     try {
-      if (idToDelete) {
-        await listService.deleteList(idToDelete);
-        listService.invalidateListsCache();
-        setIdToDelete(null);
-        refreshLists();
-        successToast("List deleted successfully");
-      } else {
+      if (!idToDelete) {
         errorToast("Error: No lists selected");
+        return;
       }
+
+      await listService.deleteList(idToDelete);
+      listService.invalidateListsCache();
+      setIdToDelete(null);
+      refreshLists();
+      successToast("List deleted successfully");
     } catch (error) {
       errorToast("Error: " + error.message);
     }
   };
 
-  const confirmDeleteList = (id) => {
-    setIdToDelete(id);
-    setShowDelete(true);
-  };
+  if (!data || data.length === 0) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="mb-3 text-body-secondary">
+            <i className="bi bi-card-checklist fs-1"></i>
+          </div>
+          <Card.Title>No lists available</Card.Title>
+          <Card.Text className="text-body-secondary">Create a new list to organize your tasks.</Card.Text>
+        </Card.Body>
+      </Card>
+    );
+  }
 
-  return !data || data.length === 0 ? (
-    <EmptyState />
-  ) : (
-    <div className="list-list">
+  return (
+    <div className="d-grid gap-3">
       {data.map((card) => (
-        <Row key={card.id} className="m-1">
-          <Card
-            style={{ borderTop: `6px solid ${card.color}` }}
-            className="w-100 mb-2 hover-shadow"
-          >
-            <Card.Body>
-              <div className="d-flex">
-                <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                  <Card.Subtitle className="mt-0 mb-0 fw-bold text-truncate">
-                    {card.nameOfList}
-                  </Card.Subtitle>
+        <Card key={card.id} className="item-card border-0 shadow-sm rounded-4 overflow-hidden">
+          <div style={{ height: 6, backgroundColor: card.color }}></div>
+          <Card.Body className="p-3 p-lg-4">
+            <Row className="g-3 align-items-start">
+              <Col lg={8}>
+                <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <h5 className="mb-0 fw-semibold text-break">{card.nameOfList}</h5>
+                  <Badge bg="light" text="dark" pill className="border">
+                    {card.completedElements} / {card.totalElements} done
+                  </Badge>
                 </div>
-                <div className="flex-shrink-0">
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    className="me-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditList(card);
-                    }}
-                    style={{ minWidth: "44px", minHeight: "44px" }}
-                  >
-                    <i className="bi bi-pencil"></i>
+                <p className="text-body-secondary mb-0">
+                  {card.descriptionOfList || <span className="fst-italic">No description</span>}
+                </p>
+              </Col>
+              <Col lg={4}>
+                <div className="d-flex flex-wrap justify-content-lg-end gap-2">
+                  <Button variant="light" className="rounded-pill px-3 border" onClick={() => handleOpenList(card.id)}>
+                    <i className="bi bi-card-checklist me-2"></i>
+                    Open
+                  </Button>
+                  <Button variant="outline-primary" className="rounded-pill px-3" onClick={() => handleEditList(card)}>
+                    <i className="bi bi-pencil me-2"></i>
+                    Edit
                   </Button>
                   <Button
                     variant="outline-danger"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      confirmDeleteList(card.id);
+                    className="rounded-pill px-3"
+                    onClick={() => {
+                      setIdToDelete(card.id);
+                      setShowDelete(true);
                     }}
-                    style={{ minWidth: "44px", minHeight: "44px" }}
                   >
-                    <i className="bi bi-trash"></i>
+                    <i className="bi bi-trash me-2"></i>
+                    Delete
                   </Button>
                 </div>
-              </div>
-              <Row>
-                <Card.Text className="mt-2 mb-0 text-truncate" style={{ fontSize: "13px" }}>
-                  {card.descriptionOfList}
-                </Card.Text>
-                <Card.Text
-                  className="mb-1 text-body-secondary"
-                  style={{ fontSize: "0.7rem" }}
-                >
-                  {card.completedElements} of {card.totalElements} completed
-                  tasks
-                </Card.Text>
-                <Button
-                  variant="success"
-                  className="m-2"
-                  onClick={() => handleOpenList(card.id)}
-                >
-                  <i className="bi bi-card-checklist me-1"></i>
-                  See List
-                </Button>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Row>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
       ))}
 
       <LoadMoreSpinner />
 
-      {/* Delete confirmation modal */}
-      <Modal
-        show={showDelete}
-        onHide={() => setShowDelete(false)}
-        centered
-        backdrop="static"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered backdrop="static" contentClassName="border-0 shadow-sm rounded-4">
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title>Confirm deletion</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this list? This action cannot be
-          undone.
+        <Modal.Body className="pt-2 text-body-secondary">
+          Are you sure you want to delete this list? This action cannot be undone.
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="border-0">
           <Button
             variant="outline-secondary"
+            className="rounded-pill px-4"
             onClick={() => {
               setShowDelete(false);
               setIdToDelete(null);
@@ -151,6 +123,7 @@ const ListsList = ({
           </Button>
           <Button
             variant="danger"
+            className="rounded-pill px-4"
             onClick={() => {
               setShowDelete(false);
               deleteList();

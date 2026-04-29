@@ -1,8 +1,8 @@
-import { Col, Row, Card, Button, Modal, Badge } from "react-bootstrap";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+import { Badge, Button, Card, Col, Modal, Row } from "react-bootstrap";
 import taskService from "../../services/taskService";
-import { successToast, errorToast } from "../common/Noty";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { errorToast, successToast } from "../common/Noty";
 
 const TasksList = ({
   tasksResource,
@@ -14,34 +14,33 @@ const TasksList = ({
   const [showDelete, setShowDelete] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
 
-  const fetchPage = useCallback(async (page, size) => {
-    return taskService.fetchTasksPage(page, size, searchTerm);
-  }, [searchTerm]);
+  const fetchPage = useCallback(
+    async (page, size) => taskService.fetchTasksPage(page, size, searchTerm),
+    [searchTerm]
+  );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [tasksResource, searchTerm]);
+  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
+    tasksResource,
+    searchTerm,
+  ]);
 
   const deleteTask = async () => {
     try {
-      if (idToDelete) {
-        await taskService.deleteTask(idToDelete);
-        taskService.invalidateTasksCache();
-        setIdToDelete(null);
-        refreshTasks();
-        successToast("Task deleted successfully");
-      } else {
+      if (!idToDelete) {
         errorToast("Error: No task selected");
+        return;
       }
+
+      await taskService.deleteTask(idToDelete);
+      taskService.invalidateTasksCache();
+      setIdToDelete(null);
+      refreshTasks();
+      successToast("Task deleted successfully");
     } catch (error) {
       errorToast("Error: " + error.message);
     }
   };
 
-  const confirmDeleteTask = (id) => {
-    setIdToDelete(id);
-    setShowDelete(true);
-  };
-
-  // Function to get the priority badge color
   const getPriorityBadgeVariant = (priority) => {
     if (!priority || priority === "<None>") return "secondary";
     switch (priority.toLowerCase()) {
@@ -60,10 +59,8 @@ const TasksList = ({
     }
   };
 
-  // Function to get the status badge color
   const getStatusBadgeVariant = (status) => {
     if (!status) return "secondary";
-
     switch (status.toLowerCase()) {
       case "completed":
         return "success";
@@ -80,115 +77,55 @@ const TasksList = ({
     }
   };
 
-  // Component for empty state
-  const EmptyState = () => (
-    <Card className="text-center shadow-sm py-5">
-      <Card.Body>
-        <div className="mb-4">
-          <i
-            className="bi bi-clipboard text-muted"
-            style={{ fontSize: "2.5rem" }}
-          ></i>
-        </div>
-        <Card.Title>No tasks available</Card.Title>
-        <Card.Text className="text-muted">Please create a new task</Card.Text>
-      </Card.Body>
-    </Card>
-  );
+  if (!data || data.length === 0) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="mb-3 text-body-secondary">
+            <i className="bi bi-clipboard fs-1"></i>
+          </div>
+          <Card.Title>No tasks available</Card.Title>
+          <Card.Text className="text-body-secondary">Create your first task to get started.</Card.Text>
+        </Card.Body>
+      </Card>
+    );
+  }
 
-  return !data || data.length === 0 ? (
-    <EmptyState />
-  ) : (
-    <div className="task-list">
+  return (
+    <div className="d-grid gap-3">
       {data.map((task) => (
-        <Card key={task.id} className="mb-3 shadow-sm task-card">
-          <Card.Body>
-            <Row className="align-items-center">
-              <Col md={8}>
-                <div className="d-flex align-items-center mb-2">
-                  <h5
-                    className="mb-0 me-2 text-truncate"
-                    style={{ maxWidth: "calc(100% - 100px)" }}
-                  >
-                    {task.nameOfTask}
-                  </h5>
-                  <Badge
-                    bg={getStatusBadgeVariant(task.state)}
-                    className="ms-auto ms-md-2 flex-shrink-0"
-                    pill
-                  >
+        <Card key={task.id} className="item-card border-0 shadow-sm rounded-4">
+          <Card.Body className="p-3 p-lg-4">
+            <Row className="g-3 align-items-start">
+              <Col lg={8}>
+                <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <h5 className="mb-0 fw-semibold me-1 text-break">{task.nameOfTask}</h5>
+                  <Badge bg={getStatusBadgeVariant(task.state)} pill>
                     {task.state}
                   </Badge>
-                </div>
-                <Card.Text className="text-muted mb-3 text-truncate">
-                  {task.descriptionOfTask ? (
-                    task.descriptionOfTask
-                  ) : (
-                    <span className="text-muted fst-italic">
-                      No description
-                    </span>
-                  )}
-                </Card.Text>
-                <div className="d-flex align-items-center">
-                  <Badge
-                    bg={getPriorityBadgeVariant(task.priority)}
-                    className="me-2 px-3 py-2"
-                  >
+                  <Badge bg={getPriorityBadgeVariant(task.priority)} pill>
                     {task.priority}
                   </Badge>
-                  <div className="d-flex d-md-none mt-2 ms-auto">
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleOpenTask(task.id)}
-                      style={{ minWidth: "44px", minHeight: "44px" }}
-                    >
-                      <i className="bi bi-eye"></i>
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleEditTask(task)}
-                      style={{ minWidth: "44px", minHeight: "44px" }}
-                    >
-                      <i className="bi bi-pencil"></i>
-                    </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => confirmDeleteTask(task.id)}
-                      style={{ minWidth: "44px", minHeight: "44px" }}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </Button>
-                  </div>
                 </div>
+                <p className="text-body-secondary mb-0">
+                  {task.descriptionOfTask || <span className="fst-italic">No description</span>}
+                </p>
               </Col>
-              <Col md={4} className="d-none d-md-block">
-                <div className="d-flex justify-content-end">
-                  <Button
-                    variant="outline-secondary"
-                    className="me-2"
-                    onClick={() => handleOpenTask(task.id)}
-                  >
-                    <i className="bi bi-eye me-1"></i>
+              <Col lg={4}>
+                <div className="d-flex flex-wrap justify-content-lg-end gap-2">
+                  <Button variant="light" className="rounded-pill px-3 border" onClick={() => handleOpenTask(task.id)}>
+                    <i className="bi bi-eye me-2"></i>
                     View
                   </Button>
-                  <Button
-                    variant="outline-primary"
-                    className="me-2"
-                    onClick={() => handleEditTask(task)}
-                  >
-                    <i className="bi bi-pencil me-1"></i>
+                  <Button variant="outline-primary" className="rounded-pill px-3" onClick={() => handleEditTask(task)}>
+                    <i className="bi bi-pencil me-2"></i>
                     Edit
                   </Button>
-                  <Button
-                    variant="outline-danger"
-                    onClick={() => confirmDeleteTask(task.id)}
-                  >
-                    <i className="bi bi-trash me-1"></i>
+                  <Button variant="outline-danger" className="rounded-pill px-3" onClick={() => {
+                    setIdToDelete(task.id);
+                    setShowDelete(true);
+                  }}>
+                    <i className="bi bi-trash me-2"></i>
                     Delete
                   </Button>
                 </div>
@@ -200,23 +137,17 @@ const TasksList = ({
 
       <LoadMoreSpinner />
 
-      {/* Delete confirmation modal */}
-      <Modal
-        show={showDelete}
-        onHide={() => setShowDelete(false)}
-        centered
-        backdrop="static"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered backdrop="static" contentClassName="border-0 shadow-sm rounded-4">
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title>Confirm deletion</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this task? This action cannot be
-          undone.
+        <Modal.Body className="pt-2 text-body-secondary">
+          Are you sure you want to delete this task? This action cannot be undone.
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="border-0">
           <Button
             variant="outline-secondary"
+            className="rounded-pill px-4"
             onClick={() => {
               setShowDelete(false);
               setIdToDelete(null);
@@ -226,6 +157,7 @@ const TasksList = ({
           </Button>
           <Button
             variant="danger"
+            className="rounded-pill px-4"
             onClick={() => {
               setShowDelete(false);
               deleteTask();

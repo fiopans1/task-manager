@@ -1,24 +1,15 @@
 import { Col, Container, Row } from "react-bootstrap";
-import SidebarMenu from "../components/Sidebar/SidebarMenu";
 import { Outlet } from "react-router-dom";
+import SidebarMenu from "../components/Sidebar/SidebarMenu";
 import SessionManager from "../components/session/SessionManager";
 import SystemMessageModal from "../components/common/SystemMessageModal";
+
 const MainApp = ({ onLogOut }) => {
   return (
-    <Container
-      fluid
-      className="main-app-container"
-      style={{ margin: 0, padding: 0, overflow: "hidden", height: "100vh" }}
-    >
-      <Row
-        className="main-app-row"
-        style={{ margin: 0, padding: 0, height: "100vh" }}
-      >
-        <SidebarMenu onLogOut={onLogOut} /> {/*This component have a column*/}
-        <Col
-          className="p-0 outlet-col"
-          style={{ height: "100vh", overflow: "auto" }}
-        >
+    <Container fluid className="bg-body-tertiary px-0" style={{ minHeight: "100vh" }}>
+      <Row className="g-0 flex-nowrap" style={{ minHeight: "100vh" }}>
+        <SidebarMenu onLogOut={onLogOut} />
+        <Col className="outlet-col bg-body-tertiary" style={{ minHeight: "100vh", overflowY: "auto" }}>
           <Outlet />
         </Col>
       </Row>
