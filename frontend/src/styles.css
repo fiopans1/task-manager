@@ -432,11 +432,29 @@ html[data-bs-theme="dark"] body {
   .outlet-col {
     height: auto;
     min-height: 100vh;
-    min-height: 100svh;
-    min-height: 100dvh;
   }
 
   .outlet-col {
     overflow: visible;
+  }
+}
+
+@supports (height: 100svh) {
+  @media (max-width: 767.98px) {
+    .main-app-container,
+    .main-app-row,
+    .outlet-col {
+      min-height: 100svh;
+    }
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 767.98px) {
+    .main-app-container,
+    .main-app-row,
+    .outlet-col {
+      min-height: 100dvh;
+    }
   }
 }
