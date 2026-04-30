@@ -21,6 +21,7 @@ import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
 
 const appLogo = `${process.env.PUBLIC_URL}/favicon.png`;
+const fallbackAppLogo = `${process.env.PUBLIC_URL}/favicon.ico`;
 
 const NAVIGATION_ITEMS = [
   {
@@ -139,6 +140,15 @@ function SidebarMenu({ onLogOut }) {
     }
   };
 
+  const handleLogoError = (event) => {
+    if (event.currentTarget.dataset.fallbackApplied === "true") {
+      return;
+    }
+
+    event.currentTarget.dataset.fallbackApplied = "true";
+    event.currentTarget.src = fallbackAppLogo;
+  };
+
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
 
@@ -161,6 +171,7 @@ function SidebarMenu({ onLogOut }) {
                 className="sidebar-brand-logo"
                 width={sidebarLogoSize}
                 height={sidebarLogoSize}
+                onError={handleLogoError}
               />
               {!effectiveCollapsed && (
                 <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
@@ -283,6 +294,7 @@ function SidebarMenu({ onLogOut }) {
               className="sidebar-brand-logo"
               width={topbarLogoSize}
               height={topbarLogoSize}
+              onError={handleLogoError}
             />
             <span>{configService.getAppName()}</span>
           </div>
