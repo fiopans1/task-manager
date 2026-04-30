@@ -302,7 +302,7 @@ function SidebarMenu({ onLogOut }) {
   return (
     <>
       <Col
-        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 vh-100 ${collapsed ? "collapsed" : ""}`}
+        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 ${collapsed ? "collapsed" : ""}`}
         xs="auto"
       >
         {renderSidebarContent()}

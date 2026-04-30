@@ -124,6 +124,7 @@ body {
   background-color: var(--bs-secondary-bg);
   transition: width 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
   color: var(--bs-emphasis-color);
+  height: 100vh;
   overflow-y: auto;
   z-index: 1020;
 }
