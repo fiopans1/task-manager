@@ -44,6 +44,9 @@ public class WebSecurityConfig {
     @Value("${taskmanager.oauth2.enabled:true}")
     private boolean oAuth2IsEnabled;
 
+    @Value("${taskmanager.auth.password-strength:12}")
+    private int passwordStrength;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring security filter chain");
@@ -87,7 +90,7 @@ public class WebSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+        return new BCryptPasswordEncoder(passwordStrength);
     }
 
 }

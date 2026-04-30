@@ -26,6 +26,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -104,7 +105,8 @@ public class JWTUtilityService {
     }
 
     public long getSessionDurationSeconds() {
-        return Math.max(1, sessionDurationMs / 1000);
+        long durationSeconds = TimeUnit.MILLISECONDS.toSeconds(sessionDurationMs);
+        return durationSeconds > 0 ? durationSeconds : 1;
     }
 
     public JWTClaimsSet parseJWT(String jwt) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException, ParseException {

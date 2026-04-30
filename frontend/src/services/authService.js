@@ -1,11 +1,7 @@
-import axios from "axios";
+import axios from "./httpClient";
 import store from "../redux/store";
 import { setSession, clearSession } from "../redux/slices/authSlice";
 import configService from "./configService";
-
-axios.defaults.withCredentials = true;
-axios.defaults.xsrfCookieName = "XSRF-TOKEN";
-axios.defaults.xsrfHeaderName = "X-XSRF-TOKEN";
 
 const applySession = (session) => {
   store.dispatch(setSession(session));

@@ -71,6 +71,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException | JOSEException
                 | ParseException e) {
             logger.warn("JWT validation failed: {}", e.getMessage());
+            // Clear any partially populated authentication so protected endpoints
+            // fall back to the standard 401 flow instead of using stale context.
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);

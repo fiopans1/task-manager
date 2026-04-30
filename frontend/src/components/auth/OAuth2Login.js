@@ -31,7 +31,6 @@ function OAuth2Login({ onLogin }) {
         await authService.loadSession();
         onLogin();
       } catch (error) {
-        // Waiting for user interaction or redirect completion.
       }
     };
 

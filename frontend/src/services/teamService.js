@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./httpClient";
 import configService from "./configService";
 
 const resourceCache = new Map();
