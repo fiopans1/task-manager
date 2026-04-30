@@ -53,6 +53,10 @@ const NAVIGATION_ITEMS = [
   },
 ];
 
+const APP_LOGO_SRC = `${process.env.PUBLIC_URL}/logo192.png`;
+const SIDEBAR_LOGO_SIZE = 32;
+const TOPBAR_LOGO_SIZE = 28;
+
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -151,11 +155,11 @@ function SidebarMenu({ onLogOut }) {
               }`}
             >
               <img
-                src={`${process.env.PUBLIC_URL}/logo192.png`}
+                src={APP_LOGO_SRC}
                 alt={configService.getAppName()}
                 className="sidebar-brand-logo"
-                width="32"
-                height="32"
+                width={SIDEBAR_LOGO_SIZE}
+                height={SIDEBAR_LOGO_SIZE}
               />
               {!effectiveCollapsed && (
                 <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
@@ -274,11 +278,11 @@ function SidebarMenu({ onLogOut }) {
           </Button>
           <div className="d-flex align-items-center gap-2 fw-semibold">
             <img
-              src={`${process.env.PUBLIC_URL}/logo192.png`}
+              src={APP_LOGO_SRC}
               alt={configService.getAppName()}
               className="sidebar-brand-logo"
-              width="28"
-              height="28"
+              width={TOPBAR_LOGO_SIZE}
+              height={TOPBAR_LOGO_SIZE}
             />
             <span>{configService.getAppName()}</span>
           </div>
@@ -307,7 +311,7 @@ function SidebarMenu({ onLogOut }) {
     <>
       <Col
         id="desktop-sidebar"
-        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky position-relative top-0 ${collapsed ? "collapsed" : ""}`}
+        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 ${collapsed ? "collapsed" : ""}`}
         xs="auto"
       >
         <Button
