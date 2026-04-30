@@ -164,6 +164,7 @@ function SidebarMenu({ onLogOut }) {
                 onClick={() => setCollapsed((prev) => !prev)}
                 aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 aria-expanded={!effectiveCollapsed}
+                aria-controls="desktop-sidebar"
               >
                 <i className={`bi ${effectiveCollapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
               </Button>
@@ -303,6 +304,7 @@ function SidebarMenu({ onLogOut }) {
   return (
     <>
       <Col
+        id="desktop-sidebar"
         className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 ${collapsed ? "collapsed" : ""}`}
         xs="auto"
       >
