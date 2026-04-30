@@ -11,7 +11,6 @@ const MainApp = ({ onLogOut }) => {
         <SidebarMenu onLogOut={onLogOut} />
         <Col
           className="outlet-col bg-body-tertiary p-0"
-          style={{ height: "100vh", overflow: "auto" }}
         >
           <div className="mobile-topbar-spacer d-md-none" aria-hidden="true"></div>
           <Outlet />

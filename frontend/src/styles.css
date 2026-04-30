@@ -12,6 +12,11 @@ body {
 .main-app-container,
 .main-app-row {
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 .main-app-container {
@@ -127,6 +132,11 @@ body {
   transition: width 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
   color: var(--bs-emphasis-color);
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   overflow: visible;
   z-index: 1020;
 }
@@ -135,6 +145,10 @@ body {
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.sidebar-shell.collapsed .sidebar-content {
+  overflow-x: visible;
 }
 
 .sidebar-shell.collapsed {
@@ -242,6 +256,14 @@ body {
 
 .outlet-col {
   min-width: 0;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow: auto;
+  background-color: var(--bs-tertiary-bg);
 }
 
 .mobile-topbar-spacer {
@@ -403,5 +425,14 @@ html[data-bs-theme="dark"] body {
 
   .topbar-shell {
     height: var(--mobile-topbar-height) !important;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .main-app-container,
+  .main-app-row,
+  .sidebar-shell,
+  .outlet-col {
+    min-height: -webkit-fill-available;
   }
 }
