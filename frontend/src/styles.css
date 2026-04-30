@@ -149,19 +149,6 @@ body {
   max-width: 88px;
 }
 
-.sidebar-shell.collapsed .sidebar-brand-button {
-  width: 100%;
-  justify-content: center;
-}
-
-.sidebar-shell.collapsed .sidebar-brand-row {
-  justify-content: center;
-}
-
-.sidebar-shell.collapsed .sidebar-brand-logo {
-  margin-inline: auto;
-}
-
 .sidebar-nav-link {
   border-radius: 1rem;
   padding: 0.85rem 1rem;
@@ -207,19 +194,6 @@ body {
   background-color: var(--bs-secondary-bg) !important;
   border-color: var(--bs-secondary) !important;
   color: var(--bs-white) !important;
-}
-
-.sidebar-brand-button {
-  color: var(--bs-emphasis-color) !important;
-}
-
-.sidebar-brand-button:hover {
-  color: var(--bs-emphasis-color) !important;
-}
-
-.sidebar-brand-logo {
-  flex-shrink: 0;
-  object-fit: contain;
 }
 
 .sidebar-user-toggle {

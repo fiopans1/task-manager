@@ -3,11 +3,15 @@ import {
   Badge,
   Button,
   Col,
+  Container,
   Dropdown,
   Form,
+  Image,
   Nav,
+  Navbar,
   NavLink,
   Offcanvas,
+  Stack,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -153,27 +157,34 @@ function SidebarMenu({ onLogOut }) {
     const effectiveCollapsed = isMobile ? false : collapsed;
 
     return (
-      <div className="sidebar-content d-flex flex-column justify-content-between h-100">
-        <div className="p-3 d-flex flex-column gap-3">
-          <div className="sidebar-brand-row d-flex align-items-center">
-            <Button
-              as={Link}
-              to="/home"
-              variant="link"
-              onClick={handleHomeClick}
-              className="sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0"
+        <div className="sidebar-content d-flex flex-column justify-content-between h-100">
+          <div className="p-3 d-flex flex-column gap-3">
+            <div
+              className={`d-flex align-items-center ${
+                effectiveCollapsed ? "justify-content-center" : ""
+              }`}
             >
-              <img
-                src={appLogo}
-                alt={configService.getAppName()}
-                className="sidebar-brand-logo"
-                width={sidebarLogoSize}
-                height={sidebarLogoSize}
-                onError={handleLogoError}
-              />
-              {!effectiveCollapsed && (
-                <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
-              )}
+              <Button
+                as={Link}
+                to="/home"
+                variant="link"
+                onClick={handleHomeClick}
+                className={`text-body-emphasis text-decoration-none d-flex align-items-center gap-2 px-0 border-0 ${
+                  effectiveCollapsed ? "w-100 justify-content-center" : ""
+                }`}
+              >
+                <Image
+                  src={appLogo}
+                  alt={configService.getAppName()}
+                  className={`flex-shrink-0 ${effectiveCollapsed ? "mx-auto" : ""}`}
+                  width={sidebarLogoSize}
+                  height={sidebarLogoSize}
+                  style={{ objectFit: "contain" }}
+                  onError={handleLogoError}
+                />
+                {!effectiveCollapsed && (
+                  <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
+                )}
             </Button>
           </div>
 
@@ -209,16 +220,19 @@ function SidebarMenu({ onLogOut }) {
                 container="body"
                 popperConfig={{ strategy: "fixed" }}
               >
-                <Dropdown.Toggle as="div" bsPrefix="custom-toggle" className="cursor-pointer">
-                  <div className="sidebar-nav-link d-flex align-items-center gap-3">
-                    <i className="bi bi-question-circle fs-5"></i>
-                    {!effectiveCollapsed && (
-                      <>
-                        <span className="fw-medium">Help</span>
-                        <i className="bi bi-chevron-down ms-auto small"></i>
-                      </>
-                    )}
-                  </div>
+                <Dropdown.Toggle
+                  variant="link"
+                  className={`sidebar-nav-link no-caret w-100 text-start text-body-emphasis text-decoration-none border-0 shadow-none d-flex align-items-center gap-3 ${
+                    effectiveCollapsed ? "justify-content-center" : ""
+                  }`}
+                >
+                  <i className="bi bi-question-circle fs-5"></i>
+                  {!effectiveCollapsed && (
+                    <>
+                      <span className="fw-medium">Help</span>
+                      <i className="bi bi-chevron-down ms-auto small"></i>
+                    </>
+                  )}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
                   <Dropdown.Item onClick={() => setShowAbout(true)}>
@@ -245,19 +259,22 @@ function SidebarMenu({ onLogOut }) {
                 effectiveCollapsed ? "justify-content-center px-0" : "justify-content-between"
               }`}
             >
-              <div className="d-flex align-items-center gap-2 text-start">
-                <span className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body-tertiary" style={{ width: 36, height: 36 }}>
+              <Stack direction="horizontal" gap={2} className="text-start">
+                <span
+                  className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body-tertiary flex-shrink-0"
+                  style={{ width: 36, height: 36 }}
+                >
                   <i className="bi bi-person"></i>
                 </span>
                 {!effectiveCollapsed && (
-                  <div className="d-flex flex-column">
+                  <Stack gap={0}>
                     <span className="fw-medium text-truncate" style={{ maxWidth: 130 }}>
                       {authService.getUsername()}
                     </span>
                     <small className="text-body-secondary">Account</small>
-                  </div>
+                  </Stack>
                 )}
-              </div>
+              </Stack>
               {!effectiveCollapsed && <i className="bi bi-chevron-up small"></i>}
             </Dropdown.Toggle>
             <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
@@ -290,23 +307,33 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3">
-          <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
-            <i className="bi bi-list fs-4"></i>
-          </Button>
-          <div className="d-flex align-items-center gap-2 fw-semibold">
-            <img
-              src={appLogo}
-              alt={configService.getAppName()}
-              className="sidebar-brand-logo"
-              width={topbarLogoSize}
-              height={topbarLogoSize}
-              onError={handleLogoError}
-            />
-            <span>{configService.getAppName()}</span>
-          </div>
-          <div style={{ width: 44 }}></div>
-        </div>
+        <Navbar fixed="top" className="topbar-shell border-bottom px-3">
+          <Container fluid className="px-0">
+            <Button
+              variant="light"
+              className="rounded-circle border-0 shadow-sm p-0 d-inline-flex align-items-center justify-content-center"
+              style={{ width: 44, height: 44 }}
+              onClick={() => setShowMobileMenu(true)}
+              aria-controls="sidebar-menu"
+            >
+              <i className="bi bi-list fs-4"></i>
+            </Button>
+            <Navbar.Brand className="mx-0 text-body-emphasis fw-semibold">
+              <Stack direction="horizontal" gap={2} className="align-items-center">
+                <Image
+                  src={appLogo}
+                  alt={configService.getAppName()}
+                  width={topbarLogoSize}
+                  height={topbarLogoSize}
+                  style={{ objectFit: "contain" }}
+                  onError={handleLogoError}
+                />
+                <span>{configService.getAppName()}</span>
+              </Stack>
+            </Navbar.Brand>
+            <span aria-hidden="true" className="d-block" style={{ width: 44 }}></span>
+          </Container>
+        </Navbar>
         <Offcanvas
           id="sidebar-menu"
           show={showMobileMenu}
