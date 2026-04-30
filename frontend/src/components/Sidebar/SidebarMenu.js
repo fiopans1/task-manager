@@ -151,24 +151,17 @@ function SidebarMenu({ onLogOut }) {
 
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
-    const brandAlignmentClass = effectiveCollapsed
-      ? "justify-content-center w-100"
-      : "";
 
     return (
       <div className="sidebar-content d-flex flex-column justify-content-between h-100">
         <div className="p-3 d-flex flex-column gap-3">
-          <div
-            className={`d-flex align-items-center ${
-              effectiveCollapsed ? "justify-content-center" : ""
-            }`}
-          >
+          <div className="sidebar-brand-row d-flex align-items-center">
             <Button
               as={Link}
               to="/home"
               variant="link"
               onClick={handleHomeClick}
-              className={`sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0 ${brandAlignmentClass}`}
+              className="sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0"
             >
               <img
                 src={appLogo}

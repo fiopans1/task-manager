@@ -148,6 +148,10 @@ body {
   justify-content: center;
 }
 
+.sidebar-shell.collapsed .sidebar-brand-row {
+  justify-content: center;
+}
+
 .sidebar-shell.collapsed .sidebar-brand-logo {
   margin-inline: auto;
 }
