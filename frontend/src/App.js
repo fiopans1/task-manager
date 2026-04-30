@@ -16,7 +16,7 @@ import Home from "./components/Home";
 import OAuth2Login from "./components/auth/OAuth2Login";
 import AdminPanel from "./components/adminpanel/AdminPanel";
 import FeatureGuard from "./components/common/FeatureGuard";
-import { infoToast, errorToast, successToast } from "./components/common/Noty";
+import { infoToast, errorToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
 import TeamDashboard from "./components/teams/TeamDashboard";
@@ -27,43 +27,25 @@ function App() {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // 1. Check for OAuth2 token in URL
-        const oauth2Token = authService.checkForOAuth2Token();
-        if (oauth2Token) {
-          setIsAuthenticated(true);
-          successToast("Login successfully with OAuth2");
-          navigate("/home", { replace: true });
-          return;
-        }
-
-        // 2. Check existing token
-        const existingToken = authService.getToken();
-        if (existingToken) {
-          // Validate token is not expired
-          if (authService.isTokenValid()) {
-            setIsAuthenticated(true);
-          } else {
-            // Token expired - clear it and redirect to login
-            authService.logout();
-            setIsAuthenticated(false);
-            infoToast("Your session has expired. Please log in again.");
-          }
-        }
+        await authService.loadSession();
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error("Error during auth initialization:", error);
-        errorToast(error.message || "Authentication error occurred");
-
-        authService.logout();
+        authService.resetSession();
         setIsAuthenticated(false);
+
+        if (error.response && error.response.status !== 401) {
+          console.error("Error during auth initialization:", error);
+          errorToast(error.message || "Authentication error occurred");
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
-  }, [navigate]);
+  }, []);
 
-  const handleLogin = (token) => {
+  const handleLogin = () => {
     setIsAuthenticated(true);
     navigate("/home");
   };
@@ -100,17 +82,31 @@ function App() {
           )
         }
       />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-      <Route 
-        path="/oauth2-login" 
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to="/home" replace /> : <RegisterPage />
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/home" replace />
+          ) : (
+            <LoginPage onLogin={handleLogin} />
+          )
+        }
+      />
+      <Route
+        path="/oauth2-login"
         element={
           isAuthenticated ? (
             <Navigate to="/home" replace />
           ) : (
             <OAuth2Login onLogin={handleLogin} />
           )
-        } 
+        }
       />
       <Route
         path="/home"

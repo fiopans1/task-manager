@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import authService from "../../services/authService";
 import { Container, Button, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { successToast, errorToast } from "../common/Noty";
+import { errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
 
@@ -10,31 +10,32 @@ function OAuth2Login({ onLogin }) {
   const [oauth2Loading, setOauth2Loading] = useState("");
 
   useEffect(() => {
-    const checkOAuth2Token = async () => {
+    const checkOAuth2Status = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const message = urlParams.get("message");
+
+      if (code && message) {
+        errorToast(
+          "OAuth2 login failed with code: " +
+            code +
+            " and message: " +
+            message
+        );
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        return;
+      }
+
       try {
-        const oauth2Token = authService.checkForOAuth2Token();
-        if (oauth2Token) {
-          successToast("Login successfully with OAuth2");
-          onLogin(oauth2Token);
-        } else {
-          const urlParams = new URLSearchParams(window.location.search);
-          const code = urlParams.get("code");
-          const message = urlParams.get("message");
-          if (code && message) {
-            errorToast(
-              "OAuth2 login failed with code: " +
-                code +
-                " and message: " +
-                message
-            );
-          }
-        }
+        await authService.loadSession();
+        onLogin();
       } catch (error) {
-        errorToast("Error OAuth2: " + error.message);
+        // Waiting for user interaction or redirect completion.
       }
     };
 
-    checkOAuth2Token();
+    checkOAuth2Status();
   }, [onLogin]);
 
   const handleOAuth2Login = (provider) => {

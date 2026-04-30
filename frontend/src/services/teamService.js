@@ -1,13 +1,12 @@
 import axios from "axios";
-import store from "../redux/store";
 import configService from "./configService";
 
 const resourceCache = new Map();
-
-const getAuthHeaders = () => ({
+const JSON_HEADERS = {
   "Content-Type": "application/json",
-  Authorization: "Bearer " + store.getState().auth.token,
-});
+};
+
+const getAuthHeaders = () => JSON_HEADERS;
 
 const getBaseUrl = () => configService.getApiBaseUrl() + "/api/teams";
 
@@ -41,8 +40,6 @@ const invalidateTeamsCache = (key = "teams") => {
   resourceCache.delete(key);
 };
 
-// ===== TEAM CRUD =====
-
 const createTeam = async (team) => {
   const response = await axios.post(getBaseUrl() + "/create", team, {
     headers: getAuthHeaders(),
@@ -61,30 +58,22 @@ const getMyTeams = async () => {
 const getTeams = () => {
   const cacheKey = "teams";
 
-  // If already in cache, return cached resource
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
-  const token = "Bearer " + store.getState().auth.token;
   const baseUrl = getBaseUrl();
-  if (!baseUrl || !token) {
-    console.error("Server URL or token not found", { baseUrl, token });
+  if (!baseUrl) {
+    console.error("Server URL not found", { baseUrl });
     return getSuspender(
-      Promise.reject(
-        new Error("Missing server configuration or authentication")
-      )
+      Promise.reject(new Error("Missing server configuration"))
     );
   }
   const promise = axios
     .get(baseUrl + "/my-teams", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: getAuthHeaders(),
     })
     .then((response) => response.data)
     .catch((error) => {
-      // In case of error, invalidate cache to allow retries
       invalidateTeamsCache();
       throw error;
     });
@@ -115,8 +104,6 @@ const deleteTeam = async (teamId) => {
   invalidateTeamsCache();
   return response.data;
 };
-
-// ===== MEMBER MANAGEMENT =====
 
 const addMember = async (teamId, username, role) => {
   const response = await axios.post(
@@ -153,8 +140,6 @@ const updateMemberRole = async (teamId, memberId, role) => {
   return response.data;
 };
 
-// ===== TASK ASSIGNMENT =====
-
 const assignTask = async (teamId, taskId, username) => {
   const response = await axios.post(
     getBaseUrl() + "/" + teamId + "/tasks/" + taskId + "/assign",
@@ -173,8 +158,6 @@ const addTaskToTeam = async (teamId, taskId) => {
   return response.data;
 };
 
-// ===== DASHBOARD =====
-
 const getTeamDashboard = async (teamId) => {
   const response = await axios.get(
     getBaseUrl() + "/" + teamId + "/dashboard",
@@ -182,8 +165,6 @@ const getTeamDashboard = async (teamId) => {
   );
   return response.data;
 };
-
-// ===== FILTERED TASKS =====
 
 const getTeamTasks = async (teamId, filters = {}) => {
   const params = new URLSearchParams();
@@ -198,8 +179,6 @@ const getTeamTasks = async (teamId, filters = {}) => {
   return response.data;
 };
 
-// ===== ASSIGNMENT HISTORY =====
-
 const getAssignmentHistory = async (teamId) => {
   const response = await axios.get(
     getBaseUrl() + "/" + teamId + "/assignment-history",
@@ -207,8 +186,6 @@ const getAssignmentHistory = async (teamId) => {
   );
   return response.data;
 };
-
-// ===== INVITATIONS =====
 
 const createInvitation = async (teamId, username) => {
   const response = await axios.post(
@@ -252,8 +229,6 @@ const respondToInvitation = async (token, accept) => {
   return response.data;
 };
 
-// ===== MENTIONS =====
-
 const getMembersForMention = async (teamId) => {
   const response = await axios.get(
     getBaseUrl() + "/" + teamId + "/members/mentions",
@@ -262,8 +237,6 @@ const getMembersForMention = async (teamId) => {
   return response.data;
 };
 
-// ===== ADMIN CHECK =====
-
 const isCurrentUserAdmin = async (teamId) => {
   const response = await axios.get(
     getBaseUrl() + "/" + teamId + "/is-admin",
@@ -271,8 +244,6 @@ const isCurrentUserAdmin = async (teamId) => {
   );
   return response.data.isAdmin;
 };
-
-// ===== PAGINATED FETCHERS =====
 
 const fetchTeamsPage = async (page = 0, size = 50, search = "") => {
   const params = { page, size };

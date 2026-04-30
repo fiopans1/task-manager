@@ -1,17 +1,15 @@
 import axios from "axios";
-import store from "../redux/store";
 import configService from "./configService";
 const resourceCache = new Map();
+const JSON_HEADERS = {
+  "Content-Type": "application/json",
+};
 
 const createTask = async (task) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/create", task, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: JSON_HEADERS,
     });
     invalidateTasksCache();
     return response.data;
@@ -22,12 +20,8 @@ const createTask = async (task) => {
 const editTask = async (task) => {
   try {
     const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
     const response = await axios.post(serverUrl + "/api/tasks/update/" + task.id, task, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: JSON_HEADERS,
     });
     invalidateTasksCache();
     return response.data;
@@ -69,30 +63,22 @@ const invalidateTasksCache = (key = "tasks") => {
 const getTasks = () => {
   const cacheKey = "tasks";
 
-  // If already in cache, return cached resource
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  if (!serverUrl || !token) {
-    console.error("Server URL or token not found", { serverUrl, token });
+  if (!serverUrl) {
+    console.error("Server URL not found", { serverUrl });
     return getSuspender(
-      Promise.reject(
-        new Error("Missing server configuration or authentication")
-      )
+      Promise.reject(new Error("Missing server configuration"))
     );
   }
   const promise = axios
     .get(serverUrl + "/api/tasks/tasks", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: JSON_HEADERS,
     })
     .then((response) => response.data)
     .catch((error) => {
-      // In case of error, invalidate cache to allow retries
       invalidateTasksCache();
       throw error;
     });
@@ -103,91 +89,59 @@ const getTasks = () => {
 
 const deleteTask = (id) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.delete(serverUrl + "/api/tasks/delete/" + id, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const getEvents = () => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/events/get", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const getTaskById = (id) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/" + id, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const createActionTask = (id, action) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.post(serverUrl + "/api/tasks/" + id + "/actions", action, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const deleteActionTask = (taskId, actionId) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.delete(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const updateActionTask = (taskId, actionId, action) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.put(serverUrl + "/api/tasks/" + taskId + "/actions/" + actionId, action, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const getActionsTask = (taskId) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   return axios.get(serverUrl + "/api/tasks/" + taskId + "/actions", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   }).then((response) => response.data);
 };
 
 const fetchTasksPage = async (page = 0, size = 50, search = "") => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   const params = { page, size };
   if (search) params.search = search;
   const response = await axios.get(serverUrl + "/api/tasks/tasks/paged", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
     params,
   });
   return response.data;
@@ -195,12 +149,8 @@ const fetchTasksPage = async (page = 0, size = 50, search = "") => {
 
 const fetchActionsPage = async (taskId, page = 0, size = 50) => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   const response = await axios.get(serverUrl + "/api/tasks/" + taskId + "/actions/paged", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
     params: { page, size },
   });
   return response.data;
@@ -208,12 +158,8 @@ const fetchActionsPage = async (taskId, page = 0, size = 50) => {
 
 const getAllTasks = async () => {
   const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
   const response = await axios.get(serverUrl + "/api/tasks/tasks", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
+    headers: JSON_HEADERS,
   });
   return response.data;
 };
@@ -221,14 +167,10 @@ const getAllTasks = async () => {
 const getTasksWithoutList = async () => {
   try {
     const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
     const response = await axios.get(
       serverUrl + "/api/tasks/getTasksResumeWithoutList",
       {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
+        headers: JSON_HEADERS,
       }
     );
     return response.data;

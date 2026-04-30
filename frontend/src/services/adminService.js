@@ -1,13 +1,12 @@
 import axios from "axios";
-import store from "../redux/store";
 import configService from "./configService";
 
 const resourceCache = new Map();
-
-const getAuthHeaders = () => ({
+const JSON_HEADERS = {
   "Content-Type": "application/json",
-  Authorization: "Bearer " + store.getState().auth.token,
-});
+};
+
+const getAuthHeaders = () => JSON_HEADERS;
 
 const getBaseUrl = () => configService.getApiBaseUrl();
 
@@ -38,15 +37,12 @@ function getSuspender(promise) {
 }
 
 const invalidateUserSearchCache = () => {
-  // Clear all user search cache entries
   for (const key of resourceCache.keys()) {
     if (key.startsWith("userSearch:")) {
       resourceCache.delete(key);
     }
   }
 };
-
-// ===== USER MANAGEMENT =====
 
 const searchUsers = async (query = "") => {
   const response = await axios.get(getBaseUrl() + "/api/admin/users", {
@@ -62,19 +58,15 @@ const searchUsersSuspense = (query = "") => {
   if (resourceCache.has(cacheKey)) {
     return resourceCache.get(cacheKey);
   }
-  const token = "Bearer " + store.getState().auth.token;
   const baseUrl = getBaseUrl();
-  if (!baseUrl || !token) {
+  if (!baseUrl) {
     return getSuspender(
-      Promise.reject(new Error("Missing server configuration or authentication"))
+      Promise.reject(new Error("Missing server configuration"))
     );
   }
   const promise = axios
     .get(baseUrl + "/api/admin/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: getAuthHeaders(),
       params: query ? { query } : {},
     })
     .then((response) => response.data)
@@ -103,8 +95,6 @@ const toggleUserBlock = async (userId) => {
   return response.data;
 };
 
-// ===== USER RESOURCES (using existing controllers with admin role) =====
-
 const getUserTasks = async (userId) => {
   const response = await axios.get(
     getBaseUrl() + `/api/tasks/user/${userId}`,
@@ -128,8 +118,6 @@ const getUserTeams = async (userId) => {
   );
   return response.data;
 };
-
-// ===== PAGINATED FETCHERS =====
 
 const fetchUserSearchPage = async (query = "", page = 0, size = 50) => {
   const params = { page, size };
@@ -165,8 +153,6 @@ const fetchUserTeamsPage = async (userId, page = 0, size = 50) => {
   return response.data;
 };
 
-// ===== FEATURE FLAGS =====
-
 const getFeatureFlags = async () => {
   const response = await axios.get(getBaseUrl() + "/api/admin/features", {
     headers: getAuthHeaders(),
@@ -182,8 +168,6 @@ const updateFeatureFlag = async (featureName, enabled) => {
   );
   return response.data;
 };
-
-// ===== SYSTEM MESSAGE =====
 
 const getSystemMessage = async () => {
   const response = await axios.get(getBaseUrl() + "/api/admin/system-message", {
@@ -201,11 +185,9 @@ const updateSystemMessage = async (message, enabled, showBeforeLogin, showAfterL
   return response.data;
 };
 
-// ===== PUBLIC CONFIG (no auth needed) =====
-
 const getPublicConfig = async () => {
   const response = await axios.get(getBaseUrl() + "/api/config", {
-    headers: { "Content-Type": "application/json" },
+    headers: JSON_HEADERS,
   });
   return response.data;
 };

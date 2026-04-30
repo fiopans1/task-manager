@@ -45,6 +45,9 @@ public class JWTUtilityService {
     @Value("${jwtKeys.publicKeyPath}")
     private Resource publicKeyResource;
 
+    @Value("${taskmanager.auth.session-duration-ms:14400000}")
+    private long sessionDurationMs;
+
     private PrivateKey loadPrivateKey(Resource resource) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] keyBytes = Files.readAllBytes(Paths.get(resource.getURI()));
         String privateKeyPEM = new String(keyBytes, StandardCharsets.UTF_8)
@@ -80,11 +83,13 @@ public class JWTUtilityService {
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));
         Date now = new Date();
+        Date expirationTime = calculateExpirationTime(now);
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .claim("roles", roles)
+                .claim("email", user.getEmail())
                 .issueTime(now)
-                .expirationTime(new Date(now.getTime() + 4 * 60 * 60 * 1000))
+                .expirationTime(expirationTime)
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
@@ -92,6 +97,14 @@ public class JWTUtilityService {
 
         logger.info("JWT generated successfully for user: {}", user.getUsername());
         return signedJWT.serialize();
+    }
+
+    public Date calculateExpirationTime(Date issuedAt) {
+        return new Date(issuedAt.getTime() + sessionDurationMs);
+    }
+
+    public long getSessionDurationSeconds() {
+        return Math.max(1, sessionDurationMs / 1000);
     }
 
     public JWTClaimsSet parseJWT(String jwt) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException, ParseException {

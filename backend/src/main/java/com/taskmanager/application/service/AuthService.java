@@ -2,26 +2,29 @@ package com.taskmanager.application.service;
 
 import com.taskmanager.application.model.dto.LoginDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
+import com.taskmanager.application.model.dto.SessionInfoDTO;
 import com.taskmanager.application.model.entities.AuthProvider;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
-import com.taskmanager.application.security.OAuth2LoginFailureHandler;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-
-    @Autowired
-    private JWTUtilityService jwtUtilityService;
 
     @Autowired
     private UserRepository userRepository;
@@ -42,44 +42,30 @@ public class AuthService {
     @Autowired
     private UserValidation userValidation;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional(readOnly = true)
-    public HashMap<String, String> login(LoginDTO login) throws Exception {
+    public User login(LoginDTO login) {
         logger.info("Attempting login for username: {}", login.getUsername());
 
-        try {
-            HashMap<String, String> response = new HashMap<>();
-            Optional<User> user = userRepository.findByUsername(login.getUsername());
-            if (user.isEmpty()) {
-                logger.warn("Login failed: User not registered - {}", login.getUsername());
-                response.put("error", "User not registered!");
-                return response;
-            }
-
-            if (user.get().isBlocked()) {
-                logger.warn("Login failed: User is blocked - {}", login.getUsername());
-                response.put("error", "Your account has been blocked. Contact an administrator.");
-                return response;
-            }
-
-            if (verifyPassword(login.getPassword(), user.get().getPassword())) {
-                logger.info("Login successful for user: {}", login.getUsername());
-                String token = jwtUtilityService.generateJWT(user.get());
-                response.put("token", token);
-                return response;
-            } else {
-                logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
-                response.put("error", "Username or password is incorrect!");
-                return response;
-            }
-        } catch (Exception e) {
-            logger.error("Error during login for user: {} - Error: {}", login.getUsername(), e.getMessage(), e);
-            throw new Exception(e.toString());
+        Optional<User> user = userRepository.findByUsername(login.getUsername());
+        if (user.isEmpty() || !verifyPassword(login.getPassword(), user.get().getPassword())) {
+            logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
+            throw new BadCredentialsException("Username or password is incorrect!");
         }
+
+        if (user.get().isBlocked()) {
+            logger.warn("Login failed: User is blocked - {}", login.getUsername());
+            throw new LockedException("Your account has been blocked. Contact an administrator.");
+        }
+
+        logger.info("Login successful for user: {}", login.getUsername());
+        return user.get();
     }
 
     private boolean verifyPassword(String enteredPassword, String storedPassword) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.matches(enteredPassword, storedPassword);
+        return passwordEncoder.matches(enteredPassword, storedPassword);
     }
 
     @Transactional
@@ -108,8 +94,7 @@ public class AuthService {
                 return response;
             }
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-            user.setPassword(encoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             if (roleService.existsBasicRole()) {
                 user.addRole(roleService.getBasicRole());
             }
@@ -198,5 +183,18 @@ public class AuthService {
         }
         logger.debug("User does not have role: {}", role);
         return false;
+    }
+
+    public SessionInfoDTO buildSessionInfo(User user, Date expirationTime) {
+        List<String> roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return new SessionInfoDTO(
+                user.getUsername(),
+                user.getEmail(),
+                roles,
+                expirationTime.getTime()
+        );
     }
 }

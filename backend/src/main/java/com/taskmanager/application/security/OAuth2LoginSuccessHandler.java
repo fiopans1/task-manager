@@ -1,6 +1,7 @@
 package com.taskmanager.application.security;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.taskmanager.application.model.entities.FullName;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.respository.UserRepository;
 import com.taskmanager.application.service.JWTUtilityService;
@@ -28,6 +28,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
     private JWTUtilityService jwtUtilityService;
+
+    @Autowired
+    private SessionCookieService sessionCookieService;
 
     @Value("${taskmanager.oauth2.authorized-redirect-uris}")
     private String authorizedRedirectUri;
@@ -47,13 +50,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new Exception("User not found: " + userPrincipal.getId()));
 
-            // Generate JWT token
             String token = jwtUtilityService.generateJWT(user);
+            Date expirationTime = jwtUtilityService.parseJWT(token).getExpirationTime();
+            sessionCookieService.addSessionCookie(response, token, jwtUtilityService.getSessionDurationSeconds());
 
-            // Redirect to frontend with token
-            String redirectUrl = buildRedirectUrl(token);
+            String redirectUrl = buildRedirectUrl();
 
-            logger.info("Redirecting to: {}", redirectUrl);
+            logger.info("Redirecting to: {} with session expiring at {}", redirectUrl, expirationTime);
             response.sendRedirect(redirectUrl);
 
         } catch (Exception e) {
@@ -62,24 +65,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    /**
-     * Creates a User object from the UserPrincipal to generate the JWT
-     */
-    private User createUserFromPrincipal(UserPrincipal userPrincipal) {
-        User user = new User();
-        user.setId(userPrincipal.getId());
-        user.setEmail(userPrincipal.getEmail());
-        user.setUsername(userPrincipal.getUsername());
-        user.setName(new FullName(userPrincipal.getName(), "", ""));
-        user.setAuthoritiesAsRoles(userPrincipal.getAuthorities());
-        return user;
-    }
-
-    /**
-     * Builds the redirect URL with the token
-     */
-    private String buildRedirectUrl(String token) {
-        return authorizedRedirectUri + "?token=" + token;
+    private String buildRedirectUrl() {
+        return authorizedRedirectUri;
     }
 
     /**
@@ -89,7 +76,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         logger.error("Error in token generation: {}", e.getMessage());
 
         // Redirect to frontend with error information
-        String errorUrl = authorizedRedirectUri + "?error=token_generation_failed&message="
+        String errorUrl = authorizedRedirectUri + "?code=token_generation_failed&message="
                 + java.net.URLEncoder.encode(e.getMessage(), "UTF-8");
 
         response.sendRedirect(errorUrl);

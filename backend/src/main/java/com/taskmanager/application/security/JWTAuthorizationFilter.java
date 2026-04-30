@@ -33,19 +33,19 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private SessionCookieService sessionCookieService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         logger.debug("Processing JWT authorization for request: {}", request.getRequestURI());
 
-        String authorizationHeader = request.getHeader("Authorization");
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        String token = resolveToken(request);
+        if (token == null) {
             logger.debug("No valid Authorization header found, continuing without authentication");
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = authorizationHeader.substring(7);
         logger.debug("JWT token found, attempting to validate");
 
         try {
@@ -71,9 +71,20 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException | JOSEException
                 | ParseException e) {
             logger.warn("JWT validation failed: {}", e.getMessage());
-            throw new RuntimeException(e);
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        return sessionCookieService.resolveToken(request)
+                .orElseGet(() -> {
+                    String authorizationHeader = request.getHeader("Authorization");
+                    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                        return authorizationHeader.substring(7);
+                    }
+                    return null;
+                });
     }
 
 }
