@@ -164,7 +164,6 @@ function SidebarMenu({ onLogOut }) {
               {!effectiveCollapsed && (
                 <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
               )}
-              {effectiveCollapsed && <span className="visually-hidden">{configService.getAppName()}</span>}
             </Button>
           </div>
 

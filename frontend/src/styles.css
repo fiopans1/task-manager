@@ -15,6 +15,7 @@ body {
 }
 
 .main-app-container {
+  --mobile-topbar-height: 60px;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -168,6 +169,7 @@ body {
   position: absolute;
   top: 1.25rem;
   right: 0;
+  /* Keep half the button outside the sidebar edge, matching the older floating affordance. */
   transform: translateX(50%);
   z-index: 2;
 }
@@ -338,7 +340,7 @@ html[data-bs-theme="dark"] body {
   }
 
   .outlet-col {
-    padding-top: 60px;
+    padding-top: var(--mobile-topbar-height);
     width: 100% !important;
     flex: 1 1 100% !important;
     overflow-x: hidden !important;
@@ -365,6 +367,6 @@ html[data-bs-theme="dark"] body {
   }
 
   .topbar-shell {
-    height: 60px !important;
+    height: var(--mobile-topbar-height) !important;
   }
 }
