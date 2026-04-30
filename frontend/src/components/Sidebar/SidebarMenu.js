@@ -155,6 +155,13 @@ function SidebarMenu({ onLogOut }) {
 
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
+    const brandButtonClassName = `text-body-emphasis text-decoration-none d-flex align-items-center gap-2 px-0 border-0 ${
+      effectiveCollapsed ? "w-100 justify-content-center" : ""
+    }`;
+    const helpToggleClassName = `sidebar-nav-link no-caret w-100 text-start text-body-emphasis text-decoration-none border-0 shadow-none d-flex align-items-center gap-3 ${
+      effectiveCollapsed ? "justify-content-center" : ""
+    }`;
+    const userInfoStackClassName = effectiveCollapsed ? "" : "text-start";
 
     return (
         <div className="sidebar-content d-flex flex-column justify-content-between h-100">
@@ -169,9 +176,7 @@ function SidebarMenu({ onLogOut }) {
                 to="/home"
                 variant="link"
                 onClick={handleHomeClick}
-                className={`text-body-emphasis text-decoration-none d-flex align-items-center gap-2 px-0 border-0 ${
-                  effectiveCollapsed ? "w-100 justify-content-center" : ""
-                }`}
+                className={brandButtonClassName}
               >
                 <Image
                   src={appLogo}
@@ -222,9 +227,7 @@ function SidebarMenu({ onLogOut }) {
               >
                 <Dropdown.Toggle
                   variant="link"
-                  className={`sidebar-nav-link no-caret w-100 text-start text-body-emphasis text-decoration-none border-0 shadow-none d-flex align-items-center gap-3 ${
-                    effectiveCollapsed ? "justify-content-center" : ""
-                  }`}
+                  className={helpToggleClassName}
                 >
                   <i className="bi bi-question-circle fs-5"></i>
                   {!effectiveCollapsed && (
@@ -262,7 +265,7 @@ function SidebarMenu({ onLogOut }) {
               <Stack
                 direction="horizontal"
                 gap={2}
-                className={effectiveCollapsed ? "" : "text-start"}
+                className={userInfoStackClassName}
               >
                 <span
                   className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body-tertiary flex-shrink-0"
