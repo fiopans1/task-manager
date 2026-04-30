@@ -16,6 +16,7 @@ body {
 
 .main-app-container {
   --mobile-topbar-height: 72px;
+  --sidebar-toggle-size: 24px;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -169,8 +170,8 @@ body {
 }
 
 .sidebar-toggle {
-  width: 24px;
-  height: 24px;
+  width: var(--sidebar-toggle-size);
+  height: var(--sidebar-toggle-size);
   border-radius: 50%;
   position: absolute;
   top: 1rem;

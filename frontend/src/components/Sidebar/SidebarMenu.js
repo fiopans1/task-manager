@@ -142,6 +142,7 @@ function SidebarMenu({ onLogOut }) {
 
   const handleLogoError = (event) => {
     if (event.currentTarget.dataset.fallbackApplied === "true") {
+      console.warn("Unable to load sidebar logo asset");
       return;
     }
 
