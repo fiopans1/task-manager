@@ -429,10 +429,10 @@ html[data-bs-theme="dark"] body {
   .main-app-container,
   .main-app-row,
   .outlet-col {
-    height: auto !important;
-    min-height: 100vh !important;
-    min-height: 100svh !important;
-    min-height: 100dvh !important;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
   }
 
   .outlet-col {
