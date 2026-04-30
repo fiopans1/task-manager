@@ -175,7 +175,7 @@ body {
   border-radius: 50%;
   position: absolute;
   top: 1rem;
-  right: -12px;
+  right: calc(var(--sidebar-toggle-size) / -2);
   padding: 0;
   border: 1px solid var(--bs-secondary) !important;
   box-shadow: 0 0 5px rgba(var(--bs-dark-rgb), 0.3);

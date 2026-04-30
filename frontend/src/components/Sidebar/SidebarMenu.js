@@ -141,12 +141,11 @@ function SidebarMenu({ onLogOut }) {
   };
 
   const handleLogoError = (event) => {
-    if (event.currentTarget.dataset.fallbackApplied === "true") {
+    if (event.currentTarget.src.endsWith("/favicon.ico")) {
       console.warn("Unable to load sidebar logo asset");
       return;
     }
 
-    event.currentTarget.dataset.fallbackApplied = "true";
     event.currentTarget.src = fallbackAppLogo;
   };
 
