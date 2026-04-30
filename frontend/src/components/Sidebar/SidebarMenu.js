@@ -128,47 +128,40 @@ function SidebarMenu({ onLogOut }) {
   const isItemActive = (itemPath) =>
     location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
 
+  const handleHomeClick = () => {
+    if (isMobile) {
+      setShowMobileMenu(false);
+    }
+  };
+
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
-    const headerLayoutClass = effectiveCollapsed
-      ? "flex-column gap-2"
-      : "justify-content-between gap-2";
 
     return (
       <>
         <div className="p-3 d-flex flex-column gap-3">
-          <div className={`d-flex align-items-center ${headerLayoutClass}`}>
+          <div className="d-flex align-items-center">
             <Button
               as={Link}
               to="/home"
               variant="link"
+              onClick={handleHomeClick}
               className={`sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0 ${
                 effectiveCollapsed ? "justify-content-center" : ""
               }`}
             >
-              <span className="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary" style={{ width: 40, height: 40 }}>
-                <i className="bi bi-check2-square fs-5"></i>
-              </span>
+              <img
+                src={`${process.env.PUBLIC_URL}/logo192.png`}
+                alt={configService.getAppName()}
+                className="sidebar-brand-logo"
+                width="32"
+                height="32"
+              />
               {!effectiveCollapsed && (
-                <div>
-                  <div className="fw-semibold lh-sm">{configService.getAppName()}</div>
-                  <small className="text-body-secondary">Focus on what matters</small>
-                </div>
+                <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
               )}
+              {effectiveCollapsed && <span className="visually-hidden">{configService.getAppName()}</span>}
             </Button>
-            {!isMobile && (
-              <Button
-                variant="light"
-                size="sm"
-                className="sidebar-toggle border shadow-sm flex-shrink-0"
-                onClick={() => setCollapsed((prev) => !prev)}
-                aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                aria-expanded={!effectiveCollapsed}
-                aria-controls="desktop-sidebar"
-              >
-                <i className={`bi ${effectiveCollapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
-              </Button>
-            )}
           </div>
 
           <Nav className="flex-column gap-1">
@@ -275,11 +268,20 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040, height: 64 }}>
+        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040, height: 60 }}>
           <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
             <i className="bi bi-list fs-4"></i>
           </Button>
-          <div className="fw-semibold">{configService.getAppName()}</div>
+          <div className="d-flex align-items-center gap-2 fw-semibold">
+            <img
+              src={`${process.env.PUBLIC_URL}/logo192.png`}
+              alt={configService.getAppName()}
+              className="sidebar-brand-logo"
+              width="28"
+              height="28"
+            />
+            <span>{configService.getAppName()}</span>
+          </div>
           <div style={{ width: 44 }}></div>
         </div>
         <Offcanvas
@@ -305,9 +307,20 @@ function SidebarMenu({ onLogOut }) {
     <>
       <Col
         id="desktop-sidebar"
-        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 ${collapsed ? "collapsed" : ""}`}
+        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky position-relative top-0 ${collapsed ? "collapsed" : ""}`}
         xs="auto"
       >
+        <Button
+          variant="light"
+          size="sm"
+          className="sidebar-toggle border shadow-sm"
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          aria-controls="desktop-sidebar"
+        >
+          <i className={`bi ${collapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
+        </Button>
         {renderSidebarContent()}
       </Col>
       <About show={showAbout} handleClose={() => setShowAbout(false)} />
