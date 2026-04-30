@@ -176,7 +176,7 @@ function SidebarMenu({ onLogOut }) {
                 <Image
                   src={appLogo}
                   alt={configService.getAppName()}
-                  className={`flex-shrink-0 ${effectiveCollapsed ? "mx-auto" : ""}`}
+                  className="flex-shrink-0"
                   width={sidebarLogoSize}
                   height={sidebarLogoSize}
                   style={{ objectFit: "contain" }}
@@ -259,7 +259,11 @@ function SidebarMenu({ onLogOut }) {
                 effectiveCollapsed ? "justify-content-center px-0" : "justify-content-between"
               }`}
             >
-              <Stack direction="horizontal" gap={2} className="text-start">
+              <Stack
+                direction="horizontal"
+                gap={2}
+                className={effectiveCollapsed ? "" : "text-start"}
+              >
                 <span
                   className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body-tertiary flex-shrink-0"
                   style={{ width: 36, height: 36 }}
