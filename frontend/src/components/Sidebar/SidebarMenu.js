@@ -134,16 +134,12 @@ function SidebarMenu({ onLogOut }) {
     return (
       <>
         <div className="p-3 d-flex flex-column gap-3">
-          <div
-            className={`d-flex align-items-center ${
-              effectiveCollapsed ? "justify-content-center" : "justify-content-between"
-            }`}
-          >
+          <div className={`d-flex align-items-center ${effectiveCollapsed ? "flex-column gap-2" : "justify-content-between gap-2"}`}>
             <Button
               as={Link}
               to="/home"
               variant="link"
-              className={`text-decoration-none text-reset d-flex align-items-center gap-2 px-0 ${
+              className={`sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0 ${
                 effectiveCollapsed ? "justify-content-center" : ""
               }`}
             >
@@ -157,6 +153,17 @@ function SidebarMenu({ onLogOut }) {
                 </div>
               )}
             </Button>
+            {!isMobile && (
+              <Button
+                variant="light"
+                size="sm"
+                className="sidebar-toggle border shadow-sm flex-shrink-0"
+                onClick={() => setCollapsed((prev) => !prev)}
+                aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <i className={`bi ${effectiveCollapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
+              </Button>
+            )}
           </div>
 
           <Nav className="flex-column gap-1">
@@ -214,7 +221,7 @@ function SidebarMenu({ onLogOut }) {
             <Dropdown.Toggle
               variant="light"
               id="user-menu"
-              className={`no-caret w-100 rounded-4 border d-flex align-items-center ${
+              className={`sidebar-user-toggle no-caret w-100 rounded-4 d-flex align-items-center ${
                 effectiveCollapsed ? "justify-content-center px-0" : "justify-content-between"
               }`}
             >
@@ -291,15 +298,10 @@ function SidebarMenu({ onLogOut }) {
 
   return (
     <>
-      <Col className={`sidebar-shell border-end d-flex flex-column justify-content-between position-relative ${collapsed ? "collapsed" : ""}`} xs="auto">
-        <Button
-          variant="light"
-          size="sm"
-          className="sidebar-toggle position-absolute top-50 translate-middle-y end-0 translate-middle-x border shadow-sm"
-          onClick={() => setCollapsed((prev) => !prev)}
-        >
-          <i className={`bi ${collapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
-        </Button>
+      <Col
+        className={`sidebar-shell border-end d-flex flex-column justify-content-between position-sticky top-0 vh-100 ${collapsed ? "collapsed" : ""}`}
+        xs="auto"
+      >
         {renderSidebarContent()}
       </Col>
       <About show={showAbout} handleClose={() => setShowAbout(false)} />
