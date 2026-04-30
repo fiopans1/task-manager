@@ -11,7 +11,6 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import appLogo from "../../logo.svg";
 import About from "./About";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
@@ -20,6 +19,8 @@ import configService from "../../services/configService";
 import listService from "../../services/listService";
 import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
+
+const appLogo = `${process.env.PUBLIC_URL}/favicon.ico`;
 
 const NAVIGATION_ITEMS = [
   {
@@ -142,7 +143,7 @@ function SidebarMenu({ onLogOut }) {
     const effectiveCollapsed = isMobile ? false : collapsed;
 
     return (
-      <>
+      <div className="sidebar-content d-flex flex-column justify-content-between h-100">
         <div className="p-3 d-flex flex-column gap-3">
           <div className="d-flex align-items-center">
             <Button
@@ -264,14 +265,14 @@ function SidebarMenu({ onLogOut }) {
             </Dropdown.Menu>
           </Dropdown>
         </div>
-      </>
+      </div>
     );
   };
 
   if (isMobile) {
     return (
       <>
-        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040 }}>
+        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3" style={{ zIndex: 1040 }}>
           <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
             <i className="bi bi-list fs-4"></i>
           </Button>
@@ -314,9 +315,9 @@ function SidebarMenu({ onLogOut }) {
         xs="auto"
       >
         <Button
-          variant="light"
+          variant="dark"
           size="sm"
-          className="sidebar-toggle border shadow-sm"
+          className="sidebar-toggle d-flex align-items-center justify-content-center"
           onClick={() => setCollapsed((prev) => !prev)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}

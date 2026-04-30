@@ -15,7 +15,7 @@ body {
 }
 
 .main-app-container {
-  --mobile-topbar-height: 60px;
+  --mobile-topbar-height: 72px;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -126,8 +126,14 @@ body {
   transition: width 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
   color: var(--bs-emphasis-color);
   height: 100vh;
-  overflow-y: auto;
+  overflow: visible;
   z-index: 1020;
+}
+
+.sidebar-content {
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-shell.collapsed {
@@ -163,16 +169,24 @@ body {
 }
 
 .sidebar-toggle {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   position: absolute;
-  top: 1.25rem;
-  right: 0;
-  /* Keep half the button outside the sidebar edge, matching the older floating affordance. */
-  transform: translateX(50%);
-  /* Stay above the sidebar content so the floating control remains clickable. */
-  z-index: 2;
+  top: 1rem;
+  right: -12px;
+  padding: 0;
+  border: 1px solid #6c757d !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 1030;
+}
+
+.sidebar-toggle:hover,
+.sidebar-toggle:focus,
+.sidebar-toggle:active {
+  background-color: #495057 !important;
+  border-color: #6c757d !important;
+  color: #fff !important;
 }
 
 .sidebar-brand-button {
@@ -206,6 +220,9 @@ body {
   background-color: rgba(var(--bs-body-bg-rgb), 0.92);
   backdrop-filter: blur(14px);
   color: var(--bs-emphasis-color);
+  min-height: calc(var(--mobile-topbar-height) + env(safe-area-inset-top));
+  padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+  padding-bottom: 0.5rem;
 }
 
 .outlet-col {
@@ -341,7 +358,7 @@ html[data-bs-theme="dark"] body {
   }
 
   .outlet-col {
-    padding-top: var(--mobile-topbar-height);
+    padding-top: calc(var(--mobile-topbar-height) + env(safe-area-inset-top));
     width: 100% !important;
     flex: 1 1 100% !important;
   }
