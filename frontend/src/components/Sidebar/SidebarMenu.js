@@ -20,7 +20,7 @@ import listService from "../../services/listService";
 import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
 
-const appLogo = `${process.env.PUBLIC_URL}/favicon.ico`;
+const appLogo = `${process.env.PUBLIC_URL}/favicon.png`;
 
 const NAVIGATION_ITEMS = [
   {

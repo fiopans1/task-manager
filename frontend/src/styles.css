@@ -184,7 +184,7 @@ body {
 .sidebar-toggle:hover,
 .sidebar-toggle:focus,
 .sidebar-toggle:active {
-  background-color: var(--bs-secondary-color) !important;
+  background-color: var(--bs-secondary-bg) !important;
   border-color: var(--bs-secondary) !important;
   color: var(--bs-white) !important;
 }
