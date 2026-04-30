@@ -140,13 +140,15 @@ body {
 }
 
 .sidebar-shell.collapsed .sidebar-content {
-  overflow-x: visible;
+  overflow: visible;
 }
 
 .sidebar-shell.collapsed {
   width: 88px;
   min-width: 88px;
   max-width: 88px;
+  overflow: visible;
+  z-index: 1035;
 }
 
 .sidebar-nav-link {
@@ -416,5 +418,24 @@ html[data-bs-theme="dark"] body {
   .outlet-col {
     height: 100dvh;
     min-height: 100dvh;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .main-app-container {
+    overflow: visible;
+  }
+
+  .main-app-container,
+  .main-app-row,
+  .outlet-col {
+    height: auto !important;
+    min-height: 100vh !important;
+    min-height: 100svh !important;
+    min-height: 100dvh !important;
+  }
+
+  .outlet-col {
+    overflow: visible;
   }
 }
