@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import appLogo from "../../logo.svg";
 import About from "./About";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
@@ -53,7 +54,6 @@ const NAVIGATION_ITEMS = [
   },
 ];
 
-const APP_LOGO_SRC = `${process.env.PUBLIC_URL}/logo192.png`;
 const SIDEBAR_LOGO_SIZE = 32;
 const TOPBAR_LOGO_SIZE = 28;
 
@@ -155,7 +155,7 @@ function SidebarMenu({ onLogOut }) {
               }`}
             >
               <img
-                src={APP_LOGO_SRC}
+                src={appLogo}
                 alt={configService.getAppName()}
                 className="sidebar-brand-logo"
                 width={SIDEBAR_LOGO_SIZE}
@@ -271,13 +271,13 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040, height: 60 }}>
+        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3 py-2" style={{ zIndex: 1040 }}>
           <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
             <i className="bi bi-list fs-4"></i>
           </Button>
           <div className="d-flex align-items-center gap-2 fw-semibold">
             <img
-              src={APP_LOGO_SRC}
+              src={appLogo}
               alt={configService.getAppName()}
               className="sidebar-brand-logo"
               width={TOPBAR_LOGO_SIZE}
