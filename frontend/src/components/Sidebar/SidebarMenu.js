@@ -155,6 +155,17 @@ function SidebarMenu({ onLogOut }) {
 
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
+    const collapsedDropdownPopperConfig = effectiveCollapsed
+      ? {
+          strategy: "fixed",
+          modifiers: [
+            {
+              name: "offset",
+              options: { offset: [0, 12] },
+            },
+          ],
+        }
+      : { strategy: "fixed" };
     const brandButtonClassName = `text-body-emphasis text-decoration-none d-flex align-items-center gap-2 px-0 border-0 ${
       effectiveCollapsed ? "w-100 justify-content-center" : ""
     }`;
@@ -223,7 +234,7 @@ function SidebarMenu({ onLogOut }) {
               <Dropdown
                 drop={effectiveCollapsed ? "end" : "down"}
                 container="body"
-                popperConfig={{ strategy: "fixed" }}
+                popperConfig={collapsedDropdownPopperConfig}
               >
                 <Dropdown.Toggle
                   variant="link"
@@ -253,7 +264,7 @@ function SidebarMenu({ onLogOut }) {
             drop={effectiveCollapsed ? "end" : "up"}
             align={effectiveCollapsed ? "start" : "end"}
             container="body"
-            popperConfig={{ strategy: "fixed" }}
+            popperConfig={collapsedDropdownPopperConfig}
           >
             <Dropdown.Toggle
               variant="light"
