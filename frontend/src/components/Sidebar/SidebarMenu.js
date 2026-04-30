@@ -272,7 +272,7 @@ function SidebarMenu({ onLogOut }) {
   if (isMobile) {
     return (
       <>
-        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3" style={{ zIndex: 1040 }}>
+        <div className="topbar-shell position-fixed top-0 start-0 end-0 border-bottom d-flex align-items-center justify-content-between px-3">
           <Button variant="light" className="rounded-circle border-0 shadow-sm" style={{ width: 44, height: 44 }} onClick={() => setShowMobileMenu(true)} aria-controls="sidebar-menu">
             <i className="bi bi-list fs-4"></i>
           </Button>
