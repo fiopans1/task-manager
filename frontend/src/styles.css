@@ -12,11 +12,7 @@ body {
 .main-app-container,
 .main-app-row {
   height: 100vh;
-  height: 100svh;
-  height: 100dvh;
   min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
 }
 
 .main-app-container {
@@ -132,11 +128,7 @@ body {
   transition: width 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
   color: var(--bs-emphasis-color);
   height: 100vh;
-  height: 100svh;
-  height: 100dvh;
   min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
   overflow: visible;
   z-index: 1020;
 }
@@ -257,11 +249,7 @@ body {
 .outlet-col {
   min-width: 0;
   height: 100vh;
-  height: 100svh;
-  height: 100dvh;
   min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
   overflow: auto;
   background-color: var(--bs-tertiary-bg);
 }
@@ -434,5 +422,25 @@ html[data-bs-theme="dark"] body {
   .sidebar-shell,
   .outlet-col {
     min-height: -webkit-fill-available;
+  }
+}
+
+@supports (height: 100svh) {
+  .main-app-container,
+  .main-app-row,
+  .sidebar-shell,
+  .outlet-col {
+    height: 100svh;
+    min-height: 100svh;
+  }
+}
+
+@supports (height: 100dvh) {
+  .main-app-container,
+  .main-app-row,
+  .sidebar-shell,
+  .outlet-col {
+    height: 100dvh;
+    min-height: 100dvh;
   }
 }
