@@ -163,6 +163,7 @@ function SidebarMenu({ onLogOut }) {
                 className="sidebar-toggle border shadow-sm flex-shrink-0"
                 onClick={() => setCollapsed((prev) => !prev)}
                 aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-expanded={!effectiveCollapsed}
               >
                 <i className={`bi ${effectiveCollapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
               </Button>
