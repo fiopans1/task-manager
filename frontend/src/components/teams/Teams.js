@@ -70,22 +70,10 @@ const Teams = () => {
           <p className="text-body-secondary mb-0">Collaborate in a more focused layout without losing any team workflows.</p>
         </Col>
         <Col xs={12} md="auto">
-          <div className="d-flex flex-wrap gap-2">
-            <Button
-              variant="outline-primary"
-              className="rounded-pill px-4"
-              onClick={() => {
-                refreshTeams();
-                loadPendingInvitations();
-              }}
-            >
-              Refresh
-            </Button>
-            <Button variant="primary" className="rounded-pill px-4" onClick={() => setShowCreateModal(true)}>
-              <i className="bi bi-plus-lg me-2"></i>
-              New Team
-            </Button>
-          </div>
+          <Button variant="primary" className="rounded-pill px-4" onClick={() => setShowCreateModal(true)}>
+            <i className="bi bi-plus-lg me-2"></i>
+            New Team
+          </Button>
         </Col>
       </Row>
 
@@ -129,6 +117,16 @@ const Teams = () => {
                     }}
                   >
                     Clear
+                  </Button>
+                  <Button
+                    variant="outline-primary"
+                    className="rounded-pill px-4"
+                    onClick={() => {
+                      refreshTeams();
+                      loadPendingInvitations();
+                    }}
+                  >
+                    Refresh
                   </Button>
                 </div>
               </Col>
