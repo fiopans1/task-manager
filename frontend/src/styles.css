@@ -14,6 +14,17 @@ body {
   height: 100vh;
 }
 
+.main-app-container {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.main-app-row {
+  margin: 0;
+  padding: 0;
+}
+
 .task-manager-bg {
   min-height: 100vh;
   min-height: 100svh;

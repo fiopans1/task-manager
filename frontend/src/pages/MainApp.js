@@ -6,15 +6,8 @@ import SystemMessageModal from "../components/common/SystemMessageModal";
 
 const MainApp = ({ onLogOut }) => {
   return (
-    <Container
-      fluid
-      className="main-app-container bg-body-tertiary"
-      style={{ margin: 0, padding: 0, overflow: "hidden", height: "100vh" }}
-    >
-      <Row
-        className="main-app-row g-0"
-        style={{ margin: 0, padding: 0, height: "100vh" }}
-      >
+    <Container fluid className="main-app-container bg-body-tertiary">
+      <Row className="main-app-row g-0">
         <SidebarMenu onLogOut={onLogOut} />
         <Col
           className="outlet-col bg-body-tertiary p-0"

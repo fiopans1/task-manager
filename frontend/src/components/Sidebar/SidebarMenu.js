@@ -130,11 +130,14 @@ function SidebarMenu({ onLogOut }) {
 
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
+    const headerLayoutClass = effectiveCollapsed
+      ? "flex-column gap-2"
+      : "justify-content-between gap-2";
 
     return (
       <>
         <div className="p-3 d-flex flex-column gap-3">
-          <div className={`d-flex align-items-center ${effectiveCollapsed ? "flex-column gap-2" : "justify-content-between gap-2"}`}>
+          <div className={`d-flex align-items-center ${headerLayoutClass}`}>
             <Button
               as={Link}
               to="/home"
