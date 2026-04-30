@@ -143,6 +143,15 @@ body {
   max-width: 88px;
 }
 
+.sidebar-shell.collapsed .sidebar-brand-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.sidebar-shell.collapsed .sidebar-brand-logo {
+  margin-inline: auto;
+}
+
 .sidebar-nav-link {
   border-radius: 1rem;
   padding: 0.85rem 1rem;
@@ -229,6 +238,10 @@ body {
 
 .outlet-col {
   min-width: 0;
+}
+
+.mobile-topbar-spacer {
+  height: calc(var(--mobile-topbar-height) + env(safe-area-inset-top) + 0.5rem);
 }
 
 @media (min-width: 768px) {
@@ -360,7 +373,6 @@ html[data-bs-theme="dark"] body {
   }
 
   .outlet-col {
-    padding-top: calc(var(--mobile-topbar-height) + env(safe-area-inset-top));
     width: 100% !important;
     flex: 1 1 100% !important;
   }

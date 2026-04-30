@@ -151,19 +151,24 @@ function SidebarMenu({ onLogOut }) {
 
   const renderSidebarContent = () => {
     const effectiveCollapsed = isMobile ? false : collapsed;
+    const brandAlignmentClass = effectiveCollapsed
+      ? "justify-content-center w-100"
+      : "";
 
     return (
       <div className="sidebar-content d-flex flex-column justify-content-between h-100">
         <div className="p-3 d-flex flex-column gap-3">
-          <div className="d-flex align-items-center">
+          <div
+            className={`d-flex align-items-center ${
+              effectiveCollapsed ? "justify-content-center" : ""
+            }`}
+          >
             <Button
               as={Link}
               to="/home"
               variant="link"
               onClick={handleHomeClick}
-              className={`sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0 ${
-                effectiveCollapsed ? "justify-content-center" : ""
-              }`}
+              className={`sidebar-brand-button text-decoration-none d-flex align-items-center gap-2 px-0 ${brandAlignmentClass}`}
             >
               <img
                 src={appLogo}
@@ -206,7 +211,11 @@ function SidebarMenu({ onLogOut }) {
             ))}
 
             <Nav.Item>
-              <Dropdown drop={effectiveCollapsed ? "end" : "down"} container="body">
+              <Dropdown
+                drop={effectiveCollapsed ? "end" : "down"}
+                container="body"
+                popperConfig={{ strategy: "fixed" }}
+              >
                 <Dropdown.Toggle as="div" bsPrefix="custom-toggle" className="cursor-pointer">
                   <div className="sidebar-nav-link d-flex align-items-center gap-3">
                     <i className="bi bi-question-circle fs-5"></i>
@@ -230,7 +239,12 @@ function SidebarMenu({ onLogOut }) {
         </div>
 
         <div className={`p-3 pt-0 ${effectiveCollapsed ? "text-center" : ""}`}>
-          <Dropdown drop={effectiveCollapsed ? "end" : "up"} align={effectiveCollapsed ? "start" : "end"} container="body">
+          <Dropdown
+            drop={effectiveCollapsed ? "end" : "up"}
+            align={effectiveCollapsed ? "start" : "end"}
+            container="body"
+            popperConfig={{ strategy: "fixed" }}
+          >
             <Dropdown.Toggle
               variant="light"
               id="user-menu"
