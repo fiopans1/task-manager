@@ -54,8 +54,8 @@ const NAVIGATION_ITEMS = [
   },
 ];
 
-const SIDEBAR_LOGO_SIZE = 32;
-const TOPBAR_LOGO_SIZE = 28;
+const sidebarLogoSize = 32;
+const topbarLogoSize = 28;
 
 function SidebarMenu({ onLogOut }) {
   const [showAbout, setShowAbout] = useState(false);
@@ -158,8 +158,8 @@ function SidebarMenu({ onLogOut }) {
                 src={appLogo}
                 alt={configService.getAppName()}
                 className="sidebar-brand-logo"
-                width={SIDEBAR_LOGO_SIZE}
-                height={SIDEBAR_LOGO_SIZE}
+                width={sidebarLogoSize}
+                height={sidebarLogoSize}
               />
               {!effectiveCollapsed && (
                 <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
@@ -280,8 +280,8 @@ function SidebarMenu({ onLogOut }) {
               src={appLogo}
               alt={configService.getAppName()}
               className="sidebar-brand-logo"
-              width={TOPBAR_LOGO_SIZE}
-              height={TOPBAR_LOGO_SIZE}
+              width={topbarLogoSize}
+              height={topbarLogoSize}
             />
             <span>{configService.getAppName()}</span>
           </div>

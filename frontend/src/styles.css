@@ -171,6 +171,7 @@ body {
   right: 0;
   /* Keep half the button outside the sidebar edge, matching the older floating affordance. */
   transform: translateX(50%);
+  /* Stay above the sidebar content so the floating control remains clickable. */
   z-index: 2;
 }
 
