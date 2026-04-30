@@ -18,6 +18,7 @@ body {
 .main-app-container {
   --mobile-topbar-height: 72px;
   --sidebar-toggle-size: 24px;
+  --sidebar-overlay-z-index: 1035;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -148,7 +149,7 @@ body {
   min-width: 88px;
   max-width: 88px;
   overflow: visible;
-  z-index: 1035;
+  z-index: var(--sidebar-overlay-z-index);
 }
 
 .sidebar-nav-link {
