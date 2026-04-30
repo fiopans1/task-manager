@@ -106,6 +106,8 @@ public class JWTUtilityService {
 
     public long getSessionDurationSeconds() {
         long durationSeconds = TimeUnit.MILLISECONDS.toSeconds(sessionDurationMs);
+        // Cookies with maxAge <= 0 are cleared immediately, so keep a minimal
+        // positive lifetime if the configuration is invalid or too small.
         return durationSeconds > 0 ? durationSeconds : 1;
     }
 

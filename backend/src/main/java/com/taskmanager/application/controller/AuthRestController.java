@@ -9,7 +9,6 @@ import com.taskmanager.application.service.AuthService;
 import com.taskmanager.application.service.JWTUtilityService;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +53,10 @@ public class AuthRestController {
             return ResponseEntity.ok(sessionInfo);
         } catch (BadCredentialsException e) {
             logger.warn("Login failed for user: {}", login.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseUtils.errorResponse(e.getMessage()));
         } catch (LockedException e) {
             logger.warn("Blocked user attempted login: {}", login.getUsername());
-            return ResponseEntity.status(HttpStatus.LOCKED).body(errorResponse(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.LOCKED).body(ApiResponseUtils.errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Login error for user: {}", login.getUsername(), e);
             throw e;
@@ -87,12 +86,6 @@ public class AuthRestController {
             logger.error("Registration error for user: {}", user.getUsername(), e);
             throw e;
         }
-    }
-
-    private HashMap<String, String> errorResponse(String message) {
-        HashMap<String, String> response = new HashMap<>();
-        response.put("error", message);
-        return response;
     }
 
 }

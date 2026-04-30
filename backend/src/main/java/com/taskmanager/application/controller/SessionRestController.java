@@ -7,7 +7,6 @@ import com.taskmanager.application.service.JWTUtilityService;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.security.SessionCookieService;
 
-import java.util.HashMap;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class SessionRestController {
             User currentUser = authService.getCurrentUser();
             Optional<String> token = sessionCookieService.resolveToken(request);
             if (currentUser == null || token.isEmpty()) {
-                return ResponseEntity.status(401).body(errorResponse("No authenticated user found"));
+                return ResponseEntity.status(401).body(ApiResponseUtils.errorResponse("No authenticated user found"));
             }
 
             JWTClaimsSet claimsSet = jwtUtilityService.parseJWT(token.get());
@@ -53,7 +52,7 @@ public class SessionRestController {
             return ResponseEntity.ok(sessionInfo);
         } catch (Exception e) {
             logger.error("Error loading session: {}", e.getMessage(), e);
-            return ResponseEntity.status(401).body(errorResponse("Invalid session"));
+            return ResponseEntity.status(401).body(ApiResponseUtils.errorResponse("Invalid session"));
         }
     }
 
@@ -65,7 +64,7 @@ public class SessionRestController {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {
                 logger.warn("Token refresh failed: No authenticated user found");
-                return ResponseEntity.status(401).body(errorResponse("No authenticated user found"));
+                return ResponseEntity.status(401).body(ApiResponseUtils.errorResponse("No authenticated user found"));
             }
 
             String newToken = jwtUtilityService.generateJWT(currentUser);
@@ -77,13 +76,7 @@ public class SessionRestController {
             return ResponseEntity.ok(sessionInfo);
         } catch (Exception e) {
             logger.error("Error refreshing token: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(errorResponse("Error refreshing token"));
+            return ResponseEntity.internalServerError().body(ApiResponseUtils.errorResponse("Error refreshing token"));
         }
-    }
-
-    private HashMap<String, String> errorResponse(String message) {
-        HashMap<String, String> response = new HashMap<>();
-        response.put("error", message);
-        return response;
     }
 }

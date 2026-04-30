@@ -31,6 +31,10 @@ function OAuth2Login({ onLogin }) {
         await authService.loadSession();
         onLogin();
       } catch (error) {
+        if (error.response && error.response.status !== 401) {
+          console.error("Error restoring OAuth2 session:", error);
+          errorToast("Error OAuth2: " + (error.message || "Authentication error"));
+        }
       }
     };
 
