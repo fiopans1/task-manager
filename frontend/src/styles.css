@@ -1,7 +1,12 @@
+:root {
+  --app-shell-height: 100vh;
+}
+
 html,
 body,
 #root {
   min-height: 100%;
+  background-color: var(--bs-tertiary-bg);
 }
 
 body {
@@ -11,8 +16,8 @@ body {
 
 .main-app-container,
 .main-app-row {
-  height: 100vh;
-  min-height: 100vh;
+  height: var(--app-shell-height);
+  min-height: var(--app-shell-height);
 }
 
 .main-app-container {
@@ -128,8 +133,8 @@ body {
   background-color: var(--bs-secondary-bg);
   transition: width 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
   color: var(--bs-emphasis-color);
-  height: 100vh;
-  min-height: 100vh;
+  height: var(--app-shell-height);
+  min-height: var(--app-shell-height);
   overflow: visible;
   z-index: 1020;
 }
@@ -225,8 +230,8 @@ body {
 
 .outlet-col {
   min-width: 0;
-  height: 100vh;
-  min-height: 100vh;
+  height: var(--app-shell-height);
+  min-height: var(--app-shell-height);
   overflow: auto;
   background-color: var(--bs-tertiary-bg);
 }
@@ -333,11 +338,6 @@ body {
   --bs-secondary-color: #94a3b8;
 }
 
-html[data-bs-theme="dark"],
-html[data-bs-theme="dark"] body {
-  background-color: #111318;
-}
-
 [data-bs-theme="dark"] .auth-btn-primary {
   --bs-btn-bg: #e2e8f0;
   --bs-btn-border-color: #e2e8f0;
@@ -403,22 +403,14 @@ html[data-bs-theme="dark"] body {
 }
 
 @supports (height: 100svh) {
-  .main-app-container,
-  .main-app-row,
-  .sidebar-shell,
-  .outlet-col {
-    height: 100svh;
-    min-height: 100svh;
+  :root {
+    --app-shell-height: 100svh;
   }
 }
 
 @supports (height: 100dvh) {
-  .main-app-container,
-  .main-app-row,
-  .sidebar-shell,
-  .outlet-col {
-    height: 100dvh;
-    min-height: 100dvh;
+  :root {
+    --app-shell-height: 100dvh;
   }
 }
 
@@ -431,30 +423,10 @@ html[data-bs-theme="dark"] body {
   .main-app-row,
   .outlet-col {
     height: auto;
-    min-height: 100vh;
+    min-height: var(--app-shell-height);
   }
 
   .outlet-col {
     overflow: visible;
-  }
-}
-
-@supports (height: 100svh) {
-  @media (max-width: 767.98px) {
-    .main-app-container,
-    .main-app-row,
-    .outlet-col {
-      min-height: 100svh;
-    }
-  }
-}
-
-@supports (height: 100dvh) {
-  @media (max-width: 767.98px) {
-    .main-app-container,
-    .main-app-row,
-    .outlet-col {
-      min-height: 100dvh;
-    }
   }
 }
