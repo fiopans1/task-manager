@@ -6,11 +6,11 @@ html,
 body,
 #root {
   min-height: 100%;
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--bs-body-bg);
 }
 
 body {
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
 }
 
@@ -233,7 +233,7 @@ body {
   height: var(--app-shell-height);
   min-height: var(--app-shell-height);
   overflow: auto;
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--bs-body-bg);
 }
 
 .mobile-topbar-spacer {
@@ -326,36 +326,8 @@ body {
   border-color: var(--bs-border-color);
 }
 
-[data-bs-theme="dark"] {
-  --bs-body-bg: #111318;
-  --bs-body-bg-rgb: 17, 19, 24;
-  --bs-secondary-bg: #181c23;
-  --bs-secondary-bg-rgb: 24, 28, 35;
-  --bs-tertiary-bg: #1f2530;
-  --bs-border-color: #2f3744;
-  --bs-card-bg: #181c23;
-  --bs-emphasis-color: #f8fafc;
-  --bs-secondary-color: #94a3b8;
-}
-
-[data-bs-theme="dark"] .auth-btn-primary {
-  --bs-btn-bg: #e2e8f0;
-  --bs-btn-border-color: #e2e8f0;
-  --bs-btn-color: #111827;
-  --bs-btn-hover-bg: #cbd5e1;
-  --bs-btn-hover-border-color: #cbd5e1;
-  --bs-btn-hover-color: #111827;
-  --bs-btn-active-bg: #cbd5e1;
-  --bs-btn-active-border-color: #cbd5e1;
-  --bs-btn-active-color: #111827;
-}
-
 [data-bs-theme="dark"] .item-card:hover {
   box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.35) !important;
-}
-
-[data-bs-theme="dark"] .sidebar-user-toggle {
-  background-color: var(--bs-body-bg) !important;
 }
 
 @media (max-width: 767.98px) {

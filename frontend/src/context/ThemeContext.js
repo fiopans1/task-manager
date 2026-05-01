@@ -18,7 +18,7 @@ export function ThemeProvider({ children }) {
     // Update theme-color meta so Safari viewport chrome matches the active theme
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute("content", darkMode ? "#1f2530" : "#f8f9fa");
+      meta.setAttribute("content", darkMode ? "#151519" : "#ffffff");
     }
   }, [darkMode]);
 

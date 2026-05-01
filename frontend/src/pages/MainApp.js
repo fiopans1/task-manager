@@ -6,11 +6,11 @@ import SystemMessageModal from "../components/common/SystemMessageModal";
 
 const MainApp = ({ onLogOut }) => {
   return (
-    <Container fluid className="main-app-container bg-body-tertiary">
+    <Container fluid className="main-app-container bg-body">
       <Row className="main-app-row g-0">
         <SidebarMenu onLogOut={onLogOut} />
         <Col
-          className="outlet-col bg-body-tertiary p-0"
+          className="outlet-col bg-body p-0"
         >
           <div className="mobile-topbar-spacer d-md-none" aria-hidden="true"></div>
           <Outlet />
