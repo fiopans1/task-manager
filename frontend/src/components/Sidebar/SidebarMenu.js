@@ -248,7 +248,7 @@ function SidebarMenu({ onLogOut }) {
                     </>
                   )}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
+                <Dropdown.Menu className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4">
                   <Dropdown.Item onClick={() => setShowAbout(true)}>
                     <i className="bi bi-box-info me-2"></i>
                     About
@@ -295,7 +295,7 @@ function SidebarMenu({ onLogOut }) {
               </Stack>
               {!effectiveCollapsed && <i className="bi bi-chevron-up small"></i>}
             </Dropdown.Toggle>
-            <Dropdown.Menu className="shadow-sm z-index-high border-0 rounded-4">
+            <Dropdown.Menu className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4">
               <Dropdown.ItemText className="py-2">
                 <Form.Check
                   type="switch"
