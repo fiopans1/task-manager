@@ -19,5 +19,5 @@ const result = spawnSync(packageManagerExec[0], [...packageManagerExec.slice(1),
 });
 
 if (result.status !== 0) {
-  process.exit(result.status ?? 1);
+  process.exit(result.status || 1);
 }

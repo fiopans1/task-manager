@@ -10,7 +10,7 @@ Desde `frontend/` instala primero las dependencias:
 corepack pnpm install
 ```
 
-Si ejecutas `pnpm run dev` o `pnpm start` sin haber instalado antes, verás `sh: vite: not found` porque `vite` se instala desde las `devDependencies`.
+Si `vite` todavía no está instalado, `pnpm run dev` y `pnpm start` ejecutan automáticamente `pnpm install --frozen-lockfile` antes de arrancar.
 
 ## Scripts disponibles
 
