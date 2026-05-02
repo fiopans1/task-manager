@@ -1,63 +1,32 @@
+import { Suspense, useEffect, useState } from "react";
 import {
-  Container,
-  Col,
-  Row,
-  Card,
-  InputGroup,
   Button,
+  Card,
+  Col,
+  Container,
   Form,
+  InputGroup,
+  Row,
   Spinner,
 } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import NewEditTask from "./NewEditTask";
-import taskService from "../../services/taskService";
-import { Suspense } from "react";
-import TasksList from "./TasksList";
 import { ErrorBoundary } from "react-error-boundary";
+import { useLocation, useNavigate } from "react-router-dom";
+import taskService from "../../services/taskService";
 import { errorToast } from "../common/Noty";
+import NewEditTask from "./NewEditTask";
+import TasksList from "./TasksList";
 
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
-  const handleOpenTask = (id) => {
-    navigateTo(`${location.pathname}/${id}`);
-  };
   const [showNewTask, setshowNewTask] = useState(false);
   const [showEditTask, setshowEditTask] = useState(false);
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check if viewport is mobile size
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    // Initial check
-    checkIfMobile();
-    
-    // Add event listener for window resize
-    window.addEventListener("resize", checkIfMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, []);
-
-  const handleClose = () => setshowNewTask(false);
-  const handleshowNewTask = () => setshowNewTask(true);
-  const handleCloseEdit = () => setshowEditTask(false);
-  const handleshowEditTask = (task) => {
-    setFormEditData(task);
-    setshowEditTask(true);
-  };
-
   const [tasksResource, setTasksResource] = useState(() => taskService.getTasks());
 
-  // Reload data when navigating back to this page (cache was invalidated by sidebar)
   useEffect(() => {
     setTasksResource(taskService.getTasks());
     setRefreshKey((prevKey) => prevKey + 1);
@@ -71,132 +40,123 @@ const Tasks = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setActiveSearchTerm(searchTerm);
+    setActiveSearchTerm(searchTerm.trim());
     taskService.invalidateTasksCache();
     setTasksResource(taskService.getTasks());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
-  const handleErrors = (error, info) => {
+  const handleErrors = (error) => {
     errorToast("Error: " + error.message);
   };
 
   return (
-    <Container fluid className="px-3">
-      <div className="tittle-tab-container">
-        <h2>My Tasks</h2>
-      </div>
+    <Container fluid className="px-3 px-lg-4 py-4 pb-5">
+      <Row className="align-items-center g-3 mb-4">
+        <Col>
+          <h2 className="fw-semibold mb-1">My Tasks</h2>
+          <p className="text-body-secondary mb-0">A cleaner view for your work, events and daily priorities.</p>
+        </Col>
+        <Col xs={12} md="auto">
+          <Button variant="primary" className="rounded-pill px-4" onClick={() => setshowNewTask(true)}>
+            <i className="bi bi-plus-lg me-2"></i>
+            New Task
+          </Button>
+        </Col>
+      </Row>
 
-      {/* Primera fila con controles */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
+      <Card className="border-0 shadow-sm rounded-4 mb-4">
+        <Card.Body className="p-3 p-lg-4">
           <Form onSubmit={handleSearch}>
-            <Row className="g-2">
-              <Col xs={12} md={8}>
+            <Row className="g-3 align-items-center">
+              <Col lg={7}>
                 <InputGroup>
+                  <InputGroup.Text className="bg-body border-end-0 rounded-start-pill">
+                    <i className="bi bi-search text-body-secondary"></i>
+                  </InputGroup.Text>
                   <Form.Control
-                    className="border-end-0"
-                    placeholder="Search tasks..."
+                    className="border-start-0 rounded-end-pill"
+                    placeholder="Search tasks"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <Button variant="outline-primary" type="submit">
-                    Search
-                  </Button>
                 </InputGroup>
               </Col>
-              <Col xs={12} md={4} className="d-flex justify-content-md-end flex-wrap gap-2">
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setActiveSearchTerm("");
-                    refreshTasks();
-                  }}
-                  className="flex-fill flex-md-grow-0"
-                  size={isMobile ? "sm" : ""}
-                >
-                  Clear Filter
-                </Button>
-                <Button
-                  variant="outline-info"
-                  className="flex-fill flex-md-grow-0"
-                  onClick={refreshTasks}
-                  size={isMobile ? "sm" : ""}
-                >
-                  Refresh
-                </Button>
-                <Button
-                  variant="outline-primary"
-                  onClick={handleshowNewTask}
-                  className="flex-fill flex-md-grow-0"
-                  size={isMobile ? "sm" : ""}
-                >
-                  <span className="me-1">+</span> New Task
-                </Button>
+              <Col lg={5}>
+                <div className="d-flex flex-wrap justify-content-lg-end gap-2">
+                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                    Search
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="rounded-pill px-4"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setActiveSearchTerm("");
+                      refreshTasks();
+                    }}
+                  >
+                    Clear
+                  </Button>
+                  <Button variant="outline-primary" className="rounded-pill px-4" onClick={refreshTasks}>
+                    Refresh
+                  </Button>
+                </div>
               </Col>
             </Row>
           </Form>
         </Card.Body>
       </Card>
 
-      {/* Segunda fila con la lista de tareas */}
-      <Row>
-        <Col>
-          <Container
-            fluid
-            className="tasks-container"
-            style={{ 
-              width: "100%",
-              paddingBottom: "20px" 
+      <ErrorBoundary
+        resetKeys={[refreshKey]}
+        onError={handleErrors}
+        fallback={
+          <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+            <Card.Body>
+              <h3 className="h5 text-danger mb-2">Something went wrong</h3>
+              <p className="text-body-secondary mb-4">There was an error loading your tasks.</p>
+              <Button variant="primary" className="rounded-pill px-4" onClick={refreshTasks}>
+                Try Again
+              </Button>
+            </Card.Body>
+          </Card>
+        }
+      >
+        <Suspense
+          fallback={
+            <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+              <Card.Body>
+                <Spinner animation="border" />
+                <p className="text-body-secondary mt-3 mb-0">Loading tasks...</p>
+              </Card.Body>
+            </Card>
+          }
+        >
+          <TasksList
+            key={`tasks-list-${refreshKey}`}
+            tasksResource={tasksResource}
+            handleOpenTask={(id) => navigateTo(`${location.pathname}/${id}`)}
+            handleEditTask={(task) => {
+              setFormEditData(task);
+              setshowEditTask(true);
             }}
-          >
-            <ErrorBoundary
-              resetKeys={[refreshKey]}
-              onError={handleErrors}
-              fallback={
-                <Container className="text-center mt-5">
-                  <h2 style={{ color: "red" }}>Something went wrong</h2>
-                  <p>There was an error loading your tasks.</p>
-                  <Button variant="primary" onClick={refreshTasks}>
-                    Try Again
-                  </Button>
-                </Container>
-              }
-            >
-              <Suspense
-                fallback={
-                  <Container className="text-center mt-5">
-                    <Spinner animation="border" />
-                    <p className="mt-2">Loading tasks...</p>
-                  </Container>
-                }
-              >
-                <TasksList
-                  key={`tasks-list-${refreshKey}`}
-                  tasksResource={tasksResource}
-                  handleOpenTask={handleOpenTask}
-                  handleEditTask={handleshowEditTask}
-                  refreshTasks={refreshTasks}
-                  searchTerm={activeSearchTerm}
-                />
-              </Suspense>
-            </ErrorBoundary>
-          </Container>
-        </Col>
-      </Row>
+            refreshTasks={refreshTasks}
+            searchTerm={activeSearchTerm}
+          />
+        </Suspense>
+      </ErrorBoundary>
 
-      {/* Modales */}
       <NewEditTask
         show={showNewTask}
-        handleClose={handleClose}
+        handleClose={() => setshowNewTask(false)}
         refreshTasks={refreshTasks}
         editOrNew={false}
         initialData={{}}
       />
       <NewEditTask
         show={showEditTask}
-        handleClose={handleCloseEdit}
+        handleClose={() => setshowEditTask(false)}
         refreshTasks={refreshTasks}
         editOrNew={true}
         initialData={formEditData}

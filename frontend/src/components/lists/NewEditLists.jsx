@@ -1,7 +1,7 @@
-import { Container, Form, Modal, Button } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Button, Form, Modal } from "react-bootstrap";
 import listService from "../../services/listService";
-import { successToast, errorToast } from "../common/Noty";
+import { errorToast, successToast } from "../common/Noty";
 
 const NewEditLists = ({
   show,
@@ -19,11 +19,6 @@ const NewEditLists = ({
   });
   const [validated, setValidated] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
   useEffect(() => {
     if (editOrNew && initialData && Object.keys(initialData).length > 0) {
       setFormData({
@@ -35,17 +30,15 @@ const NewEditLists = ({
     }
   }, [initialData, editOrNew]);
 
-  const validateForm = () => {
-    if (!formData.nameOfList || formData.nameOfList.trim() === "") {
-      return false;
-    }
-    if (!formData.color || formData.color.trim() === "") {
-      return false;
-    }
-    return true;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const validateForm = () =>
+    Boolean(formData.nameOfList?.trim()) && Boolean(formData.color);
+
+  const handleSubmit = async () => {
     setValidated(true);
 
     if (!validateForm()) {
@@ -72,77 +65,71 @@ const NewEditLists = ({
   };
 
   return (
-    <Container>
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{editOrNew ? "Edit List" : "New List"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
+    <Modal show={show} onHide={handleClose} centered contentClassName="border-0 shadow-sm rounded-4">
+      <Modal.Header closeButton className="border-0 pb-0">
+        <Modal.Title className="fw-semibold">{editOrNew ? "Edit List" : "New List"}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="pt-2">
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-body-secondary small text-uppercase">Title</Form.Label>
+            <Form.Control
+              type="text"
+              name="nameOfList"
+              value={formData.nameOfList}
+              onChange={handleChange}
+              placeholder="Name of the list"
+              autoFocus
+              required
+              isInvalid={validated && !formData.nameOfList.trim()}
+            />
+            <Form.Control.Feedback type="invalid">List name is required</Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-body-secondary small text-uppercase">Description</Form.Label>
+            <Form.Control
+              as="textarea"
+              name="descriptionOfList"
+              value={formData.descriptionOfList}
+              onChange={handleChange}
+              placeholder="Description of the list"
+              rows={3}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label className="text-body-secondary small text-uppercase">Color</Form.Label>
+            <div className="d-flex align-items-center gap-3">
               <Form.Control
-                type="text"
-                name="nameOfList"
-                value={formData.nameOfList}
+                type="color"
+                name="color"
+                value={formData.color}
                 onChange={handleChange}
-                placeholder="Name of the list"
-                autoFocus
-                required
-                isInvalid={validated && (!formData.nameOfList || formData.nameOfList.trim() === "")}
+                title="Choose a color for the list"
+                style={{ width: 64 }}
               />
-              <Form.Control.Feedback type="invalid">
-                List name is required
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="descriptionOfList"
-                value={formData.descriptionOfList}
-                onChange={handleChange}
-                placeholder="Description of the list"
-                rows={3}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
-              <div className="d-flex">
-                <Form.Control
-                  type="color"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  title="Choose a color for the list"
-                  className="me-2"
-                />
-                <div
-                  className="flex-grow-1 rounded"
-                  style={{ backgroundColor: formData.color, height: "38px" }}
-                ></div>
-              </div>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={async () => {
-              const success = await handleSubmit();
-              if (success) {
-                handleClose();
-              }
-            }}
-          >
-            {editOrNew ? "Update" : "Create List"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+              <div className="flex-grow-1 rounded-4 border" style={{ backgroundColor: formData.color, height: 44 }}></div>
+            </div>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer className="border-0">
+        <Button variant="outline-secondary" className="rounded-pill px-4" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          className="rounded-pill px-4"
+          onClick={async () => {
+            const success = await handleSubmit();
+            if (success) {
+              handleClose();
+            }
+          }}
+        >
+          {editOrNew ? "Update" : "Create List"}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
