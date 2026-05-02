@@ -208,12 +208,19 @@ body {
   z-index: 1030;
 }
 
-.sidebar-toggle:hover,
-.sidebar-toggle:focus,
-.sidebar-toggle:active {
+.sidebar-toggle:hover {
   background-color: var(--bs-secondary-bg) !important;
   border-color: var(--bs-secondary) !important;
   color: var(--bs-white) !important;
+}
+
+.sidebar-toggle:focus,
+.sidebar-toggle:focus-visible,
+.sidebar-toggle:active {
+  background-color: var(--bs-dark) !important;
+  border-color: var(--bs-secondary) !important;
+  color: var(--bs-white) !important;
+  box-shadow: none !important;
 }
 
 .sidebar-user-toggle {
@@ -297,6 +304,17 @@ body {
 
 .calendar-shell .rbc-btn-group button {
   border-radius: 999px;
+}
+
+.calendar-shell .rbc-toolbar button:not(.rbc-active):focus,
+.calendar-shell .rbc-toolbar button:not(.rbc-active):focus-visible,
+.calendar-shell .rbc-toolbar button:not(.rbc-active):active,
+.calendar-shell .rbc-toolbar button:not(.rbc-active):active:hover,
+.calendar-shell .rbc-toolbar button:not(.rbc-active):active:focus {
+  color: var(--bs-btn-color, var(--bs-emphasis-color));
+  background-color: var(--bs-btn-bg, transparent);
+  border-color: var(--bs-btn-border-color, var(--bs-border-color));
+  box-shadow: none;
 }
 
 [data-bs-theme="dark"] .calendar-shell .rbc-toolbar button {

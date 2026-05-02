@@ -73,15 +73,20 @@ const CalendarComponent = () => {
       </div>
       <span className="rbc-toolbar-label">{props.label}</span>
       <div className="rbc-btn-group d-flex flex-wrap">
-        {["month", "week", "day", "agenda"].map((view) => (
+        {[
+          { key: "month", label: "Month" },
+          { key: "week", label: "Week" },
+          { key: "day", label: "Day" },
+          { key: "agenda", label: "Schedule" },
+        ].map(({ key, label }) => (
           <Button
-            key={view}
-            variant={props.view === view ? "primary" : "outline-secondary"}
+            key={key}
+            variant={props.view === key ? "primary" : "outline-secondary"}
             size="sm"
             className="me-2 mb-2 mb-sm-0 text-capitalize"
-            onClick={() => props.onView(view)}
+            onClick={() => props.onView(key)}
           >
-            {view}
+            {label}
           </Button>
         ))}
       </div>
