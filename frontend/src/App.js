@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Container, Spinner } from "react-bootstrap";
 import authService from "./services/authService";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MainApp from "./pages/MainApp";
 import RegisterPage from "./components/auth/RegisterPage";
 import LoginPage from "./components/auth/LoginPage";
 import HomePage from "./pages/HomePage";
-import { useNavigate } from "react-router-dom";
 import CalendarComponent from "./components/CalendarComponent";
 import Lists from "./components/lists/Lists";
 import TaskDetails from "./components/tasks/TaskDetails/TaskDetails";
@@ -20,14 +20,15 @@ import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
 import TeamDashboard from "./components/teams/TeamDashboard";
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // 1. Check for OAuth2 token in URL
         const oauth2Token = authService.checkForOAuth2Token();
         if (oauth2Token) {
           setIsAuthenticated(true);
@@ -36,14 +37,11 @@ function App() {
           return;
         }
 
-        // 2. Check existing token
         const existingToken = authService.getToken();
         if (existingToken) {
-          // Validate token is not expired
           if (authService.isTokenValid()) {
             setIsAuthenticated(true);
           } else {
-            // Token expired - clear it and redirect to login
             authService.logout();
             setIsAuthenticated(false);
             infoToast("Your session has expired. Please log in again.");
@@ -52,7 +50,6 @@ function App() {
       } catch (error) {
         console.error("Error during auth initialization:", error);
         errorToast(error.message || "Authentication error occurred");
-
         authService.logout();
         setIsAuthenticated(false);
       } finally {
@@ -63,7 +60,7 @@ function App() {
     initializeAuth();
   }, [navigate]);
 
-  const handleLogin = (token) => {
+  const handleLogin = () => {
     setIsAuthenticated(true);
     navigate("/home");
   };
@@ -76,12 +73,10 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="app-loading">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Verifying authentication...</p>
-        </div>
-      </div>
+      <Container fluid className="min-vh-100 d-flex flex-column justify-content-center align-items-center bg-body-tertiary gap-3">
+        <Spinner animation="border" variant="primary" />
+        <p className="text-body-secondary mb-0">Verifying authentication...</p>
+      </Container>
     );
   }
 
@@ -91,26 +86,16 @@ function App() {
       <Route
         path="/"
         element={
-          isAuthenticated ? (
-            <Navigate to="/home" replace />
-          ) : (
-            <>
-              <HomePage />
-            </>
-          )
+          isAuthenticated ? <Navigate to="/home" replace /> : <HomePage />
         }
       />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-      <Route 
-        path="/oauth2-login" 
+      <Route
+        path="/oauth2-login"
         element={
-          isAuthenticated ? (
-            <Navigate to="/home" replace />
-          ) : (
-            <OAuth2Login onLogin={handleLogin} />
-          )
-        } 
+          isAuthenticated ? <Navigate to="/home" replace /> : <OAuth2Login onLogin={handleLogin} />
+        }
       />
       <Route
         path="/home"
@@ -121,16 +106,44 @@ function App() {
         }
       >
         <Route index element={<Home />} />
-        <Route path="/home/tasks" element={<FeatureGuard featureKey="tasks"><OutletUtil /></FeatureGuard>}>
+        <Route
+          path="/home/tasks"
+          element={
+            <FeatureGuard featureKey="tasks">
+              <OutletUtil />
+            </FeatureGuard>
+          }
+        >
           <Route index element={<Tasks />} />
           <Route path=":id" element={<TaskDetails />} />
         </Route>
-        <Route path="/home/calendar" element={<FeatureGuard featureKey="calendar"><CalendarComponent /></FeatureGuard>} />
-        <Route path="/home/lists" element={<FeatureGuard featureKey="lists"><OutletUtil /></FeatureGuard>}>
+        <Route
+          path="/home/calendar"
+          element={
+            <FeatureGuard featureKey="calendar">
+              <CalendarComponent />
+            </FeatureGuard>
+          }
+        />
+        <Route
+          path="/home/lists"
+          element={
+            <FeatureGuard featureKey="lists">
+              <OutletUtil />
+            </FeatureGuard>
+          }
+        >
           <Route index element={<Lists />} />
           <Route path=":id" element={<ListDetailsGeneral />} />
         </Route>
-        <Route path="/home/teams" element={<FeatureGuard featureKey="teams"><OutletUtil /></FeatureGuard>}>
+        <Route
+          path="/home/teams"
+          element={
+            <FeatureGuard featureKey="teams">
+              <OutletUtil />
+            </FeatureGuard>
+          }
+        >
           <Route index element={<Teams />} />
           <Route path=":id" element={<TeamDashboard />} />
         </Route>
