@@ -145,7 +145,7 @@ function SidebarMenu({ onLogOut }) {
   };
 
   const handleLogoError = (event) => {
-    if (event.currentTarget.src.endsWith("/favicon.ico")) {
+    if (event.currentTarget.src.endsWith(fallbackAppLogo)) {
       console.warn("Unable to load sidebar logo asset");
       return;
     }
