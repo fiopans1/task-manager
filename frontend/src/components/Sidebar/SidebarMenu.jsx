@@ -24,9 +24,8 @@ import listService from "../../services/listService";
 import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
 
-const assetBaseUrl = import.meta.env.BASE_URL;
-const appLogo = `${assetBaseUrl}favicon.png`;
-const fallbackAppLogo = `${assetBaseUrl}favicon.ico`;
+const appLogo = "/favicon.png";
+const fallbackAppLogo = "/favicon.ico";
 
 const NAVIGATION_ITEMS = [
   {
