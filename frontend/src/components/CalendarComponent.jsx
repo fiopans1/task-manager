@@ -94,10 +94,10 @@ const CalendarComponent = () => {
   );
 
   const formats = {
-    dayFormat: (date, culture, currentLocalizer) => currentLocalizer.format(date, "ddd D", culture),
-    dayHeaderFormat: (date, culture, currentLocalizer) => currentLocalizer.format(date, "dddd, MMMM D", culture),
-    dayRangeHeaderFormat: ({ start, end }, culture, currentLocalizer) =>
-      `${currentLocalizer.format(start, "MMMM D", culture)} - ${currentLocalizer.format(end, "MMMM D", culture)}`,
+    dayFormat: (date, culture, localizerInstance) => localizerInstance.format(date, "ddd D", culture),
+    dayHeaderFormat: (date, culture, localizerInstance) => localizerInstance.format(date, "dddd, MMMM D", culture),
+    dayRangeHeaderFormat: ({ start, end }, culture, localizerInstance) =>
+      `${localizerInstance.format(start, "MMMM D", culture)} - ${localizerInstance.format(end, "MMMM D", culture)}`,
   };
 
   return (
