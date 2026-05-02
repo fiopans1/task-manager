@@ -95,7 +95,7 @@ task-manager/
 ├── frontend/                   # React SPA application
 │   ├── src/                    # JavaScript source code
 │   ├── public/                 # Static files
-│   └── package.json            # pnpm dependencies
+│   └── package.json            # Frontend dependencies
 ├── scripts/                    # Build and deployment scripts
 │   ├── compile.py              # Main build orchestrator
 │   ├── bin_files/              # Runtime executable scripts

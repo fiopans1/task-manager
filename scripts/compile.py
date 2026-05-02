@@ -40,14 +40,6 @@ class BuildTaskManager:
         self.target_platform = target_platform
         self.target_architecture = target_architecture
 
-    def get_pnpm_command(self):
-        """Returns the pnpm command, falling back to corepack when needed."""
-        if shutil.which('pnpm'):
-            return ['pnpm']
-        if shutil.which('corepack'):
-            return ['corepack', 'pnpm']
-        raise FileNotFoundError("pnpm and corepack are not installed or not found in PATH.")
-
     def get_caddy_download_info(self):
         """Determines the download URL and filename according to the platform."""
         
@@ -185,7 +177,7 @@ class BuildTaskManager:
             sys.exit(1)
         
         try:
-            subprocess.run(self.get_pnpm_command() + ['-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(['pnpm', '-v'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             logger.info("Node.js and pnpm are installed.")
         except (subprocess.CalledProcessError, FileNotFoundError):
             logger.error("Node.js and pnpm are not installed or not found in PATH.")
@@ -205,7 +197,6 @@ class BuildTaskManager:
         """Compiles the frontend with pnpm."""
         logger.info("Compiling frontend...")
         try:
-            pnpm_command = self.get_pnpm_command()
             # Copy config template to public directory before building
             config_template = self.scripts_dir / 'config_templates' / 'config.template.js'
             config_dest = self.frontend_dir / 'public' / 'config.js'
@@ -215,8 +206,8 @@ class BuildTaskManager:
                 logger.info(f"✓ Copied config template to: {config_dest}")
             else:
                 logger.warning(f"✗ Config template not found: {config_template}")
-            subprocess.run(pnpm_command + ['install'], cwd=self.frontend_dir, check=True)
-            subprocess.run(pnpm_command + ['run', 'build'], cwd=self.frontend_dir, check=True)
+            subprocess.run(['pnpm', 'install'], cwd=self.frontend_dir, check=True)
+            subprocess.run(['pnpm', 'run', 'build'], cwd=self.frontend_dir, check=True)
             logger.info("Frontend compiled successfully.")
         except subprocess.CalledProcessError as e:
             logger.error(f"Error compiling frontend: {e}")
