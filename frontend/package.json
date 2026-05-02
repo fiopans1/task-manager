@@ -30,6 +30,8 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
+    "predev": "node scripts/ensureViteInstalled.mjs",
+    "prestart": "node scripts/ensureViteInstalled.mjs",
     "dev": "vite",
     "start": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
