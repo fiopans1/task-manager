@@ -95,7 +95,7 @@ task-manager/
 ├── frontend/                   # Aplicación SPA con React
 │   ├── src/                    # Código fuente JavaScript
 │   ├── public/                 # Archivos estáticos
-│   └── package.json            # Dependencias npm
+│   └── package.json            # Dependencias del frontend
 ├── scripts/                    # Scripts de compilación y despliegue
 │   ├── compile.py              # Orquestador de build principal
 │   ├── bin_files/              # Scripts ejecutables de runtime
@@ -1193,7 +1193,7 @@ Estilos mínimos del template Create React App (animación del logo, header).
 
 | Categoría | Paquetes |
 |---|---|
-| **Core React** | `react` 18, `react-dom` 18, `react-scripts` 5.0.1 |
+| **Core React** | `react` 18, `react-dom` 18, `vite` 8, `@vitejs/plugin-react` 6 |
 | **Routing** | `react-router-dom` 7.1.5 |
 | **State Management** | `@reduxjs/toolkit` 2.5.1, `react-redux` 9.2.0, `redux-persist` 6.0.0 |
 | **UI Framework** | `bootstrap` 5.3.5, `react-bootstrap` 2.10.9 |
@@ -1520,18 +1520,12 @@ cd frontend
 
 # Instalar dependencias
 pnpm install
-# O con npm:
-npm install --legacy-peer-deps
 
 # Compilar
 pnpm build
-# O con npm:
-CI=false npx react-scripts build
 ```
 
 Los archivos estáticos se generan en `frontend/build/`.
-
-> **Nota:** `CI=false` es necesario con npm para que los warnings no se traten como errores.
 
 ### 7.3 Compilación con Docker
 

@@ -24,8 +24,8 @@ import listService from "../../services/listService";
 import taskService from "../../services/taskService";
 import teamService from "../../services/teamService";
 
-const appLogo = `${process.env.PUBLIC_URL}/favicon.png`;
-const fallbackAppLogo = `${process.env.PUBLIC_URL}/favicon.ico`;
+const appLogo = "/favicon.png";
+const fallbackAppLogo = "/favicon.ico";
 
 const NAVIGATION_ITEMS = [
   {
@@ -145,7 +145,7 @@ function SidebarMenu({ onLogOut }) {
   };
 
   const handleLogoError = (event) => {
-    if (event.currentTarget.src.endsWith("/favicon.ico")) {
+    if (event.currentTarget.src.endsWith(fallbackAppLogo)) {
       console.warn("Unable to load sidebar logo asset");
       return;
     }
