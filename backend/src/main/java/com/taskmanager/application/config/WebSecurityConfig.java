@@ -6,6 +6,7 @@ import com.taskmanager.application.security.OAuth2LoginSuccessHandler;
 import com.taskmanager.application.service.CustomOAuth2UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +23,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -51,17 +57,24 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring security filter chain");
 
+        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfTokenRepository.setCookiePath("/");
+
         http.authorizeHttpRequests(authorizeRequests
                 -> authorizeRequests.requestMatchers("/auth/**", "/oauth2/**", "/health", "/api/config").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //TO-DO: Change thiis for a filter
                         .anyRequest().authenticated()
         );
 
+        http.cors(Customizer.withDefaults());
+
         http.sessionManagement(sessionManager
                 -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-        //if we don't disable csrf we won't be able to use the application as an api
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(csrfTokenRepository)
+                .ignoringRequestMatchers("/oauth2/**")
+        );
 
         if (oAuth2IsEnabled) {
             logger.info("OAuth2 is enabled, configuring OAuth2 login");
@@ -78,6 +91,7 @@ public class WebSecurityConfig {
         }
 
         http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); //check if we still need the constructor
+        http.addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class);
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
             logger.warn("Unauthorized access attempt from: {}", request.getRemoteAddr());
@@ -91,6 +105,21 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(passwordStrength);
+    }
+
+    private static final class CsrfCookieFilter extends OncePerRequestFilter {
+
+        @Override
+        protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        jakarta.servlet.FilterChain filterChain)
+                throws jakarta.servlet.ServletException, IOException {
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                csrfToken.getToken();
+            }
+            filterChain.doFilter(request, response);
+        }
     }
 
 }
