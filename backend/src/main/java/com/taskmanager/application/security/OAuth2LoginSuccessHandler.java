@@ -10,10 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.taskmanager.application.model.entities.FullName;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.respository.UserRepository;
-import com.taskmanager.application.service.JWTUtilityService;
+import com.taskmanager.application.service.CsrfService;
+import com.taskmanager.application.service.SessionService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +23,15 @@ import jakarta.servlet.http.HttpServletResponse;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private JWTUtilityService jwtUtilityService;
+    private SessionService sessionService;
+
+    @Autowired
+    private CsrfService csrfService;
 
     @Value("${taskmanager.oauth2.authorized-redirect-uris}")
     private String authorizedRedirectUri;
@@ -37,58 +41,29 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             Authentication authentication) throws IOException, ServletException {
 
         try {
-            // At this point, the user was already processed and saved by CustomOAuth2UserService
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
             logger.info("Processing successful OAuth2 login for user: {} (ID: {})",
-                    userPrincipal.getEmail(), userPrincipal.getId());
+                    userPrincipal.getUsername(), userPrincipal.getId());
 
-            // Create User object for JWT
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new Exception("User not found: " + userPrincipal.getId()));
 
-            // Generate JWT token
-            String token = jwtUtilityService.generateJWT(user);
+            sessionService.createSessionForUser(user, request, response);
+            csrfService.rotateToken(request, response);
 
-            // Redirect to frontend with token
-            String redirectUrl = buildRedirectUrl(token);
-
-            logger.info("Redirecting to: {}", redirectUrl);
-            response.sendRedirect(redirectUrl);
+            logger.info("Redirecting OAuth2 login to: {}", authorizedRedirectUri);
+            response.sendRedirect(authorizedRedirectUri);
 
         } catch (Exception e) {
-            logger.error("Error during JWT token generation", e);
+            logger.error("Error during OAuth2 session creation", e);
             handleAuthenticationError(response, e);
         }
     }
 
-    /**
-     * Creates a User object from the UserPrincipal to generate the JWT
-     */
-    private User createUserFromPrincipal(UserPrincipal userPrincipal) {
-        User user = new User();
-        user.setId(userPrincipal.getId());
-        user.setEmail(userPrincipal.getEmail());
-        user.setUsername(userPrincipal.getUsername());
-        user.setName(new FullName(userPrincipal.getName(), "", ""));
-        user.setAuthoritiesAsRoles(userPrincipal.getAuthorities());
-        return user;
-    }
-
-    /**
-     * Builds the redirect URL with the token
-     */
-    private String buildRedirectUrl(String token) {
-        return authorizedRedirectUri + "?token=" + token;
-    }
-
-    /**
-     * Handles errors during token generation
-     */
     private void handleAuthenticationError(HttpServletResponse response, Exception e) throws IOException {
-        logger.error("Error in token generation: {}", e.getMessage());
+        logger.error("Error in OAuth2 token generation: {}", e.getMessage());
 
-        // Redirect to frontend with error information
         String errorUrl = authorizedRedirectUri + "?error=token_generation_failed&message="
                 + java.net.URLEncoder.encode(e.getMessage(), "UTF-8");
 

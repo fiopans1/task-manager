@@ -17,7 +17,9 @@ window.APP_CONFIG = {
     // Examples:
     // - Development: 'http://localhost:8080'
     // - Production: 'https://api.yourdomain.com'
-    baseUrl: 'http://localhost:8080'
+    // Dev: empty string = same-origin via Vite proxy to localhost:8080
+    // Prod: set the actual backend URL
+    baseUrl: ''
   },
 
   /**
@@ -58,6 +60,14 @@ window.APP_CONFIG = {
     debug: false,
 
     license: 'Community Edition'
+  },
+
+  /**
+   * Session behavior
+   */
+  session: {
+    // Minutes of user inactivity before showing the idle session modal
+    inactivityThresholdMinutes: 10
   },
 
   /**

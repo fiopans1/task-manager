@@ -906,12 +906,13 @@ About modal dialog:
 ### 4.8 Components — Session (`session/`)
 
 #### `SessionManager.js`
-JWT session expiry handler:
-- Polls every 30 seconds for token expiry.
-- Shows warning modal 5 minutes before expiry.
+Frontend idle session manager:
+- Polls locally every 5 seconds for user inactivity.
+- Tracks real UI activity (mouse, keyboard, scroll, touch).
+- Shows a warning modal after 10 minutes of inactivity.
 - 60-second countdown in the modal.
 - Options: extend session (refresh token) or force logout.
-- Uses refs to prevent memory leaks in intervals.
+- Uses refs to prevent memory leaks in intervals and avoid unnecessary rerenders.
 
 ### 4.9 Components — Home
 
@@ -1351,6 +1352,7 @@ window.APP_CONFIG = {
     authentik: { enabled: false }
   },
   app: { name: "Task Manager", version: "0.0.1", debug: false, license: "Community Edition" },
+  session: { inactivityThresholdMinutes: 10 },
   features: { calendar: true, lists: true, timeTracking: true }
 }
 ```

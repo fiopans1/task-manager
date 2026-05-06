@@ -1,203 +1,121 @@
-import axios from "axios";
-import store from "../redux/store";
-import configService from "./configService";
+import { apiClient } from "./apiClient";
+
 const resourceCache = new Map();
 
 const createList = async (list) => {
-  try {
-    const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.post(serverUrl + "/api/lists/create", list, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    });
-    invalidateListsCache();
-    return response.data;
-  } catch (error) {
-    throw new Error("Error connecting to server:" + error.message);
-  }
+    try {
+        const response = await apiClient.post("/api/lists/create", list);
+        invalidateListsCache();
+        return response.data;
+    } catch (error) {
+        throw new Error("Error connecting to server:" + error.message);
+    }
 };
 
 const updateList = async (list) => {
-  try {
-    const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.post(
-      serverUrl + "/api/lists/update/" + list.id,
-      list,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      }
-    );
-    invalidateListsCache();
-    return response.data;
-  } catch (error) {
-    throw new Error("Error connecting to server:" + error.message);
-  }
+    try {
+        const response = await apiClient.post("/api/lists/update/" + list.id, list);
+        invalidateListsCache();
+        return response.data;
+    } catch (error) {
+        throw new Error("Error connecting to server:" + error.message);
+    }
 };
 
 function getSuspender(promise) {
-  let status = "pending";
-  let result;
-  const suspender = promise.then(
-    (response) => {
-      status = "success";
-      result = response;
-    },
-    (error) => {
-      status = "error";
-      result = error;
-    }
-  );
-  const read = () => {
-    switch (status) {
-      case "pending":
-        throw suspender;
-      case "error":
-        throw result;
-      default:
-        return result;
-    }
-  };
-  return { read };
+    let status = "pending";
+    let result;
+    const suspender = promise.then(
+        (response) => {
+            status = "success";
+            result = response;
+        },
+        (error) => {
+            status = "error";
+            result = error;
+        }
+    );
+    const read = () => {
+        switch (status) {
+            case "pending":
+                throw suspender;
+            case "error":
+                throw result;
+            default:
+                return result;
+        }
+    };
+    return { read };
 }
 
 const invalidateListsCache = (key = "lists") => {
-  resourceCache.delete(key);
+    resourceCache.delete(key);
 };
 
 const getLists = () => {
-  const cacheKey = "lists";
-
-  // If already in cache, return cached resource
-  if (resourceCache.has(cacheKey)) {
-    return resourceCache.get(cacheKey);
-  }
-  const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  if (!serverUrl || !token) {
-    console.error("Server URL or token not found", { serverUrl, token });
-    return getSuspender(
-      Promise.reject(
-        new Error("Missing server configuration or authentication")
-      )
-    );
-  }
-  const promise = axios
-    .get(serverUrl + "/api/lists/lists", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      // In case of error, invalidate cache to allow retries
-      invalidateListsCache();
-      throw error;
-    });
-  const resource = getSuspender(promise);
-  resourceCache.set(cacheKey, resource);
-  return resource;
+    const cacheKey = "lists";
+    if (resourceCache.has(cacheKey)) {
+        return resourceCache.get(cacheKey);
+    }
+    const promise = apiClient
+        .get("/api/lists/lists")
+        .then((response) => response.data)
+        .catch((error) => {
+            invalidateListsCache();
+            throw error;
+        });
+    const resource = getSuspender(promise);
+    resourceCache.set(cacheKey, resource);
+    return resource;
 };
 
 const deleteList = (id) => {
-  const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  return axios
-    .delete(serverUrl + "/api/lists/delete/" + id, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    })
-    .then((response) => response.data);
+    return apiClient.delete("/api/lists/delete/" + id).then((response) => response.data);
 };
 
 const addTasksToList = async (listId, taskIds) => {
-  try {
-    const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.post(
-      serverUrl + "/api/lists/addTasksToList/" + listId,
-      taskIds,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error("Error connecting to server:" + error.message);
-  }
+    try {
+        const response = await apiClient.post("/api/lists/addTasksToList/" + listId, taskIds);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error connecting to server:" + error.message);
+    }
 };
 
 const deleteTaskFromList = async (taskId) => {
-  try {
-    const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
-    await axios.delete(
-      serverUrl + "/api/lists/deleteTaskFromList/" + taskId,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      }
-    );
-  } catch (error) {
-    throw new Error("Error connecting to server:" + error.message);
-  }
+    try {
+        await apiClient.delete("/api/lists/deleteTaskFromList/" + taskId);
+    } catch (error) {
+        throw new Error("Error connecting to server:" + error.message);
+    }
 };
 
 const getListById = async (id) => {
-  try {
-    const serverUrl = configService.getApiBaseUrl();
-    const token = "Bearer " + store.getState().auth.token;
-    const response = await axios.get(serverUrl + "/api/lists/getList/" + id, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error("Error connecting to server:" + error.message);
-  }
+    try {
+        const response = await apiClient.get("/api/lists/getList/" + id);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error connecting to server:" + error.message);
+    }
 };
 
 const fetchListsPage = async (page = 0, size = 50, search = "") => {
-  const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  const params = { page, size };
-  if (search) params.search = search;
-  const response = await axios.get(serverUrl + "/api/lists/lists/paged", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
-    params,
-  });
-  return response.data;
+    const params = { page, size };
+    if (search) params.search = search;
+    const response = await apiClient.get("/api/lists/lists/paged", { params });
+    return response.data;
 };
 
 const listService = {
-  getLists,
-  createList,
-  updateList,
-  invalidateListsCache,
-  deleteList,
-  addTasksToList,
-  deleteTaskFromList,
-  getListById,
-  fetchListsPage,
+    getLists,
+    createList,
+    updateList,
+    invalidateListsCache,
+    deleteList,
+    addTasksToList,
+    deleteTaskFromList,
+    getListById,
+    fetchListsPage,
 };
 
 export default listService;

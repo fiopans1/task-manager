@@ -2,11 +2,14 @@ package com.taskmanager.application.controller;
 
 import com.taskmanager.application.model.dto.LoginDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
+import com.taskmanager.application.model.dto.SessionDTO;
 import com.taskmanager.application.model.entities.User;
-import com.taskmanager.application.security.OAuth2LoginFailureHandler;
 import com.taskmanager.application.service.AuthService;
+import com.taskmanager.application.service.CsrfService;
+import com.taskmanager.application.service.SessionService;
 
-import java.util.HashMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,27 +29,30 @@ public class AuthRestController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private SessionService sessionService;
+
+    @Autowired
+    private CsrfService csrfService;
+
     @PostMapping("/login")
-    public ResponseEntity<HashMap<String, String>> login(@RequestBody LoginDTO login) throws Exception {
+    public ResponseEntity<?> login(@RequestBody LoginDTO login, HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("Login attempt for user: {}", login.getUsername());
 
         try {
-            HashMap<String, String> response = authService.login(login);
-            if (response.get("token") == null) {
-                logger.warn("Login failed for user: {} - {}", login.getUsername(), response.get("error"));
-                return ResponseEntity.badRequest().body(response);
-            } else {
-                logger.info("Login successful for user: {}", login.getUsername());
-                return ResponseEntity.ok(response);
-            }
+            SessionDTO session = sessionService.login(login, request, response);
+            csrfService.rotateToken(request, response);
+            return ResponseEntity.ok(session);
         } catch (Exception e) {
-            logger.error("Login error for user: {}", login.getUsername(), e);
-            throw e;
+            logger.warn("Login failed for user {}: {}", login.getUsername(), e.getMessage());
+            java.util.HashMap<String, String> errorBody = new java.util.HashMap<>();
+            errorBody.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorBody);
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
+    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception {
         logger.info("Registration attempt for user: {}", user.getUsername());
 
         try {

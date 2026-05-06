@@ -31,9 +31,6 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
-    private JWTUtilityService jwtUtilityService;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -43,38 +40,27 @@ public class AuthService {
     private UserValidation userValidation;
 
     @Transactional(readOnly = true)
-    public HashMap<String, String> login(LoginDTO login) throws Exception {
+    public User authenticate(LoginDTO login) throws Exception {
         logger.info("Attempting login for username: {}", login.getUsername());
 
-        try {
-            HashMap<String, String> response = new HashMap<>();
-            Optional<User> user = userRepository.findByUsername(login.getUsername());
-            if (user.isEmpty()) {
-                logger.warn("Login failed: User not registered - {}", login.getUsername());
-                response.put("error", "User not registered!");
-                return response;
-            }
-
-            if (user.get().isBlocked()) {
-                logger.warn("Login failed: User is blocked - {}", login.getUsername());
-                response.put("error", "Your account has been blocked. Contact an administrator.");
-                return response;
-            }
-
-            if (verifyPassword(login.getPassword(), user.get().getPassword())) {
-                logger.info("Login successful for user: {}", login.getUsername());
-                String token = jwtUtilityService.generateJWT(user.get());
-                response.put("token", token);
-                return response;
-            } else {
-                logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
-                response.put("error", "Username or password is incorrect!");
-                return response;
-            }
-        } catch (Exception e) {
-            logger.error("Error during login for user: {} - Error: {}", login.getUsername(), e.getMessage(), e);
-            throw new Exception(e.toString());
+        Optional<User> user = userRepository.findByUsername(login.getUsername());
+        if (user.isEmpty()) {
+            logger.warn("Login failed: User not registered - {}", login.getUsername());
+            throw new Exception("User not registered!");
         }
+
+        if (user.get().isBlocked()) {
+            logger.warn("Login failed: User is blocked - {}", login.getUsername());
+            throw new Exception("Your account has been blocked. Contact an administrator.");
+        }
+
+        if (verifyPassword(login.getPassword(), user.get().getPassword())) {
+            logger.info("Login successful for user: {}", login.getUsername());
+            return user.get();
+        }
+
+        logger.warn("Login failed: Authentication failed for user - {}", login.getUsername());
+        throw new Exception("Username or password is incorrect!");
     }
 
     private boolean verifyPassword(String enteredPassword, String storedPassword) {

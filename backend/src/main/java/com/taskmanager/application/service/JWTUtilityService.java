@@ -26,7 +26,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,28 +70,41 @@ public class JWTUtilityService {
         return keyFactory.generatePublic(new X509EncodedKeySpec(decodeKey));
     }
 
-    public String generateJWT(User user) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
-        logger.debug("Generating JWT for user: {}", user.getUsername());
+    public String generateAccessToken(User user, String sessionIdentifier, Date iat, Date exp) {
+        logger.debug("Generating access token for user: {}", user.getUsername());
 
-        PrivateKey privateKey = loadPrivateKey(privateKeyResource);
+        try {
+            PrivateKey privateKey = loadPrivateKey(privateKeyResource);
+            JWSSigner signer = new RSASSASigner(privateKey);
 
-        JWSSigner signer = new RSASSASigner(privateKey);
-        String roles = user.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
-                .collect(Collectors.joining(","));
-        Date now = new Date();
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
-                .claim("roles", roles)
-                .issueTime(now)
-                .expirationTime(new Date(now.getTime() + 4 * 60 * 60 * 1000))
-                .build();
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(user.getUsername())
+                    .claim("sid", sessionIdentifier)
+                    .claim("type", "access")
+                    .issueTime(iat)
+                    .expirationTime(exp)
+                    .build();
 
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
-        signedJWT.sign(signer);
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+            signedJWT.sign(signer);
 
-        logger.info("JWT generated successfully for user: {}", user.getUsername());
-        return signedJWT.serialize();
+            logger.info("Access token generated successfully for user: {}", user.getUsername());
+            return signedJWT.serialize();
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException | JOSEException e) {
+            logger.error("Error generating access token for user {}: {}", user.getUsername(), e.getMessage(), e);
+            throw new RuntimeException("Error generating access token", e);
+        }
+    }
+
+    public Optional<String> extractSessionIdentifier(String jwt) {
+        try {
+            JWTClaimsSet claims = parseJWT(jwt);
+            String sid = (String) claims.getClaim("sid");
+            return Optional.ofNullable(sid);
+        } catch (Exception e) {
+            logger.debug("Could not extract session identifier from JWT: {}", e.getMessage());
+            return Optional.empty();
+        }
     }
 
     public JWTClaimsSet parseJWT(String jwt) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException, ParseException {

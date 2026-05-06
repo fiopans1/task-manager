@@ -906,12 +906,13 @@ Modal "Acerca de":
 ### 4.8 Componentes — Sesión (`session/`)
 
 #### `SessionManager.js`
-Gestión de expiración de sesión JWT:
-- Polling cada 30 segundos para comprobar expiración del token.
-- Muestra modal de aviso 5 minutos antes de la expiración.
+Gestión de inactividad de sesión en frontend:
+- Polling local cada 5 segundos para comprobar inactividad del usuario.
+- Registra actividad real de UI (raton, teclado, scroll, touch).
+- Muestra modal tras 10 minutos sin actividad.
 - Countdown de 60 segundos en el modal.
 - Opciones: extender sesión (refresh token) o forzar logout.
-- Usa refs para prevenir memory leaks en los intervalos.
+- Usa refs para prevenir memory leaks en los intervalos y evitar rerenders innecesarios.
 
 ### 4.9 Componentes — Home
 
@@ -1350,6 +1351,7 @@ window.APP_CONFIG = {
     authentik: { enabled: false }
   },
   app: { name: "Task Manager", version: "0.0.1", debug: false, license: "Community Edition" },
+  session: { inactivityThresholdMinutes: 10 },
   features: { calendar: true, lists: true, timeTracking: true }
 }
 ```
