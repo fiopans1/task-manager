@@ -64,6 +64,22 @@ See the [Configuration Guide](docs/CONFIGURATION.md) for detailed information on
 - Web server customization
 - Deployment best practices
 
+## Documentation Site
+
+The repository now includes a VitePress documentation portal built from the markdown files in `/docs`:
+
+```bash
+cd docs
+corepack pnpm install
+corepack pnpm docs:dev
+```
+
+Build the static site with:
+
+```bash
+corepack pnpm docs:build
+```
+
 ## Development
 
 ### Backend Development

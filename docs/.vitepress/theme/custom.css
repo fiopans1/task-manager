@@ -1,0 +1,48 @@
+:root {
+  --vp-c-brand-1: #2563eb;
+  --vp-c-brand-2: #1d4ed8;
+  --vp-c-brand-3: #1e40af;
+  --vp-c-brand-soft: rgba(37, 99, 235, 0.14);
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #60a5fa 0%, #2563eb 45%, #7c3aed 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle at center, rgba(37, 99, 235, 0.35), rgba(15, 23, 42, 0.1));
+  --vp-home-hero-image-filter: blur(72px);
+}
+
+.dark {
+  --vp-c-brand-1: #60a5fa;
+  --vp-c-brand-2: #3b82f6;
+  --vp-c-brand-3: #2563eb;
+}
+
+.VPFeature {
+  border: 1px solid var(--vp-c-divider);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-1);
+  transform: translateY(-2px);
+}
+
+.tm-callout {
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  background: var(--vp-c-brand-soft);
+  margin: 1.5rem 0;
+}
+
+.tm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.tm-grid > div {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 16px;
+  padding: 1rem;
+  background: var(--vp-c-bg-soft);
+}
