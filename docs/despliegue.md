@@ -10,7 +10,7 @@ Task Manager contempla dos rutas principales:
 ## Empaquetado del proyecto
 
 ```bash
-cd /home/runner/work/task-manager/task-manager/scripts
+cd scripts
 python3 compile.py --action deploy
 ```
 
@@ -21,13 +21,12 @@ El proceso prepara backend, frontend, plantillas de configuración y artefacto f
 Build recomendado:
 
 ```bash
-docker build -f docker/Dockerfile.deployment -t fiopans1/taskmanager:latest /home/runner/work/task-manager/task-manager
+docker build -f docker/Dockerfile.deployment -t fiopans1/taskmanager:latest .
 ```
 
 Script auxiliar:
 
 ```bash
-cd /home/runner/work/task-manager/task-manager
 ./docker/build.sh
 ```
 

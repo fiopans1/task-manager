@@ -25,7 +25,7 @@ Task Manager es una aplicación web para gestión de tareas y colaboración en e
 ### Backend
 
 ```bash
-cd /home/runner/work/task-manager/task-manager/backend
+cd backend
 ./mvnw spring-boot:run
 ```
 
@@ -34,7 +34,7 @@ cd /home/runner/work/task-manager/task-manager/backend
 ### Frontend
 
 ```bash
-cd /home/runner/work/task-manager/task-manager/frontend
+cd frontend
 corepack pnpm install
 corepack pnpm start
 ```
@@ -71,7 +71,7 @@ Ajusta `public/config.js` o la plantilla `scripts/config_templates/config.templa
 ## Comandos del portal de documentación
 
 ```bash
-cd /home/runner/work/task-manager/task-manager/docs
+cd docs
 corepack pnpm install
 corepack pnpm docs:dev
 ```
