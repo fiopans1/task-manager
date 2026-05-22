@@ -25,6 +25,7 @@ public class EventTaskDTO {
     public Long getId() {
         return id;
     }
+
     public Long getTaskId() {
         return taskId;
     }
