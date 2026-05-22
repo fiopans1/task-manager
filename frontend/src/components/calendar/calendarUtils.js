@@ -111,6 +111,7 @@ export const formatEventDateRange = (event, locale = "en-US") => {
 export const buildCalendarEvent = (event, now = new Date()) => {
   const normalizedEvent = {
     ...event,
+    taskId: event.taskId,
     start: new Date(event.startTime),
     end: new Date(event.endTime),
     title: event.nameOfTask,

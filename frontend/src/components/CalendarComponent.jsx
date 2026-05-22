@@ -259,7 +259,12 @@ const CalendarComponent = () => {
                             variant="outline-primary"
                             size="sm"
                             className="rounded-pill px-3"
-                            onClick={() => navigate(`/home/tasks/${event.taskId}`)}
+                            onClick={() => {
+                              if (event.taskId) {
+                                navigate(`/home/tasks/${event.taskId}`)
+                              }
+                            }}
+                            disabled={!event.taskId}
                           >
                             Open task
                           </Button>
