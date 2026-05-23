@@ -74,6 +74,8 @@ corepack pnpm install
 corepack pnpm docs:dev
 ```
 
+The documentation is available in mirrored language sections at `/es/` and `/en/`.
+
 Build the static site with:
 
 ```bash
