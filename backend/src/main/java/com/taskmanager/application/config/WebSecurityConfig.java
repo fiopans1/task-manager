@@ -1,6 +1,7 @@
 package com.taskmanager.application.config;
 
 import com.taskmanager.application.security.JWTAuthorizationFilter;
+import com.taskmanager.application.security.CookieOAuth2AuthorizationRequestRepository;
 import com.taskmanager.application.security.OAuth2LoginFailureHandler;
 import com.taskmanager.application.security.OAuth2LoginSuccessHandler;
 import com.taskmanager.application.security.SpaCsrfTokenRequestHandler;
@@ -58,6 +59,9 @@ public class WebSecurityConfig {
     private OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Autowired
+    private CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
+
+    @Autowired
     private TaskManagerSecurityProperties securityProperties;
 
     @Autowired
@@ -108,6 +112,9 @@ public class WebSecurityConfig {
         if (oAuth2IsEnabled) {
             logger.info("OAuth2 is enabled, configuring OAuth2 login");
             http.oauth2Login(oauth2 -> oauth2
+                    .authorizationEndpoint(endpoint -> endpoint
+                            .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository)
+                    )
                     .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(customOAuth2UserService)
