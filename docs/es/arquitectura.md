@@ -13,7 +13,9 @@ El backend está construido con Spring Boot y concentra:
 - reglas de negocio,
 - acceso a datos,
 - integración OAuth2,
-- emisión y validación de JWT.
+- emisión y validación de JWT,
+- gestión de sesión mediante cookies `HttpOnly`,
+- protección CSRF para operaciones de escritura.
 
 Capas principales:
 
@@ -37,15 +39,17 @@ El frontend es una SPA en React con Redux Toolkit. Se encarga de:
 
 1. El usuario se autentica con credenciales locales o con un proveedor OAuth2.
 2. El backend valida la identidad y resuelve permisos.
-3. Se genera un JWT firmado con RSA.
-4. El frontend guarda la sesión y adjunta el token en las llamadas necesarias.
-5. El backend aplica autorizaciones según rol del sistema y rol de equipo.
+3. El backend genera tokens firmados, registra la sesión y devuelve cookies `HttpOnly` de acceso y refresh.
+4. El frontend reconstruye el estado autenticado consultando `/api/session/me`.
+5. Antes de peticiones de escritura, el frontend obtiene el token CSRF desde `/api/session/csrf` y envía `X-XSRF-TOKEN`.
+6. Si el token de acceso caduca, la aplicación puede renovar la sesión a través de `/api/session/refresh`.
+7. El backend aplica autorizaciones según rol del sistema, rol de equipo y validez de la sesión persistida.
 
 ## Configuración por capas
 
 ### Backend
 
-La configuración principal vive en `application.properties`.
+La configuración principal vive en `application.properties`, incluyendo los ajustes de CORS, cookies y CSRF.
 
 ### Frontend
 

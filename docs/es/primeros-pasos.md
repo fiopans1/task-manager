@@ -45,6 +45,8 @@ Prepara `application.properties` con estos puntos como mínimo:
 - `spring.datasource.url`
 - `spring.jpa.hibernate.ddl-auto`
 - flags y credenciales de OAuth2 si vas a usar Google, GitHub o Authentik
+- `taskmanager.security.cors.allowed-origins` para permitir el frontend con credenciales
+- `taskmanager.security.cookies.secure`, `sameSite` y `domain` según tu entorno
 
 ### Configuración del frontend
 
@@ -56,6 +58,18 @@ El frontend lee su configuración desde `public/config.js` mediante `window.APP_
 - `oauth2.github.enabled`
 - `oauth2.authentik.enabled`
 - `app.name`, `app.version`, `app.license`
+
+## Modelo de autenticación actual
+
+La aplicación ya no depende de guardar el JWT en `localStorage`. El flujo actual funciona así:
+
+1. El backend autentica al usuario.
+2. Entrega la sesión mediante cookies `HttpOnly` para acceso y refresh.
+3. El frontend consulta `/api/session/me` para reconstruir el estado autenticado.
+4. Antes de operaciones `POST`, `PUT`, `PATCH` o `DELETE`, el frontend obtiene el token CSRF desde `/api/session/csrf`.
+5. Las peticiones de escritura envían automáticamente la cabecera `X-XSRF-TOKEN`.
+
+Esto mejora la seguridad frente a acceso directo al token desde JavaScript y obliga a desplegar frontend y backend con una configuración CORS y de cookies coherente.
 
 ## Primer recorrido recomendado
 

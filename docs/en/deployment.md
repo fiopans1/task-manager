@@ -52,9 +52,20 @@ Before publishing to a real environment, verify:
 - correct public URLs for frontend and backend,
 - JWT keys kept outside version control,
 - OAuth2 configuration aligned with real callback URLs,
+- `taskmanager.security.cors.allowed-origins` adjusted to the real frontend domains,
+- `taskmanager.security.cookies.secure`, `sameSite`, and `domain` aligned with HTTP/HTTPS and subdomain usage,
 - data persistence and backups,
 - proper ports and reverse proxy strategy,
 - available logs and monitoring.
+
+## What changes with HttpOnly cookies and CSRF
+
+The deployment must assume that authentication now depends on browser credentials rather than on a token managed by JavaScript.
+
+- The frontend must call the backend with credentials enabled.
+- The backend must allow credentialed CORS from authorized origins.
+- Access and refresh cookies must be sent and cleared correctly according to `path`, `domain`, `secure`, and `SameSite`.
+- Write operations require the CSRF token issued through `/api/session/csrf`.
 
 ## Minimum post-deployment checks
 
@@ -62,6 +73,8 @@ Before publishing to a real environment, verify:
 - The backend answers on the expected port.
 - Local authentication works.
 - OAuth2 works when enabled.
+- Session refresh works without exposing tokens in the browser.
+- An authenticated `POST` fails without CSRF and succeeds through the normal frontend flow.
 - Tasks, lists, and teams can be created and queried.
 
 ## When to choose each option

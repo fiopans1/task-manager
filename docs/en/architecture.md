@@ -13,7 +13,9 @@ The backend is built with Spring Boot and centralizes:
 - business rules,
 - data access,
 - OAuth2 integration,
-- JWT issuance and validation.
+- JWT issuance and validation,
+- session delivery through `HttpOnly` cookies,
+- CSRF protection for write operations.
 
 Main layers:
 
@@ -37,15 +39,17 @@ The frontend is a React SPA using Redux Toolkit. It is responsible for:
 
 1. The user authenticates with local credentials or an OAuth2 provider.
 2. The backend validates the identity and resolves permissions.
-3. A RSA-signed JWT is generated.
-4. The frontend stores the session and attaches the token where needed.
-5. The backend enforces authorizations according to system role and team role.
+3. The backend generates signed tokens, persists the session, and returns `HttpOnly` access and refresh cookies.
+4. The frontend rebuilds the authenticated state by calling `/api/session/me`.
+5. Before write requests, the frontend obtains the CSRF token from `/api/session/csrf` and sends `X-XSRF-TOKEN`.
+6. If the access token expires, the application can renew the session through `/api/session/refresh`.
+7. The backend enforces authorization according to system role, team role, and persisted session validity.
 
 ## Configuration by layer
 
 ### Backend
 
-Main configuration lives in `application.properties`.
+Main configuration lives in `application.properties`, including CORS, cookie, and CSRF settings.
 
 ### Frontend
 

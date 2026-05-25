@@ -66,6 +66,41 @@ Esto permite:
 - activar o desactivar OAuth2 por proveedor,
 - ajustar metadatos y flags funcionales por entorno.
 
+## Nuevo flujo de sesión y seguridad
+
+El proyecto ha pasado de un modelo de token accesible desde cliente a un modelo basado en sesión con cookies y protección CSRF.
+
+### Backend
+
+Las piezas clave son:
+
+- `WebSecurityConfig` para CORS con credenciales, CSRF con `CookieCsrfTokenRepository` y endpoints públicos de sesión,
+- `SessionRestController` para `/api/session/me`, `/api/session/csrf`, `/api/session/refresh` y `/api/session/logout`,
+- `SessionCookieService` para emitir y limpiar cookies `HttpOnly`,
+- `JWTAuthorizationFilter` para validar la cookie de acceso y la sesión persistida,
+- `TaskManagerSecurityProperties` para centralizar TTLs, nombres de cookies, `SameSite`, `domain` y orígenes permitidos.
+
+### Frontend
+
+Las piezas clave son:
+
+- `frontend/src/services/apiClient.js` para `withCredentials`, carga del token CSRF y refresh automático,
+- `authSlice` y `SessionManager` para reconstruir la sesión desde `/api/session/me`,
+- los formularios y servicios siguen usando la misma API funcional, pero ya no gestionan manualmente un bearer token en cliente.
+
+### Ajustes de configuración más importantes
+
+En backend revisa especialmente:
+
+- `taskmanager.security.cors.allowed-origins`
+- `taskmanager.security.cookies.secure`
+- `taskmanager.security.cookies.sameSite`
+- `taskmanager.security.cookies.domain`
+- `taskmanager.security.access-token.ttl`
+- `taskmanager.security.refresh-token.ttl`
+- `taskmanager.security.csrf.cookie-name`
+- `taskmanager.security.csrf.header-name`
+
 ## Cuándo tocar cada parte del repositorio
 
 - **`backend/`**: lógica de negocio, seguridad, persistencia, API REST.

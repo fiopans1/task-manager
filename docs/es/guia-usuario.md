@@ -7,7 +7,19 @@ Task Manager permite dos formas principales de acceso:
 - **autenticación local** con nombre de usuario y contraseña,
 - **autenticación OAuth2** mediante Google, GitHub o Authentik cuando el sistema lo tenga habilitado.
 
-Al iniciar sesión correctamente, el backend emite un JWT y el frontend conserva la sesión para mantener la navegación fluida entre pantallas.
+Al iniciar sesión correctamente, el backend crea una sesión segura basada en cookies:
+
+- una cookie `HttpOnly` para el acceso,
+- una cookie `HttpOnly` para el refresh,
+- una cookie CSRF legible por el navegador para proteger operaciones de escritura.
+
+El frontend no necesita leer el token de acceso desde JavaScript. En su lugar, consulta la sesión actual y adjunta automáticamente la protección CSRF cuando crea, edita o elimina datos.
+
+### Qué cambia para el usuario
+
+- La sesión puede renovarse automáticamente mientras la cookie de refresh siga siendo válida.
+- Si la sesión expira, la aplicación te pedirá volver a autenticarte.
+- Al cerrar sesión, el sistema invalida la sesión activa y limpia las cookies de autenticación.
 
 ## Qué puedes hacer como usuario
 
@@ -77,3 +89,4 @@ Estas funciones están pensadas para operación y soporte, no para el flujo diar
 - Usa listas cuando un conjunto de tareas comparta propósito.
 - Programa eventos cuando la fecha sea tan importante como el contenido.
 - Separa el trabajo personal del trabajo de equipo para mantener visibilidad.
+- Si usas OAuth2, verifica que el navegador permita las redirecciones y cookies del entorno donde trabajas.
