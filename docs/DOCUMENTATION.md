@@ -688,46 +688,47 @@ Permite configurar un mensaje que se mostrará a todos los usuarios.
 
 #### Propósito
 
-La sesión del usuario se gestiona mediante tokens JWT con una duración de 4 horas. El sistema notifica al usuario antes de que expire la sesión.
+La sesión del usuario se gestiona con cookies de access y refresh token. El sistema muestra un modal de confirmación cuando detecta un periodo prolongado de inactividad en la SPA.
 
 #### Comportamiento
 
 | Evento | Descripción |
 |---|---|
-| **Verificación periódica** | El sistema comprueba el estado del token cada 30 segundos |
-| **Aviso de expiración** | Cuando quedan menos de 5 minutos, se muestra un modal con cuenta regresiva de 60 segundos |
-| **Extender sesión** | El usuario puede hacer clic en **Extender sesión** para renovar el token |
-| **Cierre automático** | Si no se extiende la sesión, el usuario será desconectado automáticamente al agotarse la cuenta regresiva |
+| **Verificación periódica** | El frontend comprueba la inactividad local cada 5 segundos |
+| **Aviso por inactividad** | Tras 10 minutos sin actividad, se muestra un modal con cuenta regresiva de 60 segundos |
+| **Extender sesión** | El usuario puede hacer clic en **Extender sesión** para lanzar un refresh manual |
+| **Cierre automático** | Si no responde al modal, el usuario será desconectado automáticamente al agotarse la cuenta regresiva |
 
 #### Ciclo de vida de la sesión
 
 ```
-Token emitido (login)
+Usuario autenticado
     │
-    │  Válido por 4 horas
+    ├── La app registra actividad de UI (raton, teclado, scroll, touch)
     │
-    ├── Cada 30 segundos: Comprobación del tiempo restante del token
+    ├── Cada 5 segundos: comprobación local de inactividad
     │
-    ├── Tiempo restante > 5 minutos: Sin acción
+    ├── Inactividad < 10 minutos: sin acción
     │
-    ├── Tiempo restante ≤ 5 minutos: Mostrar modal de advertencia
+    ├── Inactividad ≥ 10 minutos: mostrar modal de advertencia
     │       │
     │       ├── Comienza cuenta regresiva de 60 segundos
     │       │
     │       ├── Usuario hace clic en "Extender sesión":
     │       │       → POST /api/session/refresh
-    │       │       → Nuevo JWT generado con 4 horas de validez
+    │       │       → La sesión sigue activa
     │       │       → Modal se cierra, cuenta regresiva se reinicia
     │       │       → Toast informativo: "Sesión extendida"
     │       │
     │       ├── Usuario hace clic en "Cerrar sesión":
-    │       │       → Sesión terminada, redirección a /login
+    │       │       → Sesión terminada, redirección a /
     │       │
     │       └── Cuenta regresiva llega a 0:
-    │               → Toast de advertencia: "Sesión expirada"
-    │               → Auto-logout, redirección a /login
+    │               → Toast de advertencia: "Sesión cerrada por inactividad"
+    │               → Auto-logout, redirección a /
     │
-    └── Token expirado (tiempo restante ≤ 0): Forzar logout inmediato
+    └── Si una petición real encuentra el access token expirado:
+            → `apiClient` intenta refresh automático por `401`
 ```
 
 #### Comportamiento del modal de advertencia
@@ -738,7 +739,7 @@ Token emitido (login)
 | **Teclado** | Tecla Escape deshabilitada — el usuario debe elegir una acción |
 | **Visualización de cuenta** | Temporizador grande en formato MM:SS (ej. "00:45") |
 | **Botones** | "Cerrar sesión" (rojo) y "Extender sesión" (azul) |
-| **Frecuencia** | Solo se muestra una vez por token (un flag previene avisos repetidos) |
+| **Frecuencia** | Solo se muestra cuando se supera el umbral de inactividad |
 
 ---
 
@@ -1328,6 +1329,9 @@ window.APP_CONFIG = {
     version: "1.0.0",                  // Versión de la aplicación
     license: "AGPL-3.0",              // Tipo de licencia
     debug: false                       // Modo depuración
+  },
+  session: {
+    inactivityThresholdMinutes: 10     // Minutos de inactividad antes del modal de sesión
   },
   features: {
     tasks: true,                       // Habilitar funcionalidad de tareas

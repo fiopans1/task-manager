@@ -818,30 +818,31 @@ The user's session is managed via JWT tokens with a 4-hour lifetime. The system 
 ```
 Token Issued (login)
     │
-    │  Valid for 4 hours
+    ├── UI activity is tracked locally (mouse, keyboard, scroll, touch)
     │
-    ├── Every 30 seconds: Check token time remaining
+    ├── Every 5 seconds: local inactivity check
     │
-    ├── Time remaining > 5 minutes: No action
+    ├── Inactivity < 10 minutes: No action
     │
-    ├── Time remaining ≤ 5 minutes: Show warning modal
+    ├── Inactivity ≥ 10 minutes: Show warning modal
     │       │
     │       ├── 60-second countdown starts
     │       │
     │       ├── User clicks "Extend Session":
     │       │       → POST /api/session/refresh
-    │       │       → New JWT generated with fresh 4-hour TTL
+    │       │       → Session remains active
     │       │       → Modal closes, countdown resets
     │       │       → Info toast: "Session extended successfully"
     │       │
     │       ├── User clicks "Logout":
-    │       │       → Session terminated, redirect to /login
+    │       │       → Session terminated, redirect to /
     │       │
     │       └── Countdown reaches 0:
-    │               → Warning toast: "Session expired"
-    │               → Auto-logout, redirect to /login
+    │               → Warning toast: "Signed out due to inactivity"
+    │               → Auto-logout, redirect to /
     │
-    └── Token expired (time remaining ≤ 0): Force logout immediately
+    └── If a real request hits an expired access token:
+            → `apiClient` attempts automatic refresh on `401`
 ```
 
 #### Warning Modal Behavior
@@ -852,7 +853,7 @@ Token Issued (login)
 | **Keyboard** | Escape key is disabled — user must choose an action |
 | **Countdown Display** | Large timer in MM:SS format (e.g., "00:45") |
 | **Buttons** | "Logout" (danger) and "Extend Session" (primary) |
-| **Warning Frequency** | Only shown once per token (flag prevents repeated warnings) |
+| **Warning Frequency** | Only shown once inactivity threshold is exceeded |
 
 #### Backend Refresh Flow
 
@@ -1608,6 +1609,9 @@ window.APP_CONFIG = {
     version: "1.0.0",                  // Application version
     license: "AGPL-3.0",              // License type
     debug: false                       // Debug mode
+  },
+  session: {
+    inactivityThresholdMinutes: 10     // Minutes of inactivity before the session modal
   },
   features: {
     tasks: true,                       // Enable tasks feature

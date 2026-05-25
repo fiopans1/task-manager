@@ -1,21 +1,12 @@
-import axios from "axios";
-import store from "../redux/store";
-import configService from "./configService";
+import { apiClient } from "./apiClient";
 
 const getHomeSummary = async () => {
-  const serverUrl = configService.getApiBaseUrl();
-  const token = "Bearer " + store.getState().auth.token;
-  const response = await axios.get(serverUrl + "/api/home-summary", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
-  });
-  return response.data;
+    const response = await apiClient.get("/api/home-summary");
+    return response.data;
 };
 
 const homeService = {
-  getHomeSummary,
+    getHomeSummary,
 };
 
 export default homeService;

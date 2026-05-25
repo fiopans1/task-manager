@@ -91,7 +91,7 @@ function SidebarMenu({ onLogOut }) {
     const checkAdminStatus = async () => {
       try {
         const userRole = await authService.getRoles();
-        setIsAdmin(userRole.includes("ROLE_ADMIN"));
+        setIsAdmin(userRole && userRole.includes("ROLE_ADMIN"));
       } catch (error) {
         console.error("Error checking admin status:", error);
       }
@@ -234,7 +234,6 @@ function SidebarMenu({ onLogOut }) {
               <Dropdown
                 drop={effectiveCollapsed ? "end" : "down"}
                 container="body"
-                popperConfig={collapsedDropdownPopperConfig}
               >
                 <Dropdown.Toggle
                   variant="link"
@@ -248,7 +247,10 @@ function SidebarMenu({ onLogOut }) {
                     </>
                   )}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4">
+                <Dropdown.Menu
+                  popperConfig={collapsedDropdownPopperConfig}
+                  className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4"
+                >
                   <Dropdown.Item onClick={() => setShowAbout(true)}>
                     <i className="bi bi-box-info me-2"></i>
                     About
@@ -264,7 +266,6 @@ function SidebarMenu({ onLogOut }) {
             drop={effectiveCollapsed ? "end" : "up"}
             align={effectiveCollapsed ? "start" : "end"}
             container="body"
-            popperConfig={collapsedDropdownPopperConfig}
           >
             <Dropdown.Toggle
               variant="light"
@@ -287,7 +288,7 @@ function SidebarMenu({ onLogOut }) {
                 {!effectiveCollapsed && (
                   <Stack gap={0}>
                     <span className="fw-medium text-truncate" style={{ maxWidth: 130 }}>
-                      {authService.getUsername()}
+                      {authService.getDisplayName() || authService.getUsername()}
                     </span>
                     <small className="text-body-secondary">Account</small>
                   </Stack>
@@ -295,7 +296,10 @@ function SidebarMenu({ onLogOut }) {
               </Stack>
               {!effectiveCollapsed && <i className="bi bi-chevron-up small"></i>}
             </Dropdown.Toggle>
-            <Dropdown.Menu className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4">
+            <Dropdown.Menu
+              popperConfig={collapsedDropdownPopperConfig}
+              className="sidebar-dropdown-menu shadow-sm z-index-high border-0 rounded-4"
+            >
               <Dropdown.ItemText className="py-2">
                 <Form.Check
                   type="switch"

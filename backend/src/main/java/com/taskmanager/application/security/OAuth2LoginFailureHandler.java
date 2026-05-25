@@ -107,11 +107,11 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 
     private String buildRedirectUrl(String errorCode, String errorMessage) {
         try {
-            String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8.toString());
-            return String.format("%s?code=%s&message=%s", defaultFailureUrl, errorCode, encodedMessage);
+            String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+            return String.format("%s?error=%s&message=%s", defaultFailureUrl, errorCode, encodedMessage);
         } catch (Exception e) {
             logger.error("Error encoding failure URL parameters", e);
-            return "";
+            return defaultFailureUrl + "?error=oauth2_error";
         }
     }
 
