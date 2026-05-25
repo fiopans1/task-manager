@@ -5,10 +5,10 @@ import listService from "../../services/listService";
 import { errorToast, successToast } from "../common/Noty";
 
 const ListsList = ({
-  listsResource,
   handleOpenList,
   handleEditList,
   refreshLists,
+  refreshKey,
   searchTerm,
 }) => {
   const [showDelete, setShowDelete] = useState(false);
@@ -19,10 +19,7 @@ const ListsList = ({
     [searchTerm]
   );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
-    listsResource,
-    searchTerm,
-  ]);
+  const { items: data, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
 
   const deleteList = async () => {
     try {
@@ -40,6 +37,17 @@ const ListsList = ({
       errorToast("Error: " + error.message);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <p className="text-body-secondary mt-3 mb-0">Loading lists...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (

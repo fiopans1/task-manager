@@ -5,10 +5,10 @@ import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import { errorToast, successToast } from "../common/Noty";
 
 const TasksList = ({
-  tasksResource,
   handleOpenTask,
   handleEditTask,
   refreshTasks,
+  refreshKey,
   searchTerm,
 }) => {
   const [showDelete, setShowDelete] = useState(false);
@@ -19,10 +19,7 @@ const TasksList = ({
     [searchTerm]
   );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
-    tasksResource,
-    searchTerm,
-  ]);
+  const { items: data, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
 
   const deleteTask = async () => {
     try {
@@ -76,6 +73,17 @@ const TasksList = ({
         return "secondary";
     }
   };
+
+  if (initialLoading) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <p className="text-body-secondary mt-3 mb-0">Loading tasks...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (

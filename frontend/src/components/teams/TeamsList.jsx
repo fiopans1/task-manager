@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
-const TeamsList = ({ teamsResource, searchTerm }) => {
+const TeamsList = ({ refreshKey, searchTerm }) => {
   const navigate = useNavigate();
 
   const fetchPage = useCallback(
@@ -12,10 +12,18 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
     [searchTerm]
   );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
-    teamsResource,
-    searchTerm,
-  ]);
+  const { items: data, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
+
+  if (initialLoading) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <p className="text-body-secondary mt-3 mb-0">Loading teams...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (

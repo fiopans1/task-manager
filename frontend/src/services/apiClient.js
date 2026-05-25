@@ -61,6 +61,58 @@ const apiClient = axios.create({
     },
 });
 
+const inFlightGetRequests = new Map();
+
+function serializeRequestValue(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    if (value instanceof URLSearchParams) {
+        return value.toString();
+    }
+
+    if (Array.isArray(value)) {
+        return `[${value.map(serializeRequestValue).join(",")}]`;
+    }
+
+    if (typeof value === "object") {
+        return `{${Object.keys(value)
+            .sort()
+            .map((key) => `${key}:${serializeRequestValue(value[key])}`)
+            .join(",")}}`;
+    }
+
+    return String(value);
+}
+
+function buildGetRequestKey(url, config = {}, client) {
+    const baseURL = config.baseURL ?? client.defaults.baseURL ?? "";
+    const params = serializeRequestValue(config.params);
+    return `${baseURL}|${url}|${params}`;
+}
+
+function attachInFlightGetDeduplication(client) {
+    const originalGet = client.get.bind(client);
+
+    client.get = (url, config = {}) => {
+        const requestKey = buildGetRequestKey(url, config, client);
+
+        if (inFlightGetRequests.has(requestKey)) {
+            return inFlightGetRequests.get(requestKey);
+        }
+
+        const request = originalGet(url, config).finally(() => {
+            if (inFlightGetRequests.get(requestKey) === request) {
+                inFlightGetRequests.delete(requestKey);
+            }
+        });
+
+        inFlightGetRequests.set(requestKey, request);
+        return request;
+    };
+}
+
 const publicClient = axios.create({
     baseURL: getBaseURL(),
     withCredentials: true,
@@ -71,6 +123,9 @@ const publicClient = axios.create({
         "Content-Type": "application/json",
     },
 });
+
+attachInFlightGetDeduplication(apiClient);
+attachInFlightGetDeduplication(publicClient);
 
 let refreshPromise = null;
 
