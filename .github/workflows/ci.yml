@@ -57,7 +57,8 @@ jobs:
       - name: Start backend and verify health
         working-directory: backend
         run: |
-          java -jar target/*.jar > backend.log 2>&1 &
+          JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name 'original-*.jar' | head -n 1)
+          java -jar "$JAR_PATH" > backend-startup.log 2>&1 &
           BACKEND_PID=$!
           trap 'kill $BACKEND_PID' EXIT
           for i in $(seq 1 30); do
@@ -66,7 +67,7 @@ jobs:
             fi
             sleep 2
           done
-          cat backend.log
+          cat backend-startup.log
           exit 1
 
   frontend:
@@ -95,7 +96,7 @@ jobs:
       - name: Start frontend and verify response
         working-directory: frontend
         run: |
-          pnpm start > frontend.log 2>&1 &
+          pnpm start > frontend-startup.log 2>&1 &
           FRONTEND_PID=$!
           trap 'kill $FRONTEND_PID' EXIT
           for i in $(seq 1 30); do
@@ -104,5 +105,5 @@ jobs:
             fi
             sleep 2
           done
-          cat frontend.log
+          cat frontend-startup.log
           exit 1
