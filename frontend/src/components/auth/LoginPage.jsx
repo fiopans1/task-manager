@@ -16,10 +16,10 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     try {
       setLoading(true);
-      const token = await authService.login(username, password);
+      await authService.login(username, password);
       setLoading(false);
       successToast("Logged in");
-      onLogin(token);
+      onLogin();
     } catch (error) {
       setLoading(false);
       errorToast("Login Error: " + error.message);

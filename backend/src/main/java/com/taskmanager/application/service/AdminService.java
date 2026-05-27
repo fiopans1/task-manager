@@ -64,7 +64,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public Page<Map<String, Object>> searchUsers(String query, Pageable pageable) {
         if (query == null || query.trim().isEmpty()) {
-            return Page.empty(pageable);
+            return userRepository.findAllOrderByUsernameAsc(pageable).map(this::mapUserToAdminView);
         }
         return userRepository.searchUsers(query.trim(), pageable).map(this::mapUserToAdminView);
     }

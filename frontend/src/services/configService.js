@@ -77,6 +77,14 @@ class ConfigService {
   }
 
   /**
+   * Get session inactivity threshold in minutes
+   */
+  getSessionInactivityThresholdMinutes() {
+    if (!this.config) this.init();
+    return this.config.session?.inactivityThresholdMinutes ?? 10;
+  }
+
+  /**
    * Check if a feature is enabled
    */
   isFeatureEnabled(feature) {

@@ -70,4 +70,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     long countByTeam(Team team);
 
     long countByTeamAndState(Team team, StateTask state);
+
+    @Query("SELECT t FROM Task t WHERE t.user = :user AND LOWER(t.nameOfTask) LIKE LOWER(CONCAT('%', :name, '%'))")
+    Page<Task> findByUserAndNameContaining(@Param("user") User user, @Param("name") String name, Pageable pageable);
 }

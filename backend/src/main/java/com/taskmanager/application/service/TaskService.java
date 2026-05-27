@@ -148,6 +148,13 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
+    public Page<TaskDTO> searchTasksForLoggedUser(String name, Pageable pageable) {
+        User user = authService.getCurrentUser();
+        Page<Task> page = tasksRepository.findByUserAndNameContaining(user, name, pageable);
+        return page.map(TaskDTO::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
     public List<Task> findAllTasksByUser(User user) {
         logger.info("Finding all tasks for user: {}", user.getUsername());
 

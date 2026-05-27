@@ -14,7 +14,6 @@ import UserSearchResults from "./UserSearchResults";
 const UserManagementTab = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
-  const [searched, setSearched] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({ show: false });
@@ -22,8 +21,6 @@ const UserManagementTab = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setSearched(true);
     setActiveQuery(searchQuery);
     setRefreshKey((prevKey) => prevKey + 1);
   };
@@ -71,27 +68,29 @@ const UserManagementTab = () => {
                 <i className="bi bi-search"></i>
                 <span className="d-none d-sm-inline ms-2">Search</span>
               </Button>
+              <Button
+                variant="outline-secondary"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveQuery("");
+                  setRefreshKey((prevKey) => prevKey + 1);
+                }}
+              >
+                <span className="d-none d-sm-inline">Clear</span>
+                <i className="bi bi-x-lg d-sm-none"></i>
+              </Button>
             </InputGroup>
           </Form>
         </Card.Body>
       </Card>
 
-      {/* Results */}
-      {!searched && (
-        <div className="text-center text-muted py-5">
-          <i className="bi bi-search fs-1 d-block mb-2"></i>
-          <p>Search for users by their username</p>
-        </div>
-      )}
-
-      {searched && activeQuery && (
-        <UserSearchResults
-          query={activeQuery}
-          refreshKey={refreshKey}
-          onViewUser={handleViewUser}
-          onToggleBlock={handleToggleBlock}
-        />
-      )}
+      {/* Results - always shown */}
+      <UserSearchResults
+        query={activeQuery}
+        refreshKey={refreshKey}
+        onViewUser={handleViewUser}
+        onToggleBlock={handleToggleBlock}
+      />
 
       {/* User Detail Modal */}
       <UserDetailModal

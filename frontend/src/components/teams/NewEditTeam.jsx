@@ -1,7 +1,7 @@
-import { Form, Modal, Button, Spinner } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import teamService from "../../services/teamService";
-import { successToast, errorToast } from "../common/Noty";
+import { errorToast, successToast } from "../common/Noty";
 
 const NewEditTeam = ({
   show,
@@ -32,17 +32,10 @@ const NewEditTeam = ({
     setFormData({ ...formData, [name]: value });
   };
 
-  const validateForm = () => {
-    if (!formData.name || formData.name.trim() === "") {
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async () => {
     setValidated(true);
 
-    if (!validateForm()) {
+    if (!formData.name.trim()) {
       return false;
     }
 
@@ -78,20 +71,14 @@ const NewEditTeam = ({
   };
 
   return (
-    <Modal show={show} onHide={handleModalClose} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {editOrNew ? (
-            <><i className="bi bi-pencil me-2"></i>Edit Team</>
-          ) : (
-            "Create New Team"
-          )}
-        </Modal.Title>
+    <Modal show={show} onHide={handleModalClose} centered contentClassName="border-0 shadow-sm rounded-4">
+      <Modal.Header closeButton className="border-0 pb-0">
+        <Modal.Title className="fw-semibold">{editOrNew ? "Edit Team" : "Create Team"}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className="pt-2">
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>Team Name</Form.Label>
+            <Form.Label className="text-body-secondary small text-uppercase">Team Name</Form.Label>
             <Form.Control
               type="text"
               name="name"
@@ -100,14 +87,12 @@ const NewEditTeam = ({
               placeholder="Enter team name"
               required
               autoFocus
-              isInvalid={validated && (!formData.name || formData.name.trim() === "")}
+              isInvalid={validated && !formData.name.trim()}
             />
-            <Form.Control.Feedback type="invalid">
-              Team name is required
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">Team name is required</Form.Control.Feedback>
           </Form.Group>
           <Form.Group>
-            <Form.Label>Description</Form.Label>
+            <Form.Label className="text-body-secondary small text-uppercase">Description</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -119,12 +104,13 @@ const NewEditTeam = ({
           </Form.Group>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleModalClose}>
+      <Modal.Footer className="border-0">
+        <Button variant="outline-secondary" className="rounded-pill px-4" onClick={handleModalClose}>
           Cancel
         </Button>
         <Button
           variant="primary"
+          className="rounded-pill px-4"
           disabled={submitting}
           onClick={async () => {
             const success = await handleSubmit();
@@ -136,7 +122,7 @@ const NewEditTeam = ({
           {submitting ? (
             <Spinner size="sm" animation="border" />
           ) : editOrNew ? (
-            <><i className="bi bi-check-lg me-1"></i>Save Changes</>
+            "Save Changes"
           ) : (
             "Create Team"
           )}

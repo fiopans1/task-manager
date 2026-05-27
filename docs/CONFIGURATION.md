@@ -98,6 +98,9 @@ window.APP_CONFIG = {
     version: "1.0.0",
     debug: false,
   },
+  session: {
+    inactivityThresholdMinutes: 10,
+  },
   features: {
     calendar: true,
     lists: true,

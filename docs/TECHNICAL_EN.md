@@ -95,7 +95,7 @@ task-manager/
 ├── frontend/                   # React SPA application
 │   ├── src/                    # JavaScript source code
 │   ├── public/                 # Static files
-│   └── package.json            # npm dependencies
+│   └── package.json            # Frontend dependencies
 ├── scripts/                    # Build and deployment scripts
 │   ├── compile.py              # Main build orchestrator
 │   ├── bin_files/              # Runtime executable scripts
@@ -906,12 +906,13 @@ About modal dialog:
 ### 4.8 Components — Session (`session/`)
 
 #### `SessionManager.js`
-JWT session expiry handler:
-- Polls every 30 seconds for token expiry.
-- Shows warning modal 5 minutes before expiry.
+Frontend idle session manager:
+- Polls locally every 5 seconds for user inactivity.
+- Tracks real UI activity (mouse, keyboard, scroll, touch).
+- Shows a warning modal after 10 minutes of inactivity.
 - 60-second countdown in the modal.
 - Options: extend session (refresh token) or force logout.
-- Uses refs to prevent memory leaks in intervals.
+- Uses refs to prevent memory leaks in intervals and avoid unnecessary rerenders.
 
 ### 4.9 Components — Home
 
@@ -1194,7 +1195,7 @@ Minimal Create React App template styles (logo animation, header).
 
 | Category | Packages |
 |---|---|
-| **Core React** | `react` 18, `react-dom` 18, `react-scripts` 5.0.1 |
+| **Core React** | `react` 18, `react-dom` 18, `vite` 8, `@vitejs/plugin-react` 6 |
 | **Routing** | `react-router-dom` 7.1.5 |
 | **State Management** | `@reduxjs/toolkit` 2.5.1, `react-redux` 9.2.0, `redux-persist` 6.0.0 |
 | **UI Framework** | `bootstrap` 5.3.5, `react-bootstrap` 2.10.9 |
@@ -1351,6 +1352,7 @@ window.APP_CONFIG = {
     authentik: { enabled: false }
   },
   app: { name: "Task Manager", version: "0.0.1", debug: false, license: "Community Edition" },
+  session: { inactivityThresholdMinutes: 10 },
   features: { calendar: true, lists: true, timeTracking: true }
 }
 ```
@@ -1521,18 +1523,12 @@ cd frontend
 
 # Install dependencies
 pnpm install
-# Or with npm:
-npm install --legacy-peer-deps
 
 # Build
 pnpm build
-# Or with npm:
-CI=false npx react-scripts build
 ```
 
 Static files are generated in `frontend/build/`.
-
-> **Note:** `CI=false` is needed with npm so that warnings are not treated as errors.
 
 ### 7.3 Docker Build
 

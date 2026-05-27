@@ -116,6 +116,13 @@ public class TeamService {
     }
 
     @Transactional(readOnly = true)
+    public Page<TeamDTO> searchTeamsForCurrentUser(String name, Pageable pageable) {
+        User currentUser = authService.getCurrentUser();
+        return teamRepository.findByMemberUserAndNameContaining(currentUser, name, pageable)
+                .map(t -> TeamDTO.fromEntity(t, false));
+    }
+
+    @Transactional(readOnly = true)
     public TeamDTO getTeamById(Long teamId) throws ResourceNotFoundException, NotPermissionException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found with id " + teamId));

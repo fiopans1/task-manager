@@ -52,12 +52,20 @@ window.APP_CONFIG = {
     name: "Task Manager",
 
     // Application version
-    version: "0.0.1",
+    version: "0.6-beta",
 
     // Enable debug mode (shows additional logging)
     debug: false,
 
     license: "Community Edition",
+  },
+
+  /**
+   * Session behavior
+   */
+  session: {
+    // Minutes of user inactivity before showing the idle session modal
+    inactivityThresholdMinutes: 10,
   },
 
   /**
