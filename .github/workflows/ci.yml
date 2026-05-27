@@ -56,20 +56,22 @@ jobs:
 
       - name: Compile backend
         working-directory: backend
-        run: ./mvnw --batch-mode clean package -DskipTests
+        run: |
+          ./mvnw --batch-mode clean package -DskipTests
+          JAR_NAME=$(./mvnw --batch-mode help:evaluate -Dexpression=project.build.finalName -q -DforceStdout)
+          echo "BACKEND_JAR=target/${JAR_NAME}.jar" >> "$GITHUB_ENV"
 
       - name: Start backend and verify health
         working-directory: backend
         run: |
-          JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name 'original-*.jar' | head -n 1)
-          if [ -z "$JAR_PATH" ]; then
-            echo "No packaged backend JAR found in target/"
+          if [ -z "$BACKEND_JAR" ] || [ ! -f "$BACKEND_JAR" ]; then
+            echo "Expected packaged backend JAR not found: $BACKEND_JAR"
             exit 1
           fi
-          java -jar "$JAR_PATH" > backend-startup.log 2>&1 &
+          java -jar "$BACKEND_JAR" > backend-startup.log 2>&1 &
           BACKEND_PID=$!
           trap 'kill $BACKEND_PID' EXIT
-          for i in $(seq 1 "$STARTUP_RETRIES"); do
+          for _ in $(seq 1 "$STARTUP_RETRIES"); do
             if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
               exit 0
             fi
@@ -108,7 +110,7 @@ jobs:
           pnpm start > frontend-startup.log 2>&1 &
           FRONTEND_PID=$!
           trap 'kill $FRONTEND_PID' EXIT
-          for i in $(seq 1 "$STARTUP_RETRIES"); do
+          for _ in $(seq 1 "$STARTUP_RETRIES"); do
             if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
               exit 0
             fi
