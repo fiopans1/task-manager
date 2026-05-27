@@ -36,9 +36,9 @@ jobs:
       - name: Prepare backend runtime config
         working-directory: backend
         run: |
-          mkdir -p .ci
-          openssl genpkey -algorithm RSA -out .ci/private_key.pem -pkeyopt rsa_keygen_bits:2048
-          openssl rsa -pubout -in .ci/private_key.pem -out .ci/public_key.pem
+          mkdir -p "${{ github.workspace }}/backend/.ci"
+          openssl genpkey -algorithm RSA -out "${{ github.workspace }}/backend/.ci/private_key.pem" -pkeyopt rsa_keygen_bits:2048
+          openssl rsa -pubout -in "${{ github.workspace }}/backend/.ci/private_key.pem" -out "${{ github.workspace }}/backend/.ci/public_key.pem"
           cat > src/main/resources/application.properties <<EOF
           spring.application.name=Task Manager
           server.port=8080
@@ -68,17 +68,21 @@ jobs:
             echo "Expected packaged backend JAR not found: $BACKEND_JAR"
             exit 1
           fi
-          java -jar "$BACKEND_JAR" > backend-startup.log 2>&1 &
+          java -jar "$BACKEND_JAR" > ./backend-startup.log 2>&1 &
           BACKEND_PID=$!
           trap 'kill $BACKEND_PID' EXIT
-          for _ in $(seq 1 "$STARTUP_RETRIES"); do
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
             if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
               exit 0
             fi
-            sleep "$STARTUP_DELAY_SECONDS"
+            if [ "$attempt" -lt "$STARTUP_RETRIES" ]; then
+              sleep "$STARTUP_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
           done
           echo "Backend did not become healthy after $STARTUP_RETRIES attempts."
-          cat backend-startup.log
+          cat ./backend-startup.log
           exit 1
 
   frontend:
@@ -107,15 +111,19 @@ jobs:
       - name: Start frontend and verify response
         working-directory: frontend
         run: |
-          pnpm start > frontend-startup.log 2>&1 &
+          pnpm start > ./frontend-startup.log 2>&1 &
           FRONTEND_PID=$!
           trap 'kill $FRONTEND_PID' EXIT
-          for _ in $(seq 1 "$STARTUP_RETRIES"); do
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
             if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
               exit 0
             fi
-            sleep "$STARTUP_DELAY_SECONDS"
+            if [ "$attempt" -lt "$STARTUP_RETRIES" ]; then
+              sleep "$STARTUP_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
           done
           echo "Frontend did not respond after $STARTUP_RETRIES attempts."
-          cat frontend-startup.log
+          cat ./frontend-startup.log
           exit 1
