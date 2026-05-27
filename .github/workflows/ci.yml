@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   backend:
-    name: Backend (Java / Maven)
+    name: Backend (compile + start)
     runs-on: ubuntu-latest
 
     steps:
@@ -29,12 +29,48 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and test backend
+      - name: Prepare backend runtime config
         working-directory: backend
-        run: ./mvnw --batch-mode clean verify -DskipTests=false
+        run: |
+          mkdir -p .ci
+          openssl genpkey -algorithm RSA -out .ci/private_key.pem -pkeyopt rsa_keygen_bits:2048
+          openssl rsa -pubout -in .ci/private_key.pem -out .ci/public_key.pem
+          cat > src/main/resources/application.properties <<EOF
+          spring.application.name=Task Manager
+          server.port=8080
+          taskmanager.frontend.base-url=http://localhost:3000
+          taskmanager.oauth2.enabled=false
+          spring.datasource.url=jdbc:sqlite:${{ github.workspace }}/backend/.ci/task-manager.db?foreign_keys=on
+          spring.datasource.driver-class-name=org.sqlite.JDBC
+          spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
+          spring.jpa.hibernate.ddl-auto=update
+          spring.jpa.show-sql=false
+          spring.jpa.open-in-view=false
+          jwtKeys.privateKeyPath=file:${{ github.workspace }}/backend/.ci/private_key.pem
+          jwtKeys.publicKeyPath=file:${{ github.workspace }}/backend/.ci/public_key.pem
+          EOF
+
+      - name: Compile backend
+        working-directory: backend
+        run: ./mvnw --batch-mode clean package -DskipTests
+
+      - name: Start backend and verify health
+        working-directory: backend
+        run: |
+          java -jar target/*.jar > backend.log 2>&1 &
+          BACKEND_PID=$!
+          trap 'kill $BACKEND_PID' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat backend.log
+          exit 1
 
   frontend:
-    name: Frontend (React / pnpm)
+    name: Frontend (install + start)
     runs-on: ubuntu-latest
 
     steps:
@@ -56,10 +92,17 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
-      - name: Test frontend
+      - name: Start frontend and verify response
         working-directory: frontend
-        run: pnpm test
-
-      - name: Build frontend
-        working-directory: frontend
-        run: pnpm run build
+        run: |
+          pnpm start > frontend.log 2>&1 &
+          FRONTEND_PID=$!
+          trap 'kill $FRONTEND_PID' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat frontend.log
+          exit 1
