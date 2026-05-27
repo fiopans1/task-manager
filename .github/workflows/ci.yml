@@ -62,6 +62,10 @@ jobs:
         working-directory: backend
         run: |
           JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name 'original-*.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "No packaged backend JAR found in target/"
+            exit 1
+          fi
           java -jar "$JAR_PATH" > backend-startup.log 2>&1 &
           BACKEND_PID=$!
           trap 'kill $BACKEND_PID' EXIT
@@ -71,6 +75,7 @@ jobs:
             fi
             sleep "$STARTUP_DELAY_SECONDS"
           done
+          echo "Backend did not become healthy after $STARTUP_RETRIES attempts."
           cat backend-startup.log
           exit 1
 
@@ -109,5 +114,6 @@ jobs:
             fi
             sleep "$STARTUP_DELAY_SECONDS"
           done
+          echo "Frontend did not respond after $STARTUP_RETRIES attempts."
           cat frontend-startup.log
           exit 1
