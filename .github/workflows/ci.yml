@@ -14,6 +14,10 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  STARTUP_RETRIES: 30
+  STARTUP_DELAY_SECONDS: 2
+
 jobs:
   backend:
     name: Backend (compile + start)
@@ -61,11 +65,11 @@ jobs:
           java -jar "$JAR_PATH" > backend-startup.log 2>&1 &
           BACKEND_PID=$!
           trap 'kill $BACKEND_PID' EXIT
-          for i in $(seq 1 30); do
+          for i in $(seq 1 "$STARTUP_RETRIES"); do
             if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
               exit 0
             fi
-            sleep 2
+            sleep "$STARTUP_DELAY_SECONDS"
           done
           cat backend-startup.log
           exit 1
@@ -99,11 +103,11 @@ jobs:
           pnpm start > frontend-startup.log 2>&1 &
           FRONTEND_PID=$!
           trap 'kill $FRONTEND_PID' EXIT
-          for i in $(seq 1 30); do
+          for i in $(seq 1 "$STARTUP_RETRIES"); do
             if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
               exit 0
             fi
-            sleep 2
+            sleep "$STARTUP_DELAY_SECONDS"
           done
           cat frontend-startup.log
           exit 1
