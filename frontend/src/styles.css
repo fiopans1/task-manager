@@ -92,21 +92,6 @@ body {
   --bs-btn-active-color: var(--bs-emphasis-color);
 }
 
-[data-bs-theme="dark"] .btn-dark {
-  --bs-btn-bg: #f8fafc;
-  --bs-btn-border-color: #cbd5e1;
-  --bs-btn-color: #0f172a;
-  --bs-btn-hover-bg: #e2e8f0;
-  --bs-btn-hover-border-color: #cbd5e1;
-  --bs-btn-hover-color: #0f172a;
-  --bs-btn-active-bg: #cbd5e1;
-  --bs-btn-active-border-color: #cbd5e1;
-  --bs-btn-active-color: #0f172a;
-  --bs-btn-disabled-bg: #64748b;
-  --bs-btn-disabled-border-color: #64748b;
-  --bs-btn-disabled-color: #e2e8f0;
-}
-
 .auth-input {
   border-radius: 0.9rem;
 }

@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import { errorToast } from "../common/Noty";
 import NewEditTask from "./NewEditTask";
 import TasksList from "./TasksList";
@@ -17,6 +18,7 @@ import TasksList from "./TasksList";
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
+  const { darkMode } = useTheme();
   const [showNewTask, setshowNewTask] = useState(false);
   const [showEditTask, setshowEditTask] = useState(false);
   const [formEditData, setFormEditData] = useState({});
@@ -72,7 +74,7 @@ const Tasks = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button

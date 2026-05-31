@@ -19,6 +19,7 @@ import {
   CalendarCheck,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 import homeService from "../services/homeService";
 
 /* ── helpers ─────────────────────────────────────────────────── */
@@ -75,6 +76,7 @@ const Empty = ({ text }) => (
    ════════════════════════════════════════════════════════════════ */
 const Home = () => {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -121,7 +123,7 @@ const Home = () => {
             No distractions, no noise — just you and your work.
           </p>
           <Button
-            variant="dark"
+            variant={darkMode ? "light" : "dark"}
             className="rounded-3 px-4"
             onClick={() => navigate("/home/tasks")}
           >

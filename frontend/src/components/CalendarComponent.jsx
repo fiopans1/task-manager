@@ -3,6 +3,7 @@ import { Badge, Button, Card, Container, Spinner } from "react-bootstrap";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useTheme } from "../context/ThemeContext";
 import taskService from "../services/taskService";
 import { errorToast } from "./common/Noty";
 
@@ -15,6 +16,7 @@ const CATEGORY_COLORS = {
 
 const CalendarComponent = () => {
   const localizer = dayjsLocalizer(dayjs);
+  const { darkMode } = useTheme();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +70,7 @@ const CalendarComponent = () => {
     <div className="rbc-toolbar">
       <div className="rbc-btn-group d-flex flex-wrap">
         <Button variant="outline-secondary" size="sm" className="me-2" onClick={() => props.onNavigate("PREV")}>Prev</Button>
-        <Button variant="dark" size="sm" className="me-2" onClick={() => props.onNavigate("TODAY")}>Today</Button>
+        <Button variant={darkMode ? "light" : "dark"} size="sm" className="me-2" onClick={() => props.onNavigate("TODAY")}>Today</Button>
         <Button variant="outline-secondary" size="sm" onClick={() => props.onNavigate("NEXT")}>Next</Button>
       </div>
       <span className="rbc-toolbar-label">{props.label}</span>

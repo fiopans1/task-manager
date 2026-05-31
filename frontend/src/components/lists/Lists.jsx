@@ -10,11 +10,13 @@ import {
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import { errorToast } from "../common/Noty";
 import ListsList from "./ListsList";
 import NewEditLists from "./NewEditLists";
 
 const List = () => {
+  const { darkMode } = useTheme();
   const [showNewList, setshowNewList] = useState(false);
   const [showEditList, setshowEditList] = useState(false);
   const [formEditData, setFormEditData] = useState({});
@@ -72,7 +74,7 @@ const List = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button

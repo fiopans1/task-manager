@@ -1,11 +1,13 @@
 import { useCallback } from "react";
 import { Badge, Button, Card, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
 const TeamsList = ({ refreshKey, searchTerm }) => {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
 
   const fetchPage = useCallback(
     async (page, size) => teamService.fetchTeamsPage(page, size, searchTerm),
@@ -65,7 +67,7 @@ const TeamsList = ({ refreshKey, searchTerm }) => {
                   </Badge>
                 </div>
                 <div className="mt-auto">
-                  <Button variant="dark" className="rounded-pill px-4" onClick={() => navigate(`/home/teams/${team.id}`)}>
+                  <Button variant={darkMode ? "light" : "dark"} className="rounded-pill px-4" onClick={() => navigate(`/home/teams/${team.id}`)}>
                     Open team
                   </Button>
                 </div>

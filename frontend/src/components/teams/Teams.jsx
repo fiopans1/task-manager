@@ -10,12 +10,14 @@ import {
   Row,
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
+import { useTheme } from "../../context/ThemeContext";
 import teamService from "../../services/teamService";
 import { errorToast, successToast } from "../common/Noty";
 import NewEditTeam from "./NewEditTeam";
 import TeamsList from "./TeamsList";
 
 const Teams = () => {
+  const { darkMode } = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -94,7 +96,7 @@ const Teams = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button

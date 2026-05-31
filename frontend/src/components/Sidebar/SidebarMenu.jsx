@@ -383,7 +383,7 @@ function SidebarMenu({ onLogOut }) {
         xs="auto"
       >
         <Button
-          variant="dark"
+          variant={darkMode ? "light" : "dark"}
           size="sm"
           className="sidebar-toggle d-flex align-items-center justify-content-center"
           onClick={() => setCollapsed((prev) => !prev)}
