@@ -1,196 +1,92 @@
-# 🚀 Guía Rápida - Docker Build con Git Clone
+# Quick Start — Docker Build
 
-## ¿Qué hace este build?
+## What does this build do?
 
-El Dockerfile ahora **clona automáticamente el repositorio desde GitHub** durante el build y compila todo desde cero.
+The Dockerfile **automatically clones the repository from GitHub** during the build and compiles everything from scratch.
 
-**Ventajas**:
+**Benefits:**
 
-- ✅ No necesitas tener el código fuente localmente
-- ✅ Compila siempre desde la última versión del repositorio
-- ✅ Ideal para CI/CD y despliegues en servidores
-- ✅ Reproducible en cualquier máquina
+- ✅ No need to have the source code locally
+- ✅ Always compiles from the latest version of the repository
+- ✅ Ideal for CI/CD and server deployments
+- ✅ Reproducible on any machine
 
-## 📦 Uso Básico
+## Basic Usage
 
-### 1. Build Rápido (Rama Main)
+### 1. Quick Build (main branch)
 
 ```bash
-# Construcción para AMD64 (servidores típicos)
+# AMD64 (typical servers)
 ./docker/build.sh --platform linux/amd64
 
-# Construcción para ARM64 (Mac M1/M2)
+# ARM64 (Mac M1/M2)
 ./docker/build.sh --platform linux/arm64
 ```
 
-### 2. Build desde Rama Específica
+### 2. Build from a Specific Branch
 
 ```bash
-# Construir desde rama develop
 ./docker/build.sh --platform linux/amd64 --git-branch develop
-
-# Construir desde rama feature
 ./docker/build.sh --git-branch feature/new-ui
 ```
 
-### 3. Build desde Fork o Otro Repositorio
+### 3. Build from a Fork
 
 ```bash
-# Construir desde un fork
 ./docker/build.sh \
-  --git-repo https://github.com/otrousuario/task-manager.git \
+  --git-repo https://github.com/otherusername/task-manager.git \
   --git-branch main \
   --platform linux/amd64
 ```
 
-### 4. Build y Push a Docker Hub
+### 4. Build and Push to Docker Hub
 
 ```bash
-# Construir y publicar
 ./docker/build.sh \
   --platform linux/amd64 \
   --push \
-  --tag miusuario/taskmanager:v1.0.0
+  --tag myusername/taskmanager:v1.0.0
 ```
 
-## 🐳 Usando Docker Compose
-
-Puedes configurar el repositorio y rama en un archivo `.env`:
-
-```bash
-# Crear archivo .env
-cd docker
-cp .env.example .env
-
-# Editar .env
-nano .env
-```
-
-**Contenido del .env**:
-
-```bash
-GIT_REPO=https://github.com/fiopans1/task-manager.git
-GIT_BRANCH=main
-BACKEND_PORT=8080
-FRONTEND_PORT=3000
-```
-
-**Construir y ejecutar**:
-
-```bash
-# Construir
-docker-compose build
-
-# Ejecutar
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-```
-
-## 🔧 Build Manual con Docker
-
-Si prefieres usar Docker directamente:
-
-```bash
-# Build básico
-docker build \
-  -f docker/Dockerfile.deployment \
-  -t fiopans1/taskmanager:latest \
-  .
-
-# Build con parámetros personalizados
-docker build \
-  -f docker/Dockerfile.deployment \
-  --build-arg GIT_REPO=https://github.com/fiopans1/task-manager.git \
-  --build-arg GIT_BRANCH=develop \
-  --platform linux/amd64 \
-  -t fiopans1/taskmanager:develop \
-  .
-```
-
-## 📊 Proceso de Build
+## Build Process
 
 ```
 ┌─────────────────────────────────────────┐
 │  STAGE 1: Builder                       │
 ├─────────────────────────────────────────┤
-│  1. Instalar herramientas               │
+│  1. Install tools                       │
 │     - Maven, Node.js, Python, Git       │
-│  2. Clonar repositorio                  │
+│  2. Clone repository                    │
 │     - git clone --depth 1               │
-│  3. Compilar backend                    │
+│  3. Compile backend                     │
 │     - mvn clean package                 │
-│  4. Compilar frontend                   │
+│  4. Compile frontend                    │
 │     - pnpm install && pnpm run build    │
-│  5. Generar TaskManager.zip             │
+│  5. Generate TaskManager.zip            │
 └─────────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────────┐
 │  STAGE 2: Runtime                       │
 ├─────────────────────────────────────────┤
-│  1. Copiar TaskManager.zip              │
-│  2. Configurar entrypoint               │
-│  3. Imagen final optimizada             │
-│     (sin herramientas de build)         │
+│  1. Copy TaskManager.zip                │
+│  2. Configure entrypoint                │
+│  3. Optimised final image               │
+│     (no build tools included)           │
 └─────────────────────────────────────────┘
 ```
 
-## 🌍 Multi-Arquitectura
-
-Para construir una imagen que funcione en múltiples arquitecturas:
+## Multi-Architecture
 
 ```bash
-# Configurar buildx (solo primera vez)
+# Set up buildx (first time only)
 docker buildx create --name multiarch --use
 docker buildx inspect --bootstrap
 
-# Build multi-arch y push
-./docker/build.sh --multi --push --tag miusuario/taskmanager:latest
+# Multi-arch build and push
+./docker/build.sh --multi --push --tag myusername/taskmanager:latest
 ```
 
-Esto crea una imagen que funciona en:
-
-- `linux/amd64` - Servidores x86_64
-- `linux/arm64` - Mac M1/M2, ARM servers
-- `linux/arm/v7` - Raspberry Pi 3
-
-## 🎯 Casos de Uso
-
-### Desarrollo Local (Mac M1)
-
-```bash
-# Construir para tu Mac
-./docker/build.sh --platform linux/arm64
-
-# Ejecutar
-docker run -d \
-  -p 8080:8080 \
-  -p 3000:3000 \
-  --name taskmanager \
-  fiopans1/taskmanager:latest
-```
-
-### Despliegue en Servidor Linux (AMD64)
-
-```bash
-# Desde tu Mac, construir para el servidor
-./docker/build.sh \
-  --platform linux/amd64 \
-  --push \
-  --tag miusuario/taskmanager:prod
-
-# En el servidor
-docker pull miusuario/taskmanager:prod
-docker run -d \
-  -p 8080:8080 \
-  -p 3000:3000 \
-  -v /data/taskmanager:/app/metadata \
-  --name taskmanager \
-  miusuario/taskmanager:prod
-```
-
-### CI/CD con GitHub Actions
+## CI/CD with GitHub Actions
 
 ```yaml
 name: Build and Deploy
@@ -203,14 +99,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -225,51 +120,28 @@ jobs:
             --tag ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
-### Error: "fatal: Remote branch not found"
+### "fatal: Remote branch not found"
 
-La rama especificada no existe. Verifica:
+Check available branches:
 
 ```bash
-# Ver ramas disponibles
 git ls-remote --heads https://github.com/fiopans1/task-manager.git
 ```
 
-### Error: "repository not found"
+### "repository not found"
 
-Repositorio privado o URL incorrecta. Para repos privados, necesitas configurar credenciales:
-
-```bash
-# Opción 1: Usar token en la URL
-GIT_REPO=https://token@github.com/usuario/repo.git
-
-# Opción 2: Configurar credenciales en el Dockerfile
-# (requiere modificar el Dockerfile para usar git credential helper)
-```
-
-### Build muy lento
-
-Primera build es lenta (descarga dependencias). Builds subsecuentes son más rápidas gracias al caché de Docker.
-
-Para limpiar caché y rebuild completo:
+For private repositories, pass credentials in the URL:
 
 ```bash
-./docker/build.sh --no-cache --platform linux/amd64
+GIT_REPO=https://TOKEN@github.com/username/repo.git
 ```
 
-### Imagen muy grande
+### First build is slow
 
-La imagen final usa multi-stage build y es optimizada. Solo contiene:
+Maven and Node dependencies are downloaded on the first run. Subsequent builds are faster thanks to Docker layer caching.
 
-- JDK runtime
-- TaskManager.zip
-- Scripts de deployment
+## More Information
 
-El stage de build (con Maven, Node, etc.) se descarta automáticamente.
-
-## 📚 Más Información
-
-- Ver `docker/README.md` para documentación completa
-- Ver `docker/MIGRATION.md` para detalles de cambios
-- Ver `docker/.env.example` para todas las variables disponibles
+- See `docker/README.md` for full documentation.

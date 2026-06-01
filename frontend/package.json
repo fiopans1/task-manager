@@ -1,6 +1,25 @@
 {
-  "name": "frontend",
+  "name": "task-manager-frontend",
   "version": "0.1.0",
+  "description": "React frontend for Task Manager — a self-hosted task management application with calendar, lists, teams, and OAuth2 support.",
+  "license": "AGPL-3.0-only",
+  "author": "Diego Suárez Ramos <@fiopans1>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fiopans1/task-manager.git"
+  },
+  "homepage": "https://github.com/fiopans1/task-manager",
+  "bugs": {
+    "url": "https://github.com/fiopans1/task-manager/issues"
+  },
+  "keywords": [
+    "task-manager",
+    "react",
+    "self-hosted",
+    "calendar",
+    "teams",
+    "oauth2"
+  ],
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",

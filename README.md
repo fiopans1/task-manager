@@ -102,9 +102,10 @@ openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/re
 Build the application using Docker:
 
 ```bash
-docker build -f docker/Dockerfile.build -t fiopans1/taskmanager-compilation:alpha .
-docker run -v /path/to/output:/output fiopans1/taskmanager-compilation:alpha
+./docker/build.sh --platform linux/amd64
 ```
+
+See [docker/README.md](docker/README.md) for full options including multi-architecture builds and CI/CD examples.
 
 ## Project Structure
 
@@ -117,6 +118,12 @@ task-manager/
 │   ├── config_files/      # Static configuration files
 │   └── bin_files/         # Runtime scripts
 ├── docs/                # Documentation
+│   ├── CONFIGURATION.md
+│   ├── DEPLOYMENT.md
+│   ├── DOCUMENTATION_EN.md   # English user & technical docs
+│   ├── DOCUMENTATION_ES.md   # Spanish user & technical docs
+│   ├── TECHNICAL_EN.md       # English technical reference
+│   └── TECHNICAL_ES.md       # Spanish technical reference
 └── docker/              # Docker configurations
 ```
 
@@ -159,12 +166,7 @@ Ensure both backend (`config/application.properties`) and frontend (`lib/fronten
 
 ## Contributing
 
-Contributions are welcome! Please ensure:
-
-1. Code follows existing style conventions
-2. All tests pass
-3. Configuration changes are documented
-4. No secrets are committed to version control
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started, development setup, and the pull request process.
 
 ## License
 
