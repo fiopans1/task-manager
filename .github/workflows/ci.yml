@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  STARTUP_RETRIES: 30
+  STARTUP_DELAY_SECONDS: 2
+
+jobs:
+  backend:
+    name: Backend (compile + start)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Prepare backend runtime config
+        working-directory: backend
+        run: |
+          mkdir -p "${{ github.workspace }}/backend/.ci"
+          openssl genpkey -algorithm RSA -out "${{ github.workspace }}/backend/.ci/private_key.pem" -pkeyopt rsa_keygen_bits:2048
+          openssl rsa -pubout -in "${{ github.workspace }}/backend/.ci/private_key.pem" -out "${{ github.workspace }}/backend/.ci/public_key.pem"
+          cat > src/main/resources/application.properties <<EOF
+          spring.application.name=Task Manager
+          server.port=8080
+          taskmanager.frontend.base-url=http://localhost:3000
+          taskmanager.oauth2.enabled=false
+          taskmanager.oauth2.authorized-redirect-uris=http://localhost:3000
+          spring.datasource.url=jdbc:sqlite:${{ github.workspace }}/backend/.ci/task-manager.db?foreign_keys=on
+          spring.datasource.driver-class-name=org.sqlite.JDBC
+          spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
+          spring.jpa.hibernate.ddl-auto=update
+          spring.jpa.show-sql=false
+          spring.jpa.open-in-view=false
+          jwtKeys.privateKeyPath=file:${{ github.workspace }}/backend/.ci/private_key.pem
+          jwtKeys.publicKeyPath=file:${{ github.workspace }}/backend/.ci/public_key.pem
+          EOF
+
+      - name: Compile backend
+        working-directory: backend
+        run: |
+          ./mvnw --batch-mode clean package -DskipTests
+          JAR_NAME=$(./mvnw --batch-mode help:evaluate -Dexpression=project.build.finalName -q -DforceStdout)
+          echo "BACKEND_JAR=target/${JAR_NAME}.jar" >> "$GITHUB_ENV"
+
+      - name: Start backend and verify health
+        working-directory: backend
+        run: |
+          if [ -z "$BACKEND_JAR" ] || [ ! -f "$BACKEND_JAR" ]; then
+            echo "Expected packaged backend JAR not found: $BACKEND_JAR"
+            exit 1
+          fi
+          java -jar "$BACKEND_JAR" > ./backend-startup.log 2>&1 &
+          BACKEND_PID=$!
+          trap 'kill $BACKEND_PID' EXIT
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
+              echo "Backend ready."
+              exit 0
+            fi
+            if [ "$attempt" -lt "$STARTUP_RETRIES" ]; then
+              sleep "$STARTUP_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
+          done
+          echo "Backend did not become healthy after $STARTUP_RETRIES attempts."
+          cat ./backend-startup.log
+          exit 1
+
+  frontend:
+    name: Frontend (install + start)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.34.1'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Approve required build scripts
+        working-directory: frontend
+        run: pnpm approve-builds --all
+
+      - name: Start frontend and verify response
+        working-directory: frontend
+        run: |
+          pnpm start > ./frontend-startup.log 2>&1 &
+          FRONTEND_PID=$!
+          trap 'kill $FRONTEND_PID' EXIT
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
+            if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
+              echo "Frontend ready."
+              exit 0
+            fi
+            if [ "$attempt" -lt "$STARTUP_RETRIES" ]; then
+              sleep "$STARTUP_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
+          done
+          echo "Frontend did not respond after $STARTUP_RETRIES attempts."
+          cat ./frontend-startup.log
+          exit 1

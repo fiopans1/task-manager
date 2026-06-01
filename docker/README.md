@@ -1,126 +1,112 @@
-# Task Manager - Docker Build
+# Task Manager — Docker Build
 
-Este directorio contiene los archivos de Docker para construir y desplegar Task Manager.
+This directory contains the Docker files for building and deploying Task Manager.
 
-## 📁 Archivos
+## Files
 
-- `Dockerfile.deployment` - Dockerfile multi-stage que compila y despliega la aplicación
-- `Dockerfile.build` - (Deprecated) Dockerfile solo para compilación
-- `build.sh` - Script helper para construir la imagen fácilmente
-- `scripts_compilation/` - Scripts para la etapa de compilación
-- `scripts_deployment/` - Scripts para la etapa de despliegue
+- `Dockerfile.deployment` — Multi-stage Dockerfile that compiles and deploys the application.
+- `Dockerfile.build` — (Deprecated) Build-only Dockerfile.
+- `build.sh` — Helper script to build the image easily.
+- `scripts_compilation/` — Scripts used during the compilation stage.
+- `scripts_deployment/` — Scripts used during the deployment stage.
 
-## 🚀 Uso Rápido
+## Quick Start
 
-### Construcción Simple
+### Simple Build
 
 ```bash
-# Para servidores típicos (AMD64)
+# Typical servers (AMD64)
 ./docker/build.sh --platform linux/amd64
 
-# Para Mac M1/M2 (ARM64)
+# Mac M1/M2 (ARM64)
 ./docker/build.sh --platform linux/arm64
 ```
 
-### Construcción y Push a Docker Hub
+### Build and Push to Docker Hub
 
 ```bash
-# Construir y publicar
-./docker/build.sh --platform linux/amd64 --push --tag tuusuario/taskmanager:latest
+./docker/build.sh --platform linux/amd64 --push --tag yourusername/taskmanager:latest
 ```
 
-### Construcción Multi-Arquitectura
+### Multi-Architecture Build
 
 ```bash
-# Construir para múltiples plataformas y hacer push
-./docker/build.sh --multi --push --tag tuusuario/taskmanager:latest
+./docker/build.sh --multi --push --tag yourusername/taskmanager:latest
 ```
 
-## 🏗️ Arquitectura Multi-Stage
+## Multi-Stage Architecture
 
-El `Dockerfile.deployment` usa multi-stage build:
+`Dockerfile.deployment` uses a multi-stage build:
 
 ### Stage 1: Builder
 
-- Base: `eclipse-temurin:23-jdk`
-- Instala: Maven, Node.js, Python, Git
-- Clona: Repositorio desde GitHub
-- Compila: Backend (JAR) y Frontend (React)
-- Genera: `TaskManager.zip`
+- Base image: `eclipse-temurin:23-jdk`
+- Installs: Maven, Node.js, Python, Git
+- Clones: repository from GitHub
+- Compiles: backend (JAR) and frontend (React)
+- Generates: `TaskManager.zip`
 
 ### Stage 2: Runtime
 
-- Base: `eclipse-temurin:23-jdk`
-- Instala: Solo dependencias de runtime
-- Copia: `TaskManager.zip` desde stage builder
-- Ejecuta: Extracción, configuración y arranque
+- Base image: `eclipse-temurin:23-jdk`
+- Installs: runtime dependencies only
+- Copies: `TaskManager.zip` from the builder stage
+- Executes: extraction, configuration, and startup
 
-## 📊 Ventajas del Enfoque Actual
+## Supported Platforms
 
-1. **Un solo comando**: No necesitas compilar y desplegar por separado
-2. **Multi-arquitectura**: Construye para cualquier plataforma desde cualquier máquina
-3. **Caché eficiente**: Docker cachea las capas de compilación
-4. **Imagen más pequeña**: La imagen final no incluye herramientas de build
-5. **Reproducible**: Siempre compila desde el código fuente
-
-## 🎯 Plataformas Soportadas
-
-| Plataforma     | Casos de Uso                            |
+| Platform       | Use Cases                               |
 | -------------- | --------------------------------------- |
-| `linux/amd64`  | Servidores, VPS, PCs x86_64             |
+| `linux/amd64`  | Servers, VPS, x86_64 PCs               |
 | `linux/arm64`  | Mac M1/M2, Raspberry Pi 4, AWS Graviton |
-| `linux/arm/v7` | Raspberry Pi 3 y anteriores             |
+| `linux/arm/v7` | Raspberry Pi 3 and older                |
 
-## ⚙️ Opciones del Script de Build
+## Build Script Options
 
 ```bash
-./docker/build.sh [OPCIONES]
+./docker/build.sh [OPTIONS]
 
-Opciones:
-  -h, --help              Mostrar ayuda
-  -t, --tag TAG           Tag para la imagen (default: fiopans1/taskmanager:latest)
-  -p, --platform PLAT     Plataforma target (default: linux/amd64)
-  -m, --multi             Construir para múltiples plataformas
-  --push                  Push a Docker Hub después de construir
-  --no-cache              Construir sin usar caché
-  -v, --verbose           Modo verbose
-  --git-repo URL          URL del repositorio (default: https://github.com/fiopans1/task-manager.git)
-  --git-branch BRANCH     Rama a clonar (default: main)
+Options:
+  -h, --help              Show help
+  -t, --tag TAG           Image tag (default: fiopans1/taskmanager:latest)
+  -p, --platform PLAT     Target platform (default: linux/amd64)
+  -m, --multi             Build for multiple platforms
+  --push                  Push to Docker Hub after building
+  --no-cache              Build without cache
+  -v, --verbose           Verbose mode
+  --git-repo URL          Repository URL (default: https://github.com/fiopans1/task-manager.git)
+  --git-branch BRANCH     Branch to clone (default: main)
 ```
 
-## 📝 Ejemplos
+## Examples
 
-### Desarrollo Local
+### Local Development
 
 ```bash
-# Construir para tu arquitectura desde main
+# Build for your architecture from main
 ./docker/build.sh
 
-# Construir desde una rama específica
+# Build from a specific branch
 ./docker/build.sh --git-branch develop
 
-# Ejecutar
+# Run
 docker run -d -p 8080:8080 -p 3000:3000 --name taskmanager fiopans1/taskmanager:latest
 ```
 
-### Producción en Servidor AMD64
+### Production on AMD64 Server
 
 ```bash
-# Construir para AMD64
 ./docker/build.sh --platform linux/amd64 --tag myapp/taskmanager:v1.0.0
-
-# Push a registry
 ./docker/build.sh --platform linux/amd64 --push --tag myapp/taskmanager:v1.0.0
 ```
 
-### Construir desde un Fork
+### Build from a Fork
 
 ```bash
-# Construir desde otro repositorio
-./docker/build.sh --git-repo https://github.com/otrousuario/task-manager.git --git-branch feature-x
+./docker/build.sh --git-repo https://github.com/otherusername/task-manager.git --git-branch feature-x
 ```
 
-### CI/CD con GitHub Actions
+### CI/CD with GitHub Actions
 
 ```yaml
 - name: Build and Push Docker Image
@@ -129,62 +115,29 @@ docker run -d -p 8080:8080 -p 3000:3000 --name taskmanager fiopans1/taskmanager:
     ./docker/build.sh --multi --push --tag ${{ secrets.DOCKER_USERNAME }}/taskmanager:${{ github.sha }}
 ```
 
-````
-
-## 📝 Ejemplos
-
-### Desarrollo Local
-
-```bash
-# Construir para tu arquitectura
-./docker/build.sh
-
-# Ejecutar
-docker run -d -p 8080:8080 -p 3000:3000 --name taskmanager fiopans1/taskmanager:latest
-````
-
-### Producción en Servidor AMD64
-
-```bash
-# Construir para AMD64
-./docker/build.sh --platform linux/amd64 --tag myapp/taskmanager:v1.0.0
-
-# Push a registry
-./docker/build.sh --platform linux/amd64 --push --tag myapp/taskmanager:v1.0.0
-```
-
-### CI/CD con GitHub Actions
-
-```yaml
-- name: Build and Push Docker Image
-  run: |
-    chmod +x docker/build.sh
-    ./docker/build.sh --multi --push --tag ${{ secrets.DOCKER_USERNAME }}/taskmanager:${{ github.sha }}
-```
-
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Error: "docker buildx not found"
 
-Instala Docker Desktop o habilita buildx:
+Install Docker Desktop or enable buildx:
 
 ```bash
 docker buildx version
 ```
 
-### Build muy lento
+### Slow build
 
-Usa `--no-cache` solo cuando sea necesario. Docker cachea las capas automáticamente.
+Use `--no-cache` only when necessary. Docker caches layers automatically.
 
-### Multi-platform build falla
+### Multi-platform build fails
 
-Asegúrate de tener QEMU instalado:
+Make sure QEMU is installed:
 
 ```bash
 docker run --privileged --rm tonistiigi/binfmt --install all
 ```
 
-## 📚 Referencias
+## References
 
 - [Docker Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
 - [Docker Buildx](https://docs.docker.com/buildx/working-with-buildx/)

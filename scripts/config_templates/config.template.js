@@ -61,6 +61,14 @@ window.APP_CONFIG = {
   },
 
   /**
+   * Session behavior
+   */
+  session: {
+    // Minutes of user inactivity before showing the idle session modal
+    inactivityThresholdMinutes: 10,
+  },
+
+  /**
    * Feature Flags
    * Enable or disable specific features
    */
