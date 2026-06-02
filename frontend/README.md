@@ -1,31 +1,105 @@
-# Frontend Task Manager
+# Task Manager Frontend
 
-This frontend now uses Vite with React.
+This package contains the React + Vite frontend for Task Manager.
 
-## Available scripts
+It is responsible for the browser experience: authentication screens, task workflows, lists, calendar views, statistics and the user-facing session flow that works with the backend through secure cookies and CSRF protection.
 
-From `frontend/`, run:
+## Stack
 
-### `pnpm install`
+- React 18
+- Vite
+- Redux Toolkit
+- React Router
+- Bootstrap
+- Vitest
 
-Install the frontend dependencies.
+## Prerequisites
 
-### `pnpm run dev`
+- Node.js 20+ recommended
+- Corepack enabled
 
-Start the Vite development server on [http://localhost:3000](http://localhost:3000).
+## Install dependencies
 
-### `pnpm start`
+```bash
+cd frontend
+corepack pnpm install
+```
 
-Start the Vite development server listening on `0.0.0.0:3000`.
+## Runtime configuration
 
-### `pnpm run build`
+The frontend reads its runtime settings from `public/config.js`.
 
-Create the production build in `build/`.
+Create it from the provided template before starting local development:
 
-### `pnpm test`
+```bash
+cp ../scripts/config_templates/config.template.js public/config.js
+```
 
-Run the test suite with Vitest.
+Important points:
 
-### `pnpm run preview`
+- `window.APP_CONFIG.api.baseUrl` controls which backend is used
+- In development, an empty `baseUrl` works with the local proxy
+- This file is loaded at runtime, so deployment environments can change values without rebuilding the app
 
-Serve the production build locally on port 3000.
+Example:
+
+```js
+window.APP_CONFIG = {
+  api: {
+    baseUrl: ''
+  },
+  oauth2: {
+    enabled: true
+  }
+}
+```
+
+## Available commands
+
+### Start the development server
+
+```bash
+corepack pnpm dev
+```
+
+Runs Vite in development mode.
+
+### Start the frontend on `0.0.0.0:3000`
+
+```bash
+corepack pnpm start
+```
+
+This is the command used by CI to verify that the frontend boots correctly and responds on port `3000`.
+
+### Build for production
+
+```bash
+corepack pnpm build
+```
+
+Generates the production bundle in `build/`.
+
+### Preview the production build
+
+```bash
+corepack pnpm preview
+```
+
+### Run tests
+
+```bash
+corepack pnpm test
+```
+
+## Development notes
+
+- Keep user-facing strings aligned with the application translation system
+- Do not commit environment-specific `public/config.js` values
+- If you change authentication-related behaviour, verify the frontend still works with the backend session cookie + CSRF flow
+
+## Related documentation
+
+- Root project overview: [`../README.md`](../README.md)
+- Contribution guide: [`../CONTRIBUTING.md`](../CONTRIBUTING.md)
+- User and developer portal: [`../docs`](../docs)

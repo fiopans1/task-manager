@@ -1,72 +1,102 @@
 # Task Manager
 
-A professional task management application with calendar integration, custom lists, and OAuth2 authentication support.
+Task Manager is a self-hosted task management platform for teams and individuals who need tasks, lists, calendar planning, session-based authentication, and a deployment model that can run on their own infrastructure.
 
-## Features
+It is designed as a full-stack application:
 
-- ✅ Task creation and management with priorities and states
-- 📅 Calendar integration for task scheduling
-- 📋 Custom lists for organizing tasks
-- ⏱️ Time tracking for tasks
-- 🔐 OAuth2 authentication (Google, GitHub, Authentik)
-- 🎨 Modern, responsive UI
+- **Backend:** Spring Boot 3, Spring Security, JPA and SQLite-ready persistence
+- **Frontend:** React 18, Vite, Redux Toolkit and Bootstrap
+- **Docs portal:** VitePress documentation mirrored in **Spanish** (`/es`) and **English** (`/en`)
+- **Authentication model:** OAuth2 login support with **HttpOnly session cookies** and **CSRF protection**
 
-## Quick Start
+## Why this project
 
-### Prerequisites
+Task Manager aims to provide an open source alternative for teams that want to keep control of their data without giving up a modern product experience.
 
-- Java 17 or higher
-- Maven 3.6+
-- Node.js 18+ and pnpm
-- Python 3.8+
+Typical use cases:
 
-### Building the Application
+- Organising personal or team workloads with states and priorities
+- Planning work on a calendar
+- Grouping work into custom lists
+- Running the stack on your own server or VPS
+- Extending the product with your own integrations and deployment pipeline
 
-```bash
-cd scripts
-python3 compile.py --action deploy
+## Key capabilities
+
+- Task creation, editing and lifecycle tracking
+- Calendar-based planning
+- Custom lists and team-oriented organisation
+- Time tracking support
+- OAuth2 providers such as Google, GitHub and Authentik
+- Runtime frontend configuration through `frontend/public/config.js`
+- Bilingual documentation for end users, administrators and developers
+
+## Repository layout
+
+```text
+task-manager/
+├── backend/      # Spring Boot API and authentication/session layer
+├── frontend/     # React + Vite web application
+├── docs/         # VitePress portal available at /es and /en
+├── docker/       # Docker build assets and container documentation
+├── scripts/      # Packaging, deployment and configuration templates
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+└── SECURITY.md
 ```
 
-This will create a `TaskManager.zip` file containing the complete deployment package.
+## Prerequisites
 
-### Running the Application
+Use these versions if you want to work with the repository locally:
 
-1. Extract the deployment package:
+- **Java 23** for the backend
+- **Node.js 20+** recommended
+- **pnpm** via Corepack for the frontend and docs
+- **Python 3.8+** for packaging scripts
+
+## Quick start for local development
+
+### 1. Backend
+
+Create the RSA keys used by the session/JWT layer:
 
 ```bash
-unzip TaskManager.zip
-cd task-manager
+mkdir -p backend/src/main/resources/keys
+openssl genrsa -out backend/src/main/resources/keys/private_key.pem 2048
+openssl rsa -in backend/src/main/resources/keys/private_key.pem -pubout \
+  -out backend/src/main/resources/keys/public_key.pem
 ```
 
-2. Configure the application (see [Configuration Guide](docs/CONFIGURATION.md))
-
-3. Start the application:
+Then start the API:
 
 ```bash
-cd bin
-python3 start.py --start-all
+cd backend
+./mvnw spring-boot:run
 ```
 
-The application will be available at:
+By default the backend serves the API on `http://localhost:8080`.
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8080
+### 2. Frontend
 
-## Configuration
+Install dependencies and prepare runtime configuration:
 
-The application uses a professional configuration system with separate files for backend, frontend, and web server.
+```bash
+cd frontend
+corepack pnpm install
+cp ../scripts/config_templates/config.template.js public/config.js
+```
 
-See the [Configuration Guide](docs/CONFIGURATION.md) for detailed information on:
+Start the frontend:
 
-- Application settings
-- OAuth2 provider setup
-- Frontend configuration
-- Web server customization
-- Deployment best practices
+```bash
+corepack pnpm start
+```
 
-## Documentation Site
+The frontend is available on `http://localhost:3000`.
 
-The repository now includes a VitePress documentation portal built from the markdown files in `/docs`:
+### 3. Documentation portal
+
+Run the docs site locally:
 
 ```bash
 cd docs
@@ -74,124 +104,102 @@ corepack pnpm install
 corepack pnpm docs:dev
 ```
 
-The documentation is available in mirrored language sections at `/es/` and `/en/`.
+The site exposes mirrored content in:
 
-Build the static site with:
+- `http://localhost:4173/es/`
+- `http://localhost:4173/en/`
 
-```bash
-corepack pnpm docs:build
-```
+## Build and packaging
 
-## Development
-
-### Backend Development
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-### Frontend Development
+### Frontend production build
 
 ```bash
 cd frontend
-pnpm install
-pnpm start
+corepack pnpm build
 ```
 
-Don't forget to create a `frontend/public/config.js` file for development (see template in `scripts/config_templates/config.template.js`).
-
-## Security
-
-### Generating JWT Keys
-
-The application uses RSA keys for JWT token signing:
+### Documentation build
 
 ```bash
-# Generate private key
-openssl genrsa -out src/main/resources/keys/private_key.pem 2048
-
-# Generate public key
-openssl rsa -in src/main/resources/keys/private_key.pem -pubout -out src/main/resources/keys/public_key.pem
+cd docs
+corepack pnpm docs:build
 ```
 
-## Docker Build
+### Full distributable package
 
-Build the application using Docker:
+To create the deployable archive:
+
+```bash
+cd scripts
+python3 compile.py --action deploy
+```
+
+This generates `TaskManager.zip` with the packaged application and deployment files.
+
+## Configuration
+
+Task Manager uses runtime configuration instead of baking every value into the frontend bundle.
+
+The main files are:
+
+- `frontend/public/config.js` for frontend runtime behaviour
+- `backend/src/main/resources/application.properties` for backend setup
+- `task-manager/config/Caddyfile` in packaged deployments
+
+Example frontend configuration:
+
+```js
+window.APP_CONFIG = {
+  api: {
+    baseUrl: ''
+  },
+  oauth2: {
+    enabled: true
+  }
+}
+```
+
+This allows the frontend to point to the same origin in development or to a dedicated backend URL in production.
+
+## Security model
+
+The current authentication flow uses:
+
+- **HttpOnly cookies** for session/access handling
+- **CSRF protection** for state-changing requests
+- OAuth2 login for supported identity providers
+
+If you are integrating against the backend, assume browser-session authentication rather than storing bearer tokens in frontend code.
+
+## Documentation
+
+The project documentation is written for both end users and developers and is maintained as a mirrored bilingual portal:
+
+- **Spanish:** `/es/`
+- **English:** `/en/`
+
+Available sections include getting started, user guide, developer guide, architecture and deployment.
+
+## Docker
+
+If you want to build and distribute the project as a container image:
 
 ```bash
 ./docker/build.sh --platform linux/amd64
 ```
 
-See [docker/README.md](docker/README.md) for full options including multi-architecture builds and CI/CD examples.
-
-## Project Structure
-
-```
-task-manager/
-├── backend/             # Spring Boot backend
-├── frontend/            # React frontend
-├── scripts/             # Build and deployment scripts
-│   ├── config_templates/  # Configuration templates
-│   ├── config_files/      # Static configuration files
-│   └── bin_files/         # Runtime scripts
-├── docs/                # Documentation
-│   ├── CONFIGURATION.md
-│   ├── DEPLOYMENT.md
-│   ├── DOCUMENTATION_EN.md   # English user & technical docs
-│   ├── DOCUMENTATION_ES.md   # Spanish user & technical docs
-│   ├── TECHNICAL_EN.md       # English technical reference
-│   └── TECHNICAL_ES.md       # Spanish technical reference
-└── docker/              # Docker configurations
-```
-
-## Architecture
-
-- **Backend:** Spring Boot 3.x with Spring Security, JPA, and OAuth2
-- **Frontend:** React 18 with Redux Toolkit, React Router, and Bootstrap
-- **Database:** SQLite (can be configured for other databases)
-- **Web Server:** Caddy server for serving frontend SPA
-
-## Upgrading from Environment Variables
-
-If you're upgrading from a version that used `REACT_APP_*` environment variables, the new configuration system provides better flexibility:
-
-- **No rebuild required** for configuration changes
-- **Single deployment artifact** works in multiple environments
-- **Runtime configuration** loaded from `config.js`
-
-See the [Configuration Guide](docs/CONFIGURATION.md) for migration details.
-
-## Troubleshooting
-
-### Port Already in Use
-
-```bash
-# Kill process on port 8080 (backend)
-kill -9 $(lsof -ti:8080)
-
-# Kill process on port 3000 (frontend)
-kill -9 $(lsof -ti:3000)
-```
-
-### Frontend Can't Connect to Backend
-
-Check `lib/frontend/config.js` and ensure `api.baseUrl` matches your backend URL.
-
-### OAuth2 Issues
-
-Ensure both backend (`config/application.properties`) and frontend (`lib/frontend/config.js`) have matching OAuth2 settings enabled.
+See [docker/README.md](docker/README.md) for supported flags, multi-platform builds and publishing examples.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started, development setup, and the pull request process.
+If you want to contribute:
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+2. Check the expected behaviour in [SECURITY.md](SECURITY.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+3. Keep pull requests focused and update docs when behaviour changes
 
 ## License
 
-Copyright (c) 2025 Diego Suárez Ramos (@fiopans1)
+Task Manager is licensed under the **GNU Affero General Public License v3.0**.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License v3.0** as published by the Free Software Foundation.
-
-This means that if you use this software over a network, you must provide the source code of your modified version to the users of that service. For more details, see the full license text.
-
-A copy of the license is included in the [LICENSE](LICENSE) file and is also available at [https://www.gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/agpl-3.0.html).
+See [LICENSE](LICENSE) for the full text.
