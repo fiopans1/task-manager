@@ -58,11 +58,14 @@ public class DataLoader {
 
             // Create ADMIN user if it doesn't exist
             if (userRepository.findByUsername("admin").isEmpty() && environment.getProperty("taskmanager.create-admin-user", Boolean.class, false)) {
+                String adminUsername = environment.getRequiredProperty("taskmanager.default-admin-username");
+                String adminPassword = environment.getRequiredProperty("taskmanager.default-admin-password");
+                String adminEmail = environment.getRequiredProperty("taskmanager.default-admin-email");
                 logger.info("Creating default admin user");
                 User admin = new User();
-                admin.setUsername(environment.getProperty("taskmanager.default-admin-username", "admin"));
-                admin.setPassword(passwordEncoder.encode(environment.getProperty("taskmanager.default-admin-password", "admin"))); // Encrypt password
-                admin.setEmail(environment.getProperty("taskmanager.default-admin-email", "admin@example.com"));
+                admin.setUsername(adminUsername);
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                admin.setEmail(adminEmail);
                 admin.setRoles(Collections.singleton(adminRole)); // Assign ADMIN role
                 admin.addAuthProvider(AuthProvider.LOCAL);
                 userRepository.save(admin);
@@ -71,10 +74,13 @@ public class DataLoader {
 
             // Create BASIC user if it doesn't exist
             if (userRepository.findByUsername("basic").isEmpty() && environment.getProperty("taskmanager.create-basic-user", Boolean.class, false)) {
+                String basicUsername = environment.getRequiredProperty("taskmanager.default-basic-username");
+                String basicPassword = environment.getRequiredProperty("taskmanager.default-basic-password");
+                String basicEmail = environment.getRequiredProperty("taskmanager.default-basic-email");
                 User user = new User();
-                user.setUsername("basic");
-                user.setPassword(passwordEncoder.encode("basic")); // Encrypt password
-                user.setEmail("basic@example.com");
+                user.setUsername(basicUsername);
+                user.setPassword(passwordEncoder.encode(basicPassword));
+                user.setEmail(basicEmail);
                 user.addAuthProvider(AuthProvider.LOCAL);
                 user.setRoles(Collections.singleton(basicRole)); // Assign BASIC role
                 userRepository.save(user);

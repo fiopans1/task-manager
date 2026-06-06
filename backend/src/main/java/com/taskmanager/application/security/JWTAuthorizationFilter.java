@@ -107,7 +107,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            logger.error("JWT filter: validation failed - {}", e.getMessage(), e);
+            logger.error("JWT filter: validation failed - {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
