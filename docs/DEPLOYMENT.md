@@ -391,4 +391,4 @@ docker volume rm taskmanager-data
 
 ## 📄 Licencia
 
-Este proyecto está licenciado bajo GNU Affero General Public License v3.0. Ver el archivo [LICENSE](../LICENSE) para más detalles.
+Este proyecto está licenciado bajo GNU Affero General Public License v3.0. Consulta la [página de licencia](/license) para más detalles.

@@ -1,67 +1,66 @@
-# Task Manager — Docker Build
+# Task Manager Docker Guide
 
-This directory contains the Docker files for building and deploying Task Manager.
+This directory contains the Docker assets used to build and distribute Task Manager as a container image.
 
-## Files
+The main entry point is `build.sh`, which wraps the Docker build command and lets you choose the target platform, image tag, source repository and branch to build.
 
-- `Dockerfile.deployment` — Multi-stage Dockerfile that compiles and deploys the application.
-- `Dockerfile.build` — (Deprecated) Build-only Dockerfile.
-- `build.sh` — Helper script to build the image easily.
-- `scripts_compilation/` — Scripts used during the compilation stage.
-- `scripts_deployment/` — Scripts used during the deployment stage.
+## Files in this directory
 
-## Quick Start
+- `Dockerfile.deployment` — multi-stage image used for packaging and runtime
+- `Dockerfile.build` — legacy build image kept for compatibility
+- `build.sh` — helper script for local and CI/CD builds
+- `scripts_compilation/` — scripts used during the image build stage
+- `scripts_deployment/` — scripts used during the deployment/runtime stage
 
-### Simple Build
+## Requirements
+
+- Docker installed locally
+- Docker Buildx enabled for multi-platform images
+
+## Quick start
+
+### Build the default image
 
 ```bash
-# Typical servers (AMD64)
-./docker/build.sh --platform linux/amd64
+./docker/build.sh
+```
 
-# Mac M1/M2 (ARM64)
+This builds `fiopans1/taskmanager:latest` for `linux/amd64`.
+
+### Build for ARM64
+
+```bash
 ./docker/build.sh --platform linux/arm64
 ```
 
-### Build and Push to Docker Hub
+### Build and push your own tag
 
 ```bash
-./docker/build.sh --platform linux/amd64 --push --tag yourusername/taskmanager:latest
+./docker/build.sh --platform linux/amd64 --push --tag youruser/taskmanager:latest
 ```
 
-### Multi-Architecture Build
+### Multi-platform build
 
 ```bash
-./docker/build.sh --multi --push --tag yourusername/taskmanager:latest
+./docker/build.sh --multi --push --tag youruser/taskmanager:latest
 ```
 
-## Multi-Stage Architecture
+## How the Docker build works
 
-`Dockerfile.deployment` uses a multi-stage build:
+`Dockerfile.deployment` uses a multi-stage process:
 
-### Stage 1: Builder
+1. **Builder stage**
+   - Starts from Java 23
+   - Installs the tooling needed to package the project
+   - Fetches the repository and builds the application
+2. **Runtime stage**
+   - Copies the packaged output
+   - Prepares the final runtime image
+   - Exposes the application for backend and frontend access
 
-- Base image: `eclipse-temurin:23-jdk`
-- Installs: Maven, Node.js, Python, Git
-- Clones: repository from GitHub
-- Compiles: backend (JAR) and frontend (React)
-- Generates: `TaskManager.zip`
+This approach keeps the runtime image separate from the heavier build environment.
 
-### Stage 2: Runtime
-
-- Base image: `eclipse-temurin:23-jdk`
-- Installs: runtime dependencies only
-- Copies: `TaskManager.zip` from the builder stage
-- Executes: extraction, configuration, and startup
-
-## Supported Platforms
-
-| Platform       | Use Cases                               |
-| -------------- | --------------------------------------- |
-| `linux/amd64`  | Servers, VPS, x86_64 PCs               |
-| `linux/arm64`  | Mac M1/M2, Raspberry Pi 4, AWS Graviton |
-| `linux/arm/v7` | Raspberry Pi 3 and older                |
-
-## Build Script Options
+## Supported command-line options
 
 ```bash
 ./docker/build.sh [OPTIONS]
@@ -70,75 +69,58 @@ Options:
   -h, --help              Show help
   -t, --tag TAG           Image tag (default: fiopans1/taskmanager:latest)
   -p, --platform PLAT     Target platform (default: linux/amd64)
-  -m, --multi             Build for multiple platforms
-  --push                  Push to Docker Hub after building
+  -m, --multi             Build for multiple platforms (amd64, arm64)
+  --push                  Push the image after building
   --no-cache              Build without cache
-  -v, --verbose           Verbose mode
-  --git-repo URL          Repository URL (default: https://github.com/fiopans1/task-manager.git)
-  --git-branch BRANCH     Branch to clone (default: main)
+  -v, --verbose           Show verbose Docker output
+  --git-repo URL          Repository to clone during the build
+  --git-branch BRANCH     Branch to clone during the build
 ```
 
-## Examples
+## Practical examples
 
-### Local Development
+### Build from a feature branch
 
 ```bash
-# Build for your architecture from main
-./docker/build.sh
-
-# Build from a specific branch
-./docker/build.sh --git-branch develop
-
-# Run
-docker run -d -p 8080:8080 -p 3000:3000 --name taskmanager fiopans1/taskmanager:latest
+./docker/build.sh --git-branch feature/improve-auth
 ```
 
-### Production on AMD64 Server
+### Build from a fork
 
 ```bash
-./docker/build.sh --platform linux/amd64 --tag myapp/taskmanager:v1.0.0
-./docker/build.sh --platform linux/amd64 --push --tag myapp/taskmanager:v1.0.0
+./docker/build.sh --git-repo https://github.com/otherusername/task-manager.git --git-branch main
 ```
 
-### Build from a Fork
+### Run the generated image
 
 ```bash
-./docker/build.sh --git-repo https://github.com/otherusername/task-manager.git --git-branch feature-x
-```
-
-### CI/CD with GitHub Actions
-
-```yaml
-- name: Build and Push Docker Image
-  run: |
-    chmod +x docker/build.sh
-    ./docker/build.sh --multi --push --tag ${{ secrets.DOCKER_USERNAME }}/taskmanager:${{ github.sha }}
+docker run -d \
+  -p 8080:8080 \
+  -p 3000:3000 \
+  --name taskmanager \
+  fiopans1/taskmanager:latest
 ```
 
 ## Troubleshooting
 
-### Error: "docker buildx not found"
+### `docker buildx` is missing
 
-Install Docker Desktop or enable buildx:
+Check whether Buildx is available:
 
 ```bash
 docker buildx version
 ```
 
-### Slow build
+If it is missing, install Docker Desktop or enable the Buildx plugin in your Docker environment.
 
-Use `--no-cache` only when necessary. Docker caches layers automatically.
+### Multi-platform builds fail
 
-### Multi-platform build fails
-
-Make sure QEMU is installed:
+If your host does not have the required emulation support, install QEMU:
 
 ```bash
 docker run --privileged --rm tonistiigi/binfmt --install all
 ```
 
-## References
+### You only need a local image
 
-- [Docker Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
-- [Docker Buildx](https://docs.docker.com/buildx/working-with-buildx/)
-- [Multi-Platform Images](https://docs.docker.com/build/building/multi-platform/)
+If you do not plan to publish the result, omit `--push`. For regular local work, `./docker/build.sh` is usually enough.

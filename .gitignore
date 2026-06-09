@@ -23,6 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnp
 .pnp.js
+docs/.vitepress/cache/
+docs/.vitepress/dist/
 
 # ─── Secrets & Environment ────────────────────────────────────────────────────
 .env
@@ -38,6 +40,7 @@ jwtKeys/
 
 # ─── Frontend runtime config (generated per environment) ─────────────────────
 client/public/config.js
+frontend/public/config.js
 
 # ─── Database ─────────────────────────────────────────────────────────────────
 *.db
