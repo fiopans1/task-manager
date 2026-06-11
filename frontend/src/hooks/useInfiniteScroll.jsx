@@ -18,42 +18,56 @@ export function useServerInfiniteScroll(fetchPage, pageSize = PAGE_SIZE, deps = 
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [queryVersion, setQueryVersion] = useState(0);
   const sentinelRef = useRef(null);
-  const abortRef = useRef(false);
+  const fetchPageRef = useRef(fetchPage);
+  const requestVersionRef = useRef(0);
+  const hasMountedRef = useRef(false);
 
-  // Reset when deps change
+  useEffect(() => {
+    fetchPageRef.current = fetchPage;
+  }, [fetchPage]);
+
   const reset = useCallback(() => {
+    requestVersionRef.current += 1;
     setItems([]);
     setPage(0);
     setHasMore(true);
+    setLoading(false);
     setInitialLoading(true);
-    abortRef.current = true;
+    setQueryVersion((prev) => prev + 1);
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(reset, deps);
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
 
-  // Fetch page on page/deps change
+    reset();
+  }, [reset, ...deps]);
+
   useEffect(() => {
     let cancelled = false;
-    abortRef.current = false;
+    const requestVersion = requestVersionRef.current;
 
     const doFetch = async () => {
-      if (!fetchPage) return;
+      if (!fetchPageRef.current) return;
       setLoading(true);
+
       try {
-        const data = await fetchPage(page, pageSize);
-        if (cancelled || abortRef.current) return;
-        
+        const data = await fetchPageRef.current(page, pageSize);
+        if (cancelled || requestVersion !== requestVersionRef.current) return;
+
         setItems((prev) => page === 0 ? data.content : [...prev, ...data.content]);
         setHasMore(!data.last);
       } catch (error) {
-        if (!cancelled && !abortRef.current) {
+        if (!cancelled && requestVersion === requestVersionRef.current) {
           console.error("Error fetching page:", error);
           setHasMore(false);
         }
       } finally {
-        if (!cancelled && !abortRef.current) {
+        if (!cancelled && requestVersion === requestVersionRef.current) {
           setLoading(false);
           setInitialLoading(false);
         }
@@ -62,8 +76,7 @@ export function useServerInfiniteScroll(fetchPage, pageSize = PAGE_SIZE, deps = 
 
     doFetch();
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, fetchPage, pageSize, ...deps]);
+  }, [page, pageSize, queryVersion]);
 
   // IntersectionObserver to load more when sentinel is visible
   useEffect(() => {

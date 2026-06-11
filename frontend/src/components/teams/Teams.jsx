@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Badge,
   Button,
@@ -8,33 +8,27 @@ import {
   Form,
   InputGroup,
   Row,
-  Spinner,
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
-import { useLocation } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import teamService from "../../services/teamService";
 import { errorToast, successToast } from "../common/Noty";
 import NewEditTeam from "./NewEditTeam";
 import TeamsList from "./TeamsList";
 
 const Teams = () => {
-  const location = useLocation();
+  const { darkMode } = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
-  const [teamsResource, setTeamsResource] = useState(() => teamService.getTeams());
 
   useEffect(() => {
-    setTeamsResource(teamService.getTeams());
-    setRefreshKey((prevKey) => prevKey + 1);
     loadPendingInvitations();
-  }, [location.key]);
+  }, []);
 
   const refreshTeams = () => {
-    teamService.invalidateTeamsCache();
-    setTeamsResource(teamService.getTeams());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
@@ -83,8 +77,6 @@ const Teams = () => {
             onSubmit={(e) => {
               e.preventDefault();
               setActiveSearchTerm(searchTerm.trim());
-              teamService.invalidateTeamsCache();
-              setTeamsResource(teamService.getTeams());
               setRefreshKey((prevKey) => prevKey + 1);
             }}
           >
@@ -104,7 +96,7 @@ const Teams = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button
@@ -181,22 +173,10 @@ const Teams = () => {
           </Card>
         }
       >
-        <Suspense
-          fallback={
-            <Card className="border-0 shadow-sm rounded-4 text-center py-5">
-              <Card.Body>
-                <Spinner animation="border" />
-                <p className="text-body-secondary mt-3 mb-0">Loading teams...</p>
-              </Card.Body>
-            </Card>
-          }
-        >
-          <TeamsList
-            key={`teams-list-${refreshKey}`}
-            teamsResource={teamsResource}
-            searchTerm={activeSearchTerm}
-          />
-        </Suspense>
+        <TeamsList
+          refreshKey={refreshKey}
+          searchTerm={activeSearchTerm}
+        />
       </ErrorBoundary>
 
       <NewEditTeam

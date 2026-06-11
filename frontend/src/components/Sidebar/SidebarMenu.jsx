@@ -157,15 +157,29 @@ function SidebarMenu({ onLogOut }) {
     const effectiveCollapsed = isMobile ? false : collapsed;
     const collapsedDropdownPopperConfig = effectiveCollapsed
       ? {
-          strategy: "fixed",
           modifiers: [
             {
               name: "offset",
-              options: { offset: [0, 12] },
+              options: { offset: [0, 8] },
+            },
+            {
+              name: "flip",
+              options: {
+                fallbackPlacements: [
+                  "bottom-end",
+                  "top-end",
+                  "bottom-start",
+                  "top-start",
+                ],
+              },
+            },
+            {
+              name: "preventOverflow",
+              options: { boundary: "viewport", padding: 8 },
             },
           ],
         }
-      : { strategy: "fixed" };
+      : undefined;
     const brandButtonClassName = `text-body-emphasis text-decoration-none d-flex align-items-center gap-2 px-0 border-0 ${
       effectiveCollapsed ? "w-100 justify-content-center" : ""
     }`;
@@ -232,6 +246,7 @@ function SidebarMenu({ onLogOut }) {
 
             <Nav.Item>
               <Dropdown
+                key={`help-${String(effectiveCollapsed)}`}
                 drop={effectiveCollapsed ? "end" : "down"}
                 container="body"
               >
@@ -263,6 +278,7 @@ function SidebarMenu({ onLogOut }) {
 
         <div className={`p-3 pt-0 ${effectiveCollapsed ? "text-center" : ""}`}>
           <Dropdown
+            key={`user-${String(effectiveCollapsed)}`}
             drop={effectiveCollapsed ? "end" : "up"}
             align={effectiveCollapsed ? "start" : "end"}
             container="body"
@@ -383,7 +399,7 @@ function SidebarMenu({ onLogOut }) {
         xs="auto"
       >
         <Button
-          variant="dark"
+          variant={darkMode ? "light" : "dark"}
           size="sm"
           className="sidebar-toggle d-flex align-items-center justify-content-center"
           onClick={() => setCollapsed((prev) => !prev)}

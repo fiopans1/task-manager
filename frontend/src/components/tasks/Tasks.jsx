@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Card,
@@ -7,11 +7,10 @@ import {
   Form,
   InputGroup,
   Row,
-  Spinner,
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
-import taskService from "../../services/taskService";
+import { useTheme } from "../../context/ThemeContext";
 import { errorToast } from "../common/Noty";
 import NewEditTask from "./NewEditTask";
 import TasksList from "./TasksList";
@@ -19,30 +18,21 @@ import TasksList from "./TasksList";
 const Tasks = () => {
   const navigateTo = useNavigate();
   const location = useLocation();
+  const { darkMode } = useTheme();
   const [showNewTask, setshowNewTask] = useState(false);
   const [showEditTask, setshowEditTask] = useState(false);
   const [formEditData, setFormEditData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
-  const [tasksResource, setTasksResource] = useState(() => taskService.getTasks());
-
-  useEffect(() => {
-    setTasksResource(taskService.getTasks());
-    setRefreshKey((prevKey) => prevKey + 1);
-  }, [location.key]);
 
   const refreshTasks = () => {
-    taskService.invalidateTasksCache();
-    setTasksResource(taskService.getTasks());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     setActiveSearchTerm(searchTerm.trim());
-    taskService.invalidateTasksCache();
-    setTasksResource(taskService.getTasks());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
@@ -84,7 +74,7 @@ const Tasks = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button
@@ -123,28 +113,16 @@ const Tasks = () => {
           </Card>
         }
       >
-        <Suspense
-          fallback={
-            <Card className="border-0 shadow-sm rounded-4 text-center py-5">
-              <Card.Body>
-                <Spinner animation="border" />
-                <p className="text-body-secondary mt-3 mb-0">Loading tasks...</p>
-              </Card.Body>
-            </Card>
-          }
-        >
-          <TasksList
-            key={`tasks-list-${refreshKey}`}
-            tasksResource={tasksResource}
-            handleOpenTask={(id) => navigateTo(`${location.pathname}/${id}`)}
-            handleEditTask={(task) => {
-              setFormEditData(task);
-              setshowEditTask(true);
-            }}
-            refreshTasks={refreshTasks}
-            searchTerm={activeSearchTerm}
-          />
-        </Suspense>
+        <TasksList
+          handleOpenTask={(id) => navigateTo(`${location.pathname}/${id}`)}
+          handleEditTask={(task) => {
+            setFormEditData(task);
+            setshowEditTask(true);
+          }}
+          refreshTasks={refreshTasks}
+          refreshKey={refreshKey}
+          searchTerm={activeSearchTerm}
+        />
       </ErrorBoundary>
 
       <NewEditTask

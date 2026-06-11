@@ -1,21 +1,31 @@
 import { useCallback } from "react";
 import { Badge, Button, Card, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import teamService from "../../services/teamService";
 
-const TeamsList = ({ teamsResource, searchTerm }) => {
+const TeamsList = ({ refreshKey, searchTerm }) => {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
 
   const fetchPage = useCallback(
     async (page, size) => teamService.fetchTeamsPage(page, size, searchTerm),
     [searchTerm]
   );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
-    teamsResource,
-    searchTerm,
-  ]);
+  const { items: data, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
+
+  if (initialLoading) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div className="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <p className="text-body-secondary mt-3 mb-0">Loading teams...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (
@@ -57,7 +67,7 @@ const TeamsList = ({ teamsResource, searchTerm }) => {
                   </Badge>
                 </div>
                 <div className="mt-auto">
-                  <Button variant="dark" className="rounded-pill px-4" onClick={() => navigate(`/home/teams/${team.id}`)}>
+                  <Button variant={darkMode ? "light" : "dark"} className="rounded-pill px-4" onClick={() => navigate(`/home/teams/${team.id}`)}>
                     Open team
                   </Button>
                 </div>

@@ -5,10 +5,10 @@ import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import { errorToast, successToast } from "../common/Noty";
 
 const TasksList = ({
-  tasksResource,
   handleOpenTask,
   handleEditTask,
   refreshTasks,
+  refreshKey,
   searchTerm,
 }) => {
   const [showDelete, setShowDelete] = useState(false);
@@ -16,13 +16,14 @@ const TasksList = ({
 
   const fetchPage = useCallback(
     async (page, size) => taskService.fetchTasksPage(page, size, searchTerm),
-    [searchTerm]
+    [searchTerm],
   );
 
-  const { items: data, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [
-    tasksResource,
-    searchTerm,
-  ]);
+  const {
+    items: data,
+    initialLoading,
+    LoadMoreSpinner,
+  } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
 
   const deleteTask = async () => {
     try {
@@ -77,6 +78,21 @@ const TasksList = ({
     }
   };
 
+  if (initialLoading) {
+    return (
+      <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+        <Card.Body>
+          <div
+            className="spinner-border text-primary"
+            role="status"
+            aria-hidden="true"
+          ></div>
+          <p className="text-body-secondary mt-3 mb-0">Loading tasks...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
+
   if (!data || data.length === 0) {
     return (
       <Card className="border-0 shadow-sm rounded-4 text-center py-5">
@@ -85,7 +101,9 @@ const TasksList = ({
             <i className="bi bi-clipboard fs-1"></i>
           </div>
           <Card.Title>No tasks available</Card.Title>
-          <Card.Text className="text-body-secondary">Create your first task to get started.</Card.Text>
+          <Card.Text className="text-body-secondary">
+            Create your first task to get started.
+          </Card.Text>
         </Card.Body>
       </Card>
     );
@@ -99,7 +117,9 @@ const TasksList = ({
             <Row className="g-3 align-items-start">
               <Col lg={8}>
                 <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-                  <h5 className="mb-0 fw-semibold me-1 text-break">{task.nameOfTask}</h5>
+                  <h5 className="mb-0 fw-semibold me-1 text-break">
+                    {task.nameOfTask}
+                  </h5>
                   <Badge bg={getStatusBadgeVariant(task.state)} pill>
                     {task.state}
                   </Badge>
@@ -108,23 +128,37 @@ const TasksList = ({
                   </Badge>
                 </div>
                 <p className="text-body-secondary mb-0">
-                  {task.descriptionOfTask || <span className="fst-italic">No description</span>}
+                  {task.descriptionOfTask || (
+                    <span className="fst-italic">No description</span>
+                  )}
                 </p>
               </Col>
               <Col lg={4}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button variant="light" className="rounded-pill px-3 border" onClick={() => handleOpenTask(task.id)}>
+                  <Button
+                    variant="light"
+                    className="rounded-pill px-3 border"
+                    onClick={() => handleOpenTask(task.id)}
+                  >
                     <i className="bi bi-eye me-2"></i>
                     View
                   </Button>
-                  <Button variant="outline-primary" className="rounded-pill px-3" onClick={() => handleEditTask(task)}>
+                  <Button
+                    variant="outline-primary"
+                    className="rounded-pill px-3"
+                    onClick={() => handleEditTask(task)}
+                  >
                     <i className="bi bi-pencil me-2"></i>
                     Edit
                   </Button>
-                  <Button variant="outline-danger" className="rounded-pill px-3" onClick={() => {
-                    setIdToDelete(task.id);
-                    setShowDelete(true);
-                  }}>
+                  <Button
+                    variant="outline-danger"
+                    className="rounded-pill px-3"
+                    onClick={() => {
+                      setIdToDelete(task.id);
+                      setShowDelete(true);
+                    }}
+                  >
                     <i className="bi bi-trash me-2"></i>
                     Delete
                   </Button>
@@ -137,12 +171,19 @@ const TasksList = ({
 
       <LoadMoreSpinner />
 
-      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered backdrop="static" contentClassName="border-0 shadow-sm rounded-4">
+      <Modal
+        show={showDelete}
+        onHide={() => setShowDelete(false)}
+        centered
+        backdrop="static"
+        contentClassName="border-0 shadow-sm rounded-4"
+      >
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title>Confirm deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2 text-body-secondary">
-          Are you sure you want to delete this task? This action cannot be undone.
+          Are you sure you want to delete this task? This action cannot be
+          undone.
         </Modal.Body>
         <Modal.Footer className="border-0">
           <Button

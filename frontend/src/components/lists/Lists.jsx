@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Card,
@@ -7,16 +7,16 @@ import {
   Form,
   InputGroup,
   Row,
-  Spinner,
 } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
-import listService from "../../services/listService";
+import { useTheme } from "../../context/ThemeContext";
 import { errorToast } from "../common/Noty";
 import ListsList from "./ListsList";
 import NewEditLists from "./NewEditLists";
 
 const List = () => {
+  const { darkMode } = useTheme();
   const [showNewList, setshowNewList] = useState(false);
   const [showEditList, setshowEditList] = useState(false);
   const [formEditData, setFormEditData] = useState({});
@@ -25,24 +25,14 @@ const List = () => {
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const navigateTo = useNavigate();
   const location = useLocation();
-  const [listsResource, setListsResource] = useState(() => listService.getLists());
-
-  useEffect(() => {
-    setListsResource(listService.getLists());
-    setRefreshKey((prevKey) => prevKey + 1);
-  }, [location.key]);
 
   const refreshLists = () => {
-    listService.invalidateListsCache();
-    setListsResource(listService.getLists());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     setActiveSearchTerm(searchTerm.trim());
-    listService.invalidateListsCache();
-    setListsResource(listService.getLists());
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
@@ -84,7 +74,7 @@ const List = () => {
               </Col>
               <Col lg={5}>
                 <div className="d-flex flex-wrap justify-content-lg-end gap-2">
-                  <Button type="submit" variant="dark" className="rounded-pill px-4">
+                  <Button type="submit" variant={darkMode ? "light" : "dark"} className="rounded-pill px-4">
                     Search
                   </Button>
                   <Button
@@ -123,28 +113,16 @@ const List = () => {
           </Card>
         }
       >
-        <Suspense
-          fallback={
-            <Card className="border-0 shadow-sm rounded-4 text-center py-5">
-              <Card.Body>
-                <Spinner animation="border" />
-                <p className="text-body-secondary mt-3 mb-0">Loading lists...</p>
-              </Card.Body>
-            </Card>
-          }
-        >
-          <ListsList
-            key={`lists-list-${refreshKey}`}
-            listsResource={listsResource}
-            handleOpenList={(id) => navigateTo(`${location.pathname}/${id}`)}
-            handleEditList={(list) => {
-              setFormEditData(list);
-              setshowEditList(true);
-            }}
-            refreshLists={refreshLists}
-            searchTerm={activeSearchTerm}
-          />
-        </Suspense>
+        <ListsList
+          handleOpenList={(id) => navigateTo(`${location.pathname}/${id}`)}
+          handleEditList={(list) => {
+            setFormEditData(list);
+            setshowEditList(true);
+          }}
+          refreshKey={refreshKey}
+          refreshLists={refreshLists}
+          searchTerm={activeSearchTerm}
+        />
       </ErrorBoundary>
 
       <NewEditLists
