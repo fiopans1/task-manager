@@ -651,6 +651,14 @@ public class TeamService {
         }
 
         User currentUser = authService.getCurrentUser();
+
+        // Validate that the current user is the intended recipient of this invitation
+        boolean isRecipient = (invitation.getInvitedUsername() != null && invitation.getInvitedUsername().equals(currentUser.getUsername()))
+                || (invitation.getInvitedEmail() != null && invitation.getInvitedEmail().equals(currentUser.getEmail()));
+        if (!isRecipient) {
+            throw new RuntimeException("You are not the intended recipient of this invitation");
+        }
+
         invitation.setRespondedDate(new Date());
 
         if (accept) {

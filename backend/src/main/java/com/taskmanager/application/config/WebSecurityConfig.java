@@ -129,6 +129,14 @@ public class WebSecurityConfig {
 
         http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
+        http.headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"))
+                .httpStrictTransportSecurity(hsts -> hsts
+                        .includeSubDomains(true)
+                        .maxAgeInSeconds(31536000))
+        );
+
         http.exceptionHandling(exceptionHandling -> exceptionHandling
                 .accessDeniedHandler(csrfAccessDeniedHandler())
                 .authenticationEntryPoint((request, response, authException) -> {
