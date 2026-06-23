@@ -8,11 +8,12 @@ import {
   Button,
   ProgressBar,
   Stack,
+  Modal,
 } from "react-bootstrap";
 import taskService from "../../../services/taskService";
-import { errorToast } from "../../common/Noty";
+import { errorToast, promiseToast } from "../../common/Noty";
 import { useNavigate } from "react-router-dom";
-import { 
+import {
   ArrowLeft, 
   Calendar3,
   Clock,
@@ -22,12 +23,15 @@ import {
   CheckCircle,
   ListUl,
   PencilSquare,
+  Trash,
+  ExclamationTriangle,
 } from "react-bootstrap-icons";
 import NewEditTask from "../NewEditTask";
 
 const TaskDetailsTask = ({ taskId }) => {
   const [showMore, setShowMore] = useState(false);
   const [showEditTask, setShowEditTask] = useState(false);
+  const [showDeleteTask, setShowDeleteTask] = useState(false);
   const [task, setTask] = useState({
     id: 1,
     nameOfTask: "<None>",
@@ -44,6 +48,20 @@ const TaskDetailsTask = ({ taskId }) => {
   
   const handleBack = () => {
     navigate("..");
+  };
+
+  const handleDeleteTask = async () => {
+    try {
+      await promiseToast(taskService.deleteTask(taskId), {
+        loading: "Deleting task...",
+        success: "Task deleted successfully",
+        error: (e) => "Error: " + (e?.message || e),
+      });
+      taskService.invalidateTasksCache();
+      navigate("/home/tasks");
+    } catch (error) {
+      // toast already shown by promiseToast
+    }
   };
 
   const fetchTask = useCallback(async () => {
@@ -119,7 +137,7 @@ const TaskDetailsTask = ({ taskId }) => {
     <Container fluid className="my-4">
       <Row className="mb-4">
         <Col>
-          <Stack direction="horizontal" gap={3} className="align-items-center">
+          <Stack direction="horizontal" gap={3} className="align-items-center flex-wrap">
             <Button
               variant="outline-secondary"
               size="lg"
@@ -128,22 +146,34 @@ const TaskDetailsTask = ({ taskId }) => {
             >
               <ArrowLeft size={20} />
             </Button>
-            <div className="flex-grow-1">
-              <h1 className="mb-1 fw-bold text-body" style={{ 
+            <div className="flex-grow-1" style={{ minWidth: 0 }}>
+              <h1 className="mb-1 fw-bold text-body" style={{
                 fontSize: "2rem"
               }}>
                 Task Overview
               </h1>
               <p className="text-muted mb-0">Complete task information and status</p>
             </div>
-            <Button
-              variant="outline-primary"
-              onClick={() => setShowEditTask(true)}
-              className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
-            >
-              <PencilSquare size={18} />
-              Edit
-            </Button>
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-primary"
+                onClick={() => setShowEditTask(true)}
+                className="d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm"
+                aria-label="Edit task"
+              >
+                <PencilSquare size={18} />
+                <span className="d-none d-sm-inline">Edit</span>
+              </Button>
+              <Button
+                variant="outline-danger"
+                onClick={() => setShowDeleteTask(true)}
+                className="d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm"
+                aria-label="Delete task"
+              >
+                <Trash size={18} />
+                <span className="d-none d-sm-inline">Delete</span>
+              </Button>
+            </div>
           </Stack>
         </Col>
       </Row>
@@ -356,6 +386,45 @@ const TaskDetailsTask = ({ taskId }) => {
         editOrNew={true}
         initialData={task}
       />
+
+      <Modal
+        show={showDeleteTask}
+        onHide={() => setShowDeleteTask(false)}
+        centered
+        backdrop="static"
+        contentClassName="border-0 shadow-sm rounded-4"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <ExclamationTriangle size={20} className="text-danger" />
+            Delete task
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-2 text-body-secondary">
+          Are you sure you want to delete <strong>{task.nameOfTask || "this task"}</strong>?
+          This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button
+            variant="outline-secondary"
+            className="rounded-pill px-4"
+            onClick={() => setShowDeleteTask(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            className="rounded-pill px-4"
+            onClick={() => {
+              setShowDeleteTask(false);
+              handleDeleteTask();
+            }}
+          >
+            <Trash size={16} className="me-2" />
+            Delete task
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

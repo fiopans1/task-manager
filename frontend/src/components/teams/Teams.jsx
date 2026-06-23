@@ -179,6 +179,7 @@ const Teams = () => {
         <TeamsList
           refreshKey={refreshKey}
           searchTerm={activeSearchTerm}
+          refreshTeams={refreshTeams}
         />
       </ErrorBoundary>
 

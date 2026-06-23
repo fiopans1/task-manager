@@ -25,6 +25,7 @@ import {
   Trophy,
   BoxArrowUpRight,
   PencilSquare,
+  ExclamationTriangle,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import listService from "../../../services/listService";
@@ -46,6 +47,7 @@ const ListDetails = ({ listId }) => {
   });
   const [showMore, setShowMore] = useState(false);
   const [showEditList, setShowEditList] = useState(false);
+  const [showDeleteList, setShowDeleteList] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [availableTasks, setAvailableTasks] = useState([]);
@@ -136,6 +138,20 @@ const ListDetails = ({ listId }) => {
     }
   };
 
+  const handleDeleteList = async () => {
+    try {
+      await promiseToast(listService.deleteList(listId), {
+        loading: "Deleting list...",
+        success: "List deleted successfully",
+        error: (e) => "Error: " + (e?.message || e),
+      });
+      listService.invalidateListsCache();
+      navigate("/home/lists");
+    } catch (error) {
+      // toast already shown by promiseToast
+    }
+  };
+
   const handleGoToTask = (taskId) => {
     navigate("/home/tasks/" + taskId);
   };
@@ -177,7 +193,7 @@ const ListDetails = ({ listId }) => {
       {/* Header Section */}
       <Row className="mb-4">
         <Col>
-          <Stack direction="horizontal" gap={3} className="align-items-center">
+          <Stack direction="horizontal" gap={3} className="align-items-center flex-wrap">
             <Button
               variant="outline-secondary"
               size="lg"
@@ -186,7 +202,7 @@ const ListDetails = ({ listId }) => {
             >
               <ArrowLeft size={20} />
             </Button>
-            <div className="flex-grow-1">
+            <div className="flex-grow-1" style={{ minWidth: 0 }}>
               <h1
                 className="mb-1 fw-bold text-body"
                 style={{
@@ -199,14 +215,26 @@ const ListDetails = ({ listId }) => {
                 Track and manage your tasks efficiently
               </p>
             </div>
-            <Button
-              variant="outline-primary"
-              onClick={() => setShowEditList(true)}
-              className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
-            >
-              <PencilSquare size={18} />
-              Edit
-            </Button>
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-primary"
+                onClick={() => setShowEditList(true)}
+                className="d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm"
+                aria-label="Edit list"
+              >
+                <PencilSquare size={18} />
+                <span className="d-none d-sm-inline">Edit</span>
+              </Button>
+              <Button
+                variant="outline-danger"
+                onClick={() => setShowDeleteList(true)}
+                className="d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm"
+                aria-label="Delete list"
+              >
+                <Trash size={18} />
+                <span className="d-none d-sm-inline">Delete</span>
+              </Button>
+            </div>
           </Stack>
         </Col>
       </Row>
@@ -587,6 +615,46 @@ const ListDetails = ({ listId }) => {
         editOrNew={true}
         initialData={list}
       />
+
+      <Modal
+        show={showDeleteList}
+        onHide={() => setShowDeleteList(false)}
+        centered
+        backdrop="static"
+        contentClassName="border-0 shadow-sm rounded-4"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <ExclamationTriangle size={20} className="text-danger" />
+            Delete list
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-2 text-body-secondary">
+          Are you sure you want to delete <strong>{list.nameOfList || "this list"}</strong>?
+          The tasks inside will not be deleted, but they will be unlinked from the list.
+          This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button
+            variant="outline-secondary"
+            className="rounded-pill px-4"
+            onClick={() => setShowDeleteList(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            className="rounded-pill px-4"
+            onClick={() => {
+              setShowDeleteList(false);
+              handleDeleteList();
+            }}
+          >
+            <Trash size={16} className="me-2" />
+            Delete list
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
