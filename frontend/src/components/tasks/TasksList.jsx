@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Badge, Button, Card, Col, Modal, Row } from "react-bootstrap";
 import taskService from "../../services/taskService";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
-import { errorToast, successToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 
 const TasksList = ({
   handleOpenTask,
@@ -26,17 +26,20 @@ const TasksList = ({
   } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
 
   const deleteTask = async () => {
-    try {
-      if (!idToDelete) {
-        errorToast("Error: No task selected");
-        return;
-      }
+    if (!idToDelete) {
+      errorToast("Error: No task selected");
+      return;
+    }
 
-      await taskService.deleteTask(idToDelete);
+    try {
+      await promiseToast(taskService.deleteTask(idToDelete), {
+        loading: "Deleting task...",
+        success: "Task deleted successfully",
+        error: (e) => "Error: " + (e?.message || e),
+      });
       taskService.invalidateTasksCache();
       setIdToDelete(null);
       refreshTasks();
-      successToast("Task deleted successfully");
     } catch (error) {
       errorToast("Error: " + error.message);
     }

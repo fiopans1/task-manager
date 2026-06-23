@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Badge, Button, Card, Col, Modal, Row } from "react-bootstrap";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import listService from "../../services/listService";
-import { errorToast, successToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 
 const ListsList = ({
   handleOpenList,
@@ -22,17 +22,20 @@ const ListsList = ({
   const { items: data, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [searchTerm, refreshKey]);
 
   const deleteList = async () => {
-    try {
-      if (!idToDelete) {
-        errorToast("Error: No lists selected");
-        return;
-      }
+    if (!idToDelete) {
+      errorToast("Error: No lists selected");
+      return;
+    }
 
-      await listService.deleteList(idToDelete);
+    try {
+      await promiseToast(listService.deleteList(idToDelete), {
+        loading: "Deleting list...",
+        success: "List deleted successfully",
+        error: (e) => "Error: " + (e?.message || e),
+      });
       listService.invalidateListsCache();
       setIdToDelete(null);
       refreshLists();
-      successToast("List deleted successfully");
     } catch (error) {
       errorToast("Error: " + error.message);
     }

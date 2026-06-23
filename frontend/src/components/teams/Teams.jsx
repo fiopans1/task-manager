@@ -12,7 +12,7 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import { useTheme } from "../../context/ThemeContext";
 import teamService from "../../services/teamService";
-import { errorToast, successToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 import NewEditTeam from "./NewEditTeam";
 import TeamsList from "./TeamsList";
 
@@ -43,8 +43,11 @@ const Teams = () => {
 
   const handleRespondInvitation = async (token, accept) => {
     try {
-      await teamService.respondToInvitation(token, accept);
-      successToast(accept ? "Invitation accepted" : "Invitation rejected");
+      await promiseToast(teamService.respondToInvitation(token, accept), {
+        loading: accept ? "Accepting invitation..." : "Rejecting invitation...",
+        success: accept ? "Invitation accepted" : "Invitation rejected",
+        error: () => "Error responding to invitation",
+      });
       loadPendingInvitations();
       if (accept) refreshTeams();
     } catch {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import listService from "../../services/listService";
-import { errorToast, successToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 
 const NewEditLists = ({
   show,
@@ -47,14 +47,23 @@ const NewEditLists = ({
 
     try {
       if (onSave) {
-        await onSave(formData);
-        successToast("List updated successfully");
+        await promiseToast(Promise.resolve(onSave(formData)), {
+          loading: "Saving list...",
+          success: "List updated successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       } else if (editOrNew && formData.id) {
-        await listService.updateList(formData);
-        successToast("List updated successfully");
+        await promiseToast(listService.updateList(formData), {
+          loading: "Updating list...",
+          success: "List updated successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       } else {
-        await listService.createList(formData);
-        successToast("List created successfully");
+        await promiseToast(listService.createList(formData), {
+          loading: "Creating list...",
+          success: "List created successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       }
       refreshLists();
       return true;

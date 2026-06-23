@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import teamService from "../../services/teamService";
-import { errorToast, successToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 
 const NewEditTeam = ({
   show,
@@ -42,14 +42,20 @@ const NewEditTeam = ({
     setSubmitting(true);
     try {
       if (onSave) {
-        await onSave(formData);
-        successToast(editOrNew ? "Team updated successfully" : "Team created successfully");
+        await promiseToast(Promise.resolve(onSave(formData)), {
+          loading: editOrNew ? "Updating team..." : "Creating team...",
+          success: editOrNew ? "Team updated successfully" : "Team created successfully",
+          error: (e) => "Error: " + (e?.response?.data?.message || e?.message || e),
+        });
       } else if (editOrNew) {
         errorToast("Error: onSave handler is required for edit mode");
         return false;
       } else {
-        await teamService.createTeam(formData);
-        successToast("Team created successfully");
+        await promiseToast(teamService.createTeam(formData), {
+          loading: "Creating team...",
+          success: "Team created successfully",
+          error: (e) => "Error: " + (e?.response?.data?.message || e?.message || e),
+        });
       }
 
       if (refreshTeams) refreshTeams();

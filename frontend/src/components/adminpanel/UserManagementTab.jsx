@@ -6,7 +6,7 @@ import {
   InputGroup,
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
-import { successToast, errorToast } from "../common/Noty";
+import { promiseToast, errorToast } from "../common/Noty";
 import UserDetailModal from "./UserDetailModal";
 import ConfirmModal from "./ConfirmModal";
 import UserSearchResults from "./UserSearchResults";
@@ -35,9 +35,12 @@ const UserManagementTab = () => {
       confirmVariant: user.blocked ? "success" : "danger",
       onConfirm: async () => {
         try {
-          await adminService.toggleUserBlock(user.id);
+          await promiseToast(adminService.toggleUserBlock(user.id), {
+            loading: user.blocked ? "Unblocking user..." : "Blocking user...",
+            success: user.blocked ? "User unblocked" : "User blocked",
+            error: () => "Error toggling user block status",
+          });
           setRefreshKey((prevKey) => prevKey + 1);
-          successToast(user.blocked ? "User unblocked" : "User blocked");
         } catch (error) {
           errorToast("Error toggling user block status");
         }

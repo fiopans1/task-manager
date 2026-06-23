@@ -7,6 +7,7 @@ Layout: `backend/` (Spring Boot), `frontend/` (React + Vite), `docs/` (VitePress
 
 - **Frontend: always use `react-bootstrap`** (already a dep). Use Bootstrap utility classes for layout. Keep custom CSS minimal; reach for `frontend/src/styles.css` or component-level `*.module.css` only when no Bootstrap class exists. Do not add new CSS files for things Bootstrap already covers.
 - **Frontend package manager: `pnpm` only**, invoked through Corepack (`corepack pnpm ...`). Never use `npm install` / `yarn`.
+- **Frontend toasts: only through `frontend/src/components/common/Noty.js`**. The library is `sonner`, mounted once via `<Toaster />` in `index.jsx` with theme controlled by `ThemeContext`. Never import `sonner` directly from a component; use the wrappers `successToast` / `errorToast` / `warningToast` / `infoToast` or `promiseToast(promise, { loading, success, error })` for async flows.
 - Never commit secrets: OAuth2 client secrets, JWT keys (`*.pem`, `*.p12`, `**/keys/`), generated SQLite DBs, or `frontend/public/config.js` are all git-ignored for a reason. See `.gitignore`.
 
 ## Commands

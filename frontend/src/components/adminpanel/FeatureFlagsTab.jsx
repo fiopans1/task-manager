@@ -7,7 +7,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
-import { successToast, errorToast } from "../common/Noty";
+import { promiseToast, errorToast } from "../common/Noty";
 
 // The known sidebar features
 const KNOWN_FEATURES = [
@@ -38,13 +38,17 @@ const FeatureFlagsTab = () => {
   }, [loadFeatures]);
 
   const handleToggleFeature = async (featureName, currentValue) => {
+    const willEnable = !currentValue;
     try {
-      const updated = await adminService.updateFeatureFlag(
-        featureName,
-        !currentValue
+      const updated = await promiseToast(
+        adminService.updateFeatureFlag(featureName, willEnable),
+        {
+          loading: `${willEnable ? "Enabling" : "Disabling"} ${featureName}...`,
+          success: `"${featureName}" ${willEnable ? "enabled" : "disabled"}`,
+          error: () => "Error updating feature flag",
+        }
       );
       setFeatures(updated);
-      successToast(`"${featureName}" ${!currentValue ? "enabled" : "disabled"}`);
     } catch (error) {
       errorToast("Error updating feature flag");
     }

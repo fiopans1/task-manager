@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import taskService from "../../services/taskService";
-import { successToast, errorToast } from "../common/Noty";
+import { successToast, errorToast, promiseToast } from "../common/Noty";
 import dayjs from "dayjs";
 
 const NewEditTask = ({
@@ -169,18 +169,27 @@ const NewEditTask = ({
       }
 
       if (onSave) {
-        await onSave(taskData);
-        successToast(editOrNew ? "Task updated successfully" : "Task created successfully");
+        await promiseToast(Promise.resolve(onSave(taskData)), {
+          loading: editOrNew ? "Updating task..." : "Creating task...",
+          success: editOrNew ? "Task updated successfully" : "Task created successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       } else if (editOrNew) {
         if (!taskData.id) {
           errorToast("Error: Task ID is missing for update");
           return false;
         }
-        await taskService.editTask(taskData);
-        successToast("Task updated successfully");
+        await promiseToast(taskService.editTask(taskData), {
+          loading: "Updating task...",
+          success: "Task updated successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       } else {
-        await taskService.createTask(taskData);
-        successToast("Task created successfully");
+        await promiseToast(taskService.createTask(taskData), {
+          loading: "Creating task...",
+          success: "Task created successfully",
+          error: (e) => "Error: " + (e?.message || e),
+        });
       }
 
       if (!editOrNew) {

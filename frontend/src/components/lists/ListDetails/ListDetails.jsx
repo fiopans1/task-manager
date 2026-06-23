@@ -29,7 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import listService from "../../../services/listService";
 import taskService from "../../../services/taskService";
-import { successToast, errorToast } from "../../common/Noty";
+import { errorToast, promiseToast } from "../../common/Noty";
 import NewEditLists from "../NewEditLists";
 import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
@@ -107,25 +107,32 @@ const ListDetails = ({ listId }) => {
   };
 
   const handleAddTasks = async () => {
+    if (selectedTaskIds.length === 0) {
+      return;
+    }
     try {
-      if (selectedTaskIds.length > 0) {
-        await listService.addTasksToList(listId, selectedTaskIds);
-        refreshList();
-        setShowAddModal(false);
-        successToast("Tasks added successfully");
-      }
+      await promiseToast(listService.addTasksToList(listId, selectedTaskIds), {
+        loading: "Adding tasks to list...",
+        success: "Tasks added successfully",
+        error: (e) => "Error: " + (e?.message || e),
+      });
+      refreshList();
+      setShowAddModal(false);
     } catch (error) {
-      errorToast("Error: " + error.message);
+      // toast already shown by promiseToast
     }
   };
 
   const handleRemoveTask = async (taskId) => {
     try {
-      await listService.deleteTaskFromList(taskId);
+      await promiseToast(listService.deleteTaskFromList(taskId), {
+        loading: "Removing task from list...",
+        success: "Task removed from list",
+        error: (e) => "Error: " + (e?.message || e),
+      });
       refreshList();
-      successToast("Task removed from list");
     } catch (error) {
-      errorToast("Error: " + error.message);
+      // toast already shown by promiseToast
     }
   };
 

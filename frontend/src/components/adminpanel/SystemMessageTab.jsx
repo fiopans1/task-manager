@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-bootstrap";
 import adminService from "../../services/adminService";
-import { successToast, errorToast } from "../common/Noty";
+import { promiseToast, errorToast } from "../common/Noty";
 
 const SystemMessageTab = () => {
   const [message, setMessage] = useState("");
@@ -37,12 +37,18 @@ const SystemMessageTab = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const updated = await adminService.updateSystemMessage(message, enabled, showBeforeLogin, showAfterLogin);
+      const updated = await promiseToast(
+        adminService.updateSystemMessage(message, enabled, showBeforeLogin, showAfterLogin),
+        {
+          loading: "Saving system message...",
+          success: "System message updated",
+          error: () => "Error saving system message",
+        }
+      );
       setMessage(updated.message || "");
       setEnabled(updated.enabled || false);
       setShowBeforeLogin(updated.showBeforeLogin || false);
       setShowAfterLogin(updated.showAfterLogin !== false);
-      successToast("System message updated");
     } catch (error) {
       errorToast("Error saving system message");
     } finally {

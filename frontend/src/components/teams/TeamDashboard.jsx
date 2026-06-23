@@ -17,7 +17,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import teamService from "../../services/teamService";
 import taskService from "../../services/taskService";
-import { successToast, errorToast } from "../common/Noty";
+import { errorToast, promiseToast } from "../common/Noty";
 import DashboardTab from "./DashboardTab";
 import TasksTab from "./TasksTab";
 import HistoryTab from "./HistoryTab";
@@ -104,22 +104,28 @@ const TeamDashboard = () => {
       return;
     }
     try {
-      await teamService.createInvitation(teamId, inviteUsername);
-      successToast("Invitation sent to " + inviteUsername);
+      await promiseToast(teamService.createInvitation(teamId, inviteUsername), {
+        loading: "Sending invitation...",
+        success: `Invitation sent to ${inviteUsername}`,
+        error: (err) => err?.response?.data?.message || "Error sending invitation",
+      });
       setShowInviteModal(false);
       setInviteUsername("");
       setInviteValidated(false);
       if (activeTab === "invitations") loadInvitations();
     } catch (err) {
-      errorToast(err?.response?.data?.message || "Error sending invitation");
+      // toast already shown by promiseToast
     }
   };
 
   const handleRemoveMember = async () => {
     if (!memberToRemove) return;
     try {
-      await teamService.removeMember(teamId, memberToRemove.id);
-      successToast("Member removed");
+      await promiseToast(teamService.removeMember(teamId, memberToRemove.id), {
+        loading: "Removing member...",
+        success: "Member removed",
+        error: () => "Error removing member",
+      });
       setShowRemoveModal(false);
       setMemberToRemove(null);
       loadData();
@@ -130,8 +136,11 @@ const TeamDashboard = () => {
 
   const handleRoleChange = async (memberId, newRole) => {
     try {
-      await teamService.updateMemberRole(teamId, memberId, newRole);
-      successToast("Role updated");
+      await promiseToast(teamService.updateMemberRole(teamId, memberId, newRole), {
+        loading: "Updating role...",
+        success: "Role updated",
+        error: () => "Error updating role",
+      });
       loadData();
     } catch (err) {
       errorToast("Error updating role");
@@ -143,8 +152,11 @@ const TeamDashboard = () => {
     setAddTaskValidated(true);
     if (!selectedTaskId) return;
     try {
-      await teamService.addTaskToTeam(teamId, selectedTaskId);
-      successToast("Task added to team");
+      await promiseToast(teamService.addTaskToTeam(teamId, selectedTaskId), {
+        loading: "Adding task to team...",
+        success: "Task added to team",
+        error: () => "Error adding task to team",
+      });
       setShowAddTaskModal(false);
       setSelectedTaskId("");
       setAddTaskValidated(false);
@@ -160,10 +172,11 @@ const TeamDashboard = () => {
     setReassignValidated(true);
     if (!reassignTask || !reassignTarget) return;
     try {
-      await teamService.assignTask(teamId, reassignTask.id, reassignTarget);
-      successToast(
-        `Task "${reassignTask.nameOfTask}" reassigned to ${reassignTarget}`
-      );
+      await promiseToast(teamService.assignTask(teamId, reassignTask.id, reassignTarget), {
+        loading: "Reassigning task...",
+        success: `Task "${reassignTask.nameOfTask}" reassigned to ${reassignTarget}`,
+        error: () => "Error reassigning task",
+      });
       setShowReassignModal(false);
       setReassignTask(null);
       setReassignTarget("");
@@ -197,8 +210,11 @@ const TeamDashboard = () => {
 
   const handleDeleteTeam = async () => {
     try {
-      await teamService.deleteTeam(teamId);
-      successToast("Team deleted successfully");
+      await promiseToast(teamService.deleteTeam(teamId), {
+        loading: "Deleting team...",
+        success: "Team deleted successfully",
+        error: () => "Error deleting team",
+      });
       navigate("/home/teams");
     } catch (err) {
       errorToast("Error deleting team");
@@ -217,18 +233,24 @@ const TeamDashboard = () => {
 
   const handleLeaveTeam = async () => {
     try {
-      await teamService.leaveTeam(teamId);
-      successToast("You left the team");
+      await promiseToast(teamService.leaveTeam(teamId), {
+        loading: "Leaving team...",
+        success: "You left the team",
+        error: (err) => err?.response?.data?.message || "Error leaving team",
+      });
       navigate("/home/teams");
     } catch (err) {
-      errorToast(err?.response?.data?.message || "Error leaving team");
+      // toast already shown by promiseToast
     }
   };
 
   const handleCancelInvitation = async (invitationId) => {
     try {
-      await teamService.cancelInvitation(teamId, invitationId);
-      successToast("Invitation cancelled");
+      await promiseToast(teamService.cancelInvitation(teamId, invitationId), {
+        loading: "Cancelling invitation...",
+        success: "Invitation cancelled",
+        error: () => "Error cancelling invitation",
+      });
       loadInvitations();
     } catch (err) {
       errorToast("Error cancelling invitation");
