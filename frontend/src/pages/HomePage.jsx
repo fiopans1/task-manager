@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import configService from "../services/configService";
 import ThemeToggleButton from "../components/common/ThemeToggleButton";
 import SystemMessageModal from "../components/common/SystemMessageModal";
+import Seo from "../components/common/Seo";
 
 const HomePage = () => {
   const navigateTo = useNavigate();
@@ -12,6 +13,10 @@ const HomePage = () => {
       fluid
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
     >
+      <Seo
+        path="/"
+        description="Task Manager is a self-hosted task management platform for teams and individuals. Sign in to organise your tasks, lists, calendar and time tracking."
+      />
       <div style={{ maxWidth: 420, width: "100%" }}>
         <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}

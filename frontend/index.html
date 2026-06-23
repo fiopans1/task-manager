@@ -4,14 +4,61 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#0f172a" />
     <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="description" content="Task Manager Application" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Task Manager" />
+    <meta name="description" content="Task Manager is a self-hosted task management platform for teams and individuals: tasks, custom lists, calendar planning, time tracking and OAuth2 login." />
+    <meta name="keywords" content="task manager, self-hosted, tasks, lists, calendar, planning, teams, productivity, oauth2" />
+    <meta name="author" content="Diego Suárez Ramos" />
+    <meta name="robots" content="index, follow" />
+
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <script src="/config.js"></script>
-    <title>Task Manager</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Task Manager" />
+    <meta property="og:title" content="Task Manager — Self-hosted task management" />
+    <meta property="og:description" content="A self-hosted task management platform for teams and individuals: tasks, custom lists, calendar planning, time tracking and OAuth2 login." />
+    <meta property="og:image" content="/logo512.png" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Task Manager — Self-hosted task management" />
+    <meta name="twitter:description" content="A self-hosted task management platform for teams and individuals: tasks, custom lists, calendar planning, time tracking and OAuth2 login." />
+    <meta name="twitter:image" content="/logo512.png" />
+
+    <title>Task Manager — Self-hosted task management</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Task Manager",
+        "operatingSystem": "Any (web-based)",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Task Management Software",
+        "description": "Self-hosted task management platform for teams and individuals with tasks, custom lists, calendar planning, time tracking and OAuth2 authentication.",
+        "url": "/",
+        "image": "/logo512.png",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Diego Suárez Ramos",
+          "url": "https://github.com/fiopans1"
+        },
+        "license": "https://www.gnu.org/licenses/agpl-3.0.html"
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

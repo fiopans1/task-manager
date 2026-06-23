@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /home/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /oauth2/
+
+Sitemap: /sitemap.xml

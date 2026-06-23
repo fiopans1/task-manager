@@ -6,6 +6,7 @@ import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
 import SystemMessageModal from "../common/SystemMessageModal";
+import Seo from "../common/Seo";
 
 function LoginPage({ onLogin }) {
   const [username, setusername] = useState("");
@@ -31,6 +32,11 @@ function LoginPage({ onLogin }) {
       fluid
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
     >
+      <Seo
+        title="Sign in"
+        path="/login"
+        description="Sign in to Task Manager to access your tasks, lists, calendar and time tracking."
+      />
       <div style={{ maxWidth: 400, width: "100%" }}>
         <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}

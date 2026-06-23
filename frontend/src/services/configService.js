@@ -53,6 +53,22 @@ class ConfigService {
   }
 
   /**
+   * Get the public origin of the frontend for absolute SEO URLs.
+   * Falls back to window.location.origin when the config value is empty.
+   */
+  getSiteUrl() {
+    if (!this.config) this.init();
+    const configured = this.config.app?.siteUrl;
+    if (typeof configured === "string" && configured.trim().length > 0) {
+      return configured.replace(/\/+$/, "");
+    }
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return window.location.origin;
+    }
+    return "";
+  }
+
+  /**
    * Get application version
    */
   getAppVersion() {

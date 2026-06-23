@@ -51,6 +51,13 @@ window.APP_CONFIG = {
     // Application name displayed in the UI
     name: "Task Manager",
 
+    // Public origin of this frontend, used to build absolute SEO URLs
+    // (canonical, Open Graph, Twitter). Leave empty to use window.location.origin.
+    // Examples:
+    // - Production: 'https://tasks.example.com'
+    // - Same-origin behind a reverse proxy: '' (recommended)
+    siteUrl: "",
+
     // Application version
     version: "0.6-beta",
 

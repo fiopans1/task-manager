@@ -1,6 +1,10 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Task Manager",
+  "name": "Task Manager — Self-hosted task management",
+  "description": "A self-hosted task management platform for teams and individuals: tasks, custom lists, calendar planning, time tracking and OAuth2 login.",
+  "categories": ["productivity", "business"],
+  "lang": "en-US",
+  "dir": "ltr",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +14,20 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ],
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "theme_color": "#0f172a",
   "background_color": "#ffffff"
 }

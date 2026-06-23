@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
+import Seo from "../common/Seo";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -49,6 +50,11 @@ function RegisterPage() {
       fluid
       className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3 py-4"
     >
+      <Seo
+        title="Create account"
+        path="/register"
+        description="Create your Task Manager account to organise tasks, lists, calendar planning and time tracking in a self-hosted environment."
+      />
       <div style={{ maxWidth: 480, width: "100%" }}>
         <h1 className="brand-title text-center mb-3">
           {configService.getAppName()}

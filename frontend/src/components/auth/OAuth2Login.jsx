@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { errorToast } from "../common/Noty";
 import configService from "../../services/configService";
 import ThemeToggleButton from "../common/ThemeToggleButton";
+import Seo from "../common/Seo";
 
 function OAuth2Login() {
     const [oauth2Loading, setOauth2Loading] = useState("");
@@ -24,6 +25,12 @@ function OAuth2Login() {
             fluid
             className="task-manager-bg d-flex flex-column justify-content-center align-items-center px-3"
         >
+            <Seo
+                title="Sign in with SSO"
+                path="/oauth2-login"
+                description="Sign in to Task Manager with your identity provider (Google, GitHub or Authentik)."
+                noindex
+            />
             <div style={{ maxWidth: 400, width: "100%" }}>
                 <h1 className="brand-title text-center mb-3">
                     {configService.getAppName()}
