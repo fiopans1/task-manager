@@ -1,102 +1,131 @@
 # Task Manager
 
-Task Manager is a self-hosted task management platform for teams and individuals who need tasks, lists, calendar planning, session-based authentication, and a deployment model that can run on their own infrastructure.
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+[![Java 23](https://img.shields.io/badge/Java-23-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/23/)
+[![Spring Boot 3.4](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![Vite 8](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![pnpm](https://img.shields.io/badge/pnpm-required-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![VitePress](https://img.shields.io/badge/Docs-VitePress-5C73BF?logo=vitepress&logoColor=white)](https://vitepress.dev)
 
-It is designed as a full-stack application:
+A self-hosted task management platform for teams and individuals who need a real workflow — tasks with states and priorities, custom lists, calendar planning, team collaboration, time tracking, OAuth2 login, and a deployment model that runs entirely on your own infrastructure.
 
-- **Backend:** Spring Boot 3, Spring Security, JPA and SQLite-ready persistence
-- **Frontend:** React 18, Vite, Redux Toolkit and Bootstrap
-- **Docs portal:** VitePress documentation mirrored in **Spanish** (`/es`) and **English** (`/en`)
-- **Authentication model:** OAuth2 login support with **HttpOnly session cookies** and **CSRF protection**
+Designed to be a modern open-source alternative to commercial task tools, with no vendor lock-in: your data stays in a SQLite database on your server, and the entire stack ships as a single Caddy-served bundle.
 
-## Why this project
+---
 
-Task Manager aims to provide an open source alternative for teams that want to keep control of their data without giving up a modern product experience.
+## What you get
 
-Typical use cases:
+### For end users
 
-- Organising personal or team workloads with states and priorities
-- Planning work on a calendar
-- Grouping work into custom lists
-- Running the stack on your own server or VPS
-- Extending the product with your own integrations and deployment pipeline
+- **Tasks** with name, description, state, priority, optional start/end dates (events)
+- **Custom lists** to group tasks by project, area, or context, with progress tracking
+- **Calendar** view of all events with month, week and day layouts
+- **Teams** with members, roles, invitations, task assignment and a per-team dashboard
+- **Comments / actions** on tasks for traceability
+- **Search** across tasks and lists with infinite scroll pagination
+- **Dark mode** and a responsive layout for desktop and mobile
+- **Idle session** modal that warns you before the session expires
 
-## Key capabilities
+### For administrators
 
-- Task creation, editing and lifecycle tracking
-- Calendar-based planning
-- Custom lists and team-oriented organisation
-- Time tracking support
-- OAuth2 providers such as Google, GitHub and Authentik
-- Runtime frontend configuration through `frontend/public/config.js`
-- Bilingual documentation for end users, administrators and developers
+- **User management** (search, view per-user tasks/lists/teams, block or unblock)
+- **Feature flags** to enable or disable sections (`My Tasks`, `Calendar`, `Lists`, `Teams`) for everyone
+- **System message** that can be shown before login, after login, or both
+- **Local credentials** plus **OAuth2** with Google, GitHub and Authentik
 
-## Repository layout
+### For operators
 
-```text
-task-manager/
-├── backend/      # Spring Boot API and authentication/session layer
-├── frontend/     # React + Vite web application
-├── docs/         # VitePress portal available at /es and /en
-├── docker/       # Docker build assets and container documentation
-├── scripts/      # Packaging, deployment and configuration templates
-├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-└── SECURITY.md
-```
+- **Single binary** deployment via Caddy + packaged JAR + static frontend
+- **Docker** multi-arch build script (`linux/amd64`, `linux/arm64`, `linux/arm/v7`)
+- **Runtime configuration** without rebuilding: `application.properties` on the backend, `config.js` on the frontend
+- **AGPL-3.0** licensed — your modifications stay open if you redistribute
 
-## Prerequisites
+---
 
-Use these versions if you want to work with the repository locally:
+## Tech stack
 
-- **Java 23** for the backend
-- **Node.js 20+** recommended
-- **pnpm** via Corepack for the frontend and docs
-- **Python 3.8+** for packaging scripts
+| Layer | Technology |
+| --- | --- |
+| Backend | Java 23 · Spring Boot 3.4 · Spring Security · Spring Data JPA · Hibernate · nimbus-jose-jwt |
+| Persistence | SQLite by default (any JPA-compatible database works) |
+| Auth | Session cookies (`HttpOnly`) + JWT signed with RSA + CSRF + OAuth2 (Google, GitHub, Authentik) |
+| Frontend | React 18 · Vite · Redux Toolkit · React Router 7 · React Bootstrap 2 · Bootstrap 5 |
+| Toasts | Sonner |
+| HTTP client | Axios with CSRF + 401 refresh interceptors |
+| Docs | VitePress (bilingual `/es` and `/en`) |
+| Reverse proxy | Caddy |
+| Container | Multi-arch Docker (`Dockerfile.deployment`) |
 
-## Quick start for local development
+---
 
-### 1. Backend
+## Screenshots
 
-Create the RSA keys used by the session/JWT layer:
+> Drop screenshots in `docs/.vuepress/public/` and link them here. Suggested shots:
+> the landing page, the tasks list, the calendar, a team dashboard, the admin panel,
+> and the dark-mode variant.
+
+| Section | Light | Dark |
+| --- | --- | --- |
+| Dashboard | _todo_ | _todo_ |
+| Tasks | _todo_ | _todo_ |
+| Calendar | _todo_ | _todo_ |
+| Teams | _todo_ | _todo_ |
+| Admin | _todo_ | _todo_ |
+
+---
+
+## Quick start
+
+### Prerequisites
+
+- **Java 23** with the toolchain auto-downloaded by the Maven wrapper
+- **Node.js 20+** with **Corepack** enabled (Node 20+ ships Corepack)
+- **Python 3.8+** for the packaging script
+- **OpenSSL** to generate the RSA key pair on first run
+
+### 1. Clone and generate the RSA key pair
+
+The backend signs its JWTs with an RSA key. The shipped `application.properties` references an absolute path from the original author's machine, so on a fresh clone you need to generate your own pair:
 
 ```bash
-mkdir -p backend/src/main/resources/keys
-openssl genrsa -out backend/src/main/resources/keys/private_key.pem 2048
-openssl rsa -in backend/src/main/resources/keys/private_key.pem -pubout \
-  -out backend/src/main/resources/keys/public_key.pem
+git clone https://github.com/fiopans1/task-manager.git
+cd task-manager
+mkdir -p backend/src/main/resources/jwtKeys
+openssl genrsa -out backend/src/main/resources/jwtKeys/private_key.pem 2048
+openssl rsa -in backend/src/main/resources/jwtKeys/private_key.pem -pubout \
+  -out backend/src/main/resources/jwtKeys/public_key.pem
 ```
 
-Then start the API:
+Or use the helper:
+
+```bash
+python3 scripts/bin_files/key_generator.py
+```
+
+> **Heads up:** the dev profile has `spring.jpa.hibernate.ddl-auto=create`, which **wipes the database on every restart**. Change it to `update` in `application.properties` (or copy the production template) if you need persistent data while iterating.
+
+### 2. Start the backend
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-By default the backend serves the API on `http://localhost:8080`.
+API on `http://localhost:8080` · health probe at `GET /health`.
 
-### 2. Frontend
-
-Install dependencies and prepare runtime configuration:
+### 3. Start the frontend
 
 ```bash
 cd frontend
-corepack pnpm install
+corepack pnpm install --frozen-lockfile
 cp ../scripts/config_templates/config.template.js public/config.js
-```
-
-Start the frontend:
-
-```bash
 corepack pnpm start
 ```
 
-The frontend is available on `http://localhost:3000`.
+App on `http://localhost:3000`. Vite proxies `/api`, `/auth` and `/oauth2/` to the backend.
 
-### 3. Documentation portal
-
-Run the docs site locally:
+### 4. (Optional) Run the docs site
 
 ```bash
 cd docs
@@ -104,102 +133,162 @@ corepack pnpm install
 corepack pnpm docs:dev
 ```
 
-The site exposes mirrored content in:
+Bilingual portal on `http://localhost:4173` (`/es/` and `/en/`).
 
-- `http://localhost:4173/es/`
-- `http://localhost:4173/en/`
+### First-time user
 
-## Build and packaging
+1. Open the app and click **Create account**.
+2. Register with a username, email and password.
+3. You land in the dashboard. From the sidebar, **My Tasks → New Task** to create your first task.
+4. To enable Google/GitHub/Authentik login, edit `application.properties` and `frontend/public/config.js` — see [Configuration](#configuration).
 
-### Frontend production build
+---
 
-```bash
-cd frontend
-corepack pnpm build
+## Configuration
+
+Task Manager splits configuration across three files so you can change behaviour without rebuilding.
+
+| File | What it controls | When it loads |
+| --- | --- | --- |
+| `backend/src/main/resources/application.properties` | Server port, database URL, CORS, cookie/CSRF settings, OAuth2 client IDs, default user creation | At backend startup |
+| `frontend/public/config.js` | `api.baseUrl`, OAuth2 provider flags, app name/version/siteUrl, session inactivity threshold, feature flags | At frontend startup, before React mounts |
+| `task-manager/config/Caddyfile` (packaged) | TLS, reverse proxy, static asset cache, security headers | At Caddy startup |
+
+Templates live under `scripts/config_templates/`. `scripts/compile.py --action deploy` ships them as part of the distributable ZIP.
+
+Example `config.js`:
+
+```js
+window.APP_CONFIG = {
+  api: {
+    // Empty for dev (Vite proxy); set to the backend URL in production.
+    baseUrl: ""
+  },
+  oauth2: {
+    enabled: true,
+    google:   { enabled: true },
+    github:   { enabled: true },
+    authentik: { enabled: false }
+  },
+  app: {
+    name: "Task Manager",
+    siteUrl: "https://tasks.example.com",
+    version: "0.6-beta"
+  },
+  session: { inactivityThresholdMinutes: 10 },
+  features: { calendar: true, lists: true, timeTracking: true }
+}
 ```
 
-### Documentation build
+Full reference: [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
+---
+
+## Security
+
+The authentication model is **session cookies with CSRF**, not bearer tokens.
+
+- **`HttpOnly` access cookie** (`TM-ACCESS`, path `/api`) and refresh cookie (`TM-REFRESH`, path `/api/session`) — the frontend cannot read them.
+- **Readable `XSRF-TOKEN` cookie** + `X-XSRF-TOKEN` header for state-changing requests. The frontend primes the token via `GET /api/session/csrf` before the first write.
+- **JWT signed with RSA** inside the cookie. The backend validates the signature, expiration, and that the session is still active in the DB.
+- **OAuth2** through Spring Security OAuth2 Client. Toggle providers per environment via `taskmanager.oauth2.<provider>.enabled`.
+- **CORS with credentials** limited to `taskmanager.security.cors.allowed-origins`.
+- **SameSite=None** requires `cookies.secure=true`; the `SessionCookieService` fails to start otherwise.
+- **Idle timeout modal** warns the user 60 seconds before the session expires.
+
+When integrating against the API, treat it as a browser-session backend, not a bearer-token API.
+
+For vulnerability reports see [SECURITY.md](SECURITY.md).
+
+---
+
+## Deployment
+
+### Docker (recommended)
+
+Multi-arch image built from `docker/Dockerfile.deployment`:
 
 ```bash
-cd docs
-corepack pnpm docs:build
+./docker/build.sh --platform linux/amd64
+./docker/build.sh --multi                              # amd64 + arm64
+./docker/build.sh --platform linux/amd64 --push \
+  --tag ghcr.io/your-org/taskmanager:1.0
 ```
 
-### Full distributable package
+See [docker/README.md](docker/README.md) for the full flag list.
 
-To create the deployable archive:
+### Classic package (no Docker)
+
+`scripts/compile.py` produces a self-contained `TaskManager.zip` with backend, frontend, Caddy binary and configuration templates:
 
 ```bash
 cd scripts
 python3 compile.py --action deploy
 ```
 
-This generates `TaskManager.zip` with the packaged application and deployment files.
+Unzip, edit `config/application.properties` and `config/Caddyfile`, then start with `python3 bin_files/start.py --start-all`. End-to-end walkthrough in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Configuration
+---
 
-Task Manager uses runtime configuration instead of baking every value into the frontend bundle.
+## Repository layout
 
-The main files are:
-
-- `frontend/public/config.js` for frontend runtime behaviour
-- `backend/src/main/resources/application.properties` for backend setup
-- `task-manager/config/Caddyfile` in packaged deployments
-
-Example frontend configuration:
-
-```js
-window.APP_CONFIG = {
-  api: {
-    baseUrl: ''
-  },
-  oauth2: {
-    enabled: true
-  }
-}
+```text
+task-manager/
+├── backend/                 # Spring Boot API, security, persistence
+│   └── src/main/java/com/taskmanager/application/
+│       ├── controller/      # REST endpoints (/api/*, /auth/*)
+│       ├── service/         # Business logic
+│       ├── service/oauth2providers/  # Google, GitHub, Authentik
+│       ├── security/        # JWT, CSRF, OAuth2, cookie filters
+│       ├── config/          # WebSecurityConfig, CsrfConfig, properties
+│       ├── model/entities/  # JPA entities
+│       ├── model/dto/       # API contracts
+│       └── respository/     # Spring Data repositories
+├── frontend/                # React + Vite SPA
+│   ├── public/              # config.js, sitemap.xml, manifest.json
+│   ├── src/components/      # auth/, common/, tasks/, lists/, teams/, adminpanel/
+│   ├── src/services/        # apiClient, authService, taskService, …
+│   ├── src/redux/           # store.js + slices/authSlice.js
+│   └── src/hooks/           # useInfiniteScroll (client + server)
+├── docs/                    # VitePress bilingual portal (es/, en/)
+├── docker/                  # Dockerfile.deployment, build.sh
+├── scripts/                 # compile.py, key_generator.py, templates
+└── application/             # Legacy Spring Boot skeleton — ignore
 ```
 
-This allows the frontend to point to the same origin in development or to a dedicated backend URL in production.
+`application/` is a historical skeleton, not the active backend.
 
-## Security model
-
-The current authentication flow uses:
-
-- **HttpOnly cookies** for session/access handling
-- **CSRF protection** for state-changing requests
-- OAuth2 login for supported identity providers
-
-If you are integrating against the backend, assume browser-session authentication rather than storing bearer tokens in frontend code.
+---
 
 ## Documentation
 
-The project documentation is written for both end users and developers and is maintained as a mirrored bilingual portal:
+The full documentation portal is maintained inside the repo as a VitePress site, mirrored in Spanish and English:
 
-- **Spanish:** `/es/`
-- **English:** `/en/`
+- 🇪🇸 **[docs/es/](docs/es/)** — Primeros pasos, Guía de usuario, Guía de desarrollo, Arquitectura, Despliegue
+- 🇬🇧 **[docs/en/](docs/en/)** — Getting started, User guide, Developer guide, Architecture, Deployment
 
-Available sections include getting started, user guide, developer guide, architecture and deployment.
+Standalone references:
 
-## Docker
+- [docs/CONFIGURATION.md](docs/CONFIGURATION.md) — every config key
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — production deploy walkthrough
+- [docs/TECHNICAL_EN.md](docs/TECHNICAL_EN.md) / [TECHNICAL_ES.md](docs/TECHNICAL_ES.md) — deep technical docs
+- [AGENTS.md](AGENTS.md) — internal conventions for AI/agent sessions
 
-If you want to build and distribute the project as a container image:
-
-```bash
-./docker/build.sh --platform linux/amd64
-```
-
-See [docker/README.md](docker/README.md) for supported flags, multi-platform builds and publishing examples.
+---
 
 ## Contributing
 
-If you want to contribute:
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Check [SECURITY.md](SECURITY.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+3. Keep pull requests focused on a single change. Update both `docs/en` and `docs/es` when behaviour changes.
+4. Use Corepack for pnpm. Use react-bootstrap, not raw CSS. Go through `frontend/src/components/common/Noty.js` for toasts. See [AGENTS.md](AGENTS.md) for the full conventions list.
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Check the expected behaviour in [SECURITY.md](SECURITY.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-3. Keep pull requests focused and update docs when behaviour changes
+---
 
 ## License
 
 Task Manager is licensed under the **GNU Affero General Public License v3.0**.
+
+That means you can use it, modify it, and self-host it freely. If you distribute a modified version over a network, you must also publish your modifications under the same license.
 
 See [LICENSE](LICENSE) for the full text.
