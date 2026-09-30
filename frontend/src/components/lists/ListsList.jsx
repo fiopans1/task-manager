@@ -33,7 +33,6 @@ const ListsList = ({
         success: "List deleted successfully",
         error: (e) => "Error: " + (e?.message || e),
       });
-      listService.invalidateListsCache();
       setIdToDelete(null);
       refreshLists();
     } catch (error) {

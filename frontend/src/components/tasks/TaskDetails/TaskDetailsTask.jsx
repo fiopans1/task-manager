@@ -57,7 +57,6 @@ const TaskDetailsTask = ({ taskId }) => {
         success: "Task deleted successfully",
         error: (e) => "Error: " + (e?.message || e),
       });
-      taskService.invalidateTasksCache();
       navigate("/home/tasks");
     } catch (error) {
       // toast already shown by promiseToast

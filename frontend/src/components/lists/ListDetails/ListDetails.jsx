@@ -145,7 +145,6 @@ const ListDetails = ({ listId }) => {
         success: "List deleted successfully",
         error: (e) => "Error: " + (e?.message || e),
       });
-      listService.invalidateListsCache();
       navigate("/home/lists");
     } catch (error) {
       // toast already shown by promiseToast

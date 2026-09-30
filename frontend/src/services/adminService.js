@@ -1,41 +1,5 @@
 import { apiClient, publicClient } from "./apiClient";
 
-const resourceCache = new Map();
-
-function getSuspender(promise) {
-    let status = "pending";
-    let result;
-    const suspender = promise.then(
-        (response) => {
-            status = "success";
-            result = response;
-        },
-        (error) => {
-            status = "error";
-            result = error;
-        }
-    );
-    const read = () => {
-        switch (status) {
-            case "pending":
-                throw suspender;
-            case "error":
-                throw result;
-            default:
-                return result;
-        }
-    };
-    return { read };
-}
-
-const invalidateUserSearchCache = () => {
-    for (const key of resourceCache.keys()) {
-        if (key.startsWith("userSearch:")) {
-            resourceCache.delete(key);
-        }
-    }
-};
-
 // ===== USER MANAGEMENT =====
 
 const searchUsers = async (query = "") => {
@@ -43,25 +7,6 @@ const searchUsers = async (query = "") => {
         params: query ? { query } : {},
     });
     return response.data;
-};
-
-const searchUsersSuspense = (query = "") => {
-    const cacheKey = "userSearch:" + query;
-    if (resourceCache.has(cacheKey)) {
-        return resourceCache.get(cacheKey);
-    }
-    const promise = apiClient
-        .get("/api/admin/users", {
-            params: query ? { query } : {},
-        })
-        .then((response) => response.data)
-        .catch((error) => {
-            resourceCache.delete(cacheKey);
-            throw error;
-        });
-    const resource = getSuspender(promise);
-    resourceCache.set(cacheKey, resource);
-    return resource;
 };
 
 const getUserById = async (userId) => {
@@ -160,8 +105,6 @@ const getPublicConfig = async () => {
 
 const adminService = {
     searchUsers,
-    searchUsersSuspense,
-    invalidateUserSearchCache,
     getUserById,
     toggleUserBlock,
     getUserTasks,

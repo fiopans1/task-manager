@@ -20,9 +20,6 @@ import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
 import authService from "../../services/authService";
 import configService from "../../services/configService";
-import listService from "../../services/listService";
-import taskService from "../../services/taskService";
-import teamService from "../../services/teamService";
 
 const appLogo = "/favicon.png";
 const fallbackAppLogo = "/favicon.ico";
@@ -120,14 +117,6 @@ function SidebarMenu({ onLogOut }) {
 
   const handleNavClick = (item, e) => {
     e.preventDefault();
-
-    if (item.featureKey === "tasks") {
-      taskService.invalidateTasksCache();
-    } else if (item.featureKey === "lists") {
-      listService.invalidateListsCache();
-    } else if (item.featureKey === "teams") {
-      teamService.invalidateTeamsCache();
-    }
 
     navigate(item.path);
     if (isMobile) {

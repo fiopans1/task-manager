@@ -37,7 +37,6 @@ const TasksList = ({
         success: "Task deleted successfully",
         error: (e) => "Error: " + (e?.message || e),
       });
-      taskService.invalidateTasksCache();
       setIdToDelete(null);
       refreshTasks();
     } catch (error) {

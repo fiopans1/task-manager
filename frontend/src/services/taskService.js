@@ -1,11 +1,8 @@
 import { apiClient } from "./apiClient";
 
-const resourceCache = new Map();
-
 const createTask = async (task) => {
     try {
         const response = await apiClient.post("/api/tasks/create", task);
-        invalidateTasksCache();
         return response.data;
     } catch (error) {
         throw new Error("Error connecting to server:" + error.message);
@@ -15,58 +12,10 @@ const createTask = async (task) => {
 const editTask = async (task) => {
     try {
         const response = await apiClient.post("/api/tasks/update/" + task.id, task);
-        invalidateTasksCache();
         return response.data;
     } catch (error) {
         throw new Error("Error connecting to server:" + error.message);
     }
-};
-
-function getSuspender(promise) {
-    let status = "pending";
-    let result;
-    const suspender = promise.then(
-        (response) => {
-            status = "success";
-            result = response;
-        },
-        (error) => {
-            status = "error";
-            result = error;
-        }
-    );
-    const read = () => {
-        switch (status) {
-            case "pending":
-                throw suspender;
-            case "error":
-                throw result;
-            default:
-                return result;
-        }
-    };
-    return { read };
-}
-
-const invalidateTasksCache = (key = "tasks") => {
-    resourceCache.delete(key);
-};
-
-const getTasks = () => {
-    const cacheKey = "tasks";
-    if (resourceCache.has(cacheKey)) {
-        return resourceCache.get(cacheKey);
-    }
-    const promise = apiClient
-        .get("/api/tasks/tasks")
-        .then((response) => response.data)
-        .catch((error) => {
-            invalidateTasksCache();
-            throw error;
-        });
-    const resource = getSuspender(promise);
-    resourceCache.set(cacheKey, resource);
-    return resource;
 };
 
 const deleteTask = (id) => {
@@ -127,14 +76,12 @@ const getTasksWithoutList = async () => {
 
 const taskService = {
     createTask,
-    getTasks,
     deleteTask,
     createActionTask,
     deleteActionTask,
     updateActionTask,
     getActionsTask,
     editTask,
-    invalidateTasksCache,
     getEvents,
     getTaskById,
     getAllTasks,

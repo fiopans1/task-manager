@@ -33,7 +33,6 @@ const TeamsList = ({ refreshKey, searchTerm, refreshTeams }) => {
                 success: "Team deleted successfully",
                 error: (e) => "Error: " + (e?.message || e),
             });
-            teamService.invalidateTeamsCache();
             setIdToDelete(null);
             if (refreshTeams) refreshTeams();
         } catch (error) {
