@@ -1,15 +1,16 @@
 package com.taskmanager.application.controller;
 
 import com.taskmanager.application.model.dto.LoginDTO;
+import com.taskmanager.application.model.dto.RegisterDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.dto.SessionDTO;
-import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.service.AuthService;
 import com.taskmanager.application.service.CsrfService;
 import com.taskmanager.application.service.SessionService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class AuthRestController {
     private CsrfService csrfService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO login, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO login, HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("Login attempt for user: {}", login.getUsername());
 
         try {
@@ -52,20 +53,20 @@ public class AuthRestController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception {
-        logger.info("Registration attempt for user: {}", user.getUsername());
+    public ResponseEntity<ResponseDTO> register(@Valid @RequestBody RegisterDTO registerDTO) throws Exception {
+        logger.info("Registration attempt for user: {}", registerDTO.getUsername());
 
         try {
-            ResponseDTO response = authService.register(user);
+            ResponseDTO response = authService.register(registerDTO);
             if (response.getErrorCount() <= 0) {
-                logger.info("Registration successful for user: {}", user.getUsername());
+                logger.info("Registration successful for user: {}", registerDTO.getUsername());
                 return ResponseEntity.ok(response);
             } else {
-                logger.warn("Registration failed for user: {} - {} errors", user.getUsername(), response.getErrorCount());
+                logger.warn("Registration failed for user: {} - {} errors", registerDTO.getUsername(), response.getErrorCount());
                 return ResponseEntity.badRequest().body(response);
             }
         } catch (Exception e) {
-            logger.error("Registration error for user: {}", user.getUsername(), e);
+            logger.error("Registration error for user: {}", registerDTO.getUsername(), e);
             throw e;
         }
     }
