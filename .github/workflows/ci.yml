@@ -97,7 +97,9 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '10.34.1'
+          # No "version" here: the action reads it from the packageManager
+          # field in frontend/package.json (single source of truth).
+          package_json_file: frontend/package.json
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

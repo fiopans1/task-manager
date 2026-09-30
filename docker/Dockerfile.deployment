@@ -27,8 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar pnpm globalmente
-RUN npm install -g pnpm
+# Instalar pnpm globalmente (versión alineada con frontend/package.json -> packageManager)
+RUN npm install -g pnpm@11.8.0
 
 # Argumentos de build para configuración del repositorio
 ARG GIT_REPO=https://github.com/fiopans1/task-manager.git
