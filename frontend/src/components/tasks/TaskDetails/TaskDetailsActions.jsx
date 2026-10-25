@@ -20,7 +20,7 @@ import { successToast, errorToast } from "../../common/Noty";
 import MentionInput, { renderMentionText } from "../../teams/MentionInput";
 import { useServerInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 
-const TaskDetailsActions = ({ taskId, teamId }) => {
+const TaskDetailsActions = ({ taskId, teamId, externalRefreshKey = 0 }) => {
   // States for action handling
   const [teamMembers, setTeamMembers] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -44,7 +44,7 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
     return taskService.fetchActionsPage(taskId, page, size);
   }, [taskId]);
 
-  const { items: actions, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [taskId, refreshKey]);
+  const { items: actions, initialLoading, LoadMoreSpinner } = useServerInfiniteScroll(fetchPage, 50, [taskId, refreshKey, externalRefreshKey]);
 
   // Public function to refresh
   const refreshActions = useCallback(() => {
@@ -175,6 +175,16 @@ const TaskDetailsActions = ({ taskId, teamId }) => {
         return {
           badge: "info",
           icon: "bi bi-chat-left-text-fill",
+        };
+      case "timer_started":
+        return {
+          badge: "success",
+          icon: "bi bi-play-circle-fill",
+        };
+      case "timer_stopped":
+        return {
+          badge: "secondary",
+          icon: "bi bi-stop-circle-fill",
         };
       default:
         return {

@@ -46,6 +46,25 @@ const getActionsTask = (taskId) => {
     return apiClient.get("/api/tasks/" + taskId + "/actions").then((response) => response.data);
 };
 
+const getTimerStatus = (taskId) => {
+    return apiClient.get("/api/tasks/" + taskId + "/timer").then((response) => response.data);
+};
+
+const startTimer = (taskId) => {
+    return apiClient.post("/api/tasks/" + taskId + "/timer/start").then((response) => response.data);
+};
+
+const stopTimer = (taskId) => {
+    return apiClient.post("/api/tasks/" + taskId + "/timer/stop").then((response) => response.data);
+};
+
+const fetchTimeEntriesPage = async (taskId, page = 0, size = 20) => {
+    const response = await apiClient.get("/api/tasks/" + taskId + "/time-entries", {
+        params: { page, size },
+    });
+    return response.data;
+};
+
 const fetchTasksPage = async (page = 0, size = 50, search = "") => {
     const params = { page, size };
     if (search) params.search = search;
@@ -88,6 +107,10 @@ const taskService = {
     getTasksWithoutList,
     fetchTasksPage,
     fetchActionsPage,
+    getTimerStatus,
+    startTimer,
+    stopTimer,
+    fetchTimeEntriesPage,
 };
 
 export default taskService;

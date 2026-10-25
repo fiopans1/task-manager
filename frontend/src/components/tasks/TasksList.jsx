@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Badge, Button, Card, Col, Modal, Row } from "react-bootstrap";
 import taskService from "../../services/taskService";
 import { useServerInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { formatDuration } from "../../utils/formatDuration";
 import { errorToast, promiseToast } from "../common/Noty";
 
 const TasksList = ({
@@ -128,6 +129,26 @@ const TasksList = ({
                   <Badge bg={getPriorityBadgeVariant(task.priority)} pill>
                     {task.priority}
                   </Badge>
+                  {task.totalTimeSeconds > 0 && (
+                    <Badge bg="light" text="dark" pill className="border">
+                      <i className="bi bi-clock me-1"></i>
+                      {formatDuration(task.totalTimeSeconds)}
+                    </Badge>
+                  )}
+                  {task.isRunning && (
+                    <Badge
+                      bg="success"
+                      pill
+                      className="d-inline-flex align-items-center gap-1"
+                    >
+                      <span
+                        className="spinner-grow spinner-grow-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                      Running
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-body-secondary mb-0">
                   {task.descriptionOfTask || (

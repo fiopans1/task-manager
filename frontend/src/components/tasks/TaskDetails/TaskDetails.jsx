@@ -3,11 +3,13 @@ import { useParams } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import TaskDetailsTask from "./TaskDetailsTask";
 import TaskDetailsActions from "./TaskDetailsActions";
+import TaskTimeTracker from "./TaskTimeTracker";
 import taskService from "../../../services/taskService";
 
 const TaskDetails = () => {
   const params = useParams();
   const [teamId, setTeamId] = useState(null);
+  const [actionsRefreshKey, setActionsRefreshKey] = useState(0);
 
   useEffect(() => {
     if (params.id) {
@@ -22,7 +24,15 @@ const TaskDetails = () => {
   return (
     <Container fluid className="p-0">
       <TaskDetailsTask taskId={params.id} />
-      <TaskDetailsActions taskId={params.id} teamId={teamId} />
+      <TaskTimeTracker
+        taskId={params.id}
+        onTimerChange={() => setActionsRefreshKey((key) => key + 1)}
+      />
+      <TaskDetailsActions
+        taskId={params.id}
+        teamId={teamId}
+        externalRefreshKey={actionsRefreshKey}
+      />
     </Container>
   );
 };
