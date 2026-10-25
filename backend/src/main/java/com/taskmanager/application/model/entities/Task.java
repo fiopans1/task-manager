@@ -48,6 +48,15 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActionTask> actions = new ArrayList<>();
 
+    @Column(nullable = false)
+    private long totalTimeSeconds = 0L;
+
+    @Column(nullable = false)
+    private boolean isRunning = false;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TaskTimeEntry> timeEntries = new ArrayList<>();
+
     @ManyToOne(optional = true)
     @JoinColumn(name = "list_id", nullable = true)
     private ListTM list;
@@ -132,6 +141,34 @@ public class Task {
         }
         actions.add(action);
         action.setTask(this);
+    }
+
+    public long getTotalTimeSeconds() {
+        return totalTimeSeconds;
+    }
+
+    public void setTotalTimeSeconds(long totalTimeSeconds) {
+        this.totalTimeSeconds = totalTimeSeconds;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(boolean running) {
+        this.isRunning = running;
+    }
+
+    public List<TaskTimeEntry> getTimeEntries() {
+        return timeEntries;
+    }
+
+    public void addTimeEntry(TaskTimeEntry timeEntry) {
+        if (timeEntries == null) {
+            timeEntries = new ArrayList<>();
+        }
+        timeEntries.add(timeEntry);
+        timeEntry.setTask(this);
     }
 
     public ListTM getList() {

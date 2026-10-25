@@ -273,7 +273,7 @@ public class TaskService {
         }
 
         logger.debug("Permission granted for accessing actions for task ID: {}", taskId);
-        List<ActionTask> actions = actionTaskRepository.findAllByTask(task);
+        List<ActionTask> actions = actionTaskRepository.findAllByTaskOrderByActionDateDesc(task);
         logger.info("Successfully retrieved {} actions for task with ID: {}", actions.size(), taskId);
         return actions;
     }

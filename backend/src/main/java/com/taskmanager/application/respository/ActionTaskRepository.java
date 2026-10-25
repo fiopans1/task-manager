@@ -15,5 +15,7 @@ public interface ActionTaskRepository extends JpaRepository<ActionTask, Long>{
 
     List<ActionTask> findAllByTask(Task task);
 
+    List<ActionTask> findAllByTaskOrderByActionDateDesc(Task task);
+
     Page<ActionTask> findAllByTask(Task task, Pageable pageable);
 }

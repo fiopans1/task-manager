@@ -3,10 +3,13 @@ package com.taskmanager.application.controller;
 import com.taskmanager.application.model.dto.ActionTaskDTO;
 import com.taskmanager.application.model.dto.EventTaskDTO;
 import com.taskmanager.application.model.dto.TaskDTO;
+import com.taskmanager.application.model.dto.TaskTimeEntryDTO;
+import com.taskmanager.application.model.dto.TaskTimerStatusDTO;
 import com.taskmanager.application.model.entities.ActionTask;
 import com.taskmanager.application.model.exceptions.NotPermissionException;
 import com.taskmanager.application.model.exceptions.ResourceNotFoundException;
 import com.taskmanager.application.service.TaskService;
+import com.taskmanager.application.service.TaskTimerService;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -14,7 +17,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,6 +44,9 @@ public class TaskRestController {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private TaskTimerService taskTimerService;
 
     @PostMapping("/create")
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO task) { //TO-DO: All ResponseEntity change and put correctly messages
@@ -187,7 +195,8 @@ public class TaskRestController {
     @GetMapping("/{taskId}/actions/paged")
     public ResponseEntity<PagedResponseDTO<ActionTaskDTO>> getAllActionsForTaskPaged(
             @PathVariable Long taskId,
-            @PageableDefault(size = 50) Pageable pageable) throws ResourceNotFoundException, NotPermissionException {
+            @PageableDefault(size = 50, sort = "actionDate", direction = Sort.Direction.DESC) Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
         logger.debug("Retrieving paged actions for task with ID: {}", taskId);
         return ResponseEntity.ok(PagedResponseDTO.from(taskService.getAllActionsForTask(taskId, pageable).map(ActionTaskDTO::fromEntity)));
     }
@@ -224,6 +233,79 @@ public class TaskRestController {
             throw e;
         } catch (Exception e) {
             logger.error("Error deleting action with ID: {} from task with ID: {}", actionId, taskId, e);
+            throw e;
+        }
+    }
+
+    // ===== TIME TRACKING ENDPOINTS =====
+    @GetMapping("/{taskId}/timer")
+    public ResponseEntity<TaskTimerStatusDTO> getTimerStatus(@PathVariable Long taskId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Retrieving timer status for task with ID: {}", taskId);
+
+        try {
+            TaskTimerStatusDTO status = taskTimerService.getStatus(taskId);
+            return ResponseEntity.ok().body(status);
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to retrieve timer status for task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error retrieving timer status for task with ID: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/{taskId}/timer/start")
+    public ResponseEntity<TaskTimerStatusDTO> startTimer(@PathVariable Long taskId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Starting timer for task with ID: {}", taskId);
+
+        try {
+            TaskTimerStatusDTO status = taskTimerService.startTimer(taskId);
+            logger.info("Timer started successfully for task with ID: {}", taskId);
+            return ResponseEntity.ok().body(status);
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to start timer for task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error starting timer for task with ID: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/{taskId}/timer/stop")
+    public ResponseEntity<TaskTimerStatusDTO> stopTimer(@PathVariable Long taskId)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.info("Stopping timer for task with ID: {}", taskId);
+
+        try {
+            TaskTimerStatusDTO status = taskTimerService.stopTimer(taskId);
+            logger.info("Timer stopped successfully for task with ID: {}", taskId);
+            return ResponseEntity.ok().body(status);
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to stop timer for task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error stopping timer for task with ID: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/{taskId}/time-entries")
+    public ResponseEntity<PagedResponseDTO<TaskTimeEntryDTO>> getTimeEntriesForTask(
+            @PathVariable Long taskId,
+            @PageableDefault(size = 20, sort = "startTime", direction = Sort.Direction.DESC) Pageable pageable)
+            throws ResourceNotFoundException, NotPermissionException {
+        logger.debug("Retrieving time entries for task with ID: {}", taskId);
+
+        try {
+            Page<TaskTimeEntryDTO> entries = taskTimerService.getTimeEntries(taskId, pageable);
+            return ResponseEntity.ok().body(PagedResponseDTO.from(entries));
+        } catch (ResourceNotFoundException | NotPermissionException e) {
+            logger.warn("Failed to retrieve time entries for task with ID: {} - {}", taskId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error retrieving time entries for task with ID: {}", taskId, e);
             throw e;
         }
     }

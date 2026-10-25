@@ -33,6 +33,8 @@ public class TaskDTO {
     private String listName;
     private Long teamId;
     private String teamName;
+    private long totalTimeSeconds;
+    private boolean isRunning;
 
     public TaskDTO() {
     }
@@ -123,6 +125,25 @@ public class TaskDTO {
     public void setTeamName(String teamName) {
         this.teamName = teamName;
     }
+
+    public long getTotalTimeSeconds() {
+        return totalTimeSeconds;
+    }
+
+    public void setTotalTimeSeconds(long totalTimeSeconds) {
+        this.totalTimeSeconds = totalTimeSeconds;
+    }
+
+    @JsonProperty("isRunning")
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    @JsonProperty("isRunning")
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+    }
+
     public static TaskDTO fromEntity(Task task) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
@@ -132,6 +153,8 @@ public class TaskDTO {
         taskDTO.setUser(task.getUser().getUsername());
         taskDTO.setPriority(task.getPriority());
         taskDTO.setCreationDate(task.getCreationDate());
+        taskDTO.setTotalTimeSeconds(task.getTotalTimeSeconds());
+        taskDTO.setIsRunning(task.isRunning());
         if(task.getEventTask() != null) {
             taskDTO.setIsEvent(true);
             taskDTO.setStartDate(task.getEventTask().getStartTime());
