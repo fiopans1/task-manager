@@ -192,6 +192,7 @@ No hay lint ni typecheck todavía. Si rompes el lockfile, el job de frontend fal
 | Cambiar un endpoint o un DTO | `backend/src/main/java/.../controller/` y `model/dto/`. |
 | Cambiar una regla de negocio | `backend/src/main/java/.../service/`. |
 | Cambiar el modelo de datos | `backend/src/main/java/.../model/entities/`. Cuidado con la migración: `ddl-auto=update` solo añade columnas, no las borra ni cambia tipos. |
+| Cambiar el registro de tiempo | `model/entities/TaskTimeEntry.java`, `service/TaskTimerService.java`, los endpoints de `TaskRestController` bajo `/{taskId}/timer` y `frontend/src/components/tasks/TaskDetails/TaskTimeTracker.jsx`. |
 | Cambiar la seguridad, CORS, cookies | `backend/src/main/java/.../config/WebSecurityConfig.java`, `TaskManagerSecurityProperties.java`, `CsrfConfig.java`, `security/SessionCookieService.java`. |
 | Añadir un proveedor OAuth2 | `backend/src/main/java/.../service/oauth2providers/`, propiedades `spring.security.oauth2.client.registration.<provider>.*` y `taskmanager.oauth2.<provider>.enabled`. |
 | Cambiar una pantalla | `frontend/src/components/<dominio>/`. |

@@ -87,6 +87,15 @@ Inside a task's detail you can add **actions** (comments or notes). Each action 
 - Edit or delete your own comments.
 - Browse the full chronological history.
 
+### Tracking time on a task
+
+The task detail includes a **Time Tracking** card. Click **Start timer** to begin a session and **Stop timer** to end it. Each session stores its start time, end time, duration and the user who tracked it. The total tracked time is the sum of all completed sessions.
+
+- You can have one active timer per task, and different tasks can run timers at the same time.
+- The timer keeps running on the server if you close or reload the page. Reopen the task to see it again.
+- The task list shows the accumulated total and a **Running** badge while the timer is active.
+- Each start and stop is also recorded in the task's action history.
+
 ### Turning a task into an event (or back)
 
 A regular task has no dates. If you edit it, tick **This task is an event**, fill in the start and end dates, and it will start showing on the calendar. If you untick the box during an edit, the dates are removed and it goes back to being a task with no schedule.

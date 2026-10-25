@@ -94,7 +94,8 @@ Inside `com.taskmanager.application.*` the split is:
 - `User` — local account or linked to an `AuthProvider` (Google, GitHub, Authentik). Has `FullName` with first name and two surnames.
 - `AuthSession` and `RefreshToken` — active sessions and persisted refresh tokens.
 - `RoleOfUser` and `AuthorityOfRole` — system roles (`BASIC`, `ADMIN`) and their authorities.
-- `Task` — the functional core. Optional `EventTask` for dates, optional `ListTM`, optional `Team`, and a history of `ActionTask` (comments, edits, creation).
+- `Task` — the functional core. Optional `EventTask` for dates, optional `ListTM`, optional `Team`, a history of `ActionTask` (comments, edits, creation), plus `totalTimeSeconds` and `isRunning` for time tracking.
+- `TaskTimeEntry` — a tracked time session with its task, user, start, end, duration and active flag.
 - `TaskAssignmentHistory` — who reassigned which task to whom, when, and from which team.
 - `ListTM` — grouping of tasks with a colour. (Name uses the `TM` suffix to avoid clashing with `java.util.List`.)
 - `Team` — groups users via `TeamMember` with a `TeamRole` (`ADMIN` or `MEMBER`).
@@ -116,7 +117,7 @@ Inside `com.taskmanager.application.*` the split is:
 | --- | --- | --- |
 | `/auth/login`, `/auth/register` | `AuthRestController` | Local login and account creation. |
 | `/api/session/me`, `/csrf`, `/refresh`, `/logout` | `SessionRestController` | Session state and tokens. |
-| `/api/tasks/...` | `TaskRestController` | Task CRUD, actions, events. |
+| `/api/tasks/...` | `TaskRestController` | Task CRUD, actions, events and time tracking. |
 | `/api/lists/...` | `ListRestController` | List CRUD, add/remove tasks. |
 | `/api/teams/...` | `TeamRestController` | Teams, members, invitations, assignments, dashboard. |
 | `/api/admin/...` | `AdminRestController` | Users, flags, messages. ADMIN only. |
@@ -139,7 +140,7 @@ Inside `com.taskmanager.application.*` the split is:
 
 - `services/` — the only place the app talks to the backend. Each domain (tasks, lists, teams, admin, auth, home) has its own service.
 - `redux/` — only `authSlice` for now. The store does not use `redux-persist` even though it is a dependency.
-- `hooks/` — only `useInfiniteScroll` (client and server side) shared by long lists.
+- `hooks/` — `useInfiniteScroll` (client and server side) shared by long lists, and `useTaskTimer` for the live task timer.
 - `components/` — organised by functional domain (`tasks/`, `lists/`, `teams/`, `adminpanel/`, etc.) with `common/` for cross-cutting concerns.
 - `pages/` — `HomePage` (public) and `MainApp` (authenticated layout with `<Outlet />`).
 - `context/` — `ThemeContext` for light/dark mode.

@@ -94,7 +94,8 @@ Dentro de `com.taskmanager.application.*` la separación es:
 - `User` — cuenta local o vinculada a un `AuthProvider` (Google, GitHub, Authentik). Tiene `FullName` con nombre y dos apellidos.
 - `AuthSession` y `RefreshToken` — sesiones activas y refresh tokens persistidos.
 - `RoleOfUser` y `AuthorityOfRole` — roles del sistema (`BASIC`, `ADMIN`) y sus authorities.
-- `Task` — núcleo funcional. Tiene `EventTask` opcional para fechas, `ListTM` opcional, `Team` opcional, y un histórico de `ActionTask` (comentarios, ediciones, creación).
+- `Task` — núcleo funcional. Tiene `EventTask` opcional para fechas, `ListTM` opcional, `Team` opcional, un histórico de `ActionTask` (comentarios, ediciones, creación) y los campos `totalTimeSeconds` e `isRunning` para el registro de tiempo.
+- `TaskTimeEntry` — una sesión de tiempo registrada, con su tarea, usuario, inicio, fin, duración y flag de actividad.
 - `TaskAssignmentHistory` — quién reasignó qué tarea a quién, cuándo y desde qué equipo.
 - `ListTM` — agrupación de tareas con un color. (Nombre con la sigla TM para no chocar con `java.util.List`.)
 - `Team` — agrupa usuarios vía `TeamMember` con su `TeamRole` (`ADMIN` o `MEMBER`).
@@ -116,7 +117,7 @@ Dentro de `com.taskmanager.application.*` la separación es:
 | --- | --- | --- |
 | `/auth/login`, `/auth/register` | `AuthRestController` | Login local y alta de cuenta. |
 | `/api/session/me`, `/csrf`, `/refresh`, `/logout` | `SessionRestController` | Estado de sesión y tokens. |
-| `/api/tasks/...` | `TaskRestController` | CRUD de tareas, acciones, eventos. |
+| `/api/tasks/...` | `TaskRestController` | CRUD de tareas, acciones, eventos y registro de tiempo. |
 | `/api/lists/...` | `ListRestController` | CRUD de listas, añadir/quitar tareas. |
 | `/api/teams/...` | `TeamRestController` | Equipos, miembros, invitaciones, asignaciones, dashboard. |
 | `/api/admin/...` | `AdminRestController` | Usuarios, flags, mensajes. Solo ADMIN. |
@@ -139,7 +140,7 @@ Dentro de `com.taskmanager.application.*` la separación es:
 
 - `services/` — el único punto por el que la app habla con el backend. Cada dominio (tareas, listas, equipos, admin, auth, home) tiene su servicio.
 - `redux/` — solo `authSlice` por ahora. El store no usa `redux-persist` pese a estar como dependencia.
-- `hooks/` — solo `useInfiniteScroll` (cliente y servidor) compartido por listas largas.
+- `hooks/` — `useInfiniteScroll` (cliente y servidor) compartido por listas largas, y `useTaskTimer` para el cronómetro vivo de las tareas.
 - `components/` — organizado por dominio funcional (`tasks/`, `lists/`, `teams/`, `adminpanel/`, etc.) y con `common/` para lo transversal.
 - `pages/` — `HomePage` (público) y `MainApp` (layout autenticado con `<Outlet />`).
 - `context/` — `ThemeContext` para modo claro/oscuro.

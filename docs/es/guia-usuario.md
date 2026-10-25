@@ -87,6 +87,15 @@ Dentro del detalle de una tarea puedes añadir **acciones** (comentarios o anota
 - Editar o borrar comentarios propios.
 - Reordenar o consultar la cronología completa.
 
+### Registrar tiempo en una tarea
+
+El detalle de la tarea incluye una tarjeta **Time Tracking**. Pulsa **Start timer** para iniciar una sesión y **Stop timer** para terminarla. Cada sesión guarda la hora de inicio, la de fin, la duración y el usuario que la registró. El tiempo total es la suma de todas las sesiones completadas.
+
+- Puedes tener un contador activo por tarea, y varias tareas pueden tener contadores activos a la vez.
+- El contador sigue funcionando en el servidor aunque cierres o recargues la página. Vuelve a abrir la tarea para verlo.
+- El listado de tareas muestra el total acumulado y una etiqueta **Running** mientras el contador está activo.
+- Cada inicio y cada parada también quedan registrados en el historial de acciones de la tarea.
+
 ### Convertir una tarea en evento (o al revés)
 
 Una tarea normal no tiene fechas; si la editas y marcas **This task is an event**, le pones fecha de inicio y fin y pasa a aparecer en el calendario. Si desmarcas la casilla en la edición, las fechas se quitan y vuelve a ser una tarea sin horario.
