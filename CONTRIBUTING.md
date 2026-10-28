@@ -43,7 +43,8 @@ This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, 
 
 - Java 23
 - Maven 3.6+
-- Node.js 18+ and pnpm
+- Node.js 22.13+ (24 LTS recommended) with Corepack enabled
+- pnpm
 - Python 3.8+
 
 ### Backend

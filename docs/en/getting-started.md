@@ -9,7 +9,7 @@ Task Manager is a web application for work management aimed at individual users 
 | Component | Recommended requirement | Why it matters |
 | --- | --- | --- |
 | Java | Java 23 | The backend compiles with `java.version=23` |
-| Node.js | Node 20 or higher | Required for the frontend and the documentation portal |
+| Node.js | Node 24 LTS (22.13 minimum) | Required for the frontend and the documentation portal |
 | pnpm | Latest stable version through `corepack` | Dependency management for the frontend and docs |
 | Python | Python 3.8 or higher | Packaging and deployment scripts |
 

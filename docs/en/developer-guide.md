@@ -5,7 +5,7 @@ This page covers the day-to-day workflow: how to bring the project up, which com
 ## Prerequisites
 
 - **Java 23** with a Maven toolchain.
-- **Node.js 20+** with Corepack enabled (pnpm is managed through Corepack to match CI).
+- **Node.js 24 LTS** (minimum 22.13, required by pnpm 11) with Corepack enabled (pnpm is managed through Corepack to match CI).
 - **Python 3.8+** for the packaging scripts.
 - **OpenSSL** to regenerate the RSA key pair on first run.
 

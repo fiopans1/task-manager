@@ -104,7 +104,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Keep in sync with .nvmrc. pnpm 11 requires Node.js >= 22.13
+          # because it imports the built-in node:sqlite module.
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
           cache-dependency-path: frontend/pnpm-lock.yaml
 

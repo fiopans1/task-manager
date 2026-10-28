@@ -5,7 +5,7 @@ Esta página cubre el flujo del día a día: cómo se levanta el proyecto, qué 
 ## Prerrequisitos
 
 - **Java 23** con toolchain de Maven.
-- **Node.js 20+** con Corepack habilitado (pnpm se gestiona desde Corepack para coincidir con la CI).
+- **Node.js 24 LTS** (mínimo 22.13, requerido por pnpm 11) con Corepack habilitado (pnpm se gestiona desde Corepack para coincidir con la CI).
 - **Python 3.8+** para los scripts de empaquetado.
 - **OpenSSL** para regenerar el par de claves RSA en la primera ejecución.
 

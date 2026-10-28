@@ -80,7 +80,7 @@ Designed to be a modern open-source alternative to commercial task tools, with n
 ### Prerequisites
 
 - **Java 23** with the toolchain auto-downloaded by the Maven wrapper
-- **Node.js 20+** with **Corepack** enabled (Node 20+ ships Corepack)
+- **Node.js 24 LTS** (minimum 22.13, required by pnpm 11) with **Corepack** enabled
 - **Python 3.8+** for the packaging script
 - **OpenSSL** to generate the RSA key pair on first run
 
