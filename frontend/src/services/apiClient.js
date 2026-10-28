@@ -8,6 +8,13 @@ const SKIP_CSRF_PROTECTION = "skipCsrfProtection";
 const XSRF_COOKIE_NAME = "XSRF-TOKEN";
 const XSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
+// Axios intentionally leaves "[" and "]" unencoded in query strings, but Tomcat
+// rejects them with a 400 (e.g. searching for "[E2E] task 123"). Encode every
+// reserved character so user-provided values are always valid in the URL.
+const paramsSerializer = {
+    encode: (value) => encodeURIComponent(value).replace(/%20/g, "+"),
+};
+
 function getBaseURL() {
     return configService.getApiBaseUrl() || undefined;
 }
@@ -34,6 +41,7 @@ const csrfClient = axios.create({
     withXSRFToken: true,
     xsrfCookieName: XSRF_COOKIE_NAME,
     xsrfHeaderName: XSRF_HEADER_NAME,
+    paramsSerializer,
     headers: {
         "Content-Type": "application/json",
     },
@@ -56,6 +64,7 @@ const apiClient = axios.create({
     withXSRFToken: true,
     xsrfCookieName: XSRF_COOKIE_NAME,
     xsrfHeaderName: XSRF_HEADER_NAME,
+    paramsSerializer,
     headers: {
         "Content-Type": "application/json",
     },
@@ -119,6 +128,7 @@ const publicClient = axios.create({
     withXSRFToken: true,
     xsrfCookieName: XSRF_COOKIE_NAME,
     xsrfHeaderName: XSRF_HEADER_NAME,
+    paramsSerializer,
     headers: {
         "Content-Type": "application/json",
     },

@@ -108,28 +108,31 @@ public class TeamDashboardPage extends BasePage {
     }
 
     public void cancelInvitation(String username) {
-        Locator row = page.locator(".tab-pane.active .list-group-item")
-                .filter(new Locator.FilterOptions().setHasText(username))
-                .first();
-        row.getByTitle("Cancel invitation").click();
+        Locator rows = invitationRows(username);
+        int pending = rows.count();
+        if (pending == 0) {
+            return;
+        }
+        rows.first().getByTitle("Cancel invitation").click();
         assertThat(toast("Invitation cancelled")).isVisible();
+        // The tab reloads the invitation list after the DELETE. Wait until the
+        // row is gone before clicking again; otherwise the next iteration can
+        // target a node that React detaches, and the click never resolves.
+        assertThat(rows).hasCount(pending - 1);
     }
 
     public void cancelAllInvitations(String username) {
         for (int attempt = 0; attempt < 10; attempt++) {
-            Locator rows = page.locator(".tab-pane.active .list-group-item")
-                    .filter(new Locator.FilterOptions().setHasText(username));
-            if (rows.count() == 0) {
+            if (invitationRows(username).count() == 0) {
                 return;
             }
             cancelInvitation(username);
         }
+        throw new AssertionError("Pending invitations still visible for " + username);
     }
 
     public void expectPendingInvitation(String username) {
-        assertThat(page.locator(".tab-pane.active .list-group-item")
-                .filter(new Locator.FilterOptions().setHasText(username))
-                .first()).isVisible();
+        assertThat(invitationRows(username).first()).isVisible();
     }
 
     public void removeMember(String username) {
@@ -176,6 +179,11 @@ public class TeamDashboardPage extends BasePage {
         return page.locator(".tab-pane.active .list-group-item")
                 .filter(new Locator.FilterOptions().setHasText(username))
                 .first();
+    }
+
+    private Locator invitationRows(String username) {
+        return page.locator(".tab-pane.active .list-group-item")
+                .filter(new Locator.FilterOptions().setHasText(username));
     }
 
     private Locator taskRow(String name) {
