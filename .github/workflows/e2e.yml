@@ -1,0 +1,182 @@
+name: E2E
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  E2E_BASE_URL: http://localhost:3000
+  E2E_USERNAME: admin
+  E2E_PASSWORD: admin
+  E2E_COLLABORATOR_USERNAME: basic
+  E2E_COLLABORATOR_PASSWORD: basic
+  E2E_HEADLESS: "true"
+  STARTUP_RETRIES: 45
+  STARTUP_DELAY_SECONDS: 2
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: "23"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm approve-builds --all
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-1.64.0
+
+      - name: Install Playwright Chromium
+        working-directory: tests
+        run: |
+          mvn --batch-mode -q exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=com.microsoft.playwright.CLI \
+            -Dexec.args="install --with-deps chromium"
+
+      - name: Prepare backend E2E configuration
+        run: |
+          mkdir -p tests/target/keys tests/target/e2e
+          openssl genpkey -algorithm RSA -out tests/target/keys/private_key.pem -pkeyopt rsa_keygen_bits:2048
+          openssl rsa -pubout -in tests/target/keys/private_key.pem -out tests/target/keys/public_key.pem
+
+          cat > backend/src/main/resources/application.properties <<EOF
+          spring.application.name=Task Manager
+          server.port=8080
+          taskmanager.frontend.base-url=http://localhost:3000
+          taskmanager.backend.base-url=http://localhost:8080
+          taskmanager.oauth2.enabled=false
+          taskmanager.oauth2.authorized-redirect-uris=http://localhost:3000/oauth2-login
+          spring.datasource.url=jdbc:sqlite:${{ github.workspace }}/tests/target/e2e/task-manager.db?foreign_keys=on
+          spring.datasource.driver-class-name=org.sqlite.JDBC
+          spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
+          spring.jpa.hibernate.ddl-auto=create
+          spring.jpa.show-sql=false
+          spring.jpa.open-in-view=false
+          jwtKeys.privateKeyPath=file:${{ github.workspace }}/tests/target/keys/private_key.pem
+          jwtKeys.publicKeyPath=file:${{ github.workspace }}/tests/target/keys/public_key.pem
+          taskmanager.security.cors.allowed-origins=http://localhost:3000
+          taskmanager.security.cookies.secure=false
+          taskmanager.security.cookies.same-site=Lax
+          taskmanager.security.cookies.access-name=TM-ACCESS
+          taskmanager.security.cookies.refresh-name=TM-REFRESH
+          taskmanager.security.cookies.access-path=/api
+          taskmanager.security.cookies.refresh-path=/api/session
+          taskmanager.security.access-token.ttl=30s
+          taskmanager.security.refresh-token.ttl=2m
+          taskmanager.security.csrf.cookie-name=XSRF-TOKEN
+          taskmanager.security.csrf.header-name=X-XSRF-TOKEN
+          taskmanager.security.csrf.parameter-name=_csrf
+          taskmanager.security.csrf.path=/
+          taskmanager.create-admin-user=true
+          taskmanager.create-basic-user=true
+          taskmanager.default-admin-username=admin
+          taskmanager.default-admin-password=admin
+          taskmanager.default-admin-email=admin@example.com
+          EOF
+
+      - name: Build and start backend
+        working-directory: backend
+        run: |
+          ./mvnw --batch-mode -q -DskipTests clean package
+          JAR_PATH=$(find target -maxdepth 1 -name '*.jar' ! -name '*-sources.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Backend JAR was not produced"
+            exit 1
+          fi
+          java -jar "$JAR_PATH" > ../tests/target/backend-e2e.log 2>&1 &
+          echo $! > "$GITHUB_WORKSPACE/tests/target/backend.pid"
+
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
+              echo "Backend ready."
+              exit 0
+            fi
+            sleep "$STARTUP_DELAY_SECONDS"
+            attempt=$((attempt + 1))
+          done
+
+          cat ../tests/target/backend-e2e.log
+          exit 1
+
+      - name: Start frontend
+        working-directory: frontend
+        run: |
+          cp ../tests/fixtures/config.e2e.js public/config.js
+          pnpm start > ../tests/target/frontend-e2e.log 2>&1 &
+          echo $! > "$GITHUB_WORKSPACE/tests/target/frontend.pid"
+
+          attempt=1
+          while [ "$attempt" -le "$STARTUP_RETRIES" ]; do
+            if curl --fail --silent http://127.0.0.1:3000 >/dev/null; then
+              echo "Frontend ready."
+              exit 0
+            fi
+            sleep "$STARTUP_DELAY_SECONDS"
+            attempt=$((attempt + 1))
+          done
+
+          cat ../tests/target/frontend-e2e.log
+          exit 1
+
+      - name: Run Playwright suite
+        working-directory: tests
+        run: mvn --batch-mode test
+
+      - name: Upload E2E artifacts
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-e2e-artifacts
+          if-no-files-found: ignore
+          path: |
+            tests/target/playwright-artifacts
+            tests/target/surefire-reports
+            tests/target/backend-e2e.log
+            tests/target/frontend-e2e.log
+
+      - name: Stop services
+        if: always()
+        run: |
+          if [ -f tests/target/frontend.pid ]; then
+            kill "$(cat tests/target/frontend.pid)" 2>/dev/null || true
+          fi
+          if [ -f tests/target/backend.pid ]; then
+            kill "$(cat tests/target/backend.pid)" 2>/dev/null || true
+          fi

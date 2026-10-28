@@ -31,6 +31,18 @@ cd backend
 ./mvnw test                               # only ApplicationTests#contextLoads today
 ```
 
+End-to-end (requires backend on :8080 and frontend on :3000, plus real `admin/admin` and `basic/basic` users):
+
+```bash
+cd tests
+mvn test                                  # full Playwright Java suite (visible browser)
+mvn test -Dgroups=smoke                   # smoke subset
+mvn test -De2e.headless=true              # headless, no browser window
+mvn test -De2e.slow-mo-ms=500             # slow down visible actions
+```
+
+See `tests/README.md` for configuration and Playwright browser installation. CI runs `.github/workflows/e2e.yml` only for pull requests targeting `main`.
+
 `predev` / `prestart` in `frontend/package.json` auto-runs `node scripts/ensureViteInstalled.mjs`, which re-runs `pnpm install --frozen-lockfile` if `node_modules/vite` is missing — useful, but you can also pre-run it manually.
 
 Full distributable package (frontend build + Caddy download + zip):

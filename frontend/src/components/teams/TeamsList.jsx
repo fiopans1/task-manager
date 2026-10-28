@@ -169,6 +169,7 @@ const TeamsList = ({ refreshKey, searchTerm, refreshTeams }) => {
                 show={editingTeam !== null}
                 handleClose={() => setEditingTeam(null)}
                 refreshTeams={refreshTeams}
+                onSave={(formData) => teamService.updateTeam(editingTeam.id, formData)}
                 editOrNew={editingTeam !== null}
                 initialData={editingTeam || {}}
             />

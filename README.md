@@ -276,6 +276,19 @@ Standalone references:
 
 ---
 
+## Testing
+
+- **End-to-end (Playwright Java):** start the backend and frontend, then:
+  ```bash
+  cd tests
+  mvn test
+  ```
+  See [tests/README.md](tests/README.md) for credentials, browser installation,
+  tags and trace collection. The E2E workflow runs on pull requests targeting
+  `main`.
+
+---
+
 ## Contributing
 
 1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
