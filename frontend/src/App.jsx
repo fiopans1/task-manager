@@ -17,6 +17,7 @@ import Home from "./components/Home";
 import OAuth2Login from "./components/auth/OAuth2Login";
 import AdminPanel from "./components/adminpanel/AdminPanel";
 import FeatureGuard from "./components/common/FeatureGuard";
+import RoleGuard from "./components/common/RoleGuard";
 import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
 import Teams from "./components/teams/Teams";
@@ -147,7 +148,11 @@ function App() {
                     <Route index element={<Teams />} />
                     <Route path=":id" element={<TeamDashboard />} />
                 </Route>
-                <Route path="/home/admin" element={<AdminPanel />} />
+                <Route path="/home/admin" element={
+                    <RoleGuard requiredRole="ADMIN">
+                        <AdminPanel />
+                    </RoleGuard>
+                } />
             </Route>
         </Routes>
     );
