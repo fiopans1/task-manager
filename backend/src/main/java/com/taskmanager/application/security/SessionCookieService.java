@@ -28,19 +28,23 @@ public class SessionCookieService {
     }
 
     public void addAuthenticationCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
-                securityProperties.getCookies().getAccessName(),
-                accessToken,
-                securityProperties.getCookies().getAccessPath(),
-                securityProperties.getAccessToken().getTtl().toSeconds(),
-                true
-        ).toString());
+        addAccessCookie(response, accessToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
                 securityProperties.getCookies().getRefreshName(),
                 refreshToken,
                 securityProperties.getCookies().getRefreshPath(),
                 securityProperties.getRefreshToken().getTtl().toSeconds(),
+                true
+        ).toString());
+    }
+
+    public void addAccessCookie(HttpServletResponse response, String accessToken) {
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
+                securityProperties.getCookies().getAccessName(),
+                accessToken,
+                securityProperties.getCookies().getAccessPath(),
+                securityProperties.getAccessToken().getTtl().toSeconds(),
                 true
         ).toString());
     }

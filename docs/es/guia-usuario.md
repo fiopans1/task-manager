@@ -25,7 +25,15 @@ Tu sesión caduca automáticamente cuando pasan unos minutos sin actividad (por 
 
 ### Cambiar entre tema claro y oscuro
 
-En el mismo menú del avatar, arriba del todo, hay un interruptor **Dark Mode**. La elección se queda guardada en tu navegador.
+En el mismo menú del avatar hay un interruptor **Dark Mode**. La elección se queda guardada en tu navegador.
+
+### Perfil y seguridad
+
+El menú del avatar incluye **Settings**, que abre una página con una pestaña **Profile** donde puedes actualizar tu nombre, apellidos, nombre de usuario y correo electrónico.
+
+- Si te registraste con contraseña local, la pestaña Profile también tiene un botón **Change password**. Abre un diálogo donde introduces tu contraseña actual y la nueva dos veces.
+- El diálogo avisa de que cambiar la contraseña cierra **todas las sesiones activas**, incluida la actual. Cuando el cambio termina, vuelves a la pantalla de inicio de sesión y tienes que entrar de nuevo con la contraseña nueva.
+- Las cuentas que entran con Google, GitHub u otro proveedor OAuth2 no pueden cambiar el correo desde esta página, y su contraseña la gestiona el proveedor.
 
 ## El panel principal
 

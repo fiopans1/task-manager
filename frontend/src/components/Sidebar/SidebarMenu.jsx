@@ -15,6 +15,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import About from "./About";
 import { useTheme } from "../../context/ThemeContext";
 import adminService from "../../services/adminService";
@@ -70,6 +71,8 @@ function SidebarMenu({ onLogOut }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useTheme();
+  const sessionUser = useSelector((state) => state.auth.user);
+  const displayName = sessionUser?.displayName || sessionUser?.username;
 
   useEffect(() => {
     const handleResize = () => {
@@ -111,7 +114,8 @@ function SidebarMenu({ onLogOut }) {
 
   const filteredNavItems = NAVIGATION_ITEMS.filter((item) => {
     if (item.adminOnly) return isAdmin;
-    if (item.featureKey && featureFlags[item.featureKey] === false) return false;
+    if (item.featureKey && featureFlags[item.featureKey] === false)
+      return false;
     return true;
   });
 
@@ -125,12 +129,20 @@ function SidebarMenu({ onLogOut }) {
   };
 
   const isItemActive = (itemPath) =>
-    location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
+    location.pathname === itemPath ||
+    location.pathname.startsWith(`${itemPath}/`);
 
   const handleHomeClick = () => {
     if (isMobile) {
       setShowMobileMenu(false);
     }
+  };
+
+  const handleSettingsClick = () => {
+    if (isMobile) {
+      setShowMobileMenu(false);
+    }
+    navigate("/home/settings");
   };
 
   const handleLogoError = (event) => {
@@ -178,32 +190,34 @@ function SidebarMenu({ onLogOut }) {
     const userInfoStackClassName = effectiveCollapsed ? "" : "text-start";
 
     return (
-        <div className="sidebar-content d-flex flex-column justify-content-between h-100">
-          <div className="p-3 d-flex flex-column gap-3">
-            <div
-              className={`d-flex align-items-center ${
-                effectiveCollapsed ? "justify-content-center" : ""
-              }`}
+      <div className="sidebar-content d-flex flex-column justify-content-between h-100">
+        <div className="p-3 d-flex flex-column gap-3">
+          <div
+            className={`d-flex align-items-center ${
+              effectiveCollapsed ? "justify-content-center" : ""
+            }`}
+          >
+            <Button
+              as={Link}
+              to="/home"
+              variant="link"
+              onClick={handleHomeClick}
+              className={brandButtonClassName}
             >
-              <Button
-                as={Link}
-                to="/home"
-                variant="link"
-                onClick={handleHomeClick}
-                className={brandButtonClassName}
-              >
-                <Image
-                  src={appLogo}
-                  alt={configService.getAppName()}
-                  className="flex-shrink-0"
-                  width={sidebarLogoSize}
-                  height={sidebarLogoSize}
-                  style={{ objectFit: "contain" }}
-                  onError={handleLogoError}
-                />
-                {!effectiveCollapsed && (
-                  <span className="fw-semibold lh-sm">{configService.getAppName()}</span>
-                )}
+              <Image
+                src={appLogo}
+                alt={configService.getAppName()}
+                className="flex-shrink-0"
+                width={sidebarLogoSize}
+                height={sidebarLogoSize}
+                style={{ objectFit: "contain" }}
+                onError={handleLogoError}
+              />
+              {!effectiveCollapsed && (
+                <span className="fw-semibold lh-sm">
+                  {configService.getAppName()}
+                </span>
+              )}
             </Button>
           </div>
 
@@ -239,10 +253,7 @@ function SidebarMenu({ onLogOut }) {
                 drop={effectiveCollapsed ? "end" : "down"}
                 container="body"
               >
-                <Dropdown.Toggle
-                  variant="link"
-                  className={helpToggleClassName}
-                >
+                <Dropdown.Toggle variant="link" className={helpToggleClassName}>
                   <i className="bi bi-question-circle fs-5"></i>
                   {!effectiveCollapsed && (
                     <>
@@ -276,7 +287,9 @@ function SidebarMenu({ onLogOut }) {
               variant="light"
               id="user-menu"
               className={`sidebar-user-toggle no-caret w-100 rounded-4 d-flex align-items-center ${
-                effectiveCollapsed ? "justify-content-center px-0" : "justify-content-between"
+                effectiveCollapsed
+                  ? "justify-content-center px-0"
+                  : "justify-content-between"
               }`}
             >
               <Stack
@@ -292,14 +305,19 @@ function SidebarMenu({ onLogOut }) {
                 </span>
                 {!effectiveCollapsed && (
                   <Stack gap={0}>
-                    <span className="fw-medium text-truncate" style={{ maxWidth: 130 }}>
-                      {authService.getDisplayName() || authService.getUsername()}
+                    <span
+                      className="fw-medium text-truncate"
+                      style={{ maxWidth: 130 }}
+                    >
+                      {displayName}
                     </span>
                     <small className="text-body-secondary">Account</small>
                   </Stack>
                 )}
               </Stack>
-              {!effectiveCollapsed && <i className="bi bi-chevron-up small"></i>}
+              {!effectiveCollapsed && (
+                <i className="bi bi-chevron-up small"></i>
+              )}
             </Dropdown.Toggle>
             <Dropdown.Menu
               popperConfig={collapsedDropdownPopperConfig}
@@ -311,7 +329,9 @@ function SidebarMenu({ onLogOut }) {
                   id="dark-mode-switch"
                   label={
                     <span>
-                      <i className={`bi ${darkMode ? "bi-moon-fill" : "bi-sun-fill"} me-2`}></i>
+                      <i
+                        className={`bi ${darkMode ? "bi-moon-fill" : "bi-sun-fill"} me-2`}
+                      ></i>
                       Dark Mode
                     </span>
                   }
@@ -319,6 +339,15 @@ function SidebarMenu({ onLogOut }) {
                   onChange={toggleDarkMode}
                 />
               </Dropdown.ItemText>
+              <Dropdown.Divider />
+              <Dropdown.Item
+                id="user-settings"
+                onClick={handleSettingsClick}
+                className="py-2"
+              >
+                <i className="bi bi-gear me-2"></i>
+                Settings
+              </Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item onClick={onLogOut} className="text-danger py-2">
                 <i className="bi bi-box-arrow-right me-2"></i>
@@ -346,7 +375,11 @@ function SidebarMenu({ onLogOut }) {
               <i className="bi bi-list fs-4"></i>
             </Button>
             <Navbar.Brand className="mx-0 text-body-emphasis fw-semibold">
-              <Stack direction="horizontal" gap={2} className="align-items-center">
+              <Stack
+                direction="horizontal"
+                gap={2}
+                className="align-items-center"
+              >
                 <Image
                   src={appLogo}
                   alt={configService.getAppName()}
@@ -358,7 +391,11 @@ function SidebarMenu({ onLogOut }) {
                 <span>{configService.getAppName()}</span>
               </Stack>
             </Navbar.Brand>
-            <span aria-hidden="true" className="d-block" style={{ width: 44 }}></span>
+            <span
+              aria-hidden="true"
+              className="d-block"
+              style={{ width: 44 }}
+            ></span>
           </Container>
         </Navbar>
         <Offcanvas
@@ -396,7 +433,9 @@ function SidebarMenu({ onLogOut }) {
           aria-expanded={!collapsed}
           aria-controls="desktop-sidebar"
         >
-          <i className={`bi ${collapsed ? "bi-chevron-right" : "bi-chevron-left"}`}></i>
+          <i
+            className={`bi ${collapsed ? "bi-chevron-right" : "bi-chevron-left"}`}
+          ></i>
         </Button>
         {renderSidebarContent()}
       </Col>

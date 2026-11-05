@@ -122,7 +122,7 @@ Dentro de `com.taskmanager.application.*` la separación es:
 | `/api/teams/...` | `TeamRestController` | Equipos, miembros, invitaciones, asignaciones, dashboard. |
 | `/api/admin/...` | `AdminRestController` | Usuarios, flags, mensajes. Solo ADMIN. |
 | `/api/home-summary` | `HomeRestController` | Datos agregados para el dashboard principal. |
-| `/api/user/...` | `UserRestController` | (Reservado para el perfil del usuario.) |
+| `/api/user/profile`, `/api/user/change-password` | `UserRestController` | Perfil del usuario actual, cambio de nombre de usuario/correo y cambio de contraseña. Al cambiar la contraseña se revocan todas las sesiones. |
 | `/api/config` | `AppConfigRestController` | Configuración pública consumida por el frontend. |
 | `/oauth2/authorization/{provider}`, `/oauth2/callback/{provider}` | `WebSecurityConfig` | Inicio y cierre del login social. |
 | `/health` | `HealthCheckRestController` | Liveness probe. |
@@ -138,18 +138,18 @@ Dentro de `com.taskmanager.application.*` la separación es:
 
 ### Capas y paquetes
 
-- `services/` — el único punto por el que la app habla con el backend. Cada dominio (tareas, listas, equipos, admin, auth, home) tiene su servicio.
+- `services/` — el único punto por el que la app habla con el backend. Cada dominio (tareas, listas, equipos, admin, auth, perfil, home) tiene su servicio.
 - `redux/` — solo `authSlice` por ahora. El store no usa `redux-persist` pese a estar como dependencia.
 - `hooks/` — `useInfiniteScroll` (cliente y servidor) compartido por listas largas, y `useTaskTimer` para el cronómetro vivo de las tareas.
-- `components/` — organizado por dominio funcional (`tasks/`, `lists/`, `teams/`, `adminpanel/`, etc.) y con `common/` para lo transversal.
+- `components/` — organizado por dominio funcional (`tasks/`, `lists/`, `teams/`, `adminpanel/`, `settings/`, etc.) y con `common/` para lo transversal.
 - `pages/` — `HomePage` (público) y `MainApp` (layout autenticado con `<Outlet />`).
 - `context/` — `ThemeContext` para modo claro/oscuro.
 
 ### Routing
 
 - Las rutas públicas son `/`, `/login`, `/register` y `/oauth2-login`.
-- Las autenticadas viven bajo `/home` con un layout común (`MainApp`) que monta `SidebarMenu`, el modal de sesión y el modal de mensaje del sistema. Hijos: `/home`, `/home/tasks`, `/home/tasks/:id`, `/home/calendar`, `/home/lists`, `/home/lists/:id`, `/home/teams`, `/home/teams/:id`, `/home/admin`.
-- `<ProtectedRoute>` redirige a `/login` si no hay sesión.
+- Las autenticadas viven bajo `/home` con un layout común (`MainApp`) que monta `SidebarMenu`, el modal de sesión y el modal de mensaje del sistema. Hijos: `/home`, `/home/tasks`, `/home/tasks/:id`, `/home/calendar`, `/home/lists`, `/home/lists/:id`, `/home/teams`, `/home/teams/:id`, `/home/admin`, `/home/settings`.
+- `<ProtectedRoute>` redirige a `/` si no hay sesión.
 - `<FeatureGuard>` oculta rutas cuya feature flag esté desactivada.
 
 ### SEO

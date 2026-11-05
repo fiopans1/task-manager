@@ -321,7 +321,10 @@ Gestión de equipos (`/api/teams`):
 - `GET /api/teams/{id}/history/paged` — historial de asignaciones.
 
 #### `UserRestController.java`
-Operaciones del perfil de usuario (`/api/user/`). Endpoint para obtener datos del usuario autenticado.
+Operaciones del perfil de usuario (`/api/user/`):
+- `GET /api/user/profile` — perfil del usuario autenticado, incluyendo si puede cambiar correo y contraseña.
+- `PUT /api/user/profile` — actualiza nombres, nombre de usuario y correo. El correo es de solo lectura en cuentas vinculadas a OAuth2; cambiar el nombre de usuario reemite el access token.
+- `POST /api/user/change-password` — exige la contraseña actual, valida la nueva y revoca todas las sesiones del usuario, incluida la actual.
 
 ### 3.5 Modelo — Entidades JPA (`model/entities/`)
 
@@ -361,7 +364,7 @@ Entidad de pertenencia a equipo. Restricción única en (team, user). Campos:
 #### `TeamInvitation.java`
 Invitación a equipo. Campos:
 - `id` (Long, PK), `team` (ManyToOne → Team).
-- `invitedEmail` (String), `invitedUsername` (String).
+- `invitedUser` (ManyToOne → User, obligatorio), `invitedBy` (ManyToOne → User, obligatorio).
 - `status` (enum InvitationStatus: PENDING, ACCEPTED, REJECTED).
 - `token` (String, único), `createdDate`, `respondedDate` (LocalDateTime).
 
@@ -467,7 +470,7 @@ Todos extienden `JpaRepository<Entidad, Long>`, proporcionando CRUD automático 
 | `ListRepository` | `findAllByUser()`, `countByUser()`, paginación. |
 | `TeamRepository` | `findAllByMemberUser()` — query JPQL para equipos del usuario vía TeamMember. |
 | `TeamMemberRepository` | `findByTeamAndUser()`, `findAllByTeam()`, `findAllByUser()`. |
-| `TeamInvitationRepository` | `findAllByTeam()`, búsqueda por email/username con estado. |
+| `TeamInvitationRepository` | `findAllByTeam()`, invitaciones pendientes por usuario invitado. |
 | `TaskAssignmentHistoryRepository` | `findAllByTeamOrderByChangedDateDesc()` con paginación. |
 | `ActionTaskRepository` | `findAllByTask()`, paginación por tarea. |
 | `EventTaskRepository` | `findAllEventsByUserId()` — query personalizada con `@Query`. |

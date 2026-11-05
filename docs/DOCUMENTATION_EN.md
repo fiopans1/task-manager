@@ -1057,8 +1057,7 @@ Unique constraint: `(team_id, user_id)` — a user can only be a member of a tea
 |---|---|---|---|
 | `id` | `Long` | Auto-generated unique identifier | `DELETE /api/teams/{teamId}/invitations/{invitationId}` |
 | `team` | `Team` (ManyToOne, required) | Inviting team | `POST /api/teams/{teamId}/invitations` |
-| `invitedEmail` | `String` (optional) | Invited user's email | `POST /api/teams/{teamId}/invitations` |
-| `invitedUsername` | `String` (optional) | Invited user's username | `POST /api/teams/{teamId}/invitations` |
+| `invitedUser` | `User` (ManyToOne, required) | Invited user; the username is resolved from this relation | `POST /api/teams/{teamId}/invitations` |
 | `invitedBy` | `User` (ManyToOne, required) | User who sent the invitation | Automatically assigned |
 | `status` | `InvitationStatus` (enum, required) | Status: `PENDING`, `ACCEPTED`, `REJECTED` | `POST /api/teams/invitations/{token}/respond` |
 | `token` | `String` (unique, required) | Unique invitation token | `POST /api/teams/invitations/{token}/respond` |
@@ -1114,7 +1113,7 @@ Unique constraint: `(team_id, user_id)` — a user can only be a member of a tea
 | `ListTMDTO` | id, nameOfList, descriptionOfList, color, user, tasks, totalElements, completedElements | Full list data with task summary |
 | `TeamDTO` | id, name, description, creationDate, members, memberCount | Full team data |
 | `TeamMemberDTO` | id, userId, username, email, role, joinedDate, pendingTasks | Team member details with workload |
-| `TeamInvitationDTO` | id, teamId, teamName, invitedEmail, invitedUsername, invitedByUsername, status, token, createdDate | Invitation details |
+| `TeamInvitationDTO` | id, teamId, teamName, invitedUsername, invitedByUsername, status, token, createdDate | Invitation details; `invitedUsername` is resolved from the invited user relation |
 | `TaskSummaryDTO` | id, nameOfTask, state, priority, listName, teamName | Lightweight task summary for admin listings |
 | `TaskResumeDTO` | id, nameOfTask | Minimal task data for selection dropdowns |
 | `HomeSummaryDTO` | recentTasks, nextEvents, totalTasks, totalLists | Dashboard aggregate data |
@@ -1559,7 +1558,7 @@ task-manager/
                                   │───────────────────│
       ┌───────────────┐           │ token             │
       │  action_task  │           │ status            │
-      │───────────────│           │ invitedUsername    │
+      │───────────────│           │ invitedUser (FK)  │
       │ actionName    │           └───────────────────┘
       │ actionType    │
       │ user          │           ┌───────────────────────────┐

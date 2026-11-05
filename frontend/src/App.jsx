@@ -16,6 +16,7 @@ import OutletUtil from "./components/common/OutletUtil";
 import Home from "./components/Home";
 import OAuth2Login from "./components/auth/OAuth2Login";
 import AdminPanel from "./components/adminpanel/AdminPanel";
+import SettingsPanel from "./components/settings/SettingsPanel";
 import FeatureGuard from "./components/common/FeatureGuard";
 import { infoToast, errorToast, successToast } from "./components/common/Noty";
 import ListDetailsGeneral from "./components/lists/ListDetails/ListDetailsGeneral";
@@ -148,6 +149,7 @@ function App() {
                     <Route path=":id" element={<TeamDashboard />} />
                 </Route>
                 <Route path="/home/admin" element={<AdminPanel />} />
+                <Route path="/home/settings" element={<SettingsPanel />} />
             </Route>
         </Routes>
     );

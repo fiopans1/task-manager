@@ -101,13 +101,15 @@ The suite is sequential because it shares one backend and one database.
 - Login, invalid credentials, logout, protected routes and session reload.
 - Registration validation, duplicate users and successful registration/login.
 - Sidebar navigation, collapse/expand, mobile offcanvas, About and admin visibility.
+- Settings profile updates (name, username and email) and password change: modal warning, wrong current password, old password rejection and revocation of every session.
 - Dashboard stats, recent tasks, upcoming events and quick links.
 - Tasks CRUD, search, validation, events, details, long descriptions,
   comments/actions, timer and deletion.
 - Calendar event rendering and month/week/day/schedule views.
 - Lists CRUD, search, add/remove tasks and delete-without-deleting-tasks.
 - Teams CRUD, invitations accept/reject/cancel, roles, reassignment, history,
-  task filters, member removal, leave and delete.
+  task filters, member removal, leave and delete. Pending invitations remain
+  linked to the user after a username/email change.
 - Admin user search/detail/block/unblock, editing/deleting another user's task,
   feature flags and system messages.
 - Idle-session warning, extend session and automatic logout.

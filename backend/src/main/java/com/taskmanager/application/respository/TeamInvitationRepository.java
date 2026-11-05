@@ -3,6 +3,7 @@ package com.taskmanager.application.respository;
 import com.taskmanager.application.model.entities.InvitationStatus;
 import com.taskmanager.application.model.entities.Team;
 import com.taskmanager.application.model.entities.TeamInvitation;
+import com.taskmanager.application.model.entities.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +16,7 @@ public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, 
 
     List<TeamInvitation> findAllByTeam(Team team);
 
-    List<TeamInvitation> findAllByInvitedEmailAndStatus(String email, InvitationStatus status);
-
-    List<TeamInvitation> findAllByInvitedUsernameAndStatus(String username, InvitationStatus status);
+    List<TeamInvitation> findAllByInvitedUserAndStatus(User user, InvitationStatus status);
 
     List<TeamInvitation> findAllByTeamAndStatus(Team team, InvitationStatus status);
 

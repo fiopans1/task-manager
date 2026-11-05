@@ -39,6 +39,12 @@ public class AppShellPage extends BasePage {
         navigateTo("/home/admin", "Administration Panel");
     }
 
+    public void openSettings() {
+        openUserMenu();
+        page.locator("#user-settings").click();
+        page.waitForURL("**/home/settings");
+    }
+
     private void navigateTo(String path, String heading) {
         page.locator("a[href='" + path + "']").click();
         page.waitForURL("**" + path);

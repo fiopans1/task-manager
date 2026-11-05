@@ -70,6 +70,14 @@ const initializeSession = async () => {
     return session;
 };
 
+const updateSession = (session) => {
+    store.dispatch(setSession(session));
+};
+
+const clearLocalSession = () => {
+    store.dispatch(clearSession());
+};
+
 const loginWithOAuth2 = async (provider) => {
     await ensureCsrfToken();
     const baseUrl = configService.getApiBaseUrl();
@@ -145,6 +153,9 @@ const authService = {
     refreshSession,
     initializeSession,
     ensureCsrfToken,
+
+    updateSession,
+    clearLocalSession,
 
     loginWithOAuth2,
     handleOAuth2Redirect,

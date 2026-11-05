@@ -4,6 +4,8 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.taskmanager.e2e.config.E2EConfig;
 import com.taskmanager.e2e.core.BaseTest;
+import com.taskmanager.e2e.pages.RegisterPage;
+import com.taskmanager.e2e.pages.SettingsPage;
 import com.taskmanager.e2e.pages.TeamDashboardPage;
 import com.taskmanager.e2e.pages.TeamsPage;
 import com.taskmanager.e2e.pages.TasksPage;
@@ -17,6 +19,8 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 
 @Tag("smoke")
 class TeamsTest extends BaseTest {
+
+    private static final String PASSWORD = "E2ePass1!";
 
     @Test
     void createSearchEditAndDeleteTeam() {
@@ -106,6 +110,44 @@ class TeamsTest extends BaseTest {
         basicTeams.openTeam(teamName);
         new TeamDashboardPage(basic).expectOpen(teamName).leaveTeam();
         assertThat(basic).hasURL(java.util.regex.Pattern.compile(".*/home/teams"));
+
+        dashboard.deleteTeam();
+    }
+
+    @Test
+    void pendingInvitationFollowsUsernameChange() {
+        String username = Unique.username("invite_rename");
+        String newUsername = Unique.username("invite_renamed");
+        String email = Unique.email(username);
+        String newEmail = Unique.email(newUsername);
+        String teamName = Unique.value("team invite rename");
+
+        new RegisterPage(page).open()
+                .register("E2E", "Invite", "Rename", username, email, PASSWORD);
+
+        loginAsAdmin();
+        TeamsPage teams = new TeamsPage(page).open();
+        teams.createTeam(TeamData.simple(teamName));
+        teams.openTeam(teamName);
+        new TeamDashboardPage(page).expectOpen(teamName).invite(username);
+
+        Page invitee = newPage();
+        login(invitee, username, PASSWORD);
+
+        SettingsPage settings = new SettingsPage(invitee).openFromUserMenu();
+        settings.fillProfile("E2E", "Invite", "Renamed", newUsername, newEmail);
+        settings.saveProfile();
+        settings.expectProfileSaved();
+        settings.expectSidebarDisplayName("E2E Invite Renamed");
+
+        TeamsPage inviteeTeams = new TeamsPage(invitee).open();
+        inviteeTeams.expectPendingInvitation(teamName);
+        inviteeTeams.acceptInvitation(teamName);
+
+        page.reload();
+        TeamDashboardPage dashboard = new TeamDashboardPage(page).expectOpen(teamName);
+        dashboard.expectMember(newUsername);
+        dashboard.expectNoMember(username);
 
         dashboard.deleteTeam();
     }

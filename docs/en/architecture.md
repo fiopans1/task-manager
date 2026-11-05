@@ -122,7 +122,7 @@ Inside `com.taskmanager.application.*` the split is:
 | `/api/teams/...` | `TeamRestController` | Teams, members, invitations, assignments, dashboard. |
 | `/api/admin/...` | `AdminRestController` | Users, flags, messages. ADMIN only. |
 | `/api/home-summary` | `HomeRestController` | Aggregated data for the main dashboard. |
-| `/api/user/...` | `UserRestController` | (Reserved for the user profile.) |
+| `/api/user/profile`, `/api/user/change-password` | `UserRestController` | Current user's profile, username/email updates and password change. Changing the password revokes every session. |
 | `/api/config` | `AppConfigRestController` | Public configuration consumed by the frontend. |
 | `/oauth2/authorization/{provider}`, `/oauth2/callback/{provider}` | `WebSecurityConfig` | Social login start and finish. |
 | `/health` | `HealthCheckRestController` | Liveness probe. |
@@ -138,18 +138,18 @@ Inside `com.taskmanager.application.*` the split is:
 
 ### Layers and packages
 
-- `services/` — the only place the app talks to the backend. Each domain (tasks, lists, teams, admin, auth, home) has its own service.
+- `services/` — the only place the app talks to the backend. Each domain (tasks, lists, teams, admin, auth, profile, home) has its own service.
 - `redux/` — only `authSlice` for now. The store does not use `redux-persist` even though it is a dependency.
 - `hooks/` — `useInfiniteScroll` (client and server side) shared by long lists, and `useTaskTimer` for the live task timer.
-- `components/` — organised by functional domain (`tasks/`, `lists/`, `teams/`, `adminpanel/`, etc.) with `common/` for cross-cutting concerns.
+- `components/` — organised by functional domain (`tasks/`, `lists/`, `teams/`, `adminpanel/`, `settings/`, etc.) with `common/` for cross-cutting concerns.
 - `pages/` — `HomePage` (public) and `MainApp` (authenticated layout with `<Outlet />`).
 - `context/` — `ThemeContext` for light/dark mode.
 
 ### Routing
 
 - Public routes: `/`, `/login`, `/register` and `/oauth2-login`.
-- Authenticated routes live under `/home` with a common layout (`MainApp`) that mounts `SidebarMenu`, the session modal and the system message modal. Children: `/home`, `/home/tasks`, `/home/tasks/:id`, `/home/calendar`, `/home/lists`, `/home/lists/:id`, `/home/teams`, `/home/teams/:id`, `/home/admin`.
-- `<ProtectedRoute>` redirects to `/login` if there is no session.
+- Authenticated routes live under `/home` with a common layout (`MainApp`) that mounts `SidebarMenu`, the session modal and the system message modal. Children: `/home`, `/home/tasks`, `/home/tasks/:id`, `/home/calendar`, `/home/lists`, `/home/lists/:id`, `/home/teams`, `/home/teams/:id`, `/home/admin`, `/home/settings`.
+- `<ProtectedRoute>` redirects to `/` if there is no session.
 - `<FeatureGuard>` hides routes whose feature flag is disabled.
 
 ### SEO

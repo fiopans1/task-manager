@@ -84,6 +84,10 @@ public class TeamsPage extends BasePage {
         expectNoTeam(name);
     }
 
+    public void expectPendingInvitation(String teamName) {
+        assertThat(invitationRow(teamName).first()).isVisible();
+    }
+
     public void acceptInvitation(String teamName) {
         invitationRow(teamName).first().getByRole(AriaRole.BUTTON,
                 new Locator.GetByRoleOptions().setName("Accept")).click();

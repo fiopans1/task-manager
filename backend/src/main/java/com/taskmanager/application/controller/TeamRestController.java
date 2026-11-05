@@ -247,7 +247,7 @@ public class TeamRestController {
     @PostMapping("/invitations/{token}/respond")
     public ResponseEntity<TeamDTO> respondToInvitation(@PathVariable String token,
             @RequestBody Map<String, Boolean> body)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, NotPermissionException {
         boolean accept = body.getOrDefault("accept", false);
         logger.info("Responding to invitation {} - accept: {}", token, accept);
         TeamDTO team = teamService.respondToInvitation(token, accept);

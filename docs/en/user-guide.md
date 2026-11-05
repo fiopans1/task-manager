@@ -25,7 +25,15 @@ Your session expires after a few minutes of inactivity (10 by default). When tha
 
 ### Switching between light and dark mode
 
-In the same avatar menu, at the very top, there is a **Dark Mode** switch. The choice is remembered in your browser.
+In the same avatar menu there is a **Dark Mode** switch. The choice is remembered in your browser.
+
+### Profile and security settings
+
+The avatar menu includes **Settings**, which opens a page with a **Profile** tab where you can update your first name, surnames, username and email.
+
+- If you signed up with a local password, the Profile tab also has a **Change password** button. It opens a dialog where you enter your current password and the new one twice.
+- The dialog warns that changing your password closes **all active sessions**, including the current one. When the change succeeds you are taken back to the sign-in page and must log in again with the new password.
+- Accounts that sign in through Google, GitHub or another OAuth2 provider cannot change their email from this page, and their password is managed by the provider.
 
 ## The dashboard
 

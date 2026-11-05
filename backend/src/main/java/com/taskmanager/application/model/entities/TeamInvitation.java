@@ -23,11 +23,9 @@ public class TeamInvitation {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    @Column(nullable = true)
-    private String invitedEmail;
-
-    @Column(nullable = true)
-    private String invitedUsername;
+    @ManyToOne
+    @JoinColumn(name = "invited_user_id", nullable = false)
+    private User invitedUser;
 
     @ManyToOne
     @JoinColumn(name = "invited_by_id", nullable = false)
@@ -63,20 +61,12 @@ public class TeamInvitation {
         this.team = team;
     }
 
-    public String getInvitedEmail() {
-        return invitedEmail;
+    public User getInvitedUser() {
+        return invitedUser;
     }
 
-    public void setInvitedEmail(String invitedEmail) {
-        this.invitedEmail = invitedEmail;
-    }
-
-    public String getInvitedUsername() {
-        return invitedUsername;
-    }
-
-    public void setInvitedUsername(String invitedUsername) {
-        this.invitedUsername = invitedUsername;
+    public void setInvitedUser(User invitedUser) {
+        this.invitedUser = invitedUser;
     }
 
     public User getInvitedBy() {

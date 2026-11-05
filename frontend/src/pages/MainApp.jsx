@@ -14,6 +14,7 @@ const PATH_META = [
   { match: /^\/home\/teams\/[^/]+/, title: "Team dashboard", description: "Collaborate with your team in Task Manager." },
   { match: /^\/home\/teams/, title: "Teams", description: "Browse and manage your teams in Task Manager." },
   { match: /^\/home\/admin/, title: "Admin panel", description: "Administrative tools for Task Manager." },
+  { match: /^\/home\/settings/, title: "Settings", description: "Manage your profile and account security in Task Manager." },
   { match: /^\/home$/, title: "Dashboard", description: "Task Manager dashboard — your tasks, lists, calendar and time tracking." },
 ];
 

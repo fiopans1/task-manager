@@ -917,8 +917,7 @@ Los usuarios bloqueados por un administrador son rechazados a nivel del filtro J
 |---|---|---|---|
 | `id` | `Long` | Identificador único autogenerado | `DELETE /api/teams/{teamId}/invitations/{invitationId}` |
 | `team` | `Team` (ManyToOne) | Equipo que invita | `POST /api/teams/{teamId}/invitations` |
-| `invitedEmail` | `String` (opcional) | Email del invitado | `POST /api/teams/{teamId}/invitations` |
-| `invitedUsername` | `String` (opcional) | Username del invitado | `POST /api/teams/{teamId}/invitations` |
+| `invitedUser` | `User` (ManyToOne, obligatorio) | Usuario invitado; el username se resuelve desde esta relación | `POST /api/teams/{teamId}/invitations` |
 | `invitedBy` | `User` (ManyToOne) | Usuario que envía la invitación | Asignado automáticamente |
 | `status` | `InvitationStatus` (enum) | Estado: `PENDING`, `ACCEPTED`, `REJECTED` | `POST /api/teams/invitations/{token}/respond` |
 | `token` | `String` (único) | Token de invitación | `POST /api/teams/invitations/{token}/respond` |

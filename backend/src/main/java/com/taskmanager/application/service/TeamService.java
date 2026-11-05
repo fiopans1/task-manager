@@ -36,12 +36,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -574,8 +571,7 @@ public class TeamService {
 
         TeamInvitation invitation = new TeamInvitation();
         invitation.setTeam(team);
-        invitation.setInvitedUsername(username);
-        invitation.setInvitedEmail(targetUser.getEmail());
+        invitation.setInvitedUser(targetUser);
         invitation.setInvitedBy(currentUser);
         invitation.setStatus(InvitationStatus.PENDING);
         invitation.setToken(UUID.randomUUID().toString());
@@ -619,30 +615,17 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<TeamInvitationDTO> getMyPendingInvitations() {
         User currentUser = authService.getCurrentUser();
-        // Find invitations by username or email
-        List<TeamInvitation> byUsername = invitationRepository
-                .findAllByInvitedUsernameAndStatus(currentUser.getUsername(), InvitationStatus.PENDING);
-        List<TeamInvitation> byEmail = invitationRepository
-                .findAllByInvitedEmailAndStatus(currentUser.getEmail(), InvitationStatus.PENDING);
 
-        // Merge and deduplicate
-        Set<Long> seen = new HashSet<>();
-        List<TeamInvitation> all = new ArrayList<>();
-        for (TeamInvitation inv : byUsername) {
-            if (seen.add(inv.getId())) all.add(inv);
-        }
-        for (TeamInvitation inv : byEmail) {
-            if (seen.add(inv.getId())) all.add(inv);
-        }
-
-        return all.stream()
+        return invitationRepository
+                .findAllByInvitedUserAndStatus(currentUser, InvitationStatus.PENDING)
+                .stream()
                 .map(TeamInvitationDTO::fromEntity)
                 .toList();
     }
 
     @Transactional
     public TeamDTO respondToInvitation(String token, boolean accept)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, NotPermissionException {
         TeamInvitation invitation = invitationRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
 
@@ -651,6 +634,10 @@ public class TeamService {
         }
 
         User currentUser = authService.getCurrentUser();
+        if (!invitation.getInvitedUser().getId().equals(currentUser.getId())) {
+            throw new NotPermissionException("This invitation belongs to another user");
+        }
+
         invitation.setRespondedDate(new Date());
 
         if (accept) {

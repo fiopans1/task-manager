@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -72,7 +73,9 @@ class TasksTest extends BaseTest {
     void createEventAndSeeItInCalendar() {
         loginAsAdmin();
         String name = Unique.value("calendar event");
-        LocalDate date = LocalDate.now().plusDays(1);
+        // The browser context runs in UTC and the calendar opens on the current
+        // month/week, so keep the event on "today" to avoid month-boundary flakes.
+        LocalDate date = LocalDate.now(ZoneOffset.UTC);
         TasksPage tasks = new TasksPage(page).open();
         tasks.createEvent(TaskData.event(name, "Event description"), date, "10:00", date, "11:00");
 

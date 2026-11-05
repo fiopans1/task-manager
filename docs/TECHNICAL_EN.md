@@ -321,7 +321,10 @@ Team management (`/api/teams`):
 - `GET /api/teams/{id}/history/paged` — assignment history.
 
 #### `UserRestController.java`
-User profile operations (`/api/user/`). Endpoint for retrieving authenticated user's data.
+User profile operations (`/api/user/`):
+- `GET /api/user/profile` — authenticated user's profile, including whether email and password can be changed.
+- `PUT /api/user/profile` — update names, username and email. Email is read-only for OAuth2-linked accounts; a username change reissues the access token.
+- `POST /api/user/change-password` — requires the current password, validates the new one and revokes every session for the user, including the current one.
 
 ### 3.5 Model — JPA Entities (`model/entities/`)
 
@@ -361,7 +364,7 @@ Team membership entity. Unique constraint on (team, user). Fields:
 #### `TeamInvitation.java`
 Team invitation entity. Fields:
 - `id` (Long, PK), `team` (ManyToOne → Team).
-- `invitedEmail` (String), `invitedUsername` (String).
+- `invitedUser` (ManyToOne → User, required), `invitedBy` (ManyToOne → User, required).
 - `status` (enum InvitationStatus: PENDING, ACCEPTED, REJECTED).
 - `token` (String, unique), `createdDate`, `respondedDate` (LocalDateTime).
 
@@ -467,7 +470,7 @@ All extend `JpaRepository<Entity, Long>`, providing automatic CRUD and paginatio
 | `ListRepository` | `findAllByUser()`, `countByUser()`, pagination. |
 | `TeamRepository` | `findAllByMemberUser()` — JPQL query for user's teams via TeamMember. |
 | `TeamMemberRepository` | `findByTeamAndUser()`, `findAllByTeam()`, `findAllByUser()`. |
-| `TeamInvitationRepository` | `findAllByTeam()`, search by email/username with status. |
+| `TeamInvitationRepository` | `findAllByTeam()`, pending invitations by invited user. |
 | `TaskAssignmentHistoryRepository` | `findAllByTeamOrderByChangedDateDesc()` with pagination. |
 | `ActionTaskRepository` | `findAllByTask()`, pagination by task. |
 | `EventTaskRepository` | `findAllEventsByUserId()` — custom `@Query`. |

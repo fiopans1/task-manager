@@ -89,6 +89,7 @@ Docker image: `./docker/build.sh --platform linux/amd64` (see `docker/README.md`
 
 ## When you change behaviour
 
+- **Every feature or behaviour change must update existing E2E tests or create new ones.** This project only has E2E tests (`tests/`); there is no backend or frontend unit-test suite. A change is not complete without its Playwright test coverage.
 - New backend config keys: add to `scripts/config_templates/application-properties.template` and document in `docs/CONFIGURATION.md` so packaged deployments pick them up.
 - New runtime frontend setting: add to `scripts/config_templates/config.template.js`, expose via `configService` in `frontend/src/services/configService.js`, and read `window.APP_CONFIG` — do not hard-code environment-specific values in source.
 - New OAuth2 provider: follow the pattern in `backend/src/main/java/com/taskmanager/application/service/oauth2providers/` and the `github` / `google` blocks in `application.properties`. Wire a flag into `taskmanager.oauth2.<provider>.enabled` and `frontend/public/config.js` `oauth2.<provider>.enabled`.

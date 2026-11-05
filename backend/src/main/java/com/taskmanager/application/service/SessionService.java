@@ -89,6 +89,29 @@ public class SessionService {
         return authSessionRepository.findBySessionIdentifier(sessionIdentifier).orElse(null);
     }
 
+    @Transactional(readOnly = true)
+    public SessionDTO reissueAccessTokenForCurrentSession(User user, HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = sessionCookieService.getAccessToken(request)
+                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Access token not found"));
+
+        String sessionIdentifier = jwtUtilityService.extractSessionIdentifier(accessToken)
+                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Invalid access token"));
+
+        AuthSession session = authSessionRepository.findBySessionIdentifier(sessionIdentifier)
+                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Session is no longer valid"));
+
+        Date now = new Date();
+        if (!session.isActive(now) || !session.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Session is no longer valid");
+        }
+
+        Date accessExpiresAt = new Date(now.getTime() + securityProperties.getAccessToken().getTtl().toMillis());
+        String newAccessToken = jwtUtilityService.generateAccessToken(user, sessionIdentifier, now, accessExpiresAt);
+        sessionCookieService.addAccessCookie(response, newAccessToken);
+
+        return buildSessionDto(user, session, accessExpiresAt);
+    }
+
     @Transactional
     public SessionDTO refreshSession(HttpServletRequest request, HttpServletResponse response) {
         Date now = new Date();

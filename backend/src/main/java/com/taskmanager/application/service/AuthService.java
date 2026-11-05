@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +38,9 @@ public class AuthService {
 
     @Autowired
     private UserValidation userValidation;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public User authenticate(LoginDTO login) throws Exception {
@@ -64,8 +67,7 @@ public class AuthService {
     }
 
     private boolean verifyPassword(String enteredPassword, String storedPassword) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.matches(enteredPassword, storedPassword);
+        return passwordEncoder.matches(enteredPassword, storedPassword);
     }
 
     @Transactional
@@ -94,8 +96,7 @@ public class AuthService {
                 return response;
             }
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-            user.setPassword(encoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             if (roleService.existsBasicRole()) {
                 user.addRole(roleService.getBasicRole());
             }

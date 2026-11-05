@@ -9,6 +9,7 @@ import com.taskmanager.e2e.utils.Unique;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -18,7 +19,9 @@ class CalendarTest extends BaseTest {
     void calendarRendersEventsAndSupportsEveryView() {
         loginAsAdmin();
         String name = Unique.value("calendar views");
-        LocalDate date = LocalDate.now().plusDays(1);
+        // The browser context runs in UTC and the calendar opens on the current
+        // month/week, so keep the event on "today" to avoid month-boundary flakes.
+        LocalDate date = LocalDate.now(ZoneOffset.UTC);
         new TasksPage(page).open().createEvent(TaskData.event(name, "Calendar view event"),
                 date, "10:00", date, "11:00");
 
