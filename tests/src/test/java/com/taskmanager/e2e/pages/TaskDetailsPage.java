@@ -17,12 +17,12 @@ public class TaskDetailsPage extends BasePage {
 
     public TaskDetailsPage open(long taskId) {
         open("/home/tasks/" + taskId);
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Task Overview"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setLevel(1))).isVisible();
         return this;
     }
 
     public TaskDetailsPage expectTitle(String name) {
-        assertThat(page.locator(".card-header h3").first()).hasText(name);
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(name).setLevel(1))).isVisible();
         return this;
     }
 
@@ -86,11 +86,6 @@ public class TaskDetailsPage extends BasePage {
 
     public void expectAction(String title) {
         assertThat(page.getByText(title, new Page.GetByTextOptions().setExact(true))).isVisible();
-    }
-
-    public long actionCount() {
-        return page.locator(".card").filter(new Locator.FilterOptions()
-                .setHasText("Action History")).count();
     }
 
     public boolean hasEventBadge() {

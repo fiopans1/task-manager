@@ -17,7 +17,7 @@ public class TeamDashboardPage extends BasePage {
 
     public TeamDashboardPage expectOpen(String teamName) {
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Team Details"))).isVisible();
-        assertThat(page.locator(".card-header h3").first()).hasText(teamName);
+        assertThat(page.locator("[data-testid='team-title']").first()).hasText(teamName);
         return this;
     }
 
@@ -84,24 +84,24 @@ public class TeamDashboardPage extends BasePage {
     }
 
     public void filterTasks(String member, String state, String priority) {
-        Locator selects = page.locator(".tab-pane.active select");
+        Locator selects = page.locator("[role='tabpanel'][data-state='active'] select");
         selects.nth(0).selectOption(member);
         selects.nth(1).selectOption(state);
         selects.nth(2).selectOption(priority);
     }
 
     public void clearTaskFilters() {
-        page.locator(".tab-pane.active").getByRole(AriaRole.BUTTON,
+        page.locator("[role='tabpanel'][data-state='active']").getByRole(AriaRole.BUTTON,
                 new Locator.GetByRoleOptions().setName("Clear")).click();
     }
 
     public void expectNoTasks() {
-        assertThat(page.locator(".tab-pane.active")
+        assertThat(page.locator("[role='tabpanel'][data-state='active']")
                 .getByText(java.util.regex.Pattern.compile("No tasks found"))).isVisible();
     }
 
     public void expectHistoryEntry(String taskName, String username) {
-        Locator history = page.locator(".tab-pane.active .list-group-item")
+        Locator history = page.locator("[role='tabpanel'][data-state='active'] [data-testid='history-row']")
                 .filter(new Locator.FilterOptions().setHasText(taskName))
                 .filter(new Locator.FilterOptions().setHasText(username));
         assertThat(history.first()).isVisible();
@@ -137,7 +137,7 @@ public class TeamDashboardPage extends BasePage {
 
     public void removeMember(String username) {
         Locator row = memberRow(username);
-        row.locator("button.btn-outline-danger").click();
+        row.getByTitle("Remove member").click();
         Locator dialog = page.getByRole(AriaRole.DIALOG)
                 .filter(new Locator.FilterOptions().setHasText("Remove Member"));
         dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove")).click();
@@ -176,17 +176,17 @@ public class TeamDashboardPage extends BasePage {
     }
 
     private Locator memberRow(String username) {
-        return page.locator(".tab-pane.active .list-group-item")
+        return page.locator("[role='tabpanel'][data-state='active'] [data-testid='member-row']")
                 .filter(new Locator.FilterOptions().setHasText(username))
                 .first();
     }
 
     private Locator invitationRows(String username) {
-        return page.locator(".tab-pane.active .list-group-item")
+        return page.locator("[role='tabpanel'][data-state='active'] [data-testid='invitation-row']")
                 .filter(new Locator.FilterOptions().setHasText(username));
     }
 
     private Locator taskRow(String name) {
-        return page.locator(".card").filter(new Locator.FilterOptions().setHasText(name));
+        return page.locator("[data-testid='team-task-row']").filter(new Locator.FilterOptions().setHasText(name));
     }
 }

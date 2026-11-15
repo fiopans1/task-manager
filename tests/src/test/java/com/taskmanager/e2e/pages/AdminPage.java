@@ -17,6 +17,7 @@ public class AdminPage extends BasePage {
 
     public AdminPage open() {
         open("/home/admin");
+        dismissSystemMessageIfPresent();
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions()
                 .setName(Pattern.compile(".*Administration Panel.*")))).isVisible();
         return this;
@@ -34,7 +35,7 @@ public class AdminPage extends BasePage {
     }
 
     public Locator userCard(String username) {
-        return page.locator(".card").filter(new Locator.FilterOptions().setHasText(username)).first();
+        return page.locator("[data-testid='user-card']").filter(new Locator.FilterOptions().setHasText(username)).first();
     }
 
     public void viewUser(String username) {

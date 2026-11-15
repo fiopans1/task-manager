@@ -187,6 +187,24 @@ class TeamsTest extends BaseTest {
     }
 
     @Test
+    void teamFiltersBySize() {
+        loginAsAdmin();
+        String name = Unique.value("filter team");
+        TeamsPage teams = new TeamsPage(page).open();
+        teams.createTeam(TeamData.simple(name));
+        teams.search(name);
+
+        teams.filterBySize("SOLO");
+        assertThat(teams.card(name)).isVisible();
+
+        teams.filterBySize("LARGE");
+        assertThat(page.getByText("No teams match these filters")).isVisible();
+
+        teams.clearFilters();
+        teams.deleteTeam(name);
+    }
+
+    @Test
     void basicMemberCannotSeeAdminTeamControls() {
         loginAsAdmin();
         String teamName = Unique.value("team permissions");

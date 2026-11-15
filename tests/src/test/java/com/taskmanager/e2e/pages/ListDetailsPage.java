@@ -14,8 +14,7 @@ public class ListDetailsPage extends BasePage {
     }
 
     public ListDetailsPage expectOpen(String listName) {
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("List Management"))).isVisible();
-        assertThat(page.locator(".card-header h3").first()).hasText(listName);
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(listName).setLevel(1))).isVisible();
         return this;
     }
 
@@ -30,7 +29,7 @@ public class ListDetailsPage extends BasePage {
         Locator dialog = page.getByRole(AriaRole.DIALOG)
                 .filter(new Locator.FilterOptions().setHasText("Add Tasks to List"));
         assertThat(dialog).isVisible();
-        Locator item = dialog.locator(".list-group-item")
+        Locator item = dialog.locator("[data-testid='available-task-row']")
                 .filter(new Locator.FilterOptions().setHasText(taskName));
         item.click();
         dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add Selected Tasks")).click();
@@ -39,18 +38,23 @@ public class ListDetailsPage extends BasePage {
     }
 
     public void removeTask(String taskName) {
-        Locator row = page.locator(".list-group-item")
+        Locator row = page.locator("[data-testid='list-task-row']")
                 .filter(new Locator.FilterOptions().setHasText(taskName))
                 .first();
         row.getByTitle("Remove from list").click();
+        Locator dialog = page.getByRole(AriaRole.DIALOG)
+                .filter(new Locator.FilterOptions().setHasText("Remove task from list"));
+        dialog.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Remove task")).click();
         assertThat(toast("Task removed from list")).isVisible();
         assertThat(page.getByText(taskName, new Page.GetByTextOptions().setExact(true))).hasCount(0);
     }
 
     public void openTask(String taskName) {
-        page.locator(".list-group-item")
+        page.locator("[data-testid='list-task-row']")
                 .filter(new Locator.FilterOptions().setHasText(taskName))
                 .first()
+                .locator("[data-testid='list-task-title']")
                 .click();
         page.waitForURL("**/home/tasks/*");
     }
@@ -62,7 +66,7 @@ public class ListDetailsPage extends BasePage {
         modal.submitUpdate();
         modal.waitClosed();
         assertThat(toast("List updated successfully")).isVisible();
-        assertThat(page.locator(".card-header h3").first()).hasText(updated.name());
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(updated.name()).setLevel(1))).isVisible();
     }
 
     public void delete() {

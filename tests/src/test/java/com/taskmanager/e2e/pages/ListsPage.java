@@ -37,7 +37,7 @@ public class ListsPage extends BasePage {
     }
 
     public Locator card(String name) {
-        return page.locator(".item-card").filter(new Locator.FilterOptions().setHasText(name));
+        return page.locator("[data-testid='item-card']").filter(new Locator.FilterOptions().setHasText(name));
     }
 
     public void expectList(String name) {
@@ -55,6 +55,14 @@ public class ListsPage extends BasePage {
 
     public void clearSearch() {
         byRoleButton("Clear").click();
+    }
+
+    public void filterByProgress(String value) {
+        page.getByLabel("Filter by progress").selectOption(value);
+    }
+
+    public void clearFilters() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Clear filters")).first().click();
     }
 
     public void openList(String name) {

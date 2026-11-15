@@ -5,9 +5,9 @@ Layout: `backend/` (Spring Boot), `frontend/` (React + Vite), `docs/` (VitePress
 
 ## Hard rules
 
-- **Frontend: always use `react-bootstrap`** (already a dep). Use Bootstrap utility classes for layout. Keep custom CSS minimal; reach for `frontend/src/styles.css` or component-level `*.module.css` only when no Bootstrap class exists. Do not add new CSS files for things Bootstrap already covers.
+- **Frontend: Tailwind CSS v4 + the local `shared/ui` kit** (shadcn/Radix sources, adapted to the Control Room theme). Never import Bootstrap, `react-bootstrap`, `bootstrap-icons`, `react-bootstrap-icons`, `react-icons`, `@fortawesome` or `recharts`. Use semantic tokens (`bg-background`, `text-foreground`, `border-border`, `text-brand`) instead of raw hex values. Reusable app compositions live in `shared/patterns`, icons in `shared/lib/icons.js` (Lucide), and toasts must go through `shared/feedback/Noty.js`.
 - **Frontend package manager: `pnpm` only**, invoked through Corepack (`corepack pnpm ...`). Never use `npm install` / `yarn`.
-- **Frontend toasts: only through `frontend/src/components/common/Noty.js`**. The library is `sonner`, mounted once via `<Toaster />` in `index.jsx` with theme controlled by `ThemeContext`. Never import `sonner` directly from a component; use the wrappers `successToast` / `errorToast` / `warningToast` / `infoToast` or `promiseToast(promise, { loading, success, error })` for async flows.
+- **Frontend toasts: only through `frontend/src/shared/feedback/Noty.js`**. The library is `sonner`, mounted once via `shared/feedback/Toaster.jsx` inside `AppProviders` with theme controlled by `ThemeProvider`. Never import `sonner` directly from a component; use the wrappers `successToast` / `errorToast` / `warningToast` / `infoToast` or `promiseToast(promise, { loading, success, error })` for async flows.
 - Never commit secrets: OAuth2 client secrets, JWT keys (`*.pem`, `*.p12`, `**/keys/`), generated SQLite DBs, or `frontend/public/config.js` are all git-ignored for a reason. See `.gitignore`.
 
 ## Commands
@@ -18,6 +18,7 @@ Always use Corepack for pnpm (matches CI):
 corepack pnpm install --frozen-lockfile   # in frontend/ or docs/
 corepack pnpm start                       # frontend dev on 0.0.0.0:3000
 corepack pnpm dev                         # same as vite, no host binding
+corepack pnpm check:architecture          # dependency-direction guard (also runs on prebuild)
 corepack pnpm build                       # frontend production bundle in build/
 corepack pnpm test                        # vitest, jsdom env, passWithNoTests
 ```
@@ -69,9 +70,11 @@ Docker image: `./docker/build.sh --platform linux/amd64` (see `docker/README.md`
 ## Architecture notes (non-obvious)
 
 - **Auth is cookie + CSRF, not bearer tokens.** `frontend/src/services/apiClient.js` is the only sanctioned HTTP entry point. It has three axios instances: `apiClient` (auth required), `publicClient` (no auth), and an internal `csrfClient` that primes `XSRF-TOKEN`. Mutations auto-call `GET /api/session/csrf` first. Use `SKIP_AUTH_REFRESH` / `SKIP_CSRF_PROTECTION` axios config flags only for the bootstrap CSRF call and the auth endpoints themselves (login, register, refresh, logout, me) — see `isAuthEndpoint` for the exact list.
-- **Frontend state is Redux Toolkit only.** Store is `frontend/src/redux/store.js`; the only slice today is `authSlice.js`. `redux-persist` is a dep but not yet wired up — don't assume persisted state.
-- **Routing is nested.** All authenticated screens live under `/home` (see `App.jsx:100-151`); `FeatureGuard` reads `window.APP_CONFIG.features[featureKey]` to gate `tasks`, `calendar`, `lists`, `teams`. New top-level sections belong there.
-- **SEO is per-route via `<Seo />` in `frontend/src/components/common/Seo.jsx`** (uses `react-helmet-async`, mounted at `index.jsx`). Public pages (`/`, `/login`, `/register`) call it with a `path`/`description`; `/home/*` and `/oauth2-login` use `noindex`. Absolute URLs come from `app.siteUrl` in `window.APP_CONFIG` (falls back to `window.location.origin`).
+- **Frontend is feature-first.** `frontend/src/app/` owns routing, providers, guards and layout; `features/<domain>/` owns pages, components, hooks and a public `index.js`; `shared/ui` + `shared/patterns` own reusable UI with no domain logic; `services/`, `redux/`, `context`-style providers and `styles/` stay infrastructure. Imports use the `@/` alias. Run `pnpm check:architecture` before opening a PR.
+- **Frontend state is Redux Toolkit only.** Store is `frontend/src/redux/store.js`; the only slice today is `authSlice.js`. State is not persisted; don't assume it survives a reload.
+- **Routing is nested.** All authenticated screens live under `/home` (see `app/routes.jsx`); `FeatureGuard` reads `window.APP_CONFIG.features[featureKey]` to gate `tasks`, `calendar`, `lists`, `teams`. New top-level sections belong there and in `app/layout/navItems.js`.
+- **SEO is per-route via `<Seo />` in `frontend/src/shared/seo/Seo.jsx`** (uses `react-helmet-async`, mounted via `AppProviders`). Public pages (`/`, `/login`, `/register`) call it with a `path`/`description`; `/home/*` and `/oauth2-login` use `noindex`. Absolute URLs come from `app.siteUrl` in `window.APP_CONFIG` (falls back to `window.location.origin`).
+- **Theme is `data-theme`.** `ThemeProvider` sets `data-theme="light|dark"` on `<html>`, mirrors the OS preference when there is no saved value, and `index.html` has an inline bootstrap script to avoid flash. Tailwind consumes semantic CSS variables through `@theme inline` (`src/styles/theme.css`); components should not branch on dark mode manually.
 - **Backend security props are externalised** via `taskmanager.security.*` (see `TaskManagerSecurityProperties.java`). Cookie names are `TM-ACCESS` / `TM-REFRESH`; CSRF is `XSRF-TOKEN` / `X-XSRF-TOKEN`. SameSite=None requires `cookies.secure=true` — the `SessionCookieService` throws at startup if you misconfigure this.
 - **i18n is in docs, not the app.** Despite what `CONTRIBUTING.md` says about `useTranslation` + `en.json` / `es.json`, the React app currently has no i18n library; user-facing strings are hard-coded English. Don't import a translation hook that doesn't exist — either add the library properly or keep strings inline.
 - **User-facing backend strings go through a `messageService.getMessage()`** abstraction (per `CONTRIBUTING.md`); follow that pattern in new Java code.
@@ -89,9 +92,9 @@ Docker image: `./docker/build.sh --platform linux/amd64` (see `docker/README.md`
 
 ## When you change behaviour
 
-- **Every feature or behaviour change must update existing E2E tests or create new ones.** This project only has E2E tests (`tests/`); there is no backend or frontend unit-test suite. A change is not complete without its Playwright test coverage.
+- **Every feature or behaviour change must update existing E2E tests or create new ones.** This project only has E2E tests (`tests/`); there is no backend or frontend unit-test suite. A change is not complete without its Playwright test coverage. Prefer roles, labels and stable `data-testid` hooks over Bootstrap-era classes (`.card`, `.modal.show`, `.tab-pane`, `.item-card`); those hooks no longer exist.
 - New backend config keys: add to `scripts/config_templates/application-properties.template` and document in `docs/CONFIGURATION.md` so packaged deployments pick them up.
 - New runtime frontend setting: add to `scripts/config_templates/config.template.js`, expose via `configService` in `frontend/src/services/configService.js`, and read `window.APP_CONFIG` — do not hard-code environment-specific values in source.
 - New OAuth2 provider: follow the pattern in `backend/src/main/java/com/taskmanager/application/service/oauth2providers/` and the `github` / `google` blocks in `application.properties`. Wire a flag into `taskmanager.oauth2.<provider>.enabled` and `frontend/public/config.js` `oauth2.<provider>.enabled`.
-- New public route (under `/`, `/login`, `/register`): import `<Seo />` from `components/common/Seo.jsx`, pass a unique `title`, `description` and `path`. Add the route to `frontend/public/sitemap.xml` if it should be indexable. Authenticated or OAuth2-callback routes must pass `noindex`.
+- New public route (under `/`, `/login`, `/register`): import `<Seo />` from `shared/seo/Seo.jsx`, pass a unique `title`, `description` and `path`. Add the route to `frontend/public/sitemap.xml` if it should be indexable. Authenticated or OAuth2-callback routes must pass `noindex`.
 - Update both `docs/en` and `docs/es` for any user-visible change.

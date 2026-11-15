@@ -35,6 +35,24 @@ class ListsTest extends BaseTest {
     }
 
     @Test
+    void listFiltersByProgress() {
+        loginAsAdmin();
+        String name = Unique.value("filter list");
+        ListsPage lists = new ListsPage(page).open();
+        lists.createList(ListData.simple(name));
+        lists.search(name);
+
+        lists.filterByProgress("EMPTY");
+        assertThat(lists.card(name)).isVisible();
+
+        lists.filterByProgress("COMPLETE");
+        assertThat(page.getByText("No lists match these filters")).isVisible();
+
+        lists.clearFilters();
+        lists.deleteList(name);
+    }
+
+    @Test
     void listDetailsAddsAndRemovesTasksWithoutDeletingThem() {
         loginAsAdmin();
         String taskName = Unique.value("list task");
@@ -58,7 +76,7 @@ class ListsTest extends BaseTest {
         page.navigate(listUrl);
         details.addTask(taskName);
         details.openTask(taskName);
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Task Overview"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(taskName))).isVisible();
 
         new TasksPage(page).open().deleteTask(taskName);
         page.navigate(listUrl);

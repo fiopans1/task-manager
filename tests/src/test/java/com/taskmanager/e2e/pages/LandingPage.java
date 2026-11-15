@@ -38,6 +38,6 @@ public class LandingPage extends BasePage {
     }
 
     public String htmlTheme() {
-        return page.locator("html").getAttribute("data-bs-theme");
+        return page.locator("html").getAttribute("data-theme");
     }
 }

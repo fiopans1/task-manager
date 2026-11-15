@@ -39,7 +39,7 @@ Hay tres pasos que la primera vez no son obvios y que el README general no detal
 ```text
 task-manager/
 ├── backend/         # Spring Boot (Java 23, JPA, Spring Security, OAuth2)
-├── frontend/        # React 18 + Vite + Redux Toolkit + react-bootstrap
+├── frontend/        # React 18 + Vite + Tailwind CSS 4 + shadcn/Radix + Redux Toolkit
 ├── docs/            # VitePress bilingüe (es/, en/)
 ├── docker/          # Dockerfile.deployment + build.sh
 ├── scripts/         # compile.py, plantillas, helpers Python
@@ -110,24 +110,58 @@ Deja el bundle estático en `frontend/build/`. Lo que termine en esa carpeta es 
 corepack pnpm test
 ```
 
-Vitest corre en entorno `jsdom` y usa `src/test/setup.js` para `@testing-library/jest-dom`. Está pensado para añadir tests de componentes y servicios; hoy la suite está vacía.
+Vitest corre en entorno `jsdom` y usa `src/test/setup.js` para `@testing-library/jest-dom`. Está pensado para añadir tests de componentes y servicios; hoy la suite está vacía. La cobertura real vive en `tests/` (Playwright E2E). Usa roles accesibles, labels y hooks estables `data-testid` en vez de clases CSS.
 
 ### Linter / typecheck
 
-No hay ESLint ni TypeScript en el proyecto todavía. La barrera de calidad es el build de Vite y la revisión humana. Si quieres añadir ESLint, hazlo de forma incremental y respetando `react-bootstrap` + `pnpm`.
+No hay ESLint ni TypeScript en el proyecto todavía. La barrera de calidad es el build de Vite, el guard de arquitectura (`corepack pnpm check:architecture`) y la revisión humana. Si quieres añadir ESLint, hazlo de forma incremental y respetando Tailwind + `pnpm`.
+
+### Arquitectura del frontend
+
+```text
+frontend/src/
+├── app/          # rutas, providers, guards, layout, sidebar
+├── features/     # auth, dashboard, tasks, lists, teams, calendar, admin, settings...
+│   └── <name>/   # páginas, componentes, hooks, index.js público
+├── shared/
+│   ├── ui/       # fuentes shadcn/Radix + primitivas
+│   ├── patterns/ # PageHeader, EntityCollection, SearchToolbar, diálogos...
+│   ├── hooks/    # búsqueda, diálogos, scroll infinito, media query
+│   ├── lib/      # cn, iconos, fechas, duración
+│   ├── feedback/ # Noty + Toaster
+│   ├── seo/      # metadatos por ruta
+│   └── theme/    # ThemeProvider + toggle
+├── services/     # clientes de API
+├── redux/        # store de auth
+└── styles/       # entrada de Tailwind, tokens, tema del calendario
+```
+
+Reglas de dependencia (las valida el guard):
+
+- `app` puede importar features; las features pueden importar `shared`, `services` y Redux.
+- Cada feature expone lo reutilizable por su `index.js`; no hay imports profundos entre features.
+- `shared/ui` y `shared/patterns` son presentacionales: sin servicios, Redux, router ni features.
+- `services` y `redux` nunca importan código de UI.
+- Los imports usan el alias `@/`.
 
 ### Convenciones de código
 
 - **React 18 con JSX** (sin TypeScript). Nombra los componentes en `PascalCase` y los hooks en `useCamelCase`.
-- **`react-bootstrap` para todo** lo que tenga equivalente (`Modal`, `Form`, `Button`, `Tabs`, `ProgressBar`, `Toast`, ...). Si necesitas un control que no exista, plantéate añadirlo en `common/` antes que importar otra librería.
-- **CSS mínimo**: usa clases utility de Bootstrap (`d-flex`, `gap-3`, `text-body-secondary`, `rounded-pill`, ...). Solo recurre a `src/styles.css` o a `*.module.css` cuando Bootstrap no llegue. No crees ficheros `.css` sueltos para componentes concretos.
-- **Iconos**: `react-bootstrap-icons` para iconos del core y `bootstrap-icons` (con clases `bi bi-...`) para el resto. No mezcles con `react-icons` si no hace falta.
+- **Tailwind CSS v4 + `shared/ui`** para todo. No importes Bootstrap, `react-bootstrap`, `bootstrap-icons` ni `react-icons`. Usa las primitivas existentes (`Button`, `Dialog`, `Tabs`, `Field`, `Table`, ...) y añade la que falte en `shared/ui` antes que importar otra librería de UI.
+- **Tokens semánticos**: usa `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`, `text-brand`, `bg-surface-2`, etc. No escribas hex sueltos en componentes; los valores del tema viven en `src/styles/theme.css`.
+- **Composición**: los layouts reutilizables están en `shared/patterns` (`PageHeader`, `CollectionPage`, `SearchToolbar`, `EntityCollection`, `EntityRow`, `DetailLayout`, `StatStrip`, `ConfirmDialog`). Los componentes de feature deben componerlos en vez de duplicar el chrome de página.
+- **Lógica vs presentación**: la carga de datos y el estado viven en hooks de feature (`useTasksPage`, `useTaskForm`, `useTeamDashboard`, ...); los componentes reciben props y renderizan. `shared/ui` no tiene lógica de dominio.
+- **Helpers de estilo**: usa `cn()` de `shared/lib/utils` y variantes CVA para familias de componentes. Evita cadenas de clases condicionales largas.
+- **Iconos**: Lucide mediante `shared/lib/icons.js`. No añadas clases de Bootstrap Icons.
+- **Toasts**: solo a través de `shared/feedback/Noty.js`; `sonner` se monta una vez en `shared/feedback/Toaster.jsx`.
 - **Fechas**: `dayjs`. Evita `Date` nativa salvo para serializar.
-- **Estado global**: Redux Toolkit solo para cosas que cruzan pantallas (`authSlice` por ahora). Para estado local de UI usa `useState`. `redux-persist` está en `package.json` pero **no está cableado** en el store, no des por hecho que el estado sobrevive recargas.
+- **Estado global**: Redux Toolkit solo para cosas que cruzan pantallas (`authSlice` por ahora). Para estado local de UI usa `useState`. El estado no se persiste, no des por hecho que sobrevive recargas.
 - **Servicios**: cada dominio tiene su servicio (`taskService.js`, `listService.js`, `teamService.js`, `adminService.js`, `homeService.js`, `authService.js`). Toda llamada a la API pasa por `apiClient.js` (axios con CSRF + refresh). No importes axios directamente en componentes.
 - **i18n**: la app **no tiene** i18n real hoy. `CONTRIBUTING.md` menciona `useTranslation` y `en.json`/`es.json` pero no existen. Mantén los textos en inglés inline; si añades i18n, hazlo bien (una librería, no un patch a medias).
-- **SEO**: las rutas públicas usan `<Seo />` de `components/common/`. Las autenticadas y la callback de OAuth2 pasan `noindex`. URLs absolutas vía `app.siteUrl` en `config.js` (cae a `window.location.origin` si está vacío).
+- **SEO**: las rutas públicas usan `<Seo />` de `shared/seo/`. Las autenticadas y la callback de OAuth2 pasan `noindex`. URLs absolutas vía `app.siteUrl` en `config.js` (cae a `window.location.origin` si está vacío).
 - **Firma de los métodos de servicio**: devuelven promesas de DTOs, no `axios.Response`. Mantén la abstracción para no acoplar componentes a axios.
+
+Consulta el [sistema de diseño](/es/sistema-diseno) para tokens, reglas de componentes y la rationale de Control Room.
 
 ## Documentación (VitePress)
 
@@ -200,7 +234,7 @@ No hay lint ni typecheck todavía. Si rompes el lockfile, el job de frontend fal
 | Cambiar el cliente HTTP, CSRF, refresh | `frontend/src/services/apiClient.js`. |
 | Cambiar el estado global | `frontend/src/redux/store.js` y `slices/`. |
 | Cambiar la barra lateral / rutas | `frontend/src/components/Sidebar/SidebarMenu.jsx`, `frontend/src/App.jsx`. |
-| Cambiar títulos y SEO | `frontend/src/components/common/Seo.jsx`, `frontend/index.html`, `frontend/public/sitemap.xml`. |
+| Cambiar títulos y SEO | `frontend/src/shared/seo/Seo.jsx`, `frontend/index.html`, `frontend/public/sitemap.xml`. |
 | Cambiar textos para el usuario final | `docs/en` y `docs/es`. |
 
 ## Atajos y comandos útiles

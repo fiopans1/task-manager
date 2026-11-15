@@ -47,7 +47,7 @@ public class TasksPage extends BasePage {
     }
 
     public Locator card(String name) {
-        return page.locator(".item-card").filter(new Locator.FilterOptions().setHasText(name));
+        return page.locator("[data-testid='item-card']").filter(new Locator.FilterOptions().setHasText(name));
     }
 
     public void expectTask(String name) {
@@ -71,9 +71,49 @@ public class TasksPage extends BasePage {
         byRoleButton("Refresh").click();
     }
 
+    public void filterByStatus(String status) {
+        page.getByLabel("Filter by status").selectOption(status);
+    }
+
+    public void filterByPriority(String priority) {
+        page.getByLabel("Filter by priority").selectOption(priority);
+    }
+
+    public void clearFilters() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Clear filters")).first().click();
+    }
+
+    private Locator bulkBar() {
+        return page.getByRole(AriaRole.REGION, new Page.GetByRoleOptions().setName("Bulk actions"));
+    }
+
+    public void selectTask(String name) {
+        card(name).getByRole(AriaRole.CHECKBOX,
+                new Locator.GetByRoleOptions().setName("Select " + name)).check();
+    }
+
+    public void expectBulkCount(int count) {
+        assertThat(bulkBar()).containsText(count + " selected");
+    }
+
+    public void bulkComplete() {
+        bulkBar().getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Mark complete")).click();
+    }
+
+    public void bulkDelete(int count) {
+        bulkBar().getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Delete")).click();
+        Locator dialog = page.getByRole(AriaRole.DIALOG)
+                .filter(new Locator.FilterOptions().setHasText("Delete selected tasks"));
+        String label = count == 1 ? "Delete task" : "Delete " + count + " tasks";
+        dialog.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName(label)).click();
+    }
+
     public void openTask(String name) {
         card(name).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
-                .setName(Pattern.compile(".*View.*"))).click();
+                .setName(Pattern.compile(".*Open.*"))).click();
         page.waitForURL("**/home/tasks/*");
     }
 
@@ -93,7 +133,7 @@ public class TasksPage extends BasePage {
                 .setName(Pattern.compile(".*Delete.*"))).click();
         Locator dialog = page.getByRole(AriaRole.DIALOG)
                 .filter(new Locator.FilterOptions().setHasText("Confirm deletion"));
-        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete Task")).click();
+        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete task")).click();
         assertThat(toast("Task deleted successfully")).isVisible();
         expectNoTask(name);
     }

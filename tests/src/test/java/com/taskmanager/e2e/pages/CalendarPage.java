@@ -14,22 +14,24 @@ public class CalendarPage extends BasePage {
     public CalendarPage open() {
         open("/home/calendar");
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Calendar"))).isVisible();
-        assertThat(page.locator(".rbc-calendar")).isVisible();
+        assertThat(page.locator("[data-testid='calendar']")).isVisible();
         return this;
     }
 
     public void expectEvent(String name) {
-        assertThat(page.locator(".rbc-event").filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText(name))).isVisible();
+        assertThat(page.locator("[data-testid='calendar-event']")
+                .filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText(name)))
+                .isVisible();
     }
 
-    public void view(String name, String expectedClass) {
+    public void view(String name, String expectedSelector) {
         exactButton(name).click();
-        assertThat(page.locator(expectedClass)).isVisible();
+        assertThat(page.locator(expectedSelector)).isVisible();
     }
 
     public void navigate(String button) {
         exactButton(button).click();
-        assertThat(page.locator(".rbc-toolbar-label")).isVisible();
+        assertThat(page.locator("[data-testid='calendar-label']")).isVisible();
     }
 
     public void clickToday() {

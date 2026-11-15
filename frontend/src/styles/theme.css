@@ -1,0 +1,179 @@
+/*
+ * Control Room theme
+ *
+ * The app is dark-first. Light mode is a complete, first-class alternative.
+ * Components consume semantic Tailwind tokens (bg-background, bg-card,
+ * text-foreground, border-border, text-brand...) so a theme change never
+ * requires touching component classes.
+ */
+
+:root {
+  --background: #f2f4f7;
+  --foreground: #0f1a24;
+
+  --card: #ffffff;
+  --card-foreground: #0f1a24;
+  --popover: #ffffff;
+  --popover-foreground: #0f1a24;
+
+  --primary: #1b46cc;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f9fa;
+  --secondary-foreground: #0f1a24;
+  --muted: #f7f9fa;
+  --muted-foreground: #5a6b7b;
+  --accent: #edf1f5;
+  --accent-foreground: #0f1a24;
+  --destructive: #c03221;
+  --destructive-foreground: #ffffff;
+
+  --border: #dce3ea;
+  --input: #7f8c99;
+  --ring: #2457f5;
+
+  --brand: #2457f5;
+  --brand-strong: #1b46cc;
+  --brand-soft: #e8edff;
+  --success: #0a6f4d;
+  --success-soft: #e3f5ec;
+  --warning: #a85a00;
+  --warning-soft: #fcf0de;
+  --danger: #c03221;
+  --danger-soft: #fbe8e4;
+  --info: #0b6e8a;
+  --info-soft: #e3f3f7;
+
+  --surface-2: #f7f9fa;
+  --surface-3: #edf1f5;
+  --line-strong: #c4cfd9;
+  --ink-faint: #5a6b7b;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f1a24;
+  --sidebar-primary: #2457f5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edf1f5;
+  --sidebar-accent-foreground: #0f1a24;
+  --sidebar-border: #dce3ea;
+  --sidebar-ring: #2457f5;
+
+  --radius: 10px;
+}
+
+[data-theme="dark"] {
+  --background: #080d12;
+  --foreground: #e9f0f6;
+
+  --card: #0e151c;
+  --card-foreground: #e9f0f6;
+  --popover: #131d26;
+  --popover-foreground: #e9f0f6;
+
+  --primary: #1e5bff;
+  --primary-foreground: #ffffff;
+  --secondary: #131d26;
+  --secondary-foreground: #e9f0f6;
+  --muted: #131d26;
+  --muted-foreground: #93a4b4;
+  --accent: #192631;
+  --accent-foreground: #e9f0f6;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #22303c;
+  --input: #516679;
+  --ring: #4d8dff;
+
+  --brand: #4d8dff;
+  --brand-strong: #1e5bff;
+  --brand-soft: #122344;
+  --success: #4ade9b;
+  --success-soft: #0e2a22;
+  --warning: #f5b759;
+  --warning-soft: #2e2311;
+  --danger: #f87171;
+  --danger-soft: #331717;
+  --info: #67d4ee;
+  --info-soft: #0c2830;
+
+  --surface-2: #131d26;
+  --surface-3: #192631;
+  --line-strong: #344553;
+  --ink-faint: #7f91a2;
+
+  --sidebar: #0b1218;
+  --sidebar-foreground: #e9f0f6;
+  --sidebar-primary: #4d8dff;
+  --sidebar-primary-foreground: #071018;
+  --sidebar-accent: #131d26;
+  --sidebar-accent-foreground: #e9f0f6;
+  --sidebar-border: #1c2833;
+  --sidebar-ring: #4d8dff;
+
+  --radius: 10px;
+}
+
+@theme {
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+
+  --shadow-overlay: 0 24px 64px -24px rgb(0 0 0 / 0.45), 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.03);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line-strong: var(--line-strong);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}

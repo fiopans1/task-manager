@@ -32,6 +32,11 @@ public class SystemMessageModal extends BasePage {
         assertThat(dialog()).hasCount(0);
     }
 
+    public void expectNotShown() {
+        page.waitForTimeout(1200);
+        expectHidden();
+    }
+
     public void dismiss() {
         if (isVisible()) {
             dialog().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("OK")).click();

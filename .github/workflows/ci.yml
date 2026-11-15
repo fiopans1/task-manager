@@ -118,6 +118,10 @@ jobs:
         working-directory: frontend
         run: pnpm approve-builds --all
 
+      - name: Check frontend architecture
+        working-directory: frontend
+        run: pnpm check:architecture
+
       - name: Start frontend and verify response
         working-directory: frontend
         run: |

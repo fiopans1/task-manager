@@ -50,7 +50,7 @@ Designed to be a modern open-source alternative to commercial task tools, with n
 | Backend | Java 23 · Spring Boot 3.4 · Spring Security · Spring Data JPA · Hibernate · nimbus-jose-jwt |
 | Persistence | SQLite by default (any JPA-compatible database works) |
 | Auth | Session cookies (`HttpOnly`) + JWT signed with RSA + CSRF + OAuth2 (Google, GitHub, Authentik) |
-| Frontend | React 18 · Vite · Redux Toolkit · React Router 7 · React Bootstrap 2 · Bootstrap 5 |
+| Frontend | React 18 · Vite · Tailwind CSS 4 · shadcn/Radix · Lucide · Redux Toolkit · React Router 7 |
 | Toasts | Sonner |
 | HTTP client | Axios with CSRF + 401 refresh interceptors |
 | Docs | VitePress (bilingual `/es` and `/en`) |
@@ -244,12 +244,14 @@ task-manager/
 │       ├── model/entities/  # JPA entities
 │       ├── model/dto/       # API contracts
 │       └── respository/     # Spring Data repositories
-├── frontend/                # React + Vite SPA
+├── frontend/                # React + Vite SPA (Tailwind CSS 4 + shadcn/Radix)
 │   ├── public/              # config.js, sitemap.xml, manifest.json
-│   ├── src/components/      # auth/, common/, tasks/, lists/, teams/, adminpanel/
+│   ├── src/app/             # routes, providers, guards, layout, sidebar
+│   ├── src/features/        # auth, dashboard, tasks, lists, teams, calendar, admin, settings...
+│   ├── src/shared/          # ui, patterns, hooks, lib, feedback, seo, theme
 │   ├── src/services/        # apiClient, authService, taskService, …
 │   ├── src/redux/           # store.js + slices/authSlice.js
-│   └── src/hooks/           # useInfiniteScroll (client + server)
+│   └── src/styles/          # Tailwind entry, theme tokens, calendar theme
 ├── docs/                    # VitePress bilingual portal (es/, en/)
 ├── docker/                  # Dockerfile.deployment, build.sh
 ├── scripts/                 # compile.py, key_generator.py, templates
@@ -271,7 +273,7 @@ Standalone references:
 
 - [docs/CONFIGURATION.md](docs/CONFIGURATION.md) — every config key
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — production deploy walkthrough
-- [docs/TECHNICAL_EN.md](docs/TECHNICAL_EN.md) / [TECHNICAL_ES.md](docs/TECHNICAL_ES.md) — deep technical docs
+- [docs/TECHNICAL_EN.md](docs/TECHNICAL_EN.md) / [TECHNICAL_ES.md](docs/TECHNICAL_ES.md) — historical deep-dive (see the design system and developer guide for current frontend conventions)
 - [AGENTS.md](AGENTS.md) — internal conventions for AI/agent sessions
 
 ---
@@ -294,7 +296,7 @@ Standalone references:
 1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
 2. Check [SECURITY.md](SECURITY.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 3. Keep pull requests focused on a single change. Update both `docs/en` and `docs/es` when behaviour changes.
-4. Use Corepack for pnpm. Use react-bootstrap, not raw CSS. Go through `frontend/src/components/common/Noty.js` for toasts. See [AGENTS.md](AGENTS.md) for the full conventions list.
+4. Use Corepack for pnpm. Use Tailwind CSS + the local `shared/ui` kit, not raw one-off CSS. Go through `frontend/src/shared/feedback/Noty.js` for toasts. See [AGENTS.md](AGENTS.md) and the [design system](docs/en/design-system.md) for the full conventions.
 
 ---
 

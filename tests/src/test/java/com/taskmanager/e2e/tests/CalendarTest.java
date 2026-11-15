@@ -28,11 +28,11 @@ class CalendarTest extends BaseTest {
         CalendarPage calendar = new CalendarPage(page).open();
         calendar.expectLegend();
 
-        calendar.view("Week", ".rbc-time-view");
+        calendar.view("Week", "[data-calendar-view='week']");
         calendar.expectEvent(name);
-        calendar.view("Day", ".rbc-time-view");
-        calendar.view("Schedule", ".rbc-agenda-view");
-        calendar.view("Month", ".rbc-month-view");
+        calendar.view("Day", "[data-calendar-view='day']");
+        calendar.view("Schedule", "[data-calendar-view='agenda']");
+        calendar.view("Month", "[data-calendar-view='month']");
 
         calendar.navigate("Next");
         calendar.navigate("Prev");

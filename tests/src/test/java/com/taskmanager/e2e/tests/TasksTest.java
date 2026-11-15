@@ -27,8 +27,8 @@ class TasksTest extends BaseTest {
         TasksPage tasks = new TasksPage(page).open();
 
         tasks.createTask(data);
-        assertThat(tasks.card(name)).containsText("CRITICAL");
-        assertThat(tasks.card(name)).containsText("IN_PROGRESS");
+        assertThat(tasks.card(name)).containsText("Critical");
+        assertThat(tasks.card(name)).containsText("In progress");
 
         tasks.search(name);
         assertThat(tasks.card(name)).isVisible();
@@ -49,8 +49,57 @@ class TasksTest extends BaseTest {
         tasks.createTask(TaskData.simple(name));
 
         tasks.editTask(name, new TaskData(updatedName, "Updated description", "LOW", "COMPLETED"));
-        assertThat(tasks.card(updatedName)).containsText("COMPLETED");
+        assertThat(tasks.card(updatedName)).containsText("Completed");
         tasks.deleteTask(updatedName);
+    }
+
+    @Test
+    void taskListFiltersByStatusAndPriority() {
+        loginAsAdmin();
+        String completedName = Unique.value("filter completed");
+        String newName = Unique.value("filter new");
+        TasksPage tasks = new TasksPage(page).open();
+
+        tasks.createTask(new TaskData(completedName, "Completed task", "HIGH", "COMPLETED"));
+        tasks.createTask(new TaskData(newName, "New task", "LOW", "NEW"));
+
+        tasks.filterByStatus("COMPLETED");
+        assertThat(tasks.card(completedName)).isVisible();
+        assertThat(tasks.card(newName)).hasCount(0);
+
+        tasks.clearFilters();
+        tasks.filterByPriority("LOW");
+        assertThat(tasks.card(newName)).isVisible();
+        assertThat(tasks.card(completedName)).hasCount(0);
+
+        tasks.clearFilters();
+        tasks.deleteTask(completedName);
+        tasks.deleteTask(newName);
+    }
+
+    @Test
+    void bulkActionsCompleteAndDeleteSelectedTasks() {
+        loginAsAdmin();
+        String first = Unique.value("bulk first");
+        String second = Unique.value("bulk second");
+        TasksPage tasks = new TasksPage(page).open();
+
+        tasks.createTask(new TaskData(first, "First bulk task", "HIGH", "NEW"));
+        tasks.createTask(new TaskData(second, "Second bulk task", "LOW", "NEW"));
+
+        tasks.selectTask(first);
+        tasks.selectTask(second);
+        tasks.expectBulkCount(2);
+
+        tasks.bulkComplete();
+        assertThat(tasks.card(first)).containsText("Completed");
+        assertThat(tasks.card(second)).containsText("Completed");
+
+        tasks.selectTask(first);
+        tasks.selectTask(second);
+        tasks.bulkDelete(2);
+        tasks.expectNoTask(first);
+        tasks.expectNoTask(second);
     }
 
     @Test
@@ -95,7 +144,7 @@ class TasksTest extends BaseTest {
         loginAsAdmin();
         TasksPage tasks = new TasksPage(page).open();
         tasks.search(Unique.value("missing"));
-        assertThat(page.getByText("No tasks available", new Page.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(page.getByText("No tasks found", new Page.GetByTextOptions().setExact(true))).isVisible();
         tasks.clearSearch();
     }
 
@@ -157,7 +206,7 @@ class TasksTest extends BaseTest {
         tasks.openTask(name);
 
         new TaskDetailsPage(page).edit(new TaskData(updatedName, "Edited from details", "HIGH", "PAUSSED"));
-        assertThat(page.getByText(updatedName, new Page.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(updatedName).setLevel(1))).isVisible();
 
         detailsTaskDelete(updatedName);
     }

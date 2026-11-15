@@ -30,16 +30,14 @@ public class SettingsPage extends BasePage {
         assertThat(page).hasURL(Pattern.compile(".*/home/settings"));
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Settings")))
                 .isVisible();
-        assertThat(page.getByRole(AriaRole.TAB, new Page.GetByRoleOptions().setName("Profile")))
-                .isVisible();
         assertThat(page.getByLabel("Username")).isVisible();
         assertThat(page.getByLabel("Email")).isVisible();
     }
 
     public void fillProfile(String name, String surname1, String surname2, String username, String email) {
         page.getByLabel("First Name").fill(name);
-        page.getByLabel("Surname 1").fill(surname1);
-        page.getByLabel("Surname 2").fill(surname2);
+        page.getByLabel("Last name", new Page.GetByLabelOptions().setExact(true)).fill(surname1);
+        page.getByLabel("Second last name", new Page.GetByLabelOptions().setExact(true)).fill(surname2);
         page.getByLabel("Username").fill(username);
         page.getByLabel("Email").fill(email);
     }

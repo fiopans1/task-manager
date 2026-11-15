@@ -29,21 +29,20 @@ En el mismo menú del avatar hay un interruptor **Dark Mode**. La elección se q
 
 ### Perfil y seguridad
 
-El menú del avatar incluye **Settings**, que abre una página con una pestaña **Profile** donde puedes actualizar tu nombre, apellidos, nombre de usuario y correo electrónico.
+El menú del avatar incluye **Settings**, que abre una página donde puedes actualizar tu nombre, apellidos, nombre de usuario y correo electrónico.
 
-- Si te registraste con contraseña local, la pestaña Profile también tiene un botón **Change password**. Abre un diálogo donde introduces tu contraseña actual y la nueva dos veces.
+- Si te registraste con contraseña local, la página también tiene un botón **Change password**. Abre un diálogo donde introduces tu contraseña actual y la nueva dos veces.
 - El diálogo avisa de que cambiar la contraseña cierra **todas las sesiones activas**, incluida la actual. Cuando el cambio termina, vuelves a la pantalla de inicio de sesión y tienes que entrar de nuevo con la contraseña nueva.
 - Las cuentas que entran con Google, GitHub u otro proveedor OAuth2 no pueden cambiar el correo desde esta página, y su contraseña la gestiona el proveedor.
 
 ## El panel principal
 
-Al iniciar sesión aterrizas en **Dashboard** (`/home`). Es la vista de conjunto y tiene cinco bloques:
+Al iniciar sesión aterrizas en **Dashboard** (`/home`). Es la vista de conjunto y tiene cuatro bloques:
 
-1. **Accesos rápidos** — cuatro tarjetas grandes (My Tasks, Calendar, Lists, Teams) que te llevan a la sección correspondiente con un clic. Si una sección está desactivada por la administración, su tarjeta no aparece.
-2. **Tus números** — total de tareas creadas, listas que tienes y eventos próximos en el calendario.
-3. **Progreso reciente** — una barra con cuántas de tus últimas tareas están completadas frente al total.
-4. **Tareas recientes** — las últimas tareas que has creado, con su estado y la fecha. Pulsa cualquiera para abrirla, o **View all** para ir a la sección completa.
-5. **Próximos eventos** — tareas que son eventos del calendario, ordenadas por fecha de inicio. Te lleva al calendario si pulsas **View calendar**.
+1. **Accesos rápidos** — una fila compacta de atajos (My Tasks, Calendar, Lists, Teams) que te lleva a la sección correspondiente con un clic. Si una sección está desactivada por la administración, su atajo no aparece.
+2. **Tus números** — total de tareas creadas, listas que tienes, eventos próximos y **recent completion**, el porcentaje de tus últimas tareas que ya están completadas.
+3. **Tareas recientes** — las últimas tareas que has creado, con su estado y la fecha. Pulsa cualquiera para abrirla, o **View all** para ir a la sección completa.
+4. **Próximos eventos** — tareas que son eventos del calendario, ordenadas por fecha de inicio. Pulsa uno para abrir la tarea.
 
 ## Tareas
 
@@ -72,7 +71,7 @@ Y una **prioridad** que marca la urgencia:
 1. En la barra lateral pulsa **My Tasks** y luego **New Task** arriba a la derecha.
 2. Escribe un nombre (obligatorio) y, si quieres, una descripción más larga.
 3. Elige estado y prioridad.
-4. Si la tarea tiene día y hora concretos (una reunión, una entrega, un bloque de trabajo), marca **This task is an event** y rellena fecha y hora de inicio y fin. La tarea aparecerá entonces en el calendario.
+4. Si la tarea tiene día y hora concretos (una reunión, una entrega, un bloque de trabajo), activa **Reserve time on calendar** y rellena fecha y hora de inicio y fin. La tarea aparecerá entonces en el calendario.
 5. Guarda.
 
 Si la tarea no es un evento pero quieres ver su progreso, deja la casilla desactivada: solo mostrará su estado.
@@ -80,6 +79,10 @@ Si la tarea no es un evento pero quieres ver su progreso, deja la casilla desact
 ### Buscar, refrescar y limpiar
 
 En la parte de arriba de la lista tienes una caja de búsqueda. Escribe parte del nombre y pulsa **Search** para filtrar; **Clear** borra el filtro y **Refresh** recarga desde el servidor. La lista se carga en bloques de 50 y, al hacer scroll, va pidiendo más sin que tengas que cambiar de página.
+
+Debajo de la búsqueda, los controles **Status**, **Priority** y **Sort** filtran y reordenan la lista en el sitio. **Clear filters** vuelve a la vista por defecto (todos los estados, todas las prioridades, más recientes primero).
+
+Cada tarea tiene una casilla. Al seleccionar una o varias aparece una barra de acciones con **Select all**, **Mark complete**, **Delete** y **Clear**; el cambio se aplica solo a las tareas seleccionadas. En el móvil, el botón **New Task** pasa a ser un **+** flotante en la esquina inferior derecha para que siga a mano mientras haces scroll.
 
 ### Abrir, editar y borrar
 
@@ -106,11 +109,13 @@ El detalle de la tarea incluye una tarjeta **Time Tracking**. Pulsa **Start time
 
 ### Convertir una tarea en evento (o al revés)
 
-Una tarea normal no tiene fechas; si la editas y marcas **This task is an event**, le pones fecha de inicio y fin y pasa a aparecer en el calendario. Si desmarcas la casilla en la edición, las fechas se quitan y vuelve a ser una tarea sin horario.
+Una tarea normal no tiene fechas; si la editas y activas **Reserve time on calendar**, le pones fecha de inicio y fin y pasa a aparecer en el calendario. Si desactivas el interruptor en la edición, las fechas se quitan y vuelve a ser una tarea sin horario.
 
 ## Listas
 
 Las listas agrupan tareas que comparten un tema, un proyecto o un área. Cada lista tiene un nombre, una descripción y un color que la identifica visualmente. La barra de progreso de la lista te dice cuántas tareas tiene y cuántas están completadas.
+
+La vista de listas tiene los filtros **Progress** y **Sort** dentro de la barra de búsqueda: muestra listas vacías, en progreso o completadas, y ordena por más recientes, más antiguas, nombre o progreso.
 
 ### Crear y editar listas
 
@@ -137,18 +142,9 @@ El calendario muestra todas las tareas que son eventos (es decir, que tienen fec
 
 ### Vistas disponibles
 
-Tienes tres vistas: **Month**, **Week** y **Day**. Cambias con los botones de la esquina superior derecha. Los botones **Prev / Today / Next** se mueven por la fecha actual.
+Tienes cuatro vistas: **Month**, **Week**, **Day** y **Schedule**. Cambias con los botones que hay sobre la cuadrícula. Los botones **Prev / Today / Next** se mueven por la fecha actual.
 
-### Qué significa cada color
-
-El calendario pinta los eventos según una categoría que la tarea lleva asociada:
-
-- **Work** (azul) — trabajo habitual.
-- **Personal** (cian) — cosas personales.
-- **Urgent** (rosa) — para lo que no puede esperar.
-- **General** (morado) — el resto.
-
-Pulsa un evento para abrir la tarea y editarla (cambiar la categoría, moverla de hora, etc.).
+Pulsa un evento para abrir la tarea y editarla (moverla de hora, cambiar su estado o prioridad, etc.).
 
 ## Equipos
 
@@ -157,6 +153,8 @@ Los equipos sirven para trabajar con otras personas: asignarles tareas, ver el p
 ### Crear un equipo
 
 Pulsa **Teams** en la barra lateral y luego **New Team**. Solo el nombre es obligatorio; la descripción es opcional. La persona que crea el equipo queda como **Admin** automáticamente.
+
+La vista de equipos también filtra dentro de la barra de búsqueda: por **Size** (solo yo, 2–4 miembros, 5+ miembros) y por **Sort** (más recientes, más antiguos, nombre, más miembros).
 
 ### Roles dentro de un equipo
 

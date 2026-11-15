@@ -17,6 +17,12 @@ class RegistrationTest extends BaseTest {
     private static final String VALID_PASSWORD = "E2ePass1!";
 
     @Test
+    void registerPageShowsTheAuthPreviewOnDesktop() {
+        new RegisterPage(page).open();
+        assertThat(page.locator("[data-testid='auth-preview']")).isVisible();
+    }
+
+    @Test
     void passwordMismatchIsRejectedOnTheClientSide() {
         RegisterPage register = new RegisterPage(page).open();
         register.fill("E2E", "User", "", Unique.username("mismatch"),

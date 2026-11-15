@@ -63,7 +63,7 @@ class SettingsTest extends BaseTest {
 
         LoginPage login = new LoginPage(page).open();
         login.submitInvalid(username, PASSWORD);
-        login.expectLoginError("Login Error");
+        login.expectLoginError("We couldn't sign you in");
 
         login.login(newUsername, PASSWORD);
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/home"));
@@ -92,7 +92,7 @@ class SettingsTest extends BaseTest {
 
         LoginPage login = new LoginPage(page).open();
         login.submitInvalid(username, PASSWORD);
-        login.expectLoginError("Login Error");
+        login.expectLoginError("We couldn't sign you in");
 
         login.login(username, NEW_PASSWORD);
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/home"));
@@ -109,9 +109,9 @@ class SettingsTest extends BaseTest {
         settings.fillChangePassword("WrongPass1!", NEW_PASSWORD, NEW_PASSWORD);
         settings.submitChangePassword();
         settings.expectErrorToast("Current password is incorrect");
-        settings.expectProfileTab();
 
         settings.closePasswordModal();
+        settings.expectProfileTab();
     }
 
     private void registerAndLogin(String username, String email) {

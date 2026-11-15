@@ -1,5 +1,7 @@
 # Task Manager — Technical Documentation
 
+> **Historical deep-dive.** Parts of this document predate the current feature-first frontend, Tailwind design system and cookie-based auth flow. For current frontend conventions use the [Developer guide](/en/developer-guide), the [Design system](/en/design-system) and [Architecture](/en/architecture).
+
 Comprehensive technical documentation for the Task Manager project. Includes the full file structure with detailed descriptions of every file, build instructions, deployment, and configuration.
 
 ---
@@ -1089,7 +1091,7 @@ Rich textarea with @mention support:
 
 #### `CalendarComponent.js`
 Calendar view integrating tasks:
-- Uses `react-big-calendar` with `dayjs` localizer.
+- Uses the custom calendar views in `features/calendar` with `dayjs` date helpers.
 - Converts tasks to calendar events based on startTime/endTime.
 - Loading spinner while fetching events.
 - Responsive container with Bootstrap Card.
@@ -1205,7 +1207,7 @@ Minimal Create React App template styles (logo animation, header).
 | **Icons** | `bootstrap-icons` 1.11.3, `react-bootstrap-icons` 1.11.5, `react-icons` 5.4.0, `lucide-react` 0.507.0, `@fortawesome/fontawesome-free` 6.7.2 |
 | **HTTP** | `axios` 1.7.9 |
 | **Notifications** | `react-toastify` 11.0.5 |
-| **Calendar** | `react-big-calendar` 1.18.0, `dayjs` 1.11.13 |
+| **Calendar** | Custom calendar views, `dayjs` 1.11.13 |
 | **Charts** | `recharts` 2.15.3 |
 | **Auth** | `jose` 6.0.8 (JWT decoding) |
 | **Error Handling** | `react-error-boundary` 5.0.0 |

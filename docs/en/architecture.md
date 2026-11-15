@@ -39,18 +39,13 @@ task-manager/
 │   ├── public/             # config.js, sitemap.xml, robots.txt, manifest.json, logos
 │   ├── scripts/            # pnpm hooks (predev/prestart)
 │   ├── src/
-│   │   ├── components/     # UI components, grouped by domain
-│   │   │   ├── auth/       # Login, register, OAuth2 callback, protected route
-│   │   │   ├── common/     # Seo, FeatureGuard, modals, toast system
-│   │   │   ├── tasks/, lists/, teams/, calendar/
-│   │   │   ├── adminpanel/
-│   │   │   ├── session/    # Inactivity modal and refresh
-│   │   │   └── Sidebar/
-│   │   ├── pages/          # HomePage, MainApp (authenticated layout)
+│   │   ├── app/            # routes, providers, guards, layout, sidebar
+│   │   ├── features/       # auth, dashboard, tasks, lists, teams, calendar, admin, settings...
+│   │   │   └── <name>/     # pages, components, hooks, public index.js
+│   │   ├── shared/         # ui, patterns, hooks, lib, feedback, seo, theme
 │   │   ├── services/       # apiClient, authService, taskService, ...
 │   │   ├── redux/          # store.js + slices/ (only authSlice today)
-│   │   ├── hooks/          # useInfiniteScroll
-│   │   └── context/        # ThemeContext
+│   │   └── styles/         # Tailwind entry, theme tokens, calendar theme
 │   ├── vite.config.js
 │   ├── package.json
 │   └── pnpm-lock.yaml
@@ -134,16 +129,19 @@ Inside `com.taskmanager.application.*` the split is:
 - Render the SPA.
 - Hold the authentication state (Redux Toolkit) and the visual theme (Context).
 - Talk to the API through a single HTTP client with CSRF and automatic refresh.
-- Adapt the experience to desktop and mobile with Bootstrap and `react-bootstrap`.
+- Adapt the experience to desktop and mobile with Tailwind CSS v4 and the local `shared/ui` kit (shadcn/Radix sources adapted to the Control Room theme).
+- Keep logic and presentation apart: feature hooks own data and state; `shared/ui` and `shared/patterns` stay presentational.
 
 ### Layers and packages
 
+- `app/` — routing (`routes.jsx`), providers (`AppProviders`), guards, authenticated layout and sidebar.
+- `features/` — one folder per domain (`auth`, `dashboard`, `tasks`, `lists`, `teams`, `calendar`, `admin`, `settings`, `session`, `system-messages`). Each feature keeps its pages, components, hooks and a public `index.js`.
+- `shared/` — `ui/` (shadcn/Radix primitives), `patterns/` (PageHeader, EntityCollection, SearchToolbar, dialogs, states), `hooks/` (search, dialogs, infinite scroll, media query), `lib/` (cn, icons, dates, duration), `feedback/` (Noty + Toaster), `seo/` and `theme/`.
 - `services/` — the only place the app talks to the backend. Each domain (tasks, lists, teams, admin, auth, profile, home) has its own service.
-- `redux/` — only `authSlice` for now. The store does not use `redux-persist` even though it is a dependency.
-- `hooks/` — `useInfiniteScroll` (client and server side) shared by long lists, and `useTaskTimer` for the live task timer.
-- `components/` — organised by functional domain (`tasks/`, `lists/`, `teams/`, `adminpanel/`, `settings/`, etc.) with `common/` for cross-cutting concerns.
-- `pages/` — `HomePage` (public) and `MainApp` (authenticated layout with `<Outlet />`).
-- `context/` — `ThemeContext` for light/dark mode.
+- `redux/` — only `authSlice` for now. State is not persisted.
+- `styles/` — Tailwind entry and semantic theme tokens. The calendar views are custom components.
+
+The dependency direction is enforced by `pnpm check:architecture` (also runs before `pnpm build`): `app → features → shared/services`, features never import another feature's internals, and presentational layers never import services, Redux, router or features.
 
 ### Routing
 
@@ -154,7 +152,7 @@ Inside `com.taskmanager.application.*` the split is:
 
 ### SEO
 
-`<Seo>` (`components/common/Seo.jsx`) wraps each view with `react-helmet-async` and sets the title, description, canonical URL and Open Graph / Twitter meta. Absolute URLs are built from `app.siteUrl` in `config.js`, falling back to `window.location.origin` if empty. Authenticated routes and the OAuth2 callback use `noindex` so they aren't indexed.
+`<Seo>` (`shared/seo/Seo.jsx`) wraps each view with `react-helmet-async` and sets the title, description, canonical URL and Open Graph / Twitter meta. Absolute URLs are built from `app.siteUrl` in `config.js`, falling back to `window.location.origin` if empty. Authenticated routes and the OAuth2 callback use `noindex` so they aren't indexed.
 
 ## Configuration by layer
 

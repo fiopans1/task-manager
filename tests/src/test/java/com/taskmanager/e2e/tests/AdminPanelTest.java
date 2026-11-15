@@ -43,7 +43,7 @@ class AdminPanelTest extends BaseTest {
             Page blocked = newPage();
             LoginPage blockedLogin = new LoginPage(blocked).open();
             blockedLogin.submitInvalid(collaborator, E2EConfig.collaboratorPassword());
-            blockedLogin.expectLoginError("Login Error");
+            blockedLogin.expectLoginError("This account is blocked");
         } finally {
             if (admin.isUserBlocked(collaborator)) {
                 admin.unblockUser(collaborator);
@@ -54,6 +54,16 @@ class AdminPanelTest extends BaseTest {
         new DashboardPage(basic).open();
         assertThat(basic.getByRole(AriaRole.HEADING,
                 new Page.GetByRoleOptions().setName("Task Manager"))).isVisible();
+    }
+
+    @Test
+    void adminEmptySearchKeepsThePanelUsable() {
+        loginAsAdmin();
+        new AdminPage(page).open().searchUser("zzzz-no-such-user-e2e");
+
+        assertThat(page.getByText("No users found")).isVisible();
+        assertThat(page.getByRole(AriaRole.TAB,
+                new Page.GetByRoleOptions().setName("Features"))).isVisible();
     }
 
     @Test
@@ -89,7 +99,7 @@ class AdminPanelTest extends BaseTest {
                 .filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText(updatedName));
         updatedRow.getByRole(AriaRole.BUTTON).nth(1).click();
         var confirm = page.getByRole(AriaRole.DIALOG)
-                .filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText("Delete Task")).last();
+                .filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText("Delete task")).last();
         confirm.getByRole(AriaRole.BUTTON, new com.microsoft.playwright.Locator.GetByRoleOptions()
                 .setName("Delete").setExact(true)).click();
         assertThat(page.locator("[data-sonner-toast]")
@@ -132,6 +142,7 @@ class AdminPanelTest extends BaseTest {
         String message = Unique.value("system message");
         loginAsAdmin();
         AdminPage admin = new AdminPage(page).open().openTab("System Message");
+        assertThat(page.getByText("Show before login (on the public home page)")).isVisible();
         String originalMessage = admin.systemMessageText();
         boolean originalEnabled = admin.isSystemMessageEnabled();
         boolean originalBefore = admin.showsBeforeLogin();
@@ -146,8 +157,7 @@ class AdminPanelTest extends BaseTest {
             beforeLogin.dismiss();
 
             new LoginPage(page).open();
-            beforeLogin.expectVisible(message);
-            beforeLogin.dismiss();
+            beforeLogin.expectNotShown();
             page.getByLabel("Username").fill(E2EConfig.username());
             page.getByLabel("Password").fill(E2EConfig.password());
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign in")).click();
@@ -165,8 +175,8 @@ class AdminPanelTest extends BaseTest {
                 page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign in")).click();
                 page.waitForURL("**/home");
             }
-            new AdminPage(page).open();
             new SystemMessageModal(page).waitAndDismiss();
+            new AdminPage(page).open();
             new AdminPage(page).openTab("System Message");
             new AdminPage(page).setSystemMessage(originalMessage, originalEnabled, originalBefore, originalAfter);
         }

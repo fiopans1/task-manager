@@ -24,6 +24,14 @@ public final class E2EConfig {
         return trimTrailingSlash(value("e2e.base-url", "E2E_BASE_URL", "http://localhost:3000"));
     }
 
+    public static String backendUrl() {
+        return trimTrailingSlash(value("e2e.backend-url", "E2E_BACKEND_URL", "http://localhost:8080"));
+    }
+
+    public static String oauthCookiePath() {
+        return value("e2e.oauth-cookie-path", "E2E_OAUTH_COOKIE_PATH", "/oauth2");
+    }
+
     public static String username() {
         return value("e2e.username", "E2E_USERNAME", "admin");
     }

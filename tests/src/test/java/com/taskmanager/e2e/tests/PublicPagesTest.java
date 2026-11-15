@@ -30,7 +30,7 @@ class PublicPagesTest extends BaseTest {
         org.junit.jupiter.api.Assertions.assertNotEquals(initialTheme, changedTheme);
 
         page.reload();
-        assertThat(page.locator("html")).hasAttribute("data-bs-theme", changedTheme);
+        assertThat(page.locator("html")).hasAttribute("data-theme", changedTheme);
     }
 
     @Test
@@ -46,6 +46,15 @@ class PublicPagesTest extends BaseTest {
     }
 
     @Test
+    void authFooterShowsCopyrightOnDesktop() {
+        page.navigate(com.taskmanager.e2e.config.E2EConfig.baseUrl() + "/login");
+        var footer = page.locator("[data-testid='auth-footer-desktop']");
+        assertThat(footer).isVisible();
+        assertThat(footer).containsText("© 2025 TaskManager · Created by fiopans1");
+        assertThat(page.locator("[data-testid='auth-footer-mobile']")).isHidden();
+    }
+
+    @Test
     void healthRouteRendersOk() {
         page.navigate(com.taskmanager.e2e.config.E2EConfig.baseUrl() + "/health");
         assertThat(page.getByText("OK", new Page.GetByTextOptions().setExact(true))).isVisible();
@@ -57,6 +66,7 @@ class PublicPagesTest extends BaseTest {
         assertThat(page.getByText("Quick access", new Page.GetByTextOptions().setExact(true))).isVisible();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Sign in"))).isVisible();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create account"))).isVisible();
+        assertThat(page.locator("[data-testid='auth-preview']")).isVisible();
 
         if (page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Google")).count() > 0) {
             assertThat(page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Google"))).isVisible();

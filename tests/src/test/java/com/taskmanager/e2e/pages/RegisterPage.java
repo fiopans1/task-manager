@@ -20,8 +20,8 @@ public class RegisterPage extends BasePage {
     public void fill(String name, String surname1, String surname2, String username,
                      String email, String password, String confirmPassword) {
         page.getByLabel("First Name").fill(name);
-        page.getByLabel("Surname 1").fill(surname1);
-        page.getByLabel("Surname 2").fill(surname2);
+        page.getByLabel("Last name", new Page.GetByLabelOptions().setExact(true)).fill(surname1);
+        page.getByLabel("Second last name", new Page.GetByLabelOptions().setExact(true)).fill(surname2);
         page.getByLabel("Username").fill(username);
         page.getByLabel("Email").fill(email);
         page.getByLabel("Password", new Page.GetByLabelOptions().setExact(true)).fill(password);

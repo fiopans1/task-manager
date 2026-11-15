@@ -18,7 +18,7 @@ public class TaskFormModal extends BasePage {
 
     @Override
     protected Locator modal() {
-        return page.locator(".modal.show.task-modal");
+        return page.locator("[role='dialog'].task-modal");
     }
 
     public TaskFormModal expectOpen(boolean editing) {

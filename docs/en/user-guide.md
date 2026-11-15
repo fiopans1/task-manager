@@ -29,21 +29,20 @@ In the same avatar menu there is a **Dark Mode** switch. The choice is remembere
 
 ### Profile and security settings
 
-The avatar menu includes **Settings**, which opens a page with a **Profile** tab where you can update your first name, surnames, username and email.
+The avatar menu includes **Settings**, which opens a page where you can update your first name, surnames, username and email.
 
-- If you signed up with a local password, the Profile tab also has a **Change password** button. It opens a dialog where you enter your current password and the new one twice.
+- If you signed up with a local password, the page also has a **Change password** button. It opens a dialog where you enter your current password and the new one twice.
 - The dialog warns that changing your password closes **all active sessions**, including the current one. When the change succeeds you are taken back to the sign-in page and must log in again with the new password.
 - Accounts that sign in through Google, GitHub or another OAuth2 provider cannot change their email from this page, and their password is managed by the provider.
 
 ## The dashboard
 
-When you sign in you land on the **Dashboard** (`/home`). It is the overview screen and has five blocks:
+When you sign in you land on the **Dashboard** (`/home`). It is the overview screen and has four blocks:
 
-1. **Quick access** — four large cards (My Tasks, Calendar, Lists, Teams) that take you to the corresponding section in one click. If an administrator has disabled a section, its card is not shown.
-2. **Your numbers** — total tasks you've created, lists you own and upcoming events on the calendar.
-3. **Recent progress** — a bar with how many of your most recent tasks are completed versus the total.
-4. **Recent tasks** — the latest tasks you created, with their state and date. Click any of them to open it, or **View all** to go to the full list.
-5. **Upcoming events** — tasks that are events on the calendar, sorted by start date. Click **View calendar** to open the calendar view.
+1. **Quick access** — a compact row of shortcuts (My Tasks, Calendar, Lists, Teams) that takes you to the corresponding section in one click. If an administrator has disabled a section, its shortcut is not shown.
+2. **Your numbers** — total tasks you've created, lists you own, upcoming events and **recent completion**, the share of your latest tasks that are already completed.
+3. **Recent tasks** — the latest tasks you created, with their state and date. Click any of them to open it, or **View all** to go to the full list.
+4. **Upcoming events** — tasks that are events on the calendar, sorted by start date. Click one to open the task.
 
 ## Tasks
 
@@ -72,7 +71,7 @@ And a **priority** that signals urgency:
 1. In the sidebar click **My Tasks** and then **New Task** at the top right.
 2. Type a name (required) and, if you want, a longer description.
 3. Pick a state and a priority.
-4. If the task has a specific day and time (a meeting, a deadline, a work block), tick **This task is an event** and fill in the start and end date and time. The task will then appear in the calendar.
+4. If the task has a specific day and time (a meeting, a deadline, a work block), enable **Reserve time on calendar** and fill in the start and end date and time. The task will then appear in the calendar.
 5. Save.
 
 If the task is not an event but you still want to track its progress, leave the box unchecked: it will just show its state.
@@ -80,6 +79,10 @@ If the task is not an event but you still want to track its progress, leave the 
 ### Searching, refreshing and clearing
 
 At the top of the list there is a search box. Type part of a name and click **Search** to filter; **Clear** removes the filter and **Refresh** reloads from the server. The list is loaded in blocks of 50 and, as you scroll, more is fetched automatically without paginating.
+
+Below the search box, the **Status**, **Priority** and **Sort** controls narrow and reorder the list in place. **Clear filters** restores the default view (all statuses, all priorities, newest first).
+
+Each task has a checkbox. Selecting one or more tasks opens a bulk actions bar with **Select all**, **Mark complete**, **Delete** and **Clear**; the change applies only to the tasks you selected. On phones the **New Task** button becomes a floating **+** at the bottom right so it stays reachable while you scroll.
 
 ### Opening, editing and deleting
 
@@ -106,11 +109,13 @@ The task detail includes a **Time Tracking** card. Click **Start timer** to begi
 
 ### Turning a task into an event (or back)
 
-A regular task has no dates. If you edit it, tick **This task is an event**, fill in the start and end dates, and it will start showing on the calendar. If you untick the box during an edit, the dates are removed and it goes back to being a task with no schedule.
+A regular task has no dates. If you edit it, enable **Reserve time on calendar**, fill in the start and end dates, and it will start showing on the calendar. If you disable the switch during an edit, the dates are removed and it goes back to being a task with no schedule.
 
 ## Lists
 
 Lists group tasks that share a topic, a project or an area. Each list has a name, a description and a colour that identifies it visually. The list's progress bar tells you how many tasks it contains and how many are completed.
+
+The list overview keeps its **Progress** and **Sort** filters inside the search bar: show empty, in-progress or completed lists, and sort by newest, oldest, name or progress.
 
 ### Creating and editing lists
 
@@ -137,18 +142,9 @@ The calendar shows all the tasks that are events (that is, with a start and an e
 
 ### Available views
 
-There are three views: **Month**, **Week** and **Day**. Switch with the buttons at the top right. **Prev / Today / Next** move through the current date.
+There are four views: **Month**, **Week**, **Day** and **Schedule**. Switch with the buttons above the grid. **Prev / Today / Next** move through the current date.
 
-### What each colour means
-
-The calendar colours events according to a category the task carries:
-
-- **Work** (blue) — regular work.
-- **Personal** (cyan) — personal items.
-- **Urgent** (pink) — things that cannot wait.
-- **General** (purple) — everything else.
-
-Click an event to open the task and edit it (change the category, move it to another time, etc.).
+Click an event to open the task and edit it (move it to another time, change its state or priority, etc.).
 
 ## Teams
 
@@ -157,6 +153,8 @@ Teams let you work with other people: assign them tasks, see the group's progres
 ### Creating a team
 
 Click **Teams** in the sidebar and then **New Team**. Only the name is required; the description is optional. The person who creates the team becomes its **Admin** automatically.
+
+The team overview filters inside the search bar too: by **Size** (just me, 2–4 members, 5+ members) and by **Sort** (newest, oldest, name, most members).
 
 ### Roles inside a team
 

@@ -9,6 +9,7 @@ const spanishSidebar = [
       { text: 'Guía de usuario', link: '/es/guia-usuario' },
       { text: 'Guía de desarrollo', link: '/es/guia-desarrollo' },
       { text: 'Arquitectura', link: '/es/arquitectura' },
+      { text: 'Sistema de diseño', link: '/es/sistema-diseno' },
       { text: 'Despliegue', link: '/es/despliegue' }
     ]
   }
@@ -23,6 +24,7 @@ const englishSidebar = [
       { text: 'User guide', link: '/en/user-guide' },
       { text: 'Developer guide', link: '/en/developer-guide' },
       { text: 'Architecture', link: '/en/architecture' },
+      { text: 'Design system', link: '/en/design-system' },
       { text: 'Deployment', link: '/en/deployment' }
     ]
   }
@@ -35,7 +37,7 @@ export default defineConfig({
   lastUpdated: true,
   head: [
     ['link', { rel: 'icon', href: '/logo.png' }],
-    ['meta', { name: 'theme-color', content: '#0f172a' }],
+    ['meta', { name: 'theme-color', content: '#080D12' }],
     ['meta', { property: 'og:title', content: 'Task Manager' }],
     ['meta', { property: 'og:description', content: 'Documentation for end users, administrators, and development teams.' }]
   ],
@@ -70,6 +72,7 @@ export default defineConfig({
           { text: 'Usuarios', link: '/es/guia-usuario' },
           { text: 'Desarrollo', link: '/es/guia-desarrollo' },
           { text: 'Arquitectura', link: '/es/arquitectura' },
+          { text: 'Sistema de diseño', link: '/es/sistema-diseno' },
           { text: 'Despliegue', link: '/es/despliegue' }
         ],
         sidebar: spanishSidebar,
@@ -107,6 +110,7 @@ export default defineConfig({
           { text: 'Users', link: '/en/user-guide' },
           { text: 'Development', link: '/en/developer-guide' },
           { text: 'Architecture', link: '/en/architecture' },
+          { text: 'Design system', link: '/en/design-system' },
           { text: 'Deployment', link: '/en/deployment' }
         ],
         sidebar: englishSidebar,

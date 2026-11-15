@@ -80,7 +80,7 @@ public class AppShellPage extends BasePage {
     }
 
     public String htmlTheme() {
-        return page.locator("html").getAttribute("data-bs-theme");
+        return page.locator("html").getAttribute("data-theme");
     }
 
     public void openAbout() {
@@ -92,7 +92,7 @@ public class AppShellPage extends BasePage {
     }
 
     public void closeAbout() {
-        page.locator(".modal.show").getByRole(AriaRole.BUTTON,
+        page.locator("[role='dialog'][data-state='open']").getByRole(AriaRole.BUTTON,
                 new Locator.GetByRoleOptions().setName("Close")).last().click();
     }
 

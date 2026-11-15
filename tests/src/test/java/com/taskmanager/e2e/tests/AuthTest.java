@@ -21,7 +21,7 @@ class AuthTest extends BaseTest {
     void invalidCredentialsKeepUserOnLoginPage() {
         LoginPage login = new LoginPage(page).open();
         login.submitInvalid(E2EConfig.username(), "definitely-wrong-password");
-        login.expectLoginError("Login Error");
+        login.expectLoginError("We couldn't sign you in");
     }
 
     @Test

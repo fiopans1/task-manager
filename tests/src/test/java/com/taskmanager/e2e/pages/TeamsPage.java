@@ -37,7 +37,7 @@ public class TeamsPage extends BasePage {
     }
 
     public Locator card(String name) {
-        return page.locator(".item-card").filter(new Locator.FilterOptions().setHasText(name));
+        return page.locator("[data-testid='item-card']").filter(new Locator.FilterOptions().setHasText(name));
     }
 
     public void expectTeam(String name) {
@@ -57,9 +57,17 @@ public class TeamsPage extends BasePage {
         byRoleButton("Clear").click();
     }
 
+    public void filterBySize(String value) {
+        page.getByLabel("Filter by size").selectOption(value);
+    }
+
+    public void clearFilters() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Clear filters")).first().click();
+    }
+
     public void openTeam(String name) {
         card(name).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
-                .setName(Pattern.compile(".*Open team.*"))).click();
+                .setName(Pattern.compile(".*Open.*"))).click();
         page.waitForURL("**/home/teams/*");
     }
 
@@ -79,7 +87,7 @@ public class TeamsPage extends BasePage {
                 .setName(Pattern.compile(".*Delete.*"))).click();
         Locator dialog = page.getByRole(AriaRole.DIALOG)
                 .filter(new Locator.FilterOptions().setHasText("Confirm deletion"));
-        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete Team")).click();
+        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete team")).click();
         assertThat(toast("Team deleted successfully")).isVisible();
         expectNoTeam(name);
     }
@@ -107,7 +115,7 @@ public class TeamsPage extends BasePage {
     }
 
     private Locator invitationRow(String teamName) {
-        return page.locator("div.border.rounded-4")
+        return page.locator("[data-testid='pending-invitation-row']")
                 .filter(new Locator.FilterOptions().setHasText(teamName));
     }
 }

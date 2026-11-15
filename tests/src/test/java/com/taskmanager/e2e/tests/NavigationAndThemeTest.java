@@ -42,7 +42,7 @@ class NavigationAndThemeTest extends BaseTest {
         AppShellPage shell = new AppShellPage(page);
         shell.openAbout();
         shell.closeAbout();
-        assertThat(page.locator(".modal.show")).hasCount(0);
+        assertThat(page.locator("[role='dialog'][data-state='open']")).hasCount(0);
     }
 
     @Test
@@ -55,7 +55,7 @@ class NavigationAndThemeTest extends BaseTest {
         org.junit.jupiter.api.Assertions.assertNotEquals(initial, changed);
 
         page.reload();
-        assertThat(page.locator("html")).hasAttribute("data-bs-theme", changed);
+        assertThat(page.locator("html")).hasAttribute("data-theme", changed);
     }
 
     @Test

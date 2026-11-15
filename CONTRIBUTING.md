@@ -101,8 +101,10 @@ PRs are merged after at least one maintainer approval.
 
 ### Frontend (React / JavaScript)
 
-- Use `useTranslation` hook for all user-facing strings (i18n keys in `en.json` / `es.json`).
-- Keep components small and focused; extract reusable logic into hooks (`src/hooks/`).
+- Use the local `shared/ui` kit and Tailwind semantic tokens; do not reintroduce Bootstrap or one-off CSS.
+- Keep components small and focused; extract reusable logic into feature hooks (`features/<name>/hooks/`) or shared hooks (`shared/hooks/`).
+- Follow the feature-first layout and run `corepack pnpm check:architecture`.
+- The app has no i18n library yet: keep user-facing strings inline in English until a real solution is added.
 - Use pnpm, not npm.
 - Do not commit `frontend/public/config.js` (it is git-ignored).
 

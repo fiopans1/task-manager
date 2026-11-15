@@ -50,6 +50,13 @@ class DashboardTest extends BaseTest {
     }
 
     @Test
+    void dashboardFooterIsPinnedToTheBottomOfTallViewports() {
+        loginAsAdmin();
+        page.setViewportSize(1440, 1200);
+        new DashboardPage(page).open().expectFooterPinnedToViewportBottom();
+    }
+
+    @Test
     void dashboardRecentTaskOpensTaskDetails() {
         loginAsAdmin();
         String taskName = Unique.value("dashboard open");
@@ -59,7 +66,7 @@ class DashboardTest extends BaseTest {
         new DashboardPage(page).open();
         page.getByText(taskName, new Page.GetByTextOptions().setExact(true)).click();
         page.waitForURL("**/home/tasks/*");
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Task Overview"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(taskName).setLevel(1))).isVisible();
 
         new TasksPage(page).open().deleteTask(taskName);
     }

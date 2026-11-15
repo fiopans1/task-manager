@@ -159,7 +159,14 @@ public abstract class BaseTest {
     protected void dismissSystemMessageIfPresent(Page target) {
         var dialog = target.getByRole(com.microsoft.playwright.options.AriaRole.DIALOG)
                 .filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText("System Notification"));
-        if (dialog.count() > 0 && dialog.first().isVisible()) {
+        try {
+            dialog.first().waitFor(new com.microsoft.playwright.Locator.WaitForOptions()
+                    .setState(com.microsoft.playwright.options.WaitForSelectorState.VISIBLE)
+                    .setTimeout(2000));
+        } catch (com.microsoft.playwright.PlaywrightException ignored) {
+            return;
+        }
+        if (dialog.first().isVisible()) {
             dialog.first().getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
                     new com.microsoft.playwright.Locator.GetByRoleOptions().setName("OK")).click();
         }

@@ -4,8 +4,26 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#080D12" />
     <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        try {
+          var saved = window.localStorage.getItem("app-theme");
+          var dark = saved
+            ? saved === "dark"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var theme = dark ? "dark" : "light";
+          var root = document.documentElement;
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = dark ? "#080D12" : "#F2F4F7";
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", dark ? "#080D12" : "#F2F4F7");
+        } catch (error) {
+          /* Theme setup is best-effort; the app applies it again on mount. */
+        }
+      })();
+    </script>
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
