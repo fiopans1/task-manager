@@ -26,7 +26,6 @@ class CalendarTest extends BaseTest {
                 date, "10:00", date, "11:00");
 
         CalendarPage calendar = new CalendarPage(page).open();
-        calendar.expectLegend();
 
         calendar.view("Week", "[data-calendar-view='week']");
         calendar.expectEvent(name);

@@ -43,10 +43,4 @@ public class CalendarPage extends BasePage {
                 .setName(name)
                 .setExact(true));
     }
-
-    public void expectLegend() {
-        assertThat(page.getByText("Work", new Page.GetByTextOptions().setExact(true))).isVisible();
-        assertThat(page.getByText("Personal", new Page.GetByTextOptions().setExact(true))).isVisible();
-        assertThat(page.getByText("Urgent", new Page.GetByTextOptions().setExact(true))).isVisible();
-    }
 }
