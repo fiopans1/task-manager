@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import authService from "@/services/authService";
 import { AppRoutes } from "@/app/routes";
+import AppShellSkeleton from "@/app/layout/AppShellSkeleton";
 import { errorToast, infoToast, successToast } from "@/shared/feedback/Noty";
-import { Spinner } from "@/shared/ui/spinner";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -54,13 +54,7 @@ export default function App() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6">
-        <img src="/favicon.png" alt="" width={44} height={44} className="size-11" />
-        <Spinner size={22} label="Verifying authentication" />
-        <p className="text-sm text-muted-foreground">Verifying authentication...</p>
-      </div>
-    );
+    return <AppShellSkeleton />;
   }
 
   return (

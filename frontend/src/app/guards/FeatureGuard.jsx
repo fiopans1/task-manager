@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import adminService from "@/services/adminService";
-import { Spinner } from "@/shared/ui/spinner";
+import { PageSkeleton } from "@/shared/patterns/page-skeleton";
 
 /**
  * Guards a route based on feature flags. Fails closed: if the public config
@@ -26,9 +26,12 @@ export default function FeatureGuard({ featureKey, children }) {
 
   if (allowed === null) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <Spinner size={22} />
-      </div>
+      <PageSkeleton
+        panels={1}
+        rows={3}
+        withActions={false}
+        label="Checking feature availability"
+      />
     );
   }
 

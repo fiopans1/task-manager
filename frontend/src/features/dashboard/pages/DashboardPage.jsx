@@ -57,25 +57,26 @@ export default function DashboardPage() {
         ) : null}
 
         <StatStrip
+          loading={loading}
           items={[
             {
               label: "Total tasks",
-              value: loading ? "—" : (summary?.totalTasks ?? 0),
+              value: summary?.totalTasks ?? 0,
               icon: ListTodo,
             },
             {
               label: "Lists created",
-              value: loading ? "—" : (summary?.totalLists ?? 0),
+              value: summary?.totalLists ?? 0,
               icon: ListChecks,
             },
             {
               label: "Upcoming events",
-              value: loading ? "—" : nextEvents.length,
+              value: nextEvents.length,
               icon: CalendarCheck,
             },
             {
               label: "Recent completion",
-              value: loading ? "—" : `${completionPct}%`,
+              value: `${completionPct}%`,
               icon: CheckCircle2,
               hint: `${completedCount}/${totalRecent} recent tasks`,
             },

@@ -6,8 +6,10 @@ import { PageHeader } from "@/shared/patterns/page-header";
 import { SearchToolbar } from "@/shared/patterns/search-toolbar";
 import { Button } from "@/shared/ui/button";
 import { Panel, PanelContent, PanelHeader, PanelTitle } from "@/shared/ui/panel";
+import { ListRowsSkeleton } from "@/shared/patterns/panel-skeleton";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { Badge } from "@/shared/ui/badge";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { TeamCollection } from "@/features/teams/components/TeamCollection";
 import TeamFormDialog from "@/features/teams/components/TeamFormDialog";
 import { DEFAULT_TEAM_FILTERS, TeamFilters } from "@/features/teams/components/TeamFilters";
@@ -51,7 +53,17 @@ export default function TeamsPage() {
         />
       }
     >
-      {page.pendingInvitations.length > 0 ? (
+      {page.invitationsLoading ? (
+        <Panel aria-busy="true">
+          <PanelHeader>
+            <PanelTitle>Pending invitations</PanelTitle>
+            <Skeleton className="h-5 w-10" />
+          </PanelHeader>
+          <PanelContent className="p-0">
+            <ListRowsSkeleton rows={2} />
+          </PanelContent>
+        </Panel>
+      ) : page.pendingInvitations.length > 0 ? (
         <Panel>
           <PanelHeader>
             <div className="flex items-center gap-2">

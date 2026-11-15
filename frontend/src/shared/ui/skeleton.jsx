@@ -3,6 +3,7 @@ import { cn } from "@/shared/lib/utils";
 export function Skeleton({ className, ...props }) {
   return (
     <div
+      data-slot="skeleton"
       className={cn(
         "animate-pulse rounded-sm bg-surface-3 motion-reduce:animate-none",
         className,

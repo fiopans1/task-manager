@@ -13,8 +13,9 @@ import {
 } from "@/shared/lib/icons";
 import { PageContainer } from "@/shared/patterns/page-container";
 import { PageHeader } from "@/shared/patterns/page-header";
+import { PanelSkeleton } from "@/shared/patterns/panel-skeleton";
 import { Button } from "@/shared/ui/button";
-import { Spinner } from "@/shared/ui/spinner";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { TeamSummaryPanel } from "@/features/teams/components/dashboard/TeamSummaryPanel";
@@ -33,16 +34,50 @@ import {
 } from "@/features/teams/components/dialogs/TeamConfirmDialogs";
 import { useTeamDashboard } from "@/features/teams/hooks/useTeamDashboard";
 
+function TeamDashboardSkeleton() {
+  return (
+    <PageContainer>
+      <div role="status" aria-live="polite">
+        <span className="sr-only">Loading team</span>
+        <div aria-hidden="true" className="space-y-6">
+          <header className="border-b border-border pb-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0 w-full space-y-3">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-8 w-56 max-w-full" />
+                <Skeleton className="h-4 w-64 max-w-full" />
+              </div>
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                <Skeleton className="size-9" />
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-20" />
+                <Skeleton className="h-9 w-20" />
+              </div>
+            </div>
+          </header>
+
+          <PanelSkeleton rows={2} />
+
+          <div className="space-y-4">
+            <div className="flex gap-2 border-b border-border">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-10 w-24" />
+              ))}
+            </div>
+            <PanelSkeleton rows={4} />
+          </div>
+        </div>
+      </div>
+    </PageContainer>
+  );
+}
+
 export default function TeamDashboardPage() {
   const { id: teamId } = useParams();
   const page = useTeamDashboard(teamId);
 
   if (page.loading) {
-    return (
-      <PageContainer className="flex min-h-[50vh] items-center justify-center">
-        <Spinner size={24} label="Loading team" />
-      </PageContainer>
-    );
+    return <TeamDashboardSkeleton />;
   }
 
   if (!page.team) {
@@ -190,6 +225,7 @@ export default function TeamDashboardPage() {
               <InvitationsTab
                 invitations={page.invitations}
                 onCancelInvitation={page.handleCancelInvitation}
+                loading={page.invitationsLoading}
               />
             </TabsContent>
           ) : null}
@@ -222,6 +258,7 @@ export default function TeamDashboardPage() {
           }
         }}
         tasks={page.userTasks}
+        tasksLoading={page.userTasksLoading}
         selectedTaskId={page.selectedTaskId}
         setSelectedTaskId={page.setSelectedTaskId}
         validated={page.addTaskValidated}

@@ -4,7 +4,7 @@ import AppSidebar from "@/app/layout/sidebar/AppSidebar";
 import { SessionManager } from "@/features/session";
 import { SystemMessageDialog } from "@/features/system-messages";
 import Seo from "@/shared/seo/Seo";
-import { Spinner } from "@/shared/ui/spinner";
+import { PageSkeleton } from "@/shared/patterns/page-skeleton";
 import { getMetaForPath } from "@/app/routes";
 
 export default function AppLayout({ onLogOut }) {
@@ -22,13 +22,7 @@ export default function AppLayout({ onLogOut }) {
       <AppSidebar onLogOut={onLogOut} />
       <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
         <Seo title={meta.title} path={location.pathname} description={meta.description} noindex />
-        <Suspense
-          fallback={
-            <div className="flex min-h-[50vh] items-center justify-center">
-              <Spinner size={22} label="Loading page" />
-            </div>
-          }
-        >
+        <Suspense fallback={<PageSkeleton stats panels={2} label="Loading page" />}>
           <Outlet />
         </Suspense>
       </main>

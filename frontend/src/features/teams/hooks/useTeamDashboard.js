@@ -20,6 +20,7 @@ export function useTeamDashboard(teamId) {
   const [team, setTeam] = useState(null);
   const [dashboard, setDashboard] = useState(null);
   const [invitations, setInvitations] = useState([]);
+  const [invitationsLoading, setInvitationsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -35,6 +36,7 @@ export function useTeamDashboard(teamId) {
   const [inviteUsername, setInviteUsername] = useState("");
   const [inviteValidated, setInviteValidated] = useState(false);
   const [userTasks, setUserTasks] = useState([]);
+  const [userTasksLoading, setUserTasksLoading] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState("");
   const [addTaskValidated, setAddTaskValidated] = useState(false);
   const [reassignTask, setReassignTask] = useState(null);
@@ -62,11 +64,14 @@ export function useTeamDashboard(teamId) {
 
   const loadInvitations = useCallback(async () => {
     if (!isAdmin) return;
+    setInvitationsLoading(true);
     try {
       const data = await teamService.getTeamInvitations(teamId);
       setInvitations(data);
     } catch {
       // Only admins can see invitations.
+    } finally {
+      setInvitationsLoading(false);
     }
   }, [teamId, isAdmin]);
 
@@ -202,11 +207,14 @@ export function useTeamDashboard(teamId) {
   };
 
   const loadUserTasks = async () => {
+    setUserTasksLoading(true);
     try {
       const allTasks = await taskService.getAllTasks();
       setUserTasks(allTasks.filter((task) => !task.teamId));
     } catch {
       setUserTasks([]);
+    } finally {
+      setUserTasksLoading(false);
     }
   };
 
@@ -292,6 +300,7 @@ export function useTeamDashboard(teamId) {
     team,
     dashboard,
     invitations,
+    invitationsLoading,
     loading,
     isAdmin,
     activeTab,
@@ -322,6 +331,7 @@ export function useTeamDashboard(teamId) {
     inviteValidated,
     setInviteValidated,
     userTasks,
+    userTasksLoading,
     selectedTaskId,
     setSelectedTaskId,
     addTaskValidated,

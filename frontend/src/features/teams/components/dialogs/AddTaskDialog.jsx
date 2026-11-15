@@ -10,12 +10,14 @@ import {
 import { Button } from "@/shared/ui/button";
 import { Field } from "@/shared/ui/field";
 import { Select } from "@/shared/ui/select";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 
 export function AddTaskDialog({
   open,
   onOpenChange,
   tasks,
+  tasksLoading = false,
   selectedTaskId,
   setSelectedTaskId,
   validated,
@@ -39,20 +41,27 @@ export function AddTaskDialog({
               required
               error={validated && !selectedTaskId ? "Please select a task" : undefined}
             >
-              <Select
-                id="team-task-select"
-                value={selectedTaskId}
-                onChange={(event) => setSelectedTaskId(event.target.value)}
-                required
-                aria-invalid={validated && !selectedTaskId}
-              >
-                <option value="">Select a task...</option>
-                {tasks.map((task) => (
-                  <option key={task.id} value={task.id}>
-                    {task.nameOfTask}
-                  </option>
-                ))}
-              </Select>
+              {tasksLoading ? (
+                <div role="status" aria-live="polite">
+                  <span className="sr-only">Loading tasks</span>
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              ) : (
+                <Select
+                  id="team-task-select"
+                  value={selectedTaskId}
+                  onChange={(event) => setSelectedTaskId(event.target.value)}
+                  required
+                  aria-invalid={validated && !selectedTaskId}
+                >
+                  <option value="">Select a task...</option>
+                  {tasks.map((task) => (
+                    <option key={task.id} value={task.id}>
+                      {task.nameOfTask}
+                    </option>
+                  ))}
+                </Select>
+              )}
             </Field>
           </DialogBody>
           <DialogFooter>

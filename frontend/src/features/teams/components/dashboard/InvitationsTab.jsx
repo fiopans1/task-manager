@@ -1,20 +1,32 @@
 import { Mail, X } from "@/shared/lib/icons";
 import { Panel, PanelContent, PanelHeader, PanelTitle } from "@/shared/ui/panel";
+import { ListRowsSkeleton } from "@/shared/patterns/panel-skeleton";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Avatar } from "@/shared/ui/avatar";
 import { EmptyState } from "@/shared/ui/empty-state";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { formatDate } from "@/shared/lib/formatDate";
 
-export default function InvitationsTab({ invitations, onCancelInvitation }) {
+export default function InvitationsTab({
+  invitations,
+  onCancelInvitation,
+  loading = false,
+}) {
   return (
-    <Panel>
+    <Panel aria-busy={loading || undefined}>
       <PanelHeader>
         <PanelTitle>Pending invitations</PanelTitle>
-        <Badge tone="neutral">{invitations.length}</Badge>
+        {loading ? (
+          <Skeleton className="h-5 w-10" />
+        ) : (
+          <Badge tone="neutral">{invitations.length}</Badge>
+        )}
       </PanelHeader>
       <PanelContent className="p-0">
-        {invitations.length === 0 ? (
+        {loading ? (
+          <ListRowsSkeleton rows={3} />
+        ) : invitations.length === 0 ? (
           <EmptyState
             icon={Mail}
             title="No pending invitations"

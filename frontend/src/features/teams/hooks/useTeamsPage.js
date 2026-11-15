@@ -11,13 +11,17 @@ export function useTeamsPage() {
   const search = useSearchQuery();
   const dialog = useEntityDialog();
   const [pendingInvitations, setPendingInvitations] = useState([]);
+  const [invitationsLoading, setInvitationsLoading] = useState(true);
 
   const loadPendingInvitations = useCallback(async () => {
+    setInvitationsLoading(true);
     try {
       const data = await teamService.getMyPendingInvitations();
       setPendingInvitations(data);
     } catch {
       setPendingInvitations([]);
+    } finally {
+      setInvitationsLoading(false);
     }
   }, []);
 
@@ -51,6 +55,7 @@ export function useTeamsPage() {
     search,
     dialog,
     pendingInvitations,
+    invitationsLoading,
     loadPendingInvitations,
     respondToInvitation,
     refreshAll,

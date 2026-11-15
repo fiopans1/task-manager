@@ -242,9 +242,19 @@ export default function ListDetailsPage() {
             />
 
             {details.loadingAvailable ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-                <Spinner size={18} label="Loading tasks" />
-                Loading available tasks...
+              <div role="status" aria-live="polite">
+                <span className="sr-only">Loading available tasks</span>
+                <div aria-hidden="true" className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 rounded-sm border border-border px-3 py-2.5"
+                    >
+                      <Skeleton className="size-4 shrink-0" />
+                      <Skeleton className="h-4 flex-1" />
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : details.filteredAvailableTasks.length === 0 ? (
               <EmptyState

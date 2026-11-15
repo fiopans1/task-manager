@@ -1,4 +1,4 @@
-import { Spinner } from "@/shared/ui/spinner";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export function LoadMoreSentinel({
   sentinelRef,
@@ -11,12 +11,15 @@ export function LoadMoreSentinel({
   return (
     <div
       ref={sentinelRef}
-      className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground"
+      className="py-3"
+      aria-busy={loading || undefined}
     >
       {loading ? (
         <>
-          <Spinner size={14} label="Loading more" />
-          <span>{label}</span>
+          <span className="sr-only">{label}</span>
+          <div aria-hidden="true" className="px-4">
+            <Skeleton className="h-12 w-full" />
+          </div>
         </>
       ) : (
         <span className="sr-only">More results load automatically</span>

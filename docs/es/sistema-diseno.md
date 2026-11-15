@@ -50,8 +50,9 @@ shared/ui/          Button, Badge, StatusBadge, PriorityBadge, Panel, Field,
                     Skeleton, Avatar, Separator, Alert, Spinner, EmptyState,
                     SearchInput, MentionTextarea
 shared/patterns/    PageContainer, PageHeader, CollectionPage, SearchToolbar,
-                    EntityCollection, LoadMoreSentinel, EntityRow, DetailLayout,
-                    StatStrip, MetadataList, ActivityTimeline
+                    EntityCollection, CollectionSkeleton, PanelSkeleton,
+                    PageSkeleton, LoadMoreSentinel, EntityRow, DetailLayout,
+                    StatStrip, StatStripSkeleton, MetadataList, ActivityTimeline
 app/layout/         AppLayout, AppSidebar, SidebarContent, SidebarNavItem,
                     SidebarUserMenu, MobileHeader, MobileNav, AboutDialog
 features/*/         Páginas, componentes y hooks del dominio
@@ -88,6 +89,10 @@ Tasks, Lists y Teams comparten una única receta de pantalla:
 `CollectionPage` + `PageHeader` + `SearchToolbar` + `EntityCollection` + `EntityRow`
 
 Cada feature aporta solo el contenido de su fila (`TaskRow`, `ListRow`, `TeamRow`), su estado vacío y su diálogo de formulario. Si añades una cuarta colección, reutiliza esta pila en vez de construir otra pantalla desde cero. `CollectionSkeleton` y `EmptyState` mantienen también idénticos los estados de carga y vacío.
+
+## Estados de carga
+
+Las regiones con datos reservan siempre su layout final con skeletons mientras llega la primera petición. Las colecciones usan `CollectionSkeleton`; los paneles, detalles, pestañas de administración y diálogos usan `PanelSkeleton` o filas locales; los dashboards usan `StatStrip` con `loading`; el arranque, las rutas lazy y la comprobación de features usan `PageSkeleton`. Los spinners quedan reservados para la acción dentro de botones (guardar, borrar, iniciar sesión), donde no hay un layout de datos que reservar.
 
 ## Pantallas de autenticación
 

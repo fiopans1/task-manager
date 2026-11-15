@@ -50,8 +50,9 @@ shared/ui/          Button, Badge, StatusBadge, PriorityBadge, Panel, Field,
                     Skeleton, Avatar, Separator, Alert, Spinner, EmptyState,
                     SearchInput, MentionTextarea
 shared/patterns/    PageContainer, PageHeader, CollectionPage, SearchToolbar,
-                    EntityCollection, LoadMoreSentinel, EntityRow, DetailLayout,
-                    StatStrip, MetadataList, ActivityTimeline
+                    EntityCollection, CollectionSkeleton, PanelSkeleton,
+                    PageSkeleton, LoadMoreSentinel, EntityRow, DetailLayout,
+                    StatStrip, StatStripSkeleton, MetadataList, ActivityTimeline
 app/layout/         AppLayout, AppSidebar, SidebarContent, SidebarNavItem,
                     SidebarUserMenu, MobileHeader, MobileNav, AboutDialog
 features/*/         Domain pages, components and hooks
@@ -88,6 +89,10 @@ Tasks, Lists and Teams share one screen recipe:
 `CollectionPage` + `PageHeader` + `SearchToolbar` + `EntityCollection` + `EntityRow`
 
 Each feature supplies only its row content (`TaskRow`, `ListRow`, `TeamRow`), its empty state and its form dialog. If you add a fourth collection, reuse this stack instead of building a new page shell. The shared `CollectionSkeleton` and `EmptyState` keep loading and empty screens identical too.
+
+## Loading states
+
+Data regions always reserve their final layout with skeletons while the first request is in flight. Collections use `CollectionSkeleton`; panels, detail views, admin tabs and dialogs use `PanelSkeleton` or local skeleton rows; dashboards use `StatStrip` with `loading`; boot, lazy routes and feature checks use `PageSkeleton`. Spinners remain reserved for action feedback inside buttons (saving, deleting, signing in), where there is no data layout to reserve.
 
 ## Auth screens
 
