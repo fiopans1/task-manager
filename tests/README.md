@@ -59,6 +59,8 @@ e2e.username=admin
 e2e.password=admin
 e2e.collaborator.username=basic
 e2e.collaborator.password=basic
+# false when the backend runs with taskmanager.oauth2.enabled=false
+e2e.oauth-enabled=true
 e2e.browser=chromium
 # false = visible Chromium window; true = headless
 e2e.headless=false
@@ -113,8 +115,9 @@ The suite is sequential because it shares one backend and one database.
 - Admin user search/detail/block/unblock, editing/deleting another user's task,
   feature flags and system messages.
 - Idle-session warning, extend session and automatic logout.
-- OAuth2 UI and error callback. External Google/GitHub login is not automated
-  because it needs real third-party accounts.
+- OAuth2 UI, authorization-cookie path and error callback. External Google/GitHub
+  login is not automated because it needs real third-party accounts; the redirect
+  check runs only when `e2e.oauth-enabled=true`.
 
 ## Artifacts
 

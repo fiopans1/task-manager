@@ -12,11 +12,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class OAuth2CookiePathTest {
 
     @Test
     void oauthAuthorizationCookieUsesConfiguredPublicPath() throws Exception {
+        assumeTrue(E2EConfig.oauthEnabled(),
+                "OAuth2 is disabled for this E2E environment; skipping the cookie path check");
+
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .followRedirects(HttpClient.Redirect.NEVER)

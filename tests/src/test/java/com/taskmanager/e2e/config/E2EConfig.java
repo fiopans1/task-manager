@@ -32,6 +32,10 @@ public final class E2EConfig {
         return value("e2e.oauth-cookie-path", "E2E_OAUTH_COOKIE_PATH", "/oauth2");
     }
 
+    public static boolean oauthEnabled() {
+        return Boolean.parseBoolean(value("e2e.oauth-enabled", "E2E_OAUTH_ENABLED", "true"));
+    }
+
     public static String username() {
         return value("e2e.username", "E2E_USERNAME", "admin");
     }

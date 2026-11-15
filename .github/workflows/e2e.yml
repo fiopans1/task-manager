@@ -20,6 +20,7 @@ env:
   E2E_COLLABORATOR_USERNAME: basic
   E2E_COLLABORATOR_PASSWORD: basic
   E2E_HEADLESS: "true"
+  E2E_OAUTH_ENABLED: "true"
   STARTUP_RETRIES: 45
   STARTUP_DELAY_SECONDS: 2
 
@@ -84,8 +85,20 @@ jobs:
           server.port=8080
           taskmanager.frontend.base-url=http://localhost:3000
           taskmanager.backend.base-url=http://localhost:8080
-          taskmanager.oauth2.enabled=false
+          taskmanager.oauth2.enabled=true
           taskmanager.oauth2.authorized-redirect-uris=http://localhost:3000/oauth2-login
+          taskmanager.oauth2.google.enabled=true
+          taskmanager.oauth2.github.enabled=true
+          spring.security.oauth2.client.registration.google.client-name=Google
+          spring.security.oauth2.client.registration.google.client-id=e2e-google-client
+          spring.security.oauth2.client.registration.google.client-secret=e2e-google-secret
+          spring.security.oauth2.client.registration.google.scope=openid,profile,email
+          spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/oauth2/callback/{registrationId}
+          spring.security.oauth2.client.registration.github.client-name=GitHub
+          spring.security.oauth2.client.registration.github.client-id=e2e-github-client
+          spring.security.oauth2.client.registration.github.client-secret=e2e-github-secret
+          spring.security.oauth2.client.registration.github.scope=read:user,user:email
+          spring.security.oauth2.client.registration.github.redirect-uri=http://localhost:8080/oauth2/callback/{registrationId}
           spring.datasource.url=jdbc:sqlite:${{ github.workspace }}/tests/target/e2e/task-manager.db?foreign_keys=on
           spring.datasource.driver-class-name=org.sqlite.JDBC
           spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
