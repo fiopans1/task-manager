@@ -38,7 +38,22 @@ spring.jpa.show-sql=false
 
 # OAuth2 (disabled by default)
 taskmanager.oauth2.enabled=false
+
+# Security: same-origin Caddy deployment (HTTPS is required in production)
+taskmanager.security.cors.allowed-origins=${taskmanager.frontend.base-url}
+taskmanager.security.cookies.secure=true
+taskmanager.security.cookies.same-site=Lax
+taskmanager.security.cookies.access-path=/api
+taskmanager.security.cookies.refresh-path=/api/session
+taskmanager.security.access-token.ttl=10m
+taskmanager.security.refresh-token.ttl=14d
+taskmanager.security.csrf.cookie-name=XSRF-TOKEN
+taskmanager.security.csrf.header-name=X-XSRF-TOKEN
 ```
+
+The packaged Caddyfile proxies `/api`, `/auth` and `/oauth2` to the backend, so the browser sees a single origin. If you deploy frontend and backend on separate origins, set `taskmanager.security.cors.allowed-origins` to the exact frontend origin and use `SameSite=None; Secure` with HTTPS.
+
+Automatic OAuth2 email linking is disabled: an OAuth2 login is only accepted for an account already linked to that provider. This prevents a pre-registered local email from retaining access when the real owner signs in with SSO.
 
 #### OAuth2 Providers
 
@@ -81,8 +96,8 @@ spring.security.oauth2.client.provider.authentik.user-info-uri=https://YOUR_DOMA
 ```javascript
 window.APP_CONFIG = {
   api: {
-    // Backend API base URL
-    baseUrl: "http://localhost:8080",
+    // Empty means same-origin: Caddy proxies /api, /auth and /oauth2.
+    baseUrl: "",
   },
   oauth2: {
     // Enable OAuth2 globally

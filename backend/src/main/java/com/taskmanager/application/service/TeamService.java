@@ -294,6 +294,10 @@ public class TeamService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
 
+        if (task.getTeam() == null || !task.getTeam().getId().equals(teamId)) {
+            throw new NotPermissionException("Task does not belong to this team");
+        }
+
         User targetUser = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + targetUsername));
 

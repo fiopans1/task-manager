@@ -97,7 +97,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return userRepository.findByEmail(email)
                 .map(existingUser -> {
-                    logger.debug("Found existing user for email, updating...");
+                    logger.debug("Found existing user for email, checking provider link...");
+                    OAuthAccountLinkingPolicy.ensureProviderCanBeLinked(existingUser, provider);
                     return updateExistingUser(existingUser, oAuth2User, provider);
                 })
                 .orElseGet(() -> {

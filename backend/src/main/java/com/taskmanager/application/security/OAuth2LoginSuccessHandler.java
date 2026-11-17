@@ -49,6 +49,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new Exception("User not found: " + userPrincipal.getId()));
 
+            if (user.isBlocked()) {
+                logger.warn("OAuth2 login rejected for blocked user: {}", user.getUsername());
+                String errorUrl = authorizedRedirectUri + "?error=account_blocked&message="
+                        + java.net.URLEncoder.encode(
+                                "Your account has been blocked. Contact an administrator.",
+                                java.nio.charset.StandardCharsets.UTF_8);
+                response.sendRedirect(errorUrl);
+                return;
+            }
+
             sessionService.createSessionForUser(user, request, response);
             csrfService.rotateToken(request, response);
 

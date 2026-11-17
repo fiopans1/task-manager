@@ -97,7 +97,8 @@ public class CustomOidcUserService extends OidcUserService {
 
         return userRepository.findByEmail(email)
                 .map(existingUser -> {
-                    logger.info("Updating existing user from OIDC: {}", email);
+                    logger.info("Found existing user for OIDC email, checking provider link");
+                    OAuthAccountLinkingPolicy.ensureProviderCanBeLinked(existingUser, provider);
                     return updateExistingUser(existingUser, oidcUser, provider);
                 })
                 .orElseGet(() -> {

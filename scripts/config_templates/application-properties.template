@@ -64,6 +64,31 @@ jwtKeys.publicKeyPath=file:${DEPLOY_ROOT}/config/keys/public_key.pem
 # jwt.expiration=86400000
 
 ################################################################################
+# SECURITY - CORS / COOKIES / CSRF
+################################################################################
+# Same-origin deployment: Caddy proxies /api, /auth and /oauth2 to the backend.
+taskmanager.security.cors.allowed-origins=${taskmanager.frontend.base-url}
+taskmanager.security.cookies.secure=true
+taskmanager.security.cookies.same-site=Lax
+taskmanager.security.cookies.access-name=TM-ACCESS
+taskmanager.security.cookies.refresh-name=TM-REFRESH
+taskmanager.security.cookies.access-path=/api
+taskmanager.security.cookies.refresh-path=/api/session
+taskmanager.security.access-token.ttl=10m
+taskmanager.security.refresh-token.ttl=14d
+taskmanager.security.csrf.cookie-name=XSRF-TOKEN
+taskmanager.security.csrf.header-name=X-XSRF-TOKEN
+taskmanager.security.csrf.parameter-name=_csrf
+taskmanager.security.csrf.path=/
+
+# Cross-site deployments (different frontend/backend origins) must use HTTPS
+# and adjust the cookie settings explicitly:
+# taskmanager.security.cors.allowed-origins=https://app.example.com
+# taskmanager.security.cookies.secure=true
+# taskmanager.security.cookies.same-site=None
+# taskmanager.security.cookies.domain=.example.com
+
+################################################################################
 # LOGGING CONFIGURATION
 ################################################################################
 # External logging configuration file
@@ -122,8 +147,6 @@ taskmanager.oauth2.authorized-redirect-uris=${taskmanager.frontend.base-url}/oau
 ################################################################################
 # CORS CONFIGURATION (Optional)
 ################################################################################
-# Uncomment to configure CORS if needed
-# taskmanager.cors.allowed-origins=${taskmanager.frontend.base-url}
-# taskmanager.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
-# taskmanager.cors.allowed-headers=*
-# taskmanager.cors.allow-credentials=true
+# CORS is configured in the SECURITY section above through
+# taskmanager.security.cors.*. Do not use the old taskmanager.cors.* prefix.
+# taskmanager.security.cors.allowed-origins=${taskmanager.frontend.base-url}

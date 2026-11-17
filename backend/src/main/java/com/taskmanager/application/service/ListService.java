@@ -45,6 +45,10 @@ public class ListService {
     public ListTM createList(ListTMDTO listDTO) {
         logger.info("Creating list: {}", listDTO.getNameOfList());
 
+        if (listDTO.getId() != null) {
+            throw new IllegalArgumentException("List id must be omitted when creating a list");
+        }
+
         ListTM list = ListTMDTO.toEntity(listDTO, false);
         User user = authService.getCurrentUser();
 
@@ -150,10 +154,18 @@ public class ListService {
         if (authService.hasRole("ROLE_ADMIN") || list.getUser().getUsername().equals(authService.getCurrentUsername())) {
             logger.debug("User authorized to add tasks to list ID: {}", listId);
 
+            boolean isAdmin = authService.hasRole("ROLE_ADMIN");
+            User currentUser = authService.getCurrentUser();
             List<TaskDTO> addedTasks = new ArrayList<>();
             for (Long taskId : tasksListId) {
                 Task task = taskRepository.findById(taskId)
                         .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
+
+                if (!isAdmin && (task.getUser() == null
+                        || !task.getUser().getId().equals(currentUser.getId()))) {
+                    throw new NotPermissionException("You can only add your own tasks to a list");
+                }
+
                 list.addListTask(task);
                 addedTasks.add(TaskDTO.fromEntity(task));
             }

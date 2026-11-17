@@ -176,10 +176,20 @@ public class AdminService {
     // ===== PUBLIC CONFIG (for all users) =====
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getPublicConfig() {
+    public Map<String, Object> getPublicConfig(boolean authenticated) {
         Map<String, Object> config = new HashMap<>();
         config.put("features", getAllFeatureFlags());
-        config.put("systemMessage", getSystemMessage());
+
+        Map<String, Object> systemMessage = getSystemMessage();
+        boolean enabled = Boolean.TRUE.equals(systemMessage.get("enabled"));
+        boolean visible = authenticated
+                ? !Boolean.FALSE.equals(systemMessage.get("showAfterLogin"))
+                : Boolean.TRUE.equals(systemMessage.get("showBeforeLogin"));
+
+        if (!enabled || !visible) {
+            systemMessage.remove("message");
+        }
+        config.put("systemMessage", systemMessage);
         return config;
     }
 }

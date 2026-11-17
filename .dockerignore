@@ -37,6 +37,12 @@ logs/
 .env
 *.db
 
+# Claves y secretos locales
+**/jwtKeys/
+**/*.pem
+**/*.p12
+**/application.properties
+
 # Archivos temporales
 tmp/
 temp/

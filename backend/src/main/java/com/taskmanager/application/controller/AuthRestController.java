@@ -1,9 +1,9 @@
 package com.taskmanager.application.controller;
 
 import com.taskmanager.application.model.dto.LoginDTO;
+import com.taskmanager.application.model.dto.RegisterDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.dto.SessionDTO;
-import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.service.AuthService;
 import com.taskmanager.application.service.CsrfService;
 import com.taskmanager.application.service.SessionService;
@@ -52,20 +52,21 @@ public class AuthRestController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody User user) throws Exception {
-        logger.info("Registration attempt for user: {}", user.getUsername());
+    public ResponseEntity<ResponseDTO> register(@RequestBody RegisterDTO registration) throws Exception {
+        logger.info("Registration attempt for user: {}", registration.getUsername());
 
         try {
-            ResponseDTO response = authService.register(user);
+            ResponseDTO response = authService.register(registration);
             if (response.getErrorCount() <= 0) {
-                logger.info("Registration successful for user: {}", user.getUsername());
+                logger.info("Registration successful for user: {}", registration.getUsername());
                 return ResponseEntity.ok(response);
             } else {
-                logger.warn("Registration failed for user: {} - {} errors", user.getUsername(), response.getErrorCount());
+                logger.warn("Registration failed for user: {} - {} errors",
+                        registration.getUsername(), response.getErrorCount());
                 return ResponseEntity.badRequest().body(response);
             }
         } catch (Exception e) {
-            logger.error("Registration error for user: {}", user.getUsername(), e);
+            logger.error("Registration error for user: {}", registration.getUsername(), e);
             throw e;
         }
     }

@@ -96,6 +96,13 @@ VOLUME /files_to_copy
 # Dar permisos de ejecución a los scripts
 RUN chmod +x /app/entrypoint.sh /app/prepare_environment.sh /app/env-setup.sh
 
+# Ejecutar la aplicación como usuario sin privilegios. Los volúmenes
+# /app/metadata y /files_to_copy heredan este propietario al crearse.
+RUN groupadd --system --gid 10001 app \
+    && useradd --system --uid 10001 --gid app --home-dir /app --shell /usr/sbin/nologin app \
+    && chown -R app:app /app /files_to_copy
+USER app
+
 # Punto de entrada
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["--start-all"]

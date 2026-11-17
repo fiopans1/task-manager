@@ -65,6 +65,8 @@ The deployment must assume that authentication now depends on browser credential
 - The frontend must call the backend with credentials enabled.
 - The backend must allow credentialed CORS from authorized origins.
 - Access and refresh cookies must be sent and cleared correctly according to `path`, `domain`, `secure`, and `SameSite`.
+- The packaged Caddyfile proxies `/api`, `/auth` and `/oauth2` to the backend so the browser sees one origin. If you split origins, update `taskmanager.security.cors.allowed-origins` and use `SameSite=None; Secure` explicitly.
+- Automatic OAuth2 email linking is disabled. An OAuth2 login is accepted only for an account already linked to that provider; do not pre-register another person's email.
 - Write operations require the CSRF token issued through `/api/session/csrf`.
 
 ## Minimum post-deployment checks

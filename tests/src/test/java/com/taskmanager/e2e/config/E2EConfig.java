@@ -32,6 +32,27 @@ public final class E2EConfig {
         return value("e2e.oauth-cookie-path", "E2E_OAUTH_COOKIE_PATH", "/oauth2");
     }
 
+    /**
+     * Signing key used only by the forged-token regression test. CI generates
+     * it under tests/target/keys; local runs fall back to the backend key.
+     */
+    public static Path jwtPrivateKeyPath() {
+        String configured = value("e2e.jwt-private-key", "E2E_JWT_PRIVATE_KEY", "");
+        if (!configured.isBlank()) {
+            Path configuredPath = resolvePath(configured);
+            if (Files.isRegularFile(configuredPath)) {
+                return configuredPath;
+            }
+        }
+
+        Path workingDir = Paths.get(System.getProperty("user.dir"));
+        Path ciKey = workingDir.resolve("target/keys/private_key.pem").normalize();
+        if (Files.isRegularFile(ciKey)) {
+            return ciKey;
+        }
+        return workingDir.resolve("../backend/src/main/resources/jwtKeys/private_key.pem").normalize();
+    }
+
     public static boolean oauthEnabled() {
         return Boolean.parseBoolean(value("e2e.oauth-enabled", "E2E_OAUTH_ENABLED", "true"));
     }

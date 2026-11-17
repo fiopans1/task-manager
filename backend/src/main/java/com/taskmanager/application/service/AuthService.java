@@ -1,8 +1,10 @@
 package com.taskmanager.application.service;
 
 import com.taskmanager.application.model.dto.LoginDTO;
+import com.taskmanager.application.model.dto.RegisterDTO;
 import com.taskmanager.application.model.dto.ResponseDTO;
 import com.taskmanager.application.model.entities.AuthProvider;
+import com.taskmanager.application.model.entities.FullName;
 import com.taskmanager.application.model.entities.User;
 import com.taskmanager.application.model.validations.UserValidation;
 import com.taskmanager.application.respository.UserRepository;
@@ -48,8 +50,9 @@ public class AuthService {
 
         Optional<User> user = userRepository.findByUsername(login.getUsername());
         if (user.isEmpty()) {
-            logger.warn("Login failed: User not registered - {}", login.getUsername());
-            throw new Exception("User not registered!");
+            logger.warn("Login failed: unknown username - {}", login.getUsername());
+            // Same response as a wrong password to avoid username enumeration.
+            throw new Exception("Username or password is incorrect!");
         }
 
         if (user.get().isBlocked()) {
@@ -71,11 +74,17 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseDTO register(User user) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
-        logger.info("Attempting to register user: {}", user.getUsername());
+    public ResponseDTO register(RegisterDTO registration) throws Exception { //TO-DO: Change ResponseDTO to difference between error and success
+        logger.info("Attempting to register user: {}", registration.getUsername());
 
         try {
+            User user = new User();
+            user.setUsername(registration.getUsername());
+            user.setEmail(registration.getEmail());
+            user.setPassword(registration.getPassword());
+            user.setName(registration.getName() != null ? registration.getName() : FullName.empty());
             user.setCreationDate(new Date());
+
             ResponseDTO response;
             response = userValidation.validateUser(user);
             if (response.getErrorCount() > 0) {
@@ -107,7 +116,7 @@ public class AuthService {
             return response;
 
         } catch (Exception e) {
-            logger.error("Error during registration for user: {} - Error: {}", user.getUsername(), e.getMessage(), e);
+            logger.error("Error during registration for user: {} - Error: {}", registration.getUsername(), e.getMessage(), e);
             throw new Exception(e.toString());
         }
 

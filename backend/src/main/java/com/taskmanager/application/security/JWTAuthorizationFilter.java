@@ -86,6 +86,12 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            if (session.getUser() == null || !session.getUser().getUsername().equals(username)) {
+                logger.warn("JWT filter: token subject does not own session {}", sid);
+                setResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Session is no longer valid");
+                return;
+            }
+
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
             if (!userDetails.isAccountNonLocked()) {

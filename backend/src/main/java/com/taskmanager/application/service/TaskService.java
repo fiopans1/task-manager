@@ -59,6 +59,10 @@ public class TaskService {
     public Task createTask(TaskDTO taskDto) {
         logger.info("Creating task: {}", taskDto.getNameOfTask());
 
+        if (taskDto.getId() != null) {
+            throw new IllegalArgumentException("Task id must be omitted when creating a task");
+        }
+
         validateEventDates(taskDto);
 
         Task task = TaskDTO.toEntity(taskDto);
@@ -235,6 +239,10 @@ public class TaskService {
     public ActionTask addActionToTask(Long taskId, ActionTaskDTO actionTask) throws ResourceNotFoundException, NotPermissionException {
 
         logger.info("Adding action to task with ID: {}", taskId);
+
+        if (actionTask.getId() != null) {
+            throw new IllegalArgumentException("Action id must be omitted when creating an action");
+        }
 
         Task task = tasksRepository.findById(taskId)
                 .orElseThrow(() -> {

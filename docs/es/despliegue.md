@@ -65,6 +65,8 @@ El despliegue debe asumir que la autenticación depende de credenciales de naveg
 - El frontend debe llamar al backend con credenciales.
 - El backend debe permitir credenciales CORS desde los orígenes autorizados.
 - Las cookies de acceso y refresh deben enviarse y borrarse correctamente según `path`, `domain`, `secure` y `SameSite`.
+- El Caddyfile empaquetado proxya `/api`, `/auth` y `/oauth2` al backend para que el navegador vea un único origen. Si separas orígenes, ajusta `taskmanager.security.cors.allowed-origins` y usa `SameSite=None; Secure` de forma explícita.
+- El enlace automático de OAuth2 por email está desactivado. Un login OAuth2 solo se acepta para una cuenta que ya tenga ese proveedor vinculado; no pre-registres el email de otra persona.
 - Las operaciones de escritura necesitan el token CSRF emitido en `/api/session/csrf`.
 
 ## Verificaciones mínimas tras el despliegue

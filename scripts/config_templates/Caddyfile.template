@@ -9,6 +9,10 @@
 # Default configuration serves on port 3000. Modify the address line to change
 # the port or bind to a specific interface.
 #
+# The :3000 block below is for local HTTP testing only. Production deployments
+# must use the HTTPS block at the end: the packaged application defaults to
+# Secure cookies, which browsers will not send over plain HTTP.
+#
 ################################################################################
 
 # Server address and port
@@ -20,9 +24,14 @@
     # FILE SERVING & SPA ROUTING
     ################################################################################
     
+    # Proxy API, authentication and OAuth2 traffic to the backend. Keeping
+    # them same-origin avoids cross-site cookies and CORS exposure.
+    @backend path /api/* /auth/* /oauth2/*
+    reverse_proxy @backend localhost:8080
+
     # Enable file server for static assets
     file_server
-    
+
     # SPA fallback: redirect all non-existent file requests to index.html
     # This allows client-side routing (React Router) to work properly
     try_files {path} /index.html
@@ -58,7 +67,10 @@
         
         # Permissions policy - controls browser features
         Permissions-Policy "geolocation=(), microphone=(), camera=()"
-        
+
+        # HSTS is honoured only over HTTPS
+        Strict-Transport-Security "max-age=31536000"
+
         # Remove Server header for security through obscurity
         -Server
     }
@@ -94,18 +106,10 @@
     # }
     
     ################################################################################
-    # REVERSE PROXY (Optional - Uncomment if proxying backend)
+    # REVERSE PROXY
     ################################################################################
-    
-    # If you want to proxy API requests to backend through Caddy:
-    # handle_path /api/* {
-    #     reverse_proxy localhost:8080 {
-    #         header_up Host {host}
-    #         header_up X-Real-IP {remote}
-    #         header_up X-Forwarded-For {remote}
-    #         header_up X-Forwarded-Proto {scheme}
-    #     }
-    # }
+    # The same-origin proxy is configured above via the @backend matcher.
+    # Caddy sets X-Forwarded-For, X-Forwarded-Proto and X-Forwarded-Host.
 }
 
 ################################################################################

@@ -14,10 +14,11 @@ window.APP_CONFIG = {
    */
   api: {
     // Base URL for the backend API
-    // Examples:
-    // - Development: 'http://localhost:8080'
-    // - Production: 'https://api.yourdomain.com'
-    baseUrl: "http://localhost:8080",
+    // Same-origin deployment (recommended): Caddy proxies /api, /auth and
+    // /oauth2 to the backend.
+    // Cross-origin deployments may set an absolute URL, e.g.
+    // 'https://api.yourdomain.com'.
+    baseUrl: "",
   },
 
   /**
