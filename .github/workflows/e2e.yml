@@ -21,6 +21,7 @@ env:
   E2E_COLLABORATOR_PASSWORD: basic
   E2E_HEADLESS: "true"
   E2E_OAUTH_ENABLED: "true"
+  E2E_OAUTH_FAKE_PROVIDER_PORT: "18081"
   STARTUP_RETRIES: 45
   STARTUP_DELAY_SECONDS: 2
 
@@ -98,7 +99,11 @@ jobs:
           spring.security.oauth2.client.registration.github.client-id=e2e-github-client
           spring.security.oauth2.client.registration.github.client-secret=e2e-github-secret
           spring.security.oauth2.client.registration.github.scope=read:user,user:email
-          spring.security.oauth2.client.registration.github.redirect-uri=http://localhost:8080/oauth2/callback/{registrationId}
+          spring.security.oauth2.client.registration.github.redirect-uri=http://localhost:3000/oauth2/callback/{registrationId}
+          spring.security.oauth2.client.provider.github.authorization-uri=http://127.0.0.1:18081/login/oauth/authorize
+          spring.security.oauth2.client.provider.github.token-uri=http://127.0.0.1:18081/login/oauth/access_token
+          spring.security.oauth2.client.provider.github.user-info-uri=http://127.0.0.1:18081/user
+          spring.security.oauth2.client.provider.github.user-name-attribute=login
           spring.datasource.url=jdbc:sqlite:${{ github.workspace }}/tests/target/e2e/task-manager.db?foreign_keys=on
           spring.datasource.driver-class-name=org.sqlite.JDBC
           spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect

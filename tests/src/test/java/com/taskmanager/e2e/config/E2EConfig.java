@@ -32,6 +32,11 @@ public final class E2EConfig {
         return value("e2e.oauth-cookie-path", "E2E_OAUTH_COOKIE_PATH", "/oauth2");
     }
 
+    public static int oauthFakeProviderPort() {
+        return Integer.parseInt(value("e2e.oauth-fake-provider-port",
+                "E2E_OAUTH_FAKE_PROVIDER_PORT", "18081"));
+    }
+
     /**
      * Signing key used only by the forged-token regression test. CI generates
      * it under tests/target/keys; local runs fall back to the backend key.

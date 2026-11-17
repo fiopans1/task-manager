@@ -101,6 +101,19 @@ forged-token regression reads the backend signing key from
 `../backend/src/main/resources/jwtKeys/private_key.pem`; it is skipped when no
 key is available.
 
+For the OAuth linking E2E locally, start the backend with the GitHub provider
+pointing at the fake server (port `18081`):
+
+```bash
+cd ..
+java -jar backend/target/taskmanager-0.6-beta.jar \
+  --spring.security.oauth2.client.registration.github.redirect-uri=http://localhost:3000/oauth2/callback/{registrationId} \
+  --spring.security.oauth2.client.provider.github.authorization-uri=http://127.0.0.1:18081/login/oauth/authorize \
+  --spring.security.oauth2.client.provider.github.token-uri=http://127.0.0.1:18081/login/oauth/access_token \
+  --spring.security.oauth2.client.provider.github.user-info-uri=http://127.0.0.1:18081/user \
+  --spring.security.oauth2.client.provider.github.user-name-attribute=login
+```
+
 ## What is covered
 
 - Public landing page, SEO metadata, `/health`, theme persistence.
@@ -125,10 +138,15 @@ key is available.
   forged JWT subject is rejected even when signed with the real test key; system
   messages honour their audience flags; packaged TLS/cookie/proxy defaults stay
   in place.
-- OAuth2 UI, authorization-cookie path and error callback. External Google/GitHub
-  login is not automated because it needs real third-party accounts; the redirect
-  check runs only when `e2e.oauth-enabled=true`. The email-linking policy has a
-  backend regression test (`OAuthAccountLinkingPolicyTest`).
+- OAuth2 UI, authorization-cookie path and error callback.
+- OAuth2 linking E2E (`OAuthLinkingE2ETest`): a local HTTP server plays GitHub
+  (authorize, token and user-info endpoints), while the real backend performs the
+  code exchange and the real browser follows the redirects. It proves that a
+  pre-registered local email is rejected and that a new OAuth account can log in
+  again. Google/GitHub accounts are not used. The test starts the fake provider
+  on `e2e.oauth-fake-provider-port` (default `18081`); the backend must be started
+  with the GitHub provider URLs pointing there (CI does this automatically). If
+  the backend is not configured, the test is skipped with an explanatory message.
 
 ## Artifacts
 
