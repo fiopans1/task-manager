@@ -22,11 +22,12 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { formatDateTime } from "@/shared/lib/formatDate";
+import { cn } from "@/shared/lib/utils";
 
 const getErrorMessage = (error) =>
   error?.response?.data?.message || error?.message || "Unknown error";
 
-export default function TaskTimeTrackerPanel({ taskId, onTimerChange }) {
+export default function TaskTimeTrackerPanel({ taskId, onTimerChange, className }) {
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const {
     status,
@@ -90,11 +91,14 @@ export default function TaskTimeTrackerPanel({ taskId, onTimerChange }) {
 
   if (loading && !status) {
     return (
-      <Panel>
+      <Panel
+        className={cn("flex flex-col", className)}
+        data-testid="time-tracking-panel"
+      >
         <PanelHeader>
           <PanelTitle>Time Tracking</PanelTitle>
         </PanelHeader>
-        <PanelContent className="space-y-3">
+        <PanelContent className="flex-1 space-y-3">
           <Skeleton className="h-10 w-32" />
           <Skeleton className="h-9 w-full" />
         </PanelContent>
@@ -104,11 +108,14 @@ export default function TaskTimeTrackerPanel({ taskId, onTimerChange }) {
 
   if (error && !status) {
     return (
-      <Panel>
+      <Panel
+        className={cn("flex flex-col", className)}
+        data-testid="time-tracking-panel"
+      >
         <PanelHeader>
           <PanelTitle>Time Tracking</PanelTitle>
         </PanelHeader>
-        <PanelContent>
+        <PanelContent className="flex-1">
           <Alert tone="danger" title="Time tracking unavailable">
             {getErrorMessage(error)}
           </Alert>
@@ -123,7 +130,10 @@ export default function TaskTimeTrackerPanel({ taskId, onTimerChange }) {
   const mainTime = running ? activeElapsedSeconds : liveTotalSeconds;
 
   return (
-    <Panel>
+    <Panel
+      className={cn("flex flex-col", className)}
+      data-testid="time-tracking-panel"
+    >
       <PanelHeader>
         <PanelTitle>Time Tracking</PanelTitle>
         <Badge tone={running ? "success" : "neutral"}>
@@ -137,7 +147,7 @@ export default function TaskTimeTrackerPanel({ taskId, onTimerChange }) {
         </Badge>
       </PanelHeader>
 
-      <PanelContent className="space-y-4">
+      <PanelContent className="flex flex-1 flex-col space-y-4">
         <div className="rounded-md border border-border bg-surface-2 px-4 py-4">
           <p className="text-2xs font-medium text-muted-foreground">
             {running ? "Current session" : "Total tracked"}

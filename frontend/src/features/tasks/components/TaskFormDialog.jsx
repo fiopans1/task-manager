@@ -165,6 +165,11 @@ export default function TaskFormDialog({
                     </Field>
                   </div>
 
+                  <p className="text-2xs leading-5 text-muted-foreground">
+                    Times default to 00:00, so you can schedule an event by picking
+                    just the dates.
+                  </p>
+
                   {form.dateError ? (
                     <Alert tone="danger">{form.dateError}</Alert>
                   ) : null}

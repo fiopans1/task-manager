@@ -71,7 +71,7 @@ Y una **prioridad** que marca la urgencia:
 1. En la barra lateral pulsa **My Tasks** y luego **New Task** arriba a la derecha.
 2. Escribe un nombre (obligatorio) y, si quieres, una descripción más larga.
 3. Elige estado y prioridad.
-4. Si la tarea tiene día y hora concretos (una reunión, una entrega, un bloque de trabajo), activa **Reserve time on calendar** y rellena fecha y hora de inicio y fin. La tarea aparecerá entonces en el calendario.
+4. Si la tarea tiene día y hora concretos (una reunión, una entrega, un bloque de trabajo), activa **Reserve time on calendar** y rellena las fechas de inicio y fin. Las horas vienen por defecto a **00:00**, así que puedes dejarlas sin tocar para un evento de día completo. La tarea aparecerá entonces en el calendario.
 5. Guarda.
 
 Si la tarea no es un evento pero quieres ver su progreso, deja la casilla desactivada: solo mostrará su estado.
@@ -109,7 +109,7 @@ El detalle de la tarea incluye una tarjeta **Time Tracking**. Pulsa **Start time
 
 ### Convertir una tarea en evento (o al revés)
 
-Una tarea normal no tiene fechas; si la editas y activas **Reserve time on calendar**, le pones fecha de inicio y fin y pasa a aparecer en el calendario. Si desactivas el interruptor en la edición, las fechas se quitan y vuelve a ser una tarea sin horario.
+Una tarea normal no tiene fechas; si la editas y activas **Reserve time on calendar**, le pones fecha de inicio y fin y pasa a aparecer en el calendario. Ambas horas vienen por defecto a **00:00**, así que basta con elegir los días para un evento de día completo. Si desactivas el interruptor en la edición, las fechas se quitan y vuelve a ser una tarea sin horario.
 
 ## Listas
 

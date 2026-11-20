@@ -88,7 +88,10 @@ export default function TaskActionsPanel({
 
   return (
     <>
-      <Panel className={cn("flex flex-col", className)}>
+      <Panel
+        className={cn("flex flex-col", className)}
+        data-testid="action-history-panel"
+      >
         <PanelHeader className="gap-3">
           <PanelTitle>Action History</PanelTitle>
           <div className="flex flex-wrap items-center gap-2">

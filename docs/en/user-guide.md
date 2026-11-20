@@ -71,7 +71,7 @@ And a **priority** that signals urgency:
 1. In the sidebar click **My Tasks** and then **New Task** at the top right.
 2. Type a name (required) and, if you want, a longer description.
 3. Pick a state and a priority.
-4. If the task has a specific day and time (a meeting, a deadline, a work block), enable **Reserve time on calendar** and fill in the start and end date and time. The task will then appear in the calendar.
+4. If the task has a specific day and time (a meeting, a deadline, a work block), enable **Reserve time on calendar** and fill in the start and end dates. Times default to **00:00**, so you can leave them untouched for an all-day event. The task will then appear in the calendar.
 5. Save.
 
 If the task is not an event but you still want to track its progress, leave the box unchecked: it will just show its state.
@@ -109,7 +109,7 @@ The task detail includes a **Time Tracking** card. Click **Start timer** to begi
 
 ### Turning a task into an event (or back)
 
-A regular task has no dates. If you edit it, enable **Reserve time on calendar**, fill in the start and end dates, and it will start showing on the calendar. If you disable the switch during an edit, the dates are removed and it goes back to being a task with no schedule.
+A regular task has no dates. If you edit it, enable **Reserve time on calendar**, fill in the start and end dates, and it will start showing on the calendar. Both times default to **00:00**, so picking only the days is enough for an all-day event. If you disable the switch during an edit, the dates are removed and it goes back to being a task with no schedule.
 
 ## Lists
 

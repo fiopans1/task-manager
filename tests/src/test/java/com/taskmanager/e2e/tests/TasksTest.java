@@ -5,6 +5,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.taskmanager.e2e.core.BaseTest;
 import com.taskmanager.e2e.pages.TaskDetailsPage;
+import com.taskmanager.e2e.pages.TaskFormModal;
 import com.taskmanager.e2e.pages.TasksPage;
 import com.taskmanager.e2e.utils.TaskData;
 import com.taskmanager.e2e.utils.Unique;
@@ -15,6 +16,8 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("smoke")
 class TasksTest extends BaseTest {
@@ -137,6 +140,53 @@ class TasksTest extends BaseTest {
         new com.taskmanager.e2e.pages.CalendarPage(page).expectEvent(name);
 
         new TasksPage(page).open().deleteTask(name);
+    }
+
+    @Test
+    void eventTimesDefaultToMidnight() {
+        loginAsAdmin();
+        String name = Unique.value("midnight event");
+        LocalDate date = LocalDate.now(ZoneOffset.UTC);
+        TasksPage tasks = new TasksPage(page).open();
+
+        TaskFormModal modal = tasks.newTask().fillName(name).enableEvent();
+        modal.expectDefaultEventTimes("00:00", "00:00")
+                .fillEventDatesOnly(date, date);
+        modal.submitCreate();
+        modal.waitClosed();
+        tasks.expectTask(name);
+
+        tasks.openTask(name);
+        new TaskDetailsPage(page).expectTitle(name);
+        assertThat(page.getByText("Event", new Page.GetByTextOptions().setExact(true))).isVisible();
+
+        new TasksPage(page).open().deleteTask(name);
+    }
+
+    @Test
+    void taskDetailsActionAndTimePanelsShareBottomEdge() {
+        loginAsAdmin();
+        String name = Unique.value("details layout");
+        TasksPage tasks = new TasksPage(page).open();
+        tasks.createTask(TaskData.simple(name));
+        tasks.openTask(name);
+
+        Locator actions = page.getByTestId("action-history-panel");
+        Locator timer = page.getByTestId("time-tracking-panel");
+        assertThat(actions).isVisible();
+        assertThat(timer).isVisible();
+
+        var actionsBox = actions.boundingBox();
+        var timerBox = timer.boundingBox();
+        assertNotNull(actionsBox, "Action History panel should render");
+        assertNotNull(timerBox, "Time Tracking panel should render");
+        assertEquals(
+                timerBox.y + timerBox.height,
+                actionsBox.y + actionsBox.height,
+                1.0,
+                "Action History and Time Tracking should share the same bottom edge");
+
+        new TaskDetailsPage(page).delete();
     }
 
     @Test

@@ -116,12 +116,13 @@ export default function TaskDetailsPage() {
         contentClassName="flex min-h-full flex-col gap-6 space-y-0"
       >
         <TaskSummaryPanel task={task} />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-          <div className="space-y-6 lg:col-start-2 lg:row-start-1">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex min-w-0 flex-col gap-6 lg:col-start-2 lg:row-start-1">
             <TaskMetaPanel task={task} />
             <TaskTimeTrackerPanel
               taskId={id}
               onTimerChange={() => setActionsRefreshKey((key) => key + 1)}
+              className="lg:min-h-0 lg:flex-1"
             />
           </div>
           <div className="min-w-0 lg:col-start-1 lg:row-start-1">

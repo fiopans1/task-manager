@@ -84,6 +84,21 @@ public class TaskFormModal extends BasePage {
         return this;
     }
 
+    public TaskFormModal fillEventDatesOnly(LocalDate startDate, LocalDate endDate) {
+        enableEvent();
+        Locator dateInputs = modal().locator("input[type='date']");
+        dateInputs.nth(0).fill(startDate.toString());
+        dateInputs.nth(1).fill(endDate.toString());
+        return this;
+    }
+
+    public TaskFormModal expectDefaultEventTimes(String startTime, String endTime) {
+        Locator timeInputs = modal().locator("input[type='time']");
+        assertThat(timeInputs.nth(0)).hasValue(startTime);
+        assertThat(timeInputs.nth(1)).hasValue(endTime);
+        return this;
+    }
+
     public void submitCreate() {
         modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Create")).click();
     }

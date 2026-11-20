@@ -14,11 +14,13 @@ const EMPTY_FORM = {
   id: null,
 };
 
+const DEFAULT_EVENT_TIME = "00:00";
+
 const EMPTY_DATES = {
   startDate: "",
-  startTime: "",
+  startTime: DEFAULT_EVENT_TIME,
   endDate: "",
-  endTime: "",
+  endTime: DEFAULT_EVENT_TIME,
 };
 
 export function useTaskForm({ open, mode, initialData, onSaved, onSave }) {
@@ -74,7 +76,15 @@ export function useTaskForm({ open, mode, initialData, onSaved, onSave }) {
     const nextValue = !isEvent;
     setIsEvent(nextValue);
     setFormData((current) => ({ ...current, isEvent: nextValue }));
-    if (!nextValue) setDateError("");
+    if (nextValue) {
+      setDateFields((current) => ({
+        ...current,
+        startTime: current.startTime || DEFAULT_EVENT_TIME,
+        endTime: current.endTime || DEFAULT_EVENT_TIME,
+      }));
+    } else {
+      setDateError("");
+    }
   };
 
   const setDateField = (field) => (event) => {
@@ -88,13 +98,13 @@ export function useTaskForm({ open, mode, initialData, onSaved, onSave }) {
 
     if (isEvent) {
       const { startDate, startTime, endDate, endTime } = dateFields;
-      if (!startDate || !startTime || !endDate || !endTime) {
-        setDateError("All event date and time fields are required");
+      if (!startDate || !endDate) {
+        setDateError("Start and end dates are required");
         return false;
       }
 
-      const start = dayjs(`${startDate}T${startTime}`);
-      const end = dayjs(`${endDate}T${endTime}`);
+      const start = dayjs(`${startDate}T${startTime || DEFAULT_EVENT_TIME}`);
+      const end = dayjs(`${endDate}T${endTime || DEFAULT_EVENT_TIME}`);
       if (end.isBefore(start)) {
         setDateError("End date must be after start date");
         return false;
@@ -114,14 +124,14 @@ export function useTaskForm({ open, mode, initialData, onSaved, onSave }) {
       const taskData = { ...formData };
 
       if (taskData.isEvent) {
-        if (dateFields.startDate && dateFields.startTime) {
+        if (dateFields.startDate) {
           taskData.startDate = dayjs(
-            `${dateFields.startDate}T${dateFields.startTime}`,
+            `${dateFields.startDate}T${dateFields.startTime || DEFAULT_EVENT_TIME}`,
           ).toISOString();
         }
-        if (dateFields.endDate && dateFields.endTime) {
+        if (dateFields.endDate) {
           taskData.endDate = dayjs(
-            `${dateFields.endDate}T${dateFields.endTime}`,
+            `${dateFields.endDate}T${dateFields.endTime || DEFAULT_EVENT_TIME}`,
           ).toISOString();
         }
       }
